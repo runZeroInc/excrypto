@@ -5,7 +5,7 @@
 package user
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"encoding/base64"
 	"errors"
 	"fmt"

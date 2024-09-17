@@ -6,7 +6,7 @@ package elliptic
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"encoding/hex"
 	"math/big"
 	"testing"

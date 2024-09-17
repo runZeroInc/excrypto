@@ -10,7 +10,7 @@ import (
 	"compress/bzip2"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/bigmod"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha512"

@@ -7,7 +7,7 @@ package md5
 import (
 	"bytes"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/cryptotest"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"encoding"
 	"fmt"
 	"hash"

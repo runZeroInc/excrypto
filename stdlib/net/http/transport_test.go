@@ -14,7 +14,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"encoding/binary"

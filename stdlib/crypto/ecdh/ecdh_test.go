@@ -9,7 +9,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -421,7 +421,7 @@ var zeroReader = zr{}
 const linkerTestProgram = `
 package main
 import "github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
-import "github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+import "crypto/rand"
 func main() {
 	curve := ecdh.P384()
 	key, err := curve.GenerateKey(rand.Reader)

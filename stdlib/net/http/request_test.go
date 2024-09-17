@@ -8,7 +8,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"errors"

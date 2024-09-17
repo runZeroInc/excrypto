@@ -5,7 +5,7 @@
 package runtime_test
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"encoding/binary"
 	"fmt"
 	"github.com/runZeroInc/excrypto/stdlib/internal/race"

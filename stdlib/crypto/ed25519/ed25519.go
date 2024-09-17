@@ -19,7 +19,7 @@ import (
 	"bytes"
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/edwards25519"
-	cryptorand "github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	cryptorand "crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"errors"

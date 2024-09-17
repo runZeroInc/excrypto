@@ -9,7 +9,7 @@ import (
 	"bytes"
 	"compress/bzip2"
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	. "github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"

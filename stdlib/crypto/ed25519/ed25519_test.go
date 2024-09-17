@@ -10,7 +10,7 @@ import (
 	"compress/gzip"
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
 	"encoding/hex"
 	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"

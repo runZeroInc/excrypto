@@ -7,7 +7,7 @@
 package maphash
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 	"math/bits"
 )

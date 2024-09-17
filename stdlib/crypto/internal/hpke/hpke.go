@@ -9,7 +9,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"encoding/binary"
 	"errors"
 	"math/bits"

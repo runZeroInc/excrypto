@@ -8,7 +8,7 @@ package registry_test
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"os"
 	"syscall"
 	"testing"

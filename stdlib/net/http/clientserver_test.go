@@ -10,7 +10,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
 	"fmt"

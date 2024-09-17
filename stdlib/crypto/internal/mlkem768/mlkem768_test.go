@@ -6,7 +6,7 @@ package mlkem768
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	_ "embed"
 	"encoding/hex"
 	"errors"

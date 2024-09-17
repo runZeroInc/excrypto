@@ -7,7 +7,7 @@ package ecdsa_test
 import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"fmt"
 )

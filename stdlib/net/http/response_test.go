@@ -8,7 +8,7 @@ import (
 	"bufio"
 	"bytes"
 	"compress/gzip"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"fmt"
 	"go/token"
 	"io"

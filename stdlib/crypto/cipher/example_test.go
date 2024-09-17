@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"io"

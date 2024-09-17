@@ -6,7 +6,7 @@ package multipart
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"errors"
 	"fmt"
 	"io"

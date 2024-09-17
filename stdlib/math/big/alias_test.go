@@ -5,7 +5,7 @@
 package big_test
 
 import (
-	cryptorand "github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	cryptorand "crypto/rand"
 	"math/big"
 	"math/rand"
 	"reflect"

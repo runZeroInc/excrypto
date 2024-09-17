@@ -10,7 +10,7 @@ import (
 	"bytes"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/cryptotest"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"encoding"
 	"encoding/hex"
 	"fmt"

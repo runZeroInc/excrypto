@@ -30,7 +30,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring/bbig"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/randutil"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"errors"
 	"hash"

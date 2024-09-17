@@ -7,7 +7,7 @@ package http
 import (
 	"bufio"
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"fmt"
 	"io"
 	"os"

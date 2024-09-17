@@ -7,7 +7,7 @@ package x509_test
 import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"

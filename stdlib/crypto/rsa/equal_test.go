@@ -6,7 +6,7 @@ package rsa_test
 
 import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"testing"

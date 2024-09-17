@@ -6,7 +6,7 @@ package field
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"encoding/hex"
 	"io"
 	"math/big"

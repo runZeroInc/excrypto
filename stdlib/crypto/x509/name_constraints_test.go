@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"encoding/asn1"
 	"encoding/hex"

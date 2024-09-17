@@ -6,7 +6,7 @@ package subtle_test
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	. "github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"fmt"
 	"io"

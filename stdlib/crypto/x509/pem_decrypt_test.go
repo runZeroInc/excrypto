@@ -6,7 +6,7 @@ package x509
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"encoding/base64"
 	"encoding/pem"
 	"strings"

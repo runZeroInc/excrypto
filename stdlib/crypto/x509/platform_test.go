@@ -7,7 +7,7 @@ package x509
 import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"encoding/pem"
 	"math/big"
 	"os"
