@@ -5,7 +5,7 @@
 package pprof
 
 import (
-	"internal/profilerecord"
+	"github.com/runZeroInc/excrypto/stdlib/internal/profilerecord"
 	"io"
 	"math"
 	"runtime"

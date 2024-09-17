@@ -16,9 +16,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/cmdflag"
-	"cmd/go/internal/work"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cmdflag"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/work"
 )
 
 // go vet flag processing

@@ -13,9 +13,9 @@ import (
 	"strings"
 	"testing"
 
-	"crypto/ecdh"
-	_ "crypto/sha256"
-	_ "crypto/sha512"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
+	_ "github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
+	_ "github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
 )
 
 func mustDecodeHex(t *testing.T, in string) []byte {

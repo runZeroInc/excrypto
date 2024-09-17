@@ -45,7 +45,7 @@ func writeHeader(w io.Writer) {
 // It is invoked to write cmd/go/internal/cfg/zdefaultcc.go
 // but we also write cmd/cgo/zdefaultcc.go
 func mkzdefaultcc(dir, file string) {
-	if strings.Contains(file, filepath.FromSlash("go/internal/cfg")) {
+	if strings.Contains(file, filepath.FromSlash("github.com/runZeroInc/excrypto/stdlib/go/internal/cfg")) {
 		var buf strings.Builder
 		writeHeader(&buf)
 		fmt.Fprintf(&buf, "package cfg\n")

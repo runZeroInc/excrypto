@@ -8,7 +8,7 @@ import (
 	"cmp"
 	"container/heap"
 	"fmt"
-	. "internal/types/errors"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 	"slices"
 )
 

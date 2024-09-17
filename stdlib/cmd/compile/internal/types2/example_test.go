@@ -16,8 +16,8 @@ package types2_test
 // from source, use golang.org/x/tools/go/loader.
 
 import (
-	"cmd/compile/internal/syntax"
-	"cmd/compile/internal/types2"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"
 	"fmt"
 	"log"
 	"regexp"

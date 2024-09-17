@@ -5,8 +5,8 @@
 package runtime
 
 import (
-	"internal/goexperiment"
-	"internal/runtime/atomic"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goexperiment"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
 	"unsafe"
 )
 

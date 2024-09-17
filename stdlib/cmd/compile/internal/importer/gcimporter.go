@@ -11,7 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"go/build"
-	"internal/pkgbits"
+	"github.com/runZeroInc/excrypto/stdlib/internal/pkgbits"
 	"io"
 	"os"
 	"os/exec"
@@ -19,7 +19,7 @@ import (
 	"strings"
 	"sync"
 
-	"cmd/compile/internal/types2"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"
 )
 
 var exportMap sync.Map // package dir → func() (string, error)

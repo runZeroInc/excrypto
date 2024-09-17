@@ -6,7 +6,7 @@
 
 package sha256
 
-import "internal/cpu"
+import "github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 
 var k = _K
 

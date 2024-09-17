@@ -5,17 +5,17 @@
 package tls
 
 import (
-	"crypto/ecdh"
-	"crypto/hmac"
-	"crypto/internal/mlkem768"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/mlkem768"
 	"errors"
 	"fmt"
 	"hash"
 	"io"
 
-	"golang.org/x/crypto/cryptobyte"
-	"golang.org/x/crypto/hkdf"
-	"golang.org/x/crypto/sha3"
+	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
+	"github.com/runZeroInc/excrypto/x/crypto/hkdf"
+	"github.com/runZeroInc/excrypto/x/crypto/sha3"
 )
 
 // This file contains the functions necessary to compute the TLS 1.3 key

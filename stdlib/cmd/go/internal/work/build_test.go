@@ -6,7 +6,7 @@ package work
 
 import (
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -15,9 +15,9 @@ import (
 	"strings"
 	"testing"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/load"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/load"
 )
 
 func TestRemoveDevNull(t *testing.T) {

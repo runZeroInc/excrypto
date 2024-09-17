@@ -6,7 +6,7 @@ package pprof
 
 import (
 	"fmt"
-	"internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
 	"io"
 	"syscall"
 	"unsafe"

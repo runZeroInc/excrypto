@@ -6,19 +6,19 @@ package asm
 
 import (
 	"fmt"
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"strconv"
 	"strings"
 	"text/scanner"
 
-	"cmd/asm/internal/arch"
-	"cmd/asm/internal/flags"
-	"cmd/asm/internal/lex"
-	"cmd/internal/obj"
-	"cmd/internal/obj/ppc64"
-	"cmd/internal/obj/riscv"
-	"cmd/internal/obj/x86"
-	"cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm/internal/arch"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm/internal/flags"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm/internal/lex"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/ppc64"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/riscv"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/x86"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
 )
 
 // TODO: configure the architecture

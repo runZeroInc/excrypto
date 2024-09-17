@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"go/ast"
 	"go/parser"
-	"internal/diff"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/diff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"strings"
 	"testing"
 )

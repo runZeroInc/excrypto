@@ -5,7 +5,7 @@
 package ssa_test
 
 import (
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"path/filepath"
 	"regexp"
 	"runtime"

@@ -7,7 +7,7 @@ package filepath_test
 import (
 	"errors"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io/fs"
 	"os"
 	"path/filepath"

@@ -6,8 +6,8 @@ package stringtab
 
 import (
 	"fmt"
-	"internal/coverage/slicereader"
-	"internal/coverage/uleb128"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/slicereader"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/uleb128"
 	"io"
 )
 

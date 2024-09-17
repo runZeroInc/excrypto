@@ -4,7 +4,7 @@
 
 package runtime
 
-import "internal/abi"
+import "github.com/runZeroInc/excrypto/stdlib/internal/abi"
 
 func cgoSigtramp()
 

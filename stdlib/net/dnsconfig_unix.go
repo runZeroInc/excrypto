@@ -9,8 +9,8 @@
 package net
 
 import (
-	"internal/bytealg"
-	"internal/stringslite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/stringslite"
 	"net/netip"
 	"time"
 )

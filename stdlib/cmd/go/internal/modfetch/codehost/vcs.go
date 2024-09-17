@@ -8,7 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"internal/lazyregexp"
+	"github.com/runZeroInc/excrypto/stdlib/internal/lazyregexp"
 	"io"
 	"io/fs"
 	"os"
@@ -19,10 +19,10 @@ import (
 	"sync"
 	"time"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/lockedfile"
-	"cmd/go/internal/str"
-	"cmd/internal/par"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/lockedfile"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/str"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/par"
 )
 
 // A VCSError indicates an error using a version control system.

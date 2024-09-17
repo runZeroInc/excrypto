@@ -13,9 +13,9 @@
 package net
 
 import (
-	"internal/bytealg"
-	"internal/itoa"
-	"internal/stringslite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/stringslite"
 	"net/netip"
 )
 

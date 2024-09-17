@@ -8,7 +8,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -17,8 +17,8 @@ import (
 	"strings"
 	"testing"
 
-	"cmd/asm/internal/lex"
-	"cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm/internal/lex"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
 )
 
 // An end-to-end test for the assembler: Do we print what we parse?

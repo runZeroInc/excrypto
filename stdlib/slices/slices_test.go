@@ -6,8 +6,8 @@ package slices_test
 
 import (
 	"cmp"
-	"internal/race"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/race"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"math"
 	. "slices"
 	"strings"

@@ -5,22 +5,22 @@
 package tls
 
 import (
-	"crypto"
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/des"
-	"crypto/hmac"
-	"crypto/internal/boring"
-	"crypto/rc4"
-	"crypto/sha1"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/des"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rc4"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"fmt"
 	"hash"
-	"internal/cpu"
+	"github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 	"runtime"
 	_ "unsafe" // for linkname
 
-	"golang.org/x/crypto/chacha20poly1305"
+	"github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305"
 )
 
 // CipherSuite is a TLS cipher suite. Note that most functions in this package

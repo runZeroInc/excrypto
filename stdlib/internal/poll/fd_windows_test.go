@@ -7,8 +7,8 @@ package poll_test
 import (
 	"errors"
 	"fmt"
-	"internal/poll"
-	"internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/poll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
 	"os"
 	"sync"
 	"syscall"

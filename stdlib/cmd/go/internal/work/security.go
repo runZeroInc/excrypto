@@ -31,12 +31,12 @@ package work
 
 import (
 	"fmt"
-	"internal/lazyregexp"
+	"github.com/runZeroInc/excrypto/stdlib/internal/lazyregexp"
 	"regexp"
 	"strings"
 
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/load"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/load"
 )
 
 var re = lazyregexp.New

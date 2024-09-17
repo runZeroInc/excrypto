@@ -12,7 +12,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"internal/diff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/diff"
 	"io"
 	"os"
 	"path/filepath"

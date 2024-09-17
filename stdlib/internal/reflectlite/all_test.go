@@ -7,8 +7,8 @@ package reflectlite_test
 import (
 	"encoding/base64"
 	"fmt"
-	"internal/abi"
-	. "internal/reflectlite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/reflectlite"
 	"math"
 	"reflect"
 	"runtime"
@@ -778,7 +778,7 @@ func TestImportPath(t *testing.T) {
 		{TypeOf(map[string]int{}), ""},
 		{TypeOf((*error)(nil)).Elem(), ""},
 		{TypeOf((*Point)(nil)), ""},
-		{TypeOf((*Point)(nil)).Elem(), "internal/reflectlite_test"},
+		{TypeOf((*Point)(nil)).Elem(), "github.com/runZeroInc/excrypto/stdlib/internal/reflectlite_test"},
 	}
 	for _, test := range tests {
 		if path := test.t.PkgPath(); path != test.path {

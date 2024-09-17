@@ -6,7 +6,7 @@ package main
 
 import "C"
 import (
-	"internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
 	"runtime"
 	"sync"
 	"syscall"

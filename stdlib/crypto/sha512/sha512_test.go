@@ -8,9 +8,9 @@ package sha512
 
 import (
 	"bytes"
-	"crypto/internal/boring"
-	"crypto/internal/cryptotest"
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/cryptotest"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"encoding"
 	"encoding/hex"
 	"fmt"

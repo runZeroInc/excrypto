@@ -12,7 +12,7 @@ package macOS
 import (
 	"bytes"
 	"errors"
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"runtime"
 	"time"
 	"unsafe"

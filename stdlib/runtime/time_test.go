@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os/exec"
 	"reflect"
 	"runtime"

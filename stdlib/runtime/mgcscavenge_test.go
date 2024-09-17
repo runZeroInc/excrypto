@@ -6,8 +6,8 @@ package runtime_test
 
 import (
 	"fmt"
-	"internal/goos"
-	"internal/runtime/atomic"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goos"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
 	"math"
 	"math/rand"
 	. "runtime"

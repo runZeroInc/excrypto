@@ -11,8 +11,8 @@ import (
 	"sort"
 	"strings"
 
-	"cmd/go/internal/gover"
-	"cmd/go/internal/modfetch/codehost"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modfetch/codehost"
 )
 
 // A toolchainRepo is a synthesized repository reporting Go toolchain versions.

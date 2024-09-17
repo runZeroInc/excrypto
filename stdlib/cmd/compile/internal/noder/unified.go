@@ -7,22 +7,22 @@ package noder
 import (
 	"cmp"
 	"fmt"
-	"internal/buildcfg"
-	"internal/pkgbits"
-	"internal/types/errors"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/pkgbits"
+	"github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 	"io"
 	"runtime"
 	"slices"
 	"strings"
 
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/inline"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/pgoir"
-	"cmd/compile/internal/typecheck"
-	"cmd/compile/internal/types"
-	"cmd/compile/internal/types2"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/inline"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/pgoir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/typecheck"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 // localPkgReader holds the package reader used for reading the local

@@ -7,7 +7,7 @@
 package fiat
 
 import (
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"errors"
 )
 

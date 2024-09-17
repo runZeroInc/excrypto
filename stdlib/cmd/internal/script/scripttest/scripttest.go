@@ -7,8 +7,8 @@ package scripttest
 
 import (
 	"bufio"
-	"cmd/internal/pathcache"
-	"cmd/internal/script"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pathcache"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/script"
 	"errors"
 	"io"
 	"strings"

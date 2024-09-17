@@ -9,8 +9,8 @@ package runtime
 // Integrated network poller (kqueue-based implementation).
 
 import (
-	"internal/goarch"
-	"internal/runtime/atomic"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
 	"unsafe"
 )
 

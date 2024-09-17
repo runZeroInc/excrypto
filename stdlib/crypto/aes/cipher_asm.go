@@ -7,11 +7,11 @@
 package aes
 
 import (
-	"crypto/cipher"
-	"crypto/internal/alias"
-	"crypto/internal/boring"
-	"internal/cpu"
-	"internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/alias"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/stdlib/internal/cpu"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
 )
 
 // defined in asm_*.s
@@ -71,13 +71,13 @@ func (c *aesCipherAsm) BlockSize() int { return BlockSize }
 func (c *aesCipherAsm) Encrypt(dst, src []byte) {
 	boring.Unreachable()
 	if len(src) < BlockSize {
-		panic("crypto/aes: input not full block")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: input not full block")
 	}
 	if len(dst) < BlockSize {
-		panic("crypto/aes: output not full block")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: output not full block")
 	}
 	if alias.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
-		panic("crypto/aes: invalid buffer overlap")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: invalid buffer overlap")
 	}
 	encryptBlockAsm(int(c.l)/4-1, &c.enc[0], &dst[0], &src[0])
 }
@@ -85,13 +85,13 @@ func (c *aesCipherAsm) Encrypt(dst, src []byte) {
 func (c *aesCipherAsm) Decrypt(dst, src []byte) {
 	boring.Unreachable()
 	if len(src) < BlockSize {
-		panic("crypto/aes: input not full block")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: input not full block")
 	}
 	if len(dst) < BlockSize {
-		panic("crypto/aes: output not full block")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: output not full block")
 	}
 	if alias.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
-		panic("crypto/aes: invalid buffer overlap")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: invalid buffer overlap")
 	}
 	decryptBlockAsm(int(c.l)/4-1, &c.dec[0], &dst[0], &src[0])
 }

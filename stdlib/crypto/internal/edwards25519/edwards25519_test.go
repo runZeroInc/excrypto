@@ -5,9 +5,9 @@
 package edwards25519
 
 import (
-	"crypto/internal/edwards25519/field"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/edwards25519/field"
 	"encoding/hex"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"reflect"
 	"testing"
 )

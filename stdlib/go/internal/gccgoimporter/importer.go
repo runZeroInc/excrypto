@@ -3,14 +3,14 @@
 // license that can be found in the LICENSE file.
 
 // Package gccgoimporter implements Import for gccgo-generated object files.
-package gccgoimporter // import "go/internal/gccgoimporter"
+package gccgoimporter // import "github.com/runZeroInc/excrypto/stdlib/go/internal/gccgoimporter"
 
 import (
 	"bytes"
 	"debug/elf"
 	"fmt"
 	"go/types"
-	"internal/xcoff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/xcoff"
 	"io"
 	"os"
 	"path/filepath"

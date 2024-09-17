@@ -5,9 +5,9 @@
 package x509
 
 import (
-	"crypto/ecdh"
-	"crypto/ecdsa"
-	"crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"encoding/asn1"
 	"errors"
 	"fmt"

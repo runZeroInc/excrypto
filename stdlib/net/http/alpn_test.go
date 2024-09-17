@@ -7,8 +7,8 @@ package http_test
 import (
 	"bufio"
 	"bytes"
-	"crypto/tls"
-	"crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"fmt"
 	"io"
 	. "net/http"

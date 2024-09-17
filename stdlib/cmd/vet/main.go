@@ -5,8 +5,8 @@
 package main
 
 import (
-	"cmd/internal/objabi"
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 	"flag"
 
 	"golang.org/x/tools/go/analysis/unitchecker"

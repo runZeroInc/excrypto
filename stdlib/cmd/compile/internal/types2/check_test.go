@@ -31,11 +31,11 @@ package types2_test
 
 import (
 	"bytes"
-	"cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
 	"flag"
 	"fmt"
-	"internal/buildcfg"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -45,7 +45,7 @@ import (
 	"strings"
 	"testing"
 
-	. "cmd/compile/internal/types2"
+	. "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"
 )
 
 var (

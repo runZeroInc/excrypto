@@ -5,10 +5,10 @@
 package modload
 
 import (
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/gover"
-	"cmd/go/internal/mvs"
-	"cmd/internal/par"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/mvs"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/par"
 	"context"
 	"errors"
 	"fmt"

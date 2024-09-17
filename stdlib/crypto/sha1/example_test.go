@@ -5,7 +5,7 @@
 package sha1_test
 
 import (
-	"crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 	"fmt"
 	"io"
 	"log"

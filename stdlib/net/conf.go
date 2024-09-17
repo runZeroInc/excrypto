@@ -6,9 +6,9 @@ package net
 
 import (
 	"errors"
-	"internal/bytealg"
-	"internal/godebug"
-	"internal/stringslite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/stringslite"
 	"io/fs"
 	"os"
 	"runtime"

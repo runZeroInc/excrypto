@@ -8,14 +8,14 @@ package filelock_test
 
 import (
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
 	"time"
 
-	"cmd/go/internal/lockedfile/internal/filelock"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/lockedfile/internal/filelock"
 )
 
 func lock(t *testing.T, f *os.File) {

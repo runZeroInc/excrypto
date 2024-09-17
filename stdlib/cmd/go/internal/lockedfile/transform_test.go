@@ -16,7 +16,7 @@ import (
 	"testing"
 	"time"
 
-	"cmd/go/internal/lockedfile"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/lockedfile"
 )
 
 func isPowerOf2(x int) bool {

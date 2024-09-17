@@ -31,8 +31,8 @@
 package arm64
 
 import (
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
 	"encoding/binary"
 	"fmt"
 	"log"

@@ -15,11 +15,11 @@ import (
 	"os"
 	"strings"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/gover"
-	"cmd/go/internal/lockedfile"
-	"cmd/go/internal/modfetch"
-	"cmd/go/internal/modload"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/lockedfile"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modfetch"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modload"
 
 	"golang.org/x/mod/modfile"
 	"golang.org/x/mod/module"

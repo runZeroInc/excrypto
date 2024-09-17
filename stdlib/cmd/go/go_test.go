@@ -13,9 +13,9 @@ import (
 	"flag"
 	"fmt"
 	"go/format"
-	"internal/godebug"
-	"internal/platform"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"io/fs"
 	"log"
@@ -30,20 +30,20 @@ import (
 	"testing"
 	"time"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/cache"
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/gover"
-	"cmd/go/internal/search"
-	"cmd/go/internal/toolchain"
-	"cmd/go/internal/vcs"
-	"cmd/go/internal/vcweb/vcstest"
-	"cmd/go/internal/web"
-	"cmd/go/internal/work"
-	"cmd/internal/robustio"
-	"cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cache"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/search"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/toolchain"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/vcs"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/vcweb/vcstest"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/web"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/work"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/robustio"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
 
-	cmdgo "cmd/go"
+	cmdgo "github.com/runZeroInc/excrypto/stdlib/cmd/go"
 )
 
 func init() {
@@ -162,7 +162,7 @@ func TestMain(m *testing.M) {
 	// It is not a standard go command flag; use os.Getenv, not cfg.Getenv.
 	if os.Getenv("GO_GCFLAGS") != "" {
 		fmt.Fprintf(os.Stderr, "testing: warning: no tests to run\n") // magic string for cmd/go
-		fmt.Printf("cmd/go test is not compatible with $GO_GCFLAGS being set\n")
+		fmt.Printf("github.com/runZeroInc/excrypto/stdlib/cmd/go test is not compatible with $GO_GCFLAGS being set\n")
 		fmt.Printf("SKIP\n")
 		return
 	}
@@ -1019,7 +1019,7 @@ func TestGoListStdDoesNotIncludeCommands(t *testing.T) {
 	defer tg.cleanup()
 	tg.parallel()
 	tg.run("list", "std")
-	tg.grepStdoutNot("cmd/", "go list std shows commands")
+	tg.grepStdoutNot("github.com/runZeroInc/excrypto/stdlib/cmd/", "go list std shows commands")
 }
 
 func TestGoListCmdOnlyShowsCommands(t *testing.T) {
@@ -1032,7 +1032,7 @@ func TestGoListCmdOnlyShowsCommands(t *testing.T) {
 	tg.run("list", "cmd")
 	out := strings.TrimSpace(tg.getStdout())
 	for _, line := range strings.Split(out, "\n") {
-		if !strings.Contains(line, "cmd/") {
+		if !strings.Contains(line, "github.com/runZeroInc/excrypto/stdlib/cmd/") {
 			t.Error("go list cmd shows non-commands")
 			break
 		}
@@ -1060,7 +1060,7 @@ func TestGoListDeps(t *testing.T) {
 		tg.run("list", "-deps", "math")
 		want := "unsafe\ninternal/cpu\nmath/bits\nmath\n"
 		out := tg.stdout.String()
-		if !strings.Contains(out, "internal/cpu") {
+		if !strings.Contains(out, "github.com/runZeroInc/excrypto/stdlib/internal/cpu") {
 			// Some systems don't use internal/cpu.
 			want = "unsafe\nmath/bits\nmath\n"
 		}
@@ -1092,7 +1092,7 @@ func TestGoListTest(t *testing.T) {
 	tg.grepStdoutNot(`^testing \[bytes.test\]$`, "unexpected test copy of testing")
 	tg.grepStdoutNot(`^testing$`, "unexpected real copy of testing")
 
-	tg.run("list", "-test", "cmd/buildid", "cmd/doc")
+	tg.run("list", "-test", "github.com/runZeroInc/excrypto/stdlib/cmd/buildid", "github.com/runZeroInc/excrypto/stdlib/cmd/doc")
 	tg.grepStdout(`^cmd/buildid$`, "missing cmd/buildid")
 	tg.grepStdout(`^cmd/doc$`, "missing cmd/doc")
 	tg.grepStdout(`^cmd/doc\.test$`, "missing cmd/doc test")

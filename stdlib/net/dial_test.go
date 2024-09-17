@@ -9,7 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"os"
 	"runtime"

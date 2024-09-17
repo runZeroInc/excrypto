@@ -486,7 +486,7 @@ func init() {
 
 	archs = append(archs, arch{
 		name:     "LOONG64",
-		pkg:      "cmd/internal/obj/loong64",
+		pkg:      "github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/loong64",
 		genfile:  "../../loong64/ssa.go",
 		ops:      ops,
 		blocks:   blocks,

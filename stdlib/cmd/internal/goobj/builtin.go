@@ -4,7 +4,7 @@
 
 package goobj
 
-import "internal/buildcfg"
+import "github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 
 // Builtin (compiler-generated) function references appear
 // frequently. We assign special indices for them, so they

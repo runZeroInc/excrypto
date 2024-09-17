@@ -29,18 +29,18 @@ package inline
 import (
 	"fmt"
 	"go/constant"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"strconv"
 
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/inline/inlheur"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/logopt"
-	"cmd/compile/internal/pgoir"
-	"cmd/compile/internal/typecheck"
-	"cmd/compile/internal/types"
-	"cmd/internal/obj"
-	"cmd/internal/pgo"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/inline/inlheur"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/logopt"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/pgoir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/typecheck"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pgo"
 )
 
 // Inlining budget parameters, gathered in one place
@@ -463,7 +463,7 @@ opSwitch:
 				// Special case for internal/abi.NoEscape. It does just type
 				// conversions to appease the escape analysis, and doesn't
 				// generate code.
-				if s := name.Sym(); s.Name == "NoEscape" && s.Pkg.Path == "internal/abi" {
+				if s := name.Sym(); s.Name == "NoEscape" && s.Pkg.Path == "github.com/runZeroInc/excrypto/stdlib/internal/abi" {
 					cheap = true
 				}
 			}
@@ -517,7 +517,7 @@ opSwitch:
 				// explicitly mark internal/byteorder methods as cheap,
 				// because in practice they are, even though our inlining
 				// budgeting system does not see that. See issue 42958.
-				if base.Ctxt.Arch.CanMergeLoads && name.Sym().Pkg.Path == "internal/byteorder" {
+				if base.Ctxt.Arch.CanMergeLoads && name.Sym().Pkg.Path == "github.com/runZeroInc/excrypto/stdlib/internal/byteorder" {
 					switch name.Sym().Name {
 					case "LeUint64", "LeUint32", "LeUint16",
 						"BeUint64", "BeUint32", "BeUint16",

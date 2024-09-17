@@ -6,7 +6,7 @@ package os
 
 import (
 	"errors"
-	"internal/testlog"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testlog"
 	"runtime"
 	"sync"
 	"sync/atomic"

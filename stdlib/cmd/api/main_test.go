@@ -17,7 +17,7 @@ import (
 	"go/parser"
 	"go/token"
 	"go/types"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"log"
 	"os"

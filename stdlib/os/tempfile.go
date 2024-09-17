@@ -6,8 +6,8 @@ package os
 
 import (
 	"errors"
-	"internal/bytealg"
-	"internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
 	_ "unsafe" // for go:linkname
 )
 

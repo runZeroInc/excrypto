@@ -6,8 +6,8 @@ package cfile
 
 import (
 	"fmt"
-	"internal/coverage"
-	"internal/coverage/rtcov"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/rtcov"
 	"io"
 	"sync/atomic"
 	"unsafe"

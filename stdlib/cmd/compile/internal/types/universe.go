@@ -5,8 +5,8 @@
 package types
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 var basicTypes = [...]struct {

@@ -8,8 +8,8 @@ import (
 	"debug/dwarf"
 	"debug/pe"
 	"fmt"
-	"internal/platform"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"os"
 	"path/filepath"
@@ -20,9 +20,9 @@ import (
 	"strings"
 	"testing"
 
-	intdwarf "cmd/internal/dwarf"
-	objfilepkg "cmd/internal/objfile" // renamed to avoid conflict with objfile function
-	"cmd/link/internal/dwtest"
+	intdwarf "github.com/runZeroInc/excrypto/stdlib/cmd/internal/dwarf"
+	objfilepkg "github.com/runZeroInc/excrypto/stdlib/cmd/internal/objfile" // renamed to avoid conflict with objfile function
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/dwtest"
 )
 
 func mustHaveDWARF(t testing.TB) {
@@ -56,15 +56,15 @@ func TestRuntimeTypesPresent(t *testing.T) {
 	}
 
 	want := map[string]bool{
-		"internal/abi.Type":          true,
-		"internal/abi.ArrayType":     true,
-		"internal/abi.ChanType":      true,
-		"internal/abi.FuncType":      true,
-		"internal/abi.PtrType":       true,
-		"internal/abi.SliceType":     true,
-		"internal/abi.StructType":    true,
-		"internal/abi.InterfaceType": true,
-		"internal/abi.ITab":          true,
+		"github.com/runZeroInc/excrypto/stdlib/internal/abi.Type":          true,
+		"github.com/runZeroInc/excrypto/stdlib/internal/abi.ArrayType":     true,
+		"github.com/runZeroInc/excrypto/stdlib/internal/abi.ChanType":      true,
+		"github.com/runZeroInc/excrypto/stdlib/internal/abi.FuncType":      true,
+		"github.com/runZeroInc/excrypto/stdlib/internal/abi.PtrType":       true,
+		"github.com/runZeroInc/excrypto/stdlib/internal/abi.SliceType":     true,
+		"github.com/runZeroInc/excrypto/stdlib/internal/abi.StructType":    true,
+		"github.com/runZeroInc/excrypto/stdlib/internal/abi.InterfaceType": true,
+		"github.com/runZeroInc/excrypto/stdlib/internal/abi.ITab":          true,
 	}
 
 	found := findTypes(t, dwarf, want)
@@ -74,8 +74,8 @@ func TestRuntimeTypesPresent(t *testing.T) {
 
 	// Must have one of OldMapType or SwissMapType.
 	want = map[string]bool{
-		"internal/abi.OldMapType":   true,
-		"internal/abi.SwissMapType": true,
+		"github.com/runZeroInc/excrypto/stdlib/internal/abi.OldMapType":   true,
+		"github.com/runZeroInc/excrypto/stdlib/internal/abi.SwissMapType": true,
 	}
 	found = findTypes(t, dwarf, want)
 	if len(found) != 1 {

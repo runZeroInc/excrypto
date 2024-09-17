@@ -3,8 +3,8 @@
 package ssa
 
 import "math"
-import "cmd/compile/internal/types"
-import "cmd/internal/obj/s390x"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/s390x"
 
 func rewriteValueS390X(v *Value) bool {
 	switch v.Op {

@@ -5,7 +5,7 @@
 package objabi
 
 import (
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"strings"
 )
 

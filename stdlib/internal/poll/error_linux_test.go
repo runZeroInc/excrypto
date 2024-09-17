@@ -6,7 +6,7 @@ package poll_test
 
 import (
 	"errors"
-	"internal/poll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/poll"
 	"os"
 	"syscall"
 )

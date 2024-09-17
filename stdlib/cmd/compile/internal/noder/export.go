@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"io"
 
-	"cmd/compile/internal/base"
-	"cmd/internal/bio"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/bio"
 )
 
 func WriteExports(out *bio.Writer) {

@@ -7,20 +7,20 @@ package walk
 import (
 	"fmt"
 	"go/constant"
-	"internal/abi"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"strings"
 
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/objw"
-	"cmd/compile/internal/reflectdata"
-	"cmd/compile/internal/rttype"
-	"cmd/compile/internal/staticdata"
-	"cmd/compile/internal/typecheck"
-	"cmd/compile/internal/types"
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/objw"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/reflectdata"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/rttype"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/staticdata"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/typecheck"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
 )
 
 // The result of walkExpr MUST be assigned back to n, e.g.

@@ -9,9 +9,9 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"internal/trace/raw"
-	"internal/trace/version"
-	"internal/txtar"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/raw"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/version"
+	"github.com/runZeroInc/excrypto/stdlib/internal/txtar"
 	"io"
 	"log"
 	"os"

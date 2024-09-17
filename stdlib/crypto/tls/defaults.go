@@ -5,7 +5,7 @@
 package tls
 
 import (
-	"internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"slices"
 	_ "unsafe" // for linkname
 )

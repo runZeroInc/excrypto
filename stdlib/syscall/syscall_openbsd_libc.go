@@ -7,7 +7,7 @@
 package syscall
 
 import (
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 )
 
 var dupTrampoline = abi.FuncPCABI0(libc_dup3_trampoline)

@@ -40,7 +40,7 @@
 //     the counter. This could be an application, such as "gopls" in the case
 //     of "gopls/client:vscode", or a shared library, such as "crash" in the
 //     case of the "crash/crash" counter owned by the crashmonitor library. If
-//     the entity name itself contains a '/', that's ok: "cmd/go/flag" is fine.
+//     the entity name itself contains a '/', that's ok: "github.com/runZeroInc/excrypto/stdlib/cmd/go/flag" is fine.
 //
 //   - Words should be '-' separated, as in "gopls/completion/errors-latency"
 //

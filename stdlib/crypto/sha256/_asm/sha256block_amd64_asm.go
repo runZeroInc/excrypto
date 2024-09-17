@@ -64,7 +64,7 @@ import (
 // H7 = h + H7
 
 func main() {
-	Package("crypto/sha256")
+	Package("github.com/runZeroInc/excrypto/stdlib/crypto/sha256")
 	ConstraintExpr("!purego")
 	block()
 	Generate()

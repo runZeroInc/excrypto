@@ -6,7 +6,7 @@
 
 package strconv
 
-import "internal/bytealg"
+import "github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
 
 // index returns the index of the first instance of c in s, or -1 if missing.
 func index(s string, c byte) int {

@@ -5,8 +5,8 @@
 package sym
 
 import (
-	"cmd/internal/objabi"
-	"cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
 	"debug/elf"
 	"debug/macho"
 )

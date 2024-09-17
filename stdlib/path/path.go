@@ -11,7 +11,7 @@
 // operating system paths, use the [path/filepath] package.
 package path
 
-import "internal/bytealg"
+import "github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
 
 // A lazybuf is a lazily constructed path buffer.
 // It supports append, reading previously appended bytes,

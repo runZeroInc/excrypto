@@ -6,7 +6,7 @@ package itoa_test
 
 import (
 	"fmt"
-	"internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
 	"math"
 	"testing"
 )

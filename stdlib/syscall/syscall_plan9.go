@@ -13,7 +13,7 @@ package syscall
 
 import (
 	"errors"
-	"internal/oserror"
+	"github.com/runZeroInc/excrypto/stdlib/internal/oserror"
 	"runtime"
 	"unsafe"
 )

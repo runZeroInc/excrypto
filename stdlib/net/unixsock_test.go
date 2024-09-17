@@ -8,7 +8,7 @@ package net
 
 import (
 	"bytes"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"reflect"
 	"runtime"

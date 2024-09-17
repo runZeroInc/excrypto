@@ -1163,7 +1163,7 @@ func init() {
 
 	archs = append(archs, arch{
 		name:               "AMD64",
-		pkg:                "cmd/internal/obj/x86",
+		pkg:                "github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/x86",
 		genfile:            "../../amd64/ssa.go",
 		ops:                AMD64ops,
 		blocks:             AMD64blocks,

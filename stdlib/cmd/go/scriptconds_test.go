@@ -5,12 +5,12 @@
 package main_test
 
 import (
-	"cmd/go/internal/cfg"
-	"cmd/internal/script"
-	"cmd/internal/script/scripttest"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/script"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/script/scripttest"
 	"errors"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"path/filepath"

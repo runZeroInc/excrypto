@@ -5,12 +5,12 @@
 package runtime
 
 import (
-	"internal/abi"
-	"internal/cpu"
-	"internal/goarch"
-	"internal/goos"
-	"internal/runtime/atomic"
-	"internal/runtime/sys"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/cpu"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goos"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys"
 	"unsafe"
 )
 
@@ -87,7 +87,7 @@ const (
 
 	// stackNosplit is the maximum number of bytes that a chain of NOSPLIT
 	// functions can use.
-	// This arithmetic must match that in cmd/internal/objabi/stack.go:StackNosplit.
+	// This arithmetic must match that in github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi/stack.go:StackNosplit.
 	stackNosplit = abi.StackNosplitBase * sys.StackGuardMultiplier
 
 	// The stack guard is a pointer this many bytes above the
@@ -95,7 +95,7 @@ const (
 	//
 	// The guard leaves enough room for a stackNosplit chain of NOSPLIT calls
 	// plus one stackSmall frame plus stackSystem bytes for the OS.
-	// This arithmetic must match that in cmd/internal/objabi/stack.go:StackLimit.
+	// This arithmetic must match that in github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi/stack.go:StackLimit.
 	stackGuard = stackNosplit + stackSystem + abi.StackSmall
 )
 

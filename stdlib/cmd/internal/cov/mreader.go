@@ -5,7 +5,7 @@
 package cov
 
 import (
-	"cmd/internal/bio"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/bio"
 	"io"
 	"os"
 )

@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"fmt"
 	"html"
-	"internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"io"
 	"maps"
 	"regexp"

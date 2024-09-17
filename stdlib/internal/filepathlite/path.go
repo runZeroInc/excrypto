@@ -10,7 +10,7 @@ package filepathlite
 
 import (
 	"errors"
-	"internal/stringslite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/stringslite"
 	"io/fs"
 	"slices"
 )

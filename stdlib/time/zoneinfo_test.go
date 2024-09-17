@@ -7,7 +7,7 @@ package time_test
 import (
 	"errors"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"reflect"
 	"testing"

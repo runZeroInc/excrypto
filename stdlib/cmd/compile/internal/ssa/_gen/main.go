@@ -199,7 +199,7 @@ func genOp() {
 	fmt.Fprintln(w, "package ssa")
 
 	fmt.Fprintln(w, "import (")
-	fmt.Fprintln(w, "\"cmd/internal/obj\"")
+	fmt.Fprintln(w, "\"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj\"")
 	for _, a := range archs {
 		if a.pkg != "" {
 			fmt.Fprintf(w, "%q\n", a.pkg)
@@ -430,11 +430,11 @@ func genOp() {
 		num := map[string]int8{}
 		for i, r := range a.regnames {
 			num[r] = int8(i)
-			pkg := a.pkg[len("cmd/internal/obj/"):]
-			var objname string // name in cmd/internal/obj/$ARCH
+			pkg := a.pkg[len("github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/"):]
+			var objname string // name in github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/$ARCH
 			switch r {
 			case "SB":
-				// SB isn't a real register.  cmd/internal/obj expects 0 in this case.
+				// SB isn't a real register.  github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj expects 0 in this case.
 				objname = "0"
 			case "SP":
 				objname = pkg + ".REGSP"

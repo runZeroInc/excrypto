@@ -5,11 +5,11 @@
 package ir
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/types"
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 	"fmt"
 	"strings"
 	"unicode/utf8"
@@ -527,7 +527,7 @@ func IsFuncPCIntrinsic(n *CallExpr) bool {
 	}
 	fn := n.Fun.(*Name).Sym()
 	return (fn.Name == "FuncPCABI0" || fn.Name == "FuncPCABIInternal") &&
-		fn.Pkg.Path == "internal/abi"
+		fn.Pkg.Path == "github.com/runZeroInc/excrypto/stdlib/internal/abi"
 }
 
 // IsIfaceOfFunc inspects whether n is an interface conversion from a direct
@@ -555,14 +555,14 @@ func IsIfaceOfFunc(n Node) *Func {
 // assertion?
 func FuncPC(pos src.XPos, n Node, wantABI obj.ABI) Node {
 	if !n.Type().IsInterface() {
-		base.ErrorfAt(pos, 0, "internal/abi.FuncPC%s expects an interface value, got %v", wantABI, n.Type())
+		base.ErrorfAt(pos, 0, "github.com/runZeroInc/excrypto/stdlib/internal/abi.FuncPC%s expects an interface value, got %v", wantABI, n.Type())
 	}
 
 	if fn := IsIfaceOfFunc(n); fn != nil {
 		name := fn.Nname
 		abi := fn.ABI
 		if abi != wantABI {
-			base.ErrorfAt(pos, 0, "internal/abi.FuncPC%s expects an %v function, %s is defined as %v", wantABI, wantABI, name.Sym().Name, abi)
+			base.ErrorfAt(pos, 0, "github.com/runZeroInc/excrypto/stdlib/internal/abi.FuncPC%s expects an %v function, %s is defined as %v", wantABI, wantABI, name.Sym().Name, abi)
 		}
 		var e Node = NewLinksymExpr(pos, name.LinksymABI(abi), types.Types[types.TUINTPTR])
 		e = NewAddrExpr(pos, e)
@@ -574,7 +574,7 @@ func FuncPC(pos src.XPos, n Node, wantABI obj.ABI) Node {
 	// fn is not a defined function. It must be ABIInternal.
 	// Read the address from func value, i.e. *(*uintptr)(idata(fn)).
 	if wantABI != obj.ABIInternal {
-		base.ErrorfAt(pos, 0, "internal/abi.FuncPC%s does not accept func expression, which is ABIInternal", wantABI)
+		base.ErrorfAt(pos, 0, "github.com/runZeroInc/excrypto/stdlib/internal/abi.FuncPC%s does not accept func expression, which is ABIInternal", wantABI)
 	}
 	var e Node = NewUnaryExpr(pos, OIDATA, n)
 	e.SetType(types.Types[types.TUINTPTR].PtrTo())

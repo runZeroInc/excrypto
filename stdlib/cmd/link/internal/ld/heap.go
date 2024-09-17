@@ -4,7 +4,7 @@
 
 package ld
 
-import "cmd/link/internal/loader"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/loader"
 
 // Min-heap implementation, for the deadcode pass.
 // Specialized for loader.Sym elements.

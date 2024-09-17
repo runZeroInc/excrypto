@@ -5,7 +5,7 @@
 package abi
 
 import (
-	"internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
 	"unsafe"
 )
 

@@ -5,14 +5,14 @@
 package ld
 
 import (
-	"cmd/internal/goobj"
-	"cmd/internal/objabi"
-	"cmd/internal/sys"
-	"cmd/link/internal/loader"
-	"cmd/link/internal/sym"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/goobj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/loader"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/sym"
 	"fmt"
-	"internal/abi"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"path/filepath"
 	"strings"
 )
@@ -727,7 +727,7 @@ func writeFuncs(ctxt *Link, sb *loader.SymbolBuilder, funcs []loader.Sym, inlSym
 			dataoff := off + int64(4*j)
 			fdsym := funcdata[j]
 
-			// cmd/internal/obj optimistically populates ArgsPointerMaps and
+			// github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj optimistically populates ArgsPointerMaps and
 			// ArgInfo for assembly functions, hoping that the compiler will
 			// emit appropriate symbols from their Go stub declarations. If
 			// it didn't though, just ignore it.

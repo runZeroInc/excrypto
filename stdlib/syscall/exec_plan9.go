@@ -7,7 +7,7 @@
 package syscall
 
 import (
-	"internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
 	"runtime"
 	"sync"
 	"unsafe"

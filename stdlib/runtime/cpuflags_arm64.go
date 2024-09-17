@@ -5,7 +5,7 @@
 package runtime
 
 import (
-	"internal/cpu"
+	"github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 )
 
 var arm64UseAlignedLoads bool

@@ -5,15 +5,15 @@
 package main
 
 import (
-	"cmd/internal/browser"
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/browser"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 	"cmp"
 	"flag"
 	"fmt"
-	"internal/trace"
-	"internal/trace/event"
-	"internal/trace/raw"
-	"internal/trace/traceviewer"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/event"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/raw"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/traceviewer"
 	"io"
 	"log"
 	"net"

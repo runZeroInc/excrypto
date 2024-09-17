@@ -14,7 +14,7 @@ import (
 // IsToolchainProgram reports whether a program with the given path is a Go
 // toolchain program.
 func IsToolchainProgram(progPath string) bool {
-	return strings.HasPrefix(progPath, "cmd/")
+	return strings.HasPrefix(progPath, "github.com/runZeroInc/excrypto/stdlib/cmd/")
 }
 
 // ProgramInfo extracts the go version, program package path, and program

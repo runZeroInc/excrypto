@@ -15,7 +15,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"log"
 	"math/rand"

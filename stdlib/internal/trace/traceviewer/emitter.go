@@ -7,8 +7,8 @@ package traceviewer
 import (
 	"encoding/json"
 	"fmt"
-	"internal/trace"
-	"internal/trace/traceviewer/format"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/traceviewer/format"
 	"io"
 	"strconv"
 	"time"

@@ -6,7 +6,7 @@ package main
 
 import (
 	"bytes"
-	"cmd/internal/pkgpath"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pkgpath"
 	"debug/elf"
 	"debug/macho"
 	"debug/pe"
@@ -14,7 +14,7 @@ import (
 	"go/ast"
 	"go/printer"
 	"go/token"
-	"internal/xcoff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/xcoff"
 	"io"
 	"os"
 	"os/exec"

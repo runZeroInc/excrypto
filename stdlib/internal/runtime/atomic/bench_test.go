@@ -5,7 +5,7 @@
 package atomic_test
 
 import (
-	"internal/runtime/atomic"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
 	"testing"
 )
 

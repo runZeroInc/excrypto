@@ -8,14 +8,14 @@
 package ld
 
 import (
-	"cmd/internal/objabi"
-	"cmd/internal/sys"
-	"cmd/link/internal/loader"
-	"cmd/link/internal/sym"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/loader"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/sym"
 	"debug/pe"
 	"encoding/binary"
 	"fmt"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"math"
 	"slices"
 	"sort"

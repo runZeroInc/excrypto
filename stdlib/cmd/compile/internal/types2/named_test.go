@@ -7,8 +7,8 @@ package types2_test
 import (
 	"testing"
 
-	"cmd/compile/internal/syntax"
-	. "cmd/compile/internal/types2"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
+	. "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"
 )
 
 func BenchmarkNamed(b *testing.B) {

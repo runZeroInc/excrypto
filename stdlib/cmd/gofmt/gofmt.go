@@ -14,7 +14,7 @@ import (
 	"go/printer"
 	"go/scanner"
 	"go/token"
-	"internal/diff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/diff"
 	"io"
 	"io/fs"
 	"math/rand"
@@ -25,7 +25,7 @@ import (
 	"strconv"
 	"strings"
 
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 
 	"golang.org/x/sync/semaphore"
 )

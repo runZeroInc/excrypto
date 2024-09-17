@@ -8,7 +8,7 @@ package maphash
 
 import (
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"math"
 	"math/rand"
 	"runtime"

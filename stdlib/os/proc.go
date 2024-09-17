@@ -7,7 +7,7 @@
 package os
 
 import (
-	"internal/testlog"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testlog"
 	"runtime"
 	"syscall"
 )

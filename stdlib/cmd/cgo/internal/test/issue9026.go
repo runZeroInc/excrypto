@@ -9,7 +9,7 @@ package cgotest
 import (
 	"testing"
 
-	"cmd/cgo/internal/test/issue9026"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/test/issue9026"
 )
 
 func test9026(t *testing.T) { issue9026.Test(t) }

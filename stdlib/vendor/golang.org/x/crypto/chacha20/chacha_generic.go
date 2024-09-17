@@ -7,12 +7,12 @@
 package chacha20
 
 import (
-	"crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"encoding/binary"
 	"errors"
 	"math/bits"
 
-	"golang.org/x/crypto/internal/alias"
+	"github.com/runZeroInc/excrypto/x/crypto/internal/alias"
 )
 
 const (

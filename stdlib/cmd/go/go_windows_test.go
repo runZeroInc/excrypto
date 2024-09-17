@@ -5,13 +5,13 @@
 package main_test
 
 import (
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
-	"cmd/internal/robustio"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/robustio"
 )
 
 func TestAbsolutePath(t *testing.T) {

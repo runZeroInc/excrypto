@@ -11,7 +11,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"internal/txtar"
+	"github.com/runZeroInc/excrypto/stdlib/internal/txtar"
 	"io"
 	"io/fs"
 	"log"
@@ -24,8 +24,8 @@ import (
 	"sync"
 	"testing"
 
-	"cmd/go/internal/modfetch/codehost"
-	"cmd/internal/par"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modfetch/codehost"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/par"
 
 	"golang.org/x/mod/module"
 	"golang.org/x/mod/semver"

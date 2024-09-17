@@ -15,7 +15,7 @@ package http
 // Do not modify this file, it should remain frozen.
 
 import (
-	"internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"net/url"
 	"sort"
 	"strings"

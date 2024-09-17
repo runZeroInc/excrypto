@@ -7,7 +7,7 @@ package ssa_test
 import (
 	"flag"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"os"
 	"os/exec"

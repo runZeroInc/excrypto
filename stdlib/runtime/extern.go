@@ -288,8 +288,8 @@ things:
 package runtime
 
 import (
-	"internal/goarch"
-	"internal/goos"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goos"
 )
 
 // Caller reports file and line number information about function invocations on

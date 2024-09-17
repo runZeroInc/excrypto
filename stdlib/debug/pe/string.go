@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"internal/saferio"
+	"github.com/runZeroInc/excrypto/stdlib/internal/saferio"
 	"io"
 )
 

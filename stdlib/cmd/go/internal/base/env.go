@@ -5,7 +5,7 @@
 package base
 
 import (
-	"cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
 	"fmt"
 	"os"
 	"path/filepath"

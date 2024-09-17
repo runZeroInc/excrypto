@@ -4,7 +4,7 @@
 
 package rand
 
-import "internal/syscall/unix"
+import "github.com/runZeroInc/excrypto/stdlib/internal/syscall/unix"
 
 func init() {
 	// arc4random_buf is the recommended application CSPRNG, accepts buffers of

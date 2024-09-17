@@ -12,8 +12,8 @@ import (
 	"go/build"
 	"go/build/constraint"
 	"go/token"
-	"internal/godebug"
-	"internal/goroot"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goroot"
 	"path"
 	"path/filepath"
 	"runtime"
@@ -24,13 +24,13 @@ import (
 	"time"
 	"unsafe"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/cache"
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/fsys"
-	"cmd/go/internal/imports"
-	"cmd/go/internal/str"
-	"cmd/internal/par"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cache"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/fsys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/imports"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/str"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/par"
 )
 
 // enabled is used to flag off the behavior of the module index on tip.

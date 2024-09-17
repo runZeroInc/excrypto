@@ -14,17 +14,17 @@
 package ld
 
 import (
-	"cmd/internal/dwarf"
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
-	"cmd/internal/src"
-	"cmd/internal/sys"
-	"cmd/link/internal/loader"
-	"cmd/link/internal/sym"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/dwarf"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/loader"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/sym"
 	"cmp"
 	"fmt"
-	"internal/abi"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"log"
 	"path"
 	"runtime"
@@ -70,7 +70,7 @@ type dwctxt struct {
 }
 
 // dwSym wraps a loader.Sym; this type is meant to obey the interface
-// rules for dwarf.Sym from the cmd/internal/dwarf package. DwDie and
+// rules for dwarf.Sym from the github.com/runZeroInc/excrypto/stdlib/cmd/internal/dwarf package. DwDie and
 // DwAttr objects contain references to symbols via this type.
 type dwSym loader.Sym
 

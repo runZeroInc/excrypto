@@ -8,13 +8,13 @@ package main
 
 import (
 	"bytes"
-	"cmd/internal/buildid"
-	"cmd/internal/hash"
-	"cmd/link/internal/ld"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/buildid"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/hash"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/ld"
 	"debug/elf"
 	"fmt"
-	"internal/platform"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"path/filepath"

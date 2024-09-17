@@ -9,7 +9,7 @@ package cgotest
 import (
 	"testing"
 
-	"cmd/cgo/internal/test/gcc68255"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/test/gcc68255"
 )
 
 func testGCC68255(t *testing.T) {

@@ -4,7 +4,7 @@
 
 package main
 
-import "crypto/elliptic"
+import "github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 
 var curve elliptic.Curve
 

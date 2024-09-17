@@ -5,8 +5,8 @@
 package ir
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
 )
 
 // InitLSym defines f's obj.LSym and initializes it based on the

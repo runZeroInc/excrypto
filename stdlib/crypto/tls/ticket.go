@@ -5,16 +5,16 @@
 package tls
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/hmac"
-	"crypto/sha256"
-	"crypto/subtle"
-	"crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"errors"
 	"io"
 
-	"golang.org/x/crypto/cryptobyte"
+	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
 )
 
 // A SessionState is a resumable session.

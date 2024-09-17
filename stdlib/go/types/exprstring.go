@@ -10,7 +10,7 @@ import (
 	"bytes"
 	"fmt"
 	"go/ast"
-	"go/internal/typeparams"
+	"github.com/runZeroInc/excrypto/stdlib/go/internal/typeparams"
 )
 
 // ExprString returns the (possibly shortened) string representation for x.

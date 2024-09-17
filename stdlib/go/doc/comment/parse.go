@@ -235,7 +235,7 @@ type parseDoc struct {
 // lookupPkg is called to look up the pkg in [pkg], [pkg.Name], and [pkg.Name.Recv].
 // If pkg has a slash, it is assumed to be the full import path and is returned with ok = true.
 //
-// Otherwise, pkg is probably a simple package name like "rand" (not "crypto/rand" or "math/rand").
+// Otherwise, pkg is probably a simple package name like "rand" (not "github.com/runZeroInc/excrypto/stdlib/crypto/rand" or "math/rand").
 // d.LookupPackage provides a way for the caller to allow resolving such names with reference
 // to the imports in the surrounding package.
 //

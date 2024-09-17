@@ -5,7 +5,7 @@
 package sysinfo_test
 
 import (
-	. "internal/sysinfo"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/sysinfo"
 	"testing"
 )
 

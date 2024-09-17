@@ -5,8 +5,8 @@
 package ssa
 
 import (
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
 	"fmt"
 )
 
@@ -19,7 +19,7 @@ type Location interface {
 // They are numbered densely from 0 (for each architecture).
 type Register struct {
 	num    int32 // dense numbering
-	objNum int16 // register number from cmd/internal/obj/$ARCH
+	objNum int16 // register number from github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/$ARCH
 	gcNum  int16 // GC register map number (dense numbering of registers that can contain pointers)
 	name   string
 }
@@ -28,7 +28,7 @@ func (r *Register) String() string {
 	return r.name
 }
 
-// ObjNum returns the register number from cmd/internal/obj/$ARCH that
+// ObjNum returns the register number from github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/$ARCH that
 // corresponds to this register.
 func (r *Register) ObjNum() int16 {
 	return r.objNum

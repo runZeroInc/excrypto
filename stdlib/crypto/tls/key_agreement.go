@@ -5,12 +5,12 @@
 package tls
 
 import (
-	"crypto"
-	"crypto/ecdh"
-	"crypto/md5"
-	"crypto/rsa"
-	"crypto/sha1"
-	"crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/md5"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"errors"
 	"fmt"
 	"io"

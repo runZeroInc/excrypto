@@ -18,14 +18,14 @@ import (
 	"sort"
 	"strings"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/fsys"
-	"cmd/go/internal/gover"
-	"cmd/go/internal/imports"
-	"cmd/go/internal/load"
-	"cmd/go/internal/modload"
-	"cmd/go/internal/str"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/fsys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/imports"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/load"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modload"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/str"
 
 	"golang.org/x/mod/module"
 )

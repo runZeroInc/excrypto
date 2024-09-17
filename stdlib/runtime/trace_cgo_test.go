@@ -9,8 +9,8 @@ package runtime_test
 import (
 	"bytes"
 	"fmt"
-	"internal/testenv"
-	"internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
 	"io"
 	"os"
 	"runtime"

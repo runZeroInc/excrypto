@@ -7,11 +7,11 @@ package modfetch
 import (
 	"archive/zip"
 	"context"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/hex"
 	"flag"
 	"hash"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"log"
 	"os"
@@ -21,9 +21,9 @@ import (
 	"testing"
 	"time"
 
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/modfetch/codehost"
-	"cmd/go/internal/vcweb/vcstest"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modfetch/codehost"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/vcweb/vcstest"
 
 	"golang.org/x/mod/sumdb/dirhash"
 )

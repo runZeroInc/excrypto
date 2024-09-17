@@ -9,8 +9,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"internal/coverage"
-	"internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
 	"io"
 	"io/fs"
 	"os"
@@ -24,17 +24,17 @@ import (
 	"sync/atomic"
 	"time"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/cache"
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/load"
-	"cmd/go/internal/lockedfile"
-	"cmd/go/internal/modload"
-	"cmd/go/internal/search"
-	"cmd/go/internal/str"
-	"cmd/go/internal/trace"
-	"cmd/go/internal/work"
-	"cmd/internal/test2json"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cache"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/load"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/lockedfile"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modload"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/search"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/str"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/work"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/test2json"
 
 	"golang.org/x/mod/module"
 )
@@ -743,7 +743,7 @@ func runTest(ctx context.Context, cmd *base.Command, args []string) {
 			// If the user is requesting to fuzz a standard-library package, ensure
 			// that they are in the same module as that package (just like when
 			// fuzzing any other package).
-			if strings.HasPrefix(pkgs[0].ImportPath, "cmd/") {
+			if strings.HasPrefix(pkgs[0].ImportPath, "github.com/runZeroInc/excrypto/stdlib/cmd/") {
 				if !mainMods.Contains("cmd") || !mainMods.InGorootSrc(module.Version{Path: "cmd"}) {
 					base.Fatalf("cannot use -fuzz flag on package outside the main module")
 				}
@@ -930,7 +930,7 @@ func runTest(ctx context.Context, cmd *base.Command, args []string) {
 		// internal/fuzz packages concurrently with fuzzing.
 		var skipInstrumentation = map[string]bool{
 			"context":       true,
-			"internal/fuzz": true,
+			"github.com/runZeroInc/excrypto/stdlib/internal/fuzz": true,
 			"reflect":       true,
 			"runtime":       true,
 			"sync":          true,

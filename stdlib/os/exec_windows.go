@@ -6,7 +6,7 @@ package os
 
 import (
 	"errors"
-	"internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
 	"runtime"
 	"syscall"
 	"time"

@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"flag"
 	"go/build"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"log"
 	"os"
 	"path/filepath"
@@ -90,7 +90,7 @@ type test struct {
 	no   []string // Regular expressions that should not match.
 }
 
-const p = "cmd/doc/testdata"
+const p = "github.com/runZeroInc/excrypto/stdlib/cmd/doc/testdata"
 
 var tests = []test{
 	// Sanity check.
@@ -934,7 +934,7 @@ func TestMultiplePackages(t *testing.T) {
 	// Make sure crypto/rand does not have the symbol.
 	{
 		var flagSet flag.FlagSet
-		err := do(&b, &flagSet, []string{"crypto/rand.float64"})
+		err := do(&b, &flagSet, []string{"github.com/runZeroInc/excrypto/stdlib/crypto/rand.float64"})
 		if err == nil {
 			t.Errorf("expected error from crypto/rand.float64")
 		} else if !strings.Contains(err.Error(), "no symbol float64") {
@@ -968,7 +968,7 @@ func TestMultiplePackages(t *testing.T) {
 			if !strings.Contains(errStr, "no symbol") {
 				t.Errorf("error %q should contain 'no symbol", errStr)
 			}
-			if !strings.Contains(errStr, "crypto/rand") {
+			if !strings.Contains(errStr, "github.com/runZeroInc/excrypto/stdlib/crypto/rand") {
 				t.Errorf("error %q should contain crypto/rand", errStr)
 			}
 			if !strings.Contains(errStr, "math/rand") {

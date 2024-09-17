@@ -9,15 +9,15 @@ package modindex
 
 import (
 	"bytes"
-	"cmd/go/internal/fsys"
-	"cmd/go/internal/str"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/fsys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/str"
 	"errors"
 	"fmt"
 	"go/ast"
 	"go/build"
 	"go/build/constraint"
 	"go/token"
-	"internal/syslist"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syslist"
 	"io"
 	"io/fs"
 	"path/filepath"

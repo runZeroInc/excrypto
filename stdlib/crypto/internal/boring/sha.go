@@ -59,7 +59,7 @@ import "C"
 import (
 	"errors"
 	"hash"
-	"internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 	"unsafe"
 )
 
@@ -179,10 +179,10 @@ func (h *sha1Hash) AppendBinary(b []byte) ([]byte, error) {
 
 func (h *sha1Hash) UnmarshalBinary(b []byte) error {
 	if len(b) < len(sha1Magic) || string(b[:len(sha1Magic)]) != sha1Magic {
-		return errors.New("crypto/sha1: invalid hash state identifier")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha1: invalid hash state identifier")
 	}
 	if len(b) != sha1MarshaledSize {
-		return errors.New("crypto/sha1: invalid hash state size")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha1: invalid hash state size")
 	}
 	d := (*sha1Ctx)(unsafe.Pointer(&h.ctx))
 	b = b[len(sha1Magic):]
@@ -332,10 +332,10 @@ func (h *sha256Hash) AppendBinary(b []byte) ([]byte, error) {
 
 func (h *sha224Hash) UnmarshalBinary(b []byte) error {
 	if len(b) < len(magic224) || string(b[:len(magic224)]) != magic224 {
-		return errors.New("crypto/sha256: invalid hash state identifier")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha256: invalid hash state identifier")
 	}
 	if len(b) != marshaledSize256 {
-		return errors.New("crypto/sha256: invalid hash state size")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha256: invalid hash state size")
 	}
 	d := (*sha256Ctx)(unsafe.Pointer(&h.ctx))
 	b = b[len(magic224):]
@@ -357,10 +357,10 @@ func (h *sha224Hash) UnmarshalBinary(b []byte) error {
 
 func (h *sha256Hash) UnmarshalBinary(b []byte) error {
 	if len(b) < len(magic256) || string(b[:len(magic256)]) != magic256 {
-		return errors.New("crypto/sha256: invalid hash state identifier")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha256: invalid hash state identifier")
 	}
 	if len(b) != marshaledSize256 {
-		return errors.New("crypto/sha256: invalid hash state size")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha256: invalid hash state size")
 	}
 	d := (*sha256Ctx)(unsafe.Pointer(&h.ctx))
 	b = b[len(magic256):]
@@ -515,13 +515,13 @@ func (h *sha512Hash) AppendBinary(b []byte) ([]byte, error) {
 
 func (h *sha384Hash) UnmarshalBinary(b []byte) error {
 	if len(b) < len(magic512) {
-		return errors.New("crypto/sha512: invalid hash state identifier")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha512: invalid hash state identifier")
 	}
 	if string(b[:len(magic384)]) != magic384 {
-		return errors.New("crypto/sha512: invalid hash state identifier")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha512: invalid hash state identifier")
 	}
 	if len(b) != marshaledSize512 {
-		return errors.New("crypto/sha512: invalid hash state size")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha512: invalid hash state size")
 	}
 	d := (*sha512Ctx)(unsafe.Pointer(&h.ctx))
 	b = b[len(magic512):]
@@ -543,13 +543,13 @@ func (h *sha384Hash) UnmarshalBinary(b []byte) error {
 
 func (h *sha512Hash) UnmarshalBinary(b []byte) error {
 	if len(b) < len(magic512) {
-		return errors.New("crypto/sha512: invalid hash state identifier")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha512: invalid hash state identifier")
 	}
 	if string(b[:len(magic512)]) != magic512 {
-		return errors.New("crypto/sha512: invalid hash state identifier")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha512: invalid hash state identifier")
 	}
 	if len(b) != marshaledSize512 {
-		return errors.New("crypto/sha512: invalid hash state size")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha512: invalid hash state size")
 	}
 	d := (*sha512Ctx)(unsafe.Pointer(&h.ctx))
 	b = b[len(magic512):]

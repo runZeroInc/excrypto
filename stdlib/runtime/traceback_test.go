@@ -7,8 +7,8 @@ package runtime_test
 import (
 	"bytes"
 	"fmt"
-	"internal/abi"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"regexp"
 	"runtime"
 	"runtime/debug"

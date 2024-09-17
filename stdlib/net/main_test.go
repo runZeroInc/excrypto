@@ -7,7 +7,7 @@ package net
 import (
 	"flag"
 	"fmt"
-	"net/internal/socktest"
+	"github.com/runZeroInc/excrypto/stdlib/net/internal/socktest"
 	"os"
 	"runtime"
 	"slices"

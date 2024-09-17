@@ -2,10 +2,10 @@
 
 package ssa
 
-import "internal/buildcfg"
+import "github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 import "math"
-import "cmd/internal/obj"
-import "cmd/compile/internal/types"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
 
 func rewriteValueAMD64(v *Value) bool {
 	switch v.Op {

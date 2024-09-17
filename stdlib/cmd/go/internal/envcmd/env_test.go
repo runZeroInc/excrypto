@@ -8,9 +8,9 @@ package envcmd
 
 import (
 	"bytes"
-	"cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"path/filepath"

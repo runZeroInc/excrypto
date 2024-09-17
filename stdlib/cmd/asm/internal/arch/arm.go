@@ -11,8 +11,8 @@ package arch
 import (
 	"strings"
 
-	"cmd/internal/obj"
-	"cmd/internal/obj/arm"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/arm"
 )
 
 var armLS = map[string]uint8{

@@ -6,7 +6,7 @@ package filepath
 
 import (
 	"errors"
-	"internal/filepathlite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/filepathlite"
 	"io/fs"
 	"os"
 	"runtime"

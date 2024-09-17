@@ -5,7 +5,7 @@
 package build
 
 import (
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"runtime"
 	"strings"
 	"testing"

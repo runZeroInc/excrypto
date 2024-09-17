@@ -17,7 +17,7 @@
 package atomic
 
 import (
-	"internal/cpu"
+	"github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 	"unsafe"
 )
 

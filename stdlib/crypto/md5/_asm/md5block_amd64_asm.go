@@ -20,7 +20,7 @@ import (
 //go:generate go run . -out ../md5block_amd64.s -pkg md5
 
 func main() {
-	Package("crypto/md5")
+	Package("github.com/runZeroInc/excrypto/stdlib/crypto/md5")
 	ConstraintExpr("!purego")
 	block()
 	Generate()

@@ -4,7 +4,7 @@
 
 package math
 
-import "internal/goarch"
+import "github.com/runZeroInc/excrypto/stdlib/internal/goarch"
 
 const MaxUintptr = ^uintptr(0)
 

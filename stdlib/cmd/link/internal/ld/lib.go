@@ -37,7 +37,7 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"fmt"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"io"
 	"log"
 	"os"
@@ -50,17 +50,17 @@ import (
 	"sync"
 	"time"
 
-	"cmd/internal/bio"
-	"cmd/internal/goobj"
-	"cmd/internal/hash"
-	"cmd/internal/objabi"
-	"cmd/internal/sys"
-	"cmd/link/internal/loadelf"
-	"cmd/link/internal/loader"
-	"cmd/link/internal/loadmacho"
-	"cmd/link/internal/loadpe"
-	"cmd/link/internal/loadxcoff"
-	"cmd/link/internal/sym"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/bio"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/goobj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/hash"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/loadelf"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/loader"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/loadmacho"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/loadpe"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/loadxcoff"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/sym"
 )
 
 // Data layout and relocation.
@@ -1163,9 +1163,9 @@ var hostobj []Hostobj
 // These packages can use internal linking mode.
 // Others trigger external mode.
 var internalpkg = []string{
-	"crypto/internal/boring",
-	"crypto/internal/boring/syso",
-	"crypto/x509",
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring",
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring/syso",
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509",
 	"net",
 	"os/user",
 	"runtime/cgo",

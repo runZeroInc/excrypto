@@ -49,7 +49,7 @@ func addTemplates(templates *template.Template) {
 	loadFile := func(fname string) string {
 		data, err := embeddedFiles.ReadFile(fname)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "internal/driver: embedded file %q not found\n",
+			fmt.Fprintf(os.Stderr, "github.com/runZeroInc/excrypto/stdlib/internal/driver: embedded file %q not found\n",
 				fname)
 			os.Exit(1)
 		}

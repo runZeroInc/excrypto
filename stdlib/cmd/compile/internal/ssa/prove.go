@@ -5,7 +5,7 @@
 package ssa
 
 import (
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 	"fmt"
 	"math"
 	"math/bits"

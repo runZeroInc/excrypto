@@ -7,7 +7,7 @@ package runtime
 // Metrics implementation exported to runtime/metrics.
 
 import (
-	"internal/godebugs"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebugs"
 	"unsafe"
 )
 

@@ -7,9 +7,9 @@ package net
 import (
 	"context"
 	"errors"
-	"internal/bytealg"
-	"internal/itoa"
-	"internal/stringslite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/stringslite"
 	"io"
 	"os"
 )

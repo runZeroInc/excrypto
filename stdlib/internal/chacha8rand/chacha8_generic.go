@@ -49,7 +49,7 @@
 package chacha8rand
 
 import (
-	"internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
 	"unsafe"
 )
 

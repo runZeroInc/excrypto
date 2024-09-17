@@ -5,9 +5,9 @@
 package crypto_test
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/rc4"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rc4"
 	"testing"
 )
 

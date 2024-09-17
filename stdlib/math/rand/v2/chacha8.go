@@ -6,8 +6,8 @@ package rand
 
 import (
 	"errors"
-	"internal/byteorder"
-	"internal/chacha8rand"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/chacha8rand"
 )
 
 // A ChaCha8 is a ChaCha8-based cryptographically strong

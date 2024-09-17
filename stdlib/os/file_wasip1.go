@@ -6,7 +6,7 @@
 
 package os
 
-import "internal/poll"
+import "github.com/runZeroInc/excrypto/stdlib/internal/poll"
 
 // PollFD returns the poll.FD of the file.
 //

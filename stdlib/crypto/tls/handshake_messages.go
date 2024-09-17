@@ -10,7 +10,7 @@ import (
 	"slices"
 	"strings"
 
-	"golang.org/x/crypto/cryptobyte"
+	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
 )
 
 // The marshalingFunction type is an adapter to allow the use of ordinary

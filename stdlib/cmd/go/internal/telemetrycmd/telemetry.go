@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"os"
 
-	"cmd/go/internal/base"
-	"cmd/internal/telemetry"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry"
 )
 
 var CmdTelemetry = &base.Command{

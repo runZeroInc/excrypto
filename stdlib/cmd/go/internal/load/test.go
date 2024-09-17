@@ -14,7 +14,7 @@ import (
 	"go/doc"
 	"go/parser"
 	"go/token"
-	"internal/lazytemplate"
+	"github.com/runZeroInc/excrypto/stdlib/internal/lazytemplate"
 	"maps"
 	"path/filepath"
 	"slices"
@@ -23,10 +23,10 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/fsys"
-	"cmd/go/internal/str"
-	"cmd/go/internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/fsys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/str"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/trace"
 )
 
 var TestMainDeps = []string{
@@ -307,7 +307,7 @@ func TestPackagesAndErrors(ctx context.Context, done func(), opts PackageOpts, p
 	stk.Push("testmain")
 	deps := TestMainDeps // cap==len, so safe for append
 	if cover != nil && cfg.Experiment.CoverageRedesign {
-		deps = append(deps, "internal/coverage/cfile")
+		deps = append(deps, "github.com/runZeroInc/excrypto/stdlib/internal/coverage/cfile")
 	}
 	ldDeps, err := LinkerDeps(p)
 	if err != nil && pmain.Error == nil {
@@ -935,7 +935,7 @@ import (
 	"testing"
 	"testing/internal/testdeps"
 {{if .Cover}}
-	"internal/coverage/cfile"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/cfile"
 {{end}}
 
 {{if .ImportTest}}

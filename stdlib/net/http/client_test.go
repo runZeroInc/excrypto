@@ -9,11 +9,11 @@ package http_test
 import (
 	"bytes"
 	"context"
-	"crypto/tls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"log"
 	"net"

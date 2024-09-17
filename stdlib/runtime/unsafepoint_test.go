@@ -5,7 +5,7 @@
 package runtime_test
 
 import (
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"reflect"

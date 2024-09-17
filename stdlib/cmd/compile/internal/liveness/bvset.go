@@ -4,7 +4,7 @@
 
 package liveness
 
-import "cmd/compile/internal/bitvec"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/bitvec"
 
 // FNV-1 hash function constants.
 const (

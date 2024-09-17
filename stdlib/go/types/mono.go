@@ -10,7 +10,7 @@ package types
 import (
 	"go/ast"
 	"go/token"
-	. "internal/types/errors"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 )
 
 // This file implements a check to validate that a Go package doesn't

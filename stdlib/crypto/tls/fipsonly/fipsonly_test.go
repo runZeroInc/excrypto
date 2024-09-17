@@ -7,7 +7,7 @@
 package fipsonly
 
 import (
-	"crypto/internal/boring/fipstls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring/fipstls"
 	"testing"
 )
 

@@ -7,9 +7,9 @@ package cfile
 import (
 	"encoding/json"
 	"flag"
-	"internal/coverage"
-	"internal/goexperiment"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goexperiment"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -82,7 +82,7 @@ func TestTestSupport(t *testing.T) {
 func TestCoverageSnapshot(t *testing.T) {
 	testenv.MustHaveGoRun(t)
 	args := []string{"test", "-tags", "SELECT_USING_THIS_TAG",
-		"-cover", "-run=TestCoverageSnapshotImpl", "internal/coverage/cfile"}
+		"-cover", "-run=TestCoverageSnapshotImpl", "github.com/runZeroInc/excrypto/stdlib/internal/coverage/cfile"}
 	cmd := exec.Command(testenv.GoToolPath(t), args...)
 	if b, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("go test failed (%v): %s", err, b)

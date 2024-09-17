@@ -5,8 +5,8 @@
 package smtp
 
 import (
-	"crypto/hmac"
-	"crypto/md5"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/md5"
 	"errors"
 	"fmt"
 )

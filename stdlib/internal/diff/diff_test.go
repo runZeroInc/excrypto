@@ -6,7 +6,7 @@ package diff
 
 import (
 	"bytes"
-	"internal/txtar"
+	"github.com/runZeroInc/excrypto/stdlib/internal/txtar"
 	"path/filepath"
 	"testing"
 )

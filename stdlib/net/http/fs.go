@@ -9,7 +9,7 @@ package http
 import (
 	"errors"
 	"fmt"
-	"internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"io"
 	"io/fs"
 	"mime"

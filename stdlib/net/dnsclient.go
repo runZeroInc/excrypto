@@ -6,8 +6,8 @@ package net
 
 import (
 	"cmp"
-	"internal/bytealg"
-	"internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
 	"slices"
 	_ "unsafe" // for go:linkname
 

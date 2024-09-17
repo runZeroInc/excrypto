@@ -8,15 +8,15 @@ package obj
 
 import (
 	"bytes"
-	"cmd/internal/bio"
-	"cmd/internal/goobj"
-	"cmd/internal/hash"
-	"cmd/internal/objabi"
-	"cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/bio"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/goobj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/hash"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
 	"cmp"
 	"encoding/binary"
 	"fmt"
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"io"
 	"log"
 	"os"
@@ -696,7 +696,7 @@ func (w *writer) refNames() {
 		o.Write(w.Writer)
 	})
 	// TODO: output in sorted order?
-	// Currently tools (cmd/internal/goobj package) doesn't use mmap,
+	// Currently tools (github.com/runZeroInc/excrypto/stdlib/cmd/internal/goobj package) doesn't use mmap,
 	// and it just read it into a map in memory upfront. If it uses
 	// mmap, if the output is sorted, it probably could avoid reading
 	// into memory and just do lookups in the mmap'd object file.

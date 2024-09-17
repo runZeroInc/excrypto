@@ -6,7 +6,7 @@ package exec_test
 
 import (
 	"errors"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	. "os/exec"
 	"path/filepath"

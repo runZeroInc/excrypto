@@ -14,9 +14,9 @@ package boring
 */
 import "C"
 import (
-	"crypto/internal/boring/sig"
-	_ "crypto/internal/boring/syso"
-	"internal/stringslite"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring/sig"
+	_ "github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring/syso"
+	"github.com/runZeroInc/excrypto/stdlib/internal/stringslite"
 	"math/bits"
 	"unsafe"
 )

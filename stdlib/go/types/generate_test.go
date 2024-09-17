@@ -15,7 +15,7 @@ import (
 	"go/format"
 	"go/parser"
 	"go/token"
-	"internal/diff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/diff"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -102,7 +102,7 @@ type action func(in *ast.File)
 var filemap = map[string]action{
 	"alias.go": fixTokenPos,
 	"assignments.go": func(f *ast.File) {
-		renameImportPath(f, `"cmd/compile/internal/syntax"->"go/ast"`)
+		renameImportPath(f, `"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"->"go/ast"`)
 		renameSelectorExprs(f, "syntax.Name->ast.Ident", "ident.Value->ident.Name", "ast.Pos->token.Pos") // must happen before renaming identifiers
 		renameIdents(f, "syntax->ast", "poser->positioner", "nopos->noposn")
 	},
@@ -110,14 +110,14 @@ var filemap = map[string]action{
 	"api_predicates.go": nil,
 	"basic.go":          nil,
 	"builtins.go": func(f *ast.File) {
-		renameImportPath(f, `"cmd/compile/internal/syntax"->"go/ast"`)
+		renameImportPath(f, `"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"->"go/ast"`)
 		renameIdents(f, "syntax->ast")
 		renameSelectors(f, "ArgList->Args")
 		fixSelValue(f)
 		fixAtPosCall(f)
 	},
 	"builtins_test.go": func(f *ast.File) {
-		renameImportPath(f, `"cmd/compile/internal/syntax"->"go/ast"`, `"cmd/compile/internal/types2"->"go/types"`)
+		renameImportPath(f, `"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"->"go/ast"`, `"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"->"go/types"`)
 		renameSelectorExprs(f, "syntax.Name->ast.Ident", "p.Value->p.Name") // must happen before renaming identifiers
 		renameIdents(f, "syntax->ast")
 	},
@@ -130,15 +130,15 @@ var filemap = map[string]action{
 	"errsupport.go":   nil,
 	"gccgosizes.go":   nil,
 	"gcsizes.go":      func(f *ast.File) { renameIdents(f, "IsSyncAtomicAlign64->_IsSyncAtomicAlign64") },
-	"hilbert_test.go": func(f *ast.File) { renameImportPath(f, `"cmd/compile/internal/types2"->"go/types"`) },
+	"hilbert_test.go": func(f *ast.File) { renameImportPath(f, `"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"->"go/types"`) },
 	"infer.go":        func(f *ast.File) { fixTokenPos(f); fixInferSig(f) },
 	"initorder.go":    nil,
 	// "initorder.go": fixErrErrorfCall, // disabled for now due to unresolved error_ use implications for gopls
 	"instantiate.go":      func(f *ast.File) { fixTokenPos(f); fixCheckErrorfCall(f) },
-	"instantiate_test.go": func(f *ast.File) { renameImportPath(f, `"cmd/compile/internal/types2"->"go/types"`) },
+	"instantiate_test.go": func(f *ast.File) { renameImportPath(f, `"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"->"go/types"`) },
 	"literals.go": func(f *ast.File) {
 		insertImportPath(f, `"go/token"`)
-		renameImportPath(f, `"cmd/compile/internal/syntax"->"go/ast"`)
+		renameImportPath(f, `"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"->"go/ast"`)
 		renameSelectorExprs(f,
 			"syntax.IntLit->token.INT", "syntax.FloatLit->token.FLOAT", "syntax.ImagLit->token.IMAG",
 			"syntax.Name->ast.Ident", "key.Value->key.Name", "atyp.Elem->atyp.Elt") // must happen before renaming identifiers
@@ -156,11 +156,11 @@ var filemap = map[string]action{
 	"named.go":  func(f *ast.File) { fixTokenPos(f); renameSelectors(f, "Trace->_Trace") },
 	"object.go": func(f *ast.File) { fixTokenPos(f); renameIdents(f, "NewTypeNameLazy->_NewTypeNameLazy") },
 	// TODO(gri) needs adjustments for TestObjectString - disabled for now
-	// "object_test.go": func(f *ast.File) { renameImportPath(f, `"cmd/compile/internal/types2"->"go/types"`) },
+	// "object_test.go": func(f *ast.File) { renameImportPath(f, `"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"->"go/types"`) },
 	"objset.go": nil,
 	"operand.go": func(f *ast.File) {
 		insertImportPath(f, `"go/token"`)
-		renameImportPath(f, `"cmd/compile/internal/syntax"->"go/ast"`)
+		renameImportPath(f, `"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"->"go/ast"`)
 		renameSelectorExprs(f,
 			"syntax.Pos->token.Pos", "syntax.LitKind->token.Token",
 			"syntax.IntLit->token.INT", "syntax.FloatLit->token.FLOAT",
@@ -172,7 +172,7 @@ var filemap = map[string]action{
 	"pointer.go":    nil,
 	"predicates.go": nil,
 	"recording.go": func(f *ast.File) {
-		renameImportPath(f, `"cmd/compile/internal/syntax"->"go/ast"`)
+		renameImportPath(f, `"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"->"go/ast"`)
 		renameSelectorExprs(f, "syntax.Name->ast.Ident") // must happen before renaming identifiers
 		renameIdents(f, "syntax->ast")
 		fixAtPosCall(f)
@@ -310,14 +310,14 @@ func insertImportPath(f *ast.File, path string) {
 	panic("no import declaration present")
 }
 
-// fixTokenPos changes imports of "cmd/compile/internal/syntax" to "go/token",
+// fixTokenPos changes imports of "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax" to "go/token",
 // uses of syntax.Pos to token.Pos, and calls to x.IsKnown() to x.IsValid().
 func fixTokenPos(f *ast.File) {
-	m := makeRenameMap(`"cmd/compile/internal/syntax"->"go/token"`, "syntax.Pos->token.Pos", "IsKnown->IsValid")
+	m := makeRenameMap(`"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"->"go/token"`, "syntax.Pos->token.Pos", "IsKnown->IsValid")
 	ast.Inspect(f, func(n ast.Node) bool {
 		switch n := n.(type) {
 		case *ast.ImportSpec:
-			// rewrite import path "cmd/compile/internal/syntax" to "go/token"
+			// rewrite import path "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax" to "go/token"
 			if n.Path.Kind != token.STRING {
 				panic("invalid import path")
 			}

@@ -31,10 +31,10 @@
 package arm
 
 import (
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
 	"fmt"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"log"
 	"math"
 	"slices"

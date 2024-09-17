@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"slices"
 
-	"cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
 
 	"golang.org/x/mod/module"
 )

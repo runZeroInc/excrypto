@@ -20,7 +20,7 @@ unsigned int Mach_task_self(void) {
 */
 import "C"
 
-import "cmd/link/testdata/dynimportvar/asm"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/link/testdata/dynimportvar/asm"
 
 func main() {
 	c := uint32(C.Mach_task_self())

@@ -7,7 +7,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
 	"io"
 	"net/http/httptest"
 	"os"
@@ -18,8 +18,8 @@ import (
 	"testing"
 	"time"
 
-	"internal/trace/raw"
-	"internal/trace/traceviewer/format"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/raw"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/traceviewer/format"
 )
 
 func TestJSONTraceHandler(t *testing.T) {

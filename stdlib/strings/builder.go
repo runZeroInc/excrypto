@@ -5,8 +5,8 @@
 package strings
 
 import (
-	"internal/abi"
-	"internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
 	"unicode/utf8"
 	"unsafe"
 )

@@ -3,7 +3,7 @@
 package windows
 
 import (
-	"internal/syscall/windows/sysdll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows/sysdll"
 	"syscall"
 	"unsafe"
 )

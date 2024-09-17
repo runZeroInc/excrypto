@@ -16,7 +16,7 @@ import (
 	"go/ast"
 	"go/printer"
 	"go/token"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"io"
 	"maps"
 	"os"
@@ -27,10 +27,10 @@ import (
 	"strings"
 	"sync"
 
-	"cmd/internal/edit"
-	"cmd/internal/hash"
-	"cmd/internal/objabi"
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/edit"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/hash"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 )
 
 // A Package collects information about the package we're going to write.

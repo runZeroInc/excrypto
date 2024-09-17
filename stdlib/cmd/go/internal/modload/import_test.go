@@ -6,7 +6,7 @@ package modload
 
 import (
 	"context"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"regexp"
 	"strings"
 	"testing"

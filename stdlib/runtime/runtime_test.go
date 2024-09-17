@@ -7,8 +7,8 @@ package runtime_test
 import (
 	"flag"
 	"fmt"
-	"internal/cpu"
-	"internal/runtime/atomic"
+	"github.com/runZeroInc/excrypto/stdlib/internal/cpu"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
 	"io"
 	. "runtime"
 	"runtime/debug"

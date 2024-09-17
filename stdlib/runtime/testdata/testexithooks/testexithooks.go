@@ -6,7 +6,7 @@ package main
 
 import (
 	"flag"
-	"internal/runtime/exithook"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/exithook"
 	"os"
 	"time"
 	_ "unsafe"

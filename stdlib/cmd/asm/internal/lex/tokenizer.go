@@ -12,9 +12,9 @@ import (
 	"text/scanner"
 	"unicode"
 
-	"cmd/asm/internal/flags"
-	"cmd/internal/objabi"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm/internal/flags"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 // A Tokenizer is a simple wrapping of text/scanner.Scanner, configured

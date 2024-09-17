@@ -7,7 +7,7 @@ package modload
 import (
 	"context"
 	"flag"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"log"
 	"os"
 	"path"
@@ -15,8 +15,8 @@ import (
 	"strings"
 	"testing"
 
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/vcweb/vcstest"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/vcweb/vcstest"
 
 	"golang.org/x/mod/module"
 )

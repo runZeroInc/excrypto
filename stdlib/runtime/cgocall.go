@@ -85,10 +85,10 @@
 package runtime
 
 import (
-	"internal/abi"
-	"internal/goarch"
-	"internal/goexperiment"
-	"internal/runtime/sys"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goexperiment"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys"
 	"unsafe"
 )
 

@@ -79,7 +79,7 @@ import _ "golang.org/notx/useinternal"
 
 -- fromstd/useinternal.go --
 package fromstd
-import _ "internal/testenv"
+import _ "github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 
 -- replace/golang.org/notx/internal/go.mod --
 module golang.org/x/internal

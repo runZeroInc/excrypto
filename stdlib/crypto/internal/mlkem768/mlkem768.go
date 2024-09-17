@@ -28,12 +28,12 @@ package mlkem768
 // background at https://words.filippo.io/kyber-math/ useful.
 
 import (
-	"crypto/rand"
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"errors"
-	"internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 
-	"golang.org/x/crypto/sha3"
+	"github.com/runZeroInc/excrypto/x/crypto/sha3"
 )
 
 const (

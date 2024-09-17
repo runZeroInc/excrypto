@@ -30,9 +30,9 @@ package trace
 import (
 	"errors"
 	"fmt"
-	"internal/trace/event"
-	"internal/trace/event/go122"
-	"internal/trace/internal/oldtrace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/event"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/event/go122"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/internal/oldtrace"
 	"io"
 )
 

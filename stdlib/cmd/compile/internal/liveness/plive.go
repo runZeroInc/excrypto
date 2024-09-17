@@ -22,20 +22,20 @@ import (
 	"sort"
 	"strings"
 
-	"cmd/compile/internal/abi"
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/bitvec"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/objw"
-	"cmd/compile/internal/reflectdata"
-	"cmd/compile/internal/ssa"
-	"cmd/compile/internal/typebits"
-	"cmd/compile/internal/types"
-	"cmd/internal/hash"
-	"cmd/internal/obj"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/bitvec"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/objw"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/reflectdata"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssa"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/typebits"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/hash"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 
-	rtabi "internal/abi"
+	rtabi "github.com/runZeroInc/excrypto/stdlib/internal/abi"
 )
 
 // OpVarDef is an annotation for the liveness analysis, marking a place

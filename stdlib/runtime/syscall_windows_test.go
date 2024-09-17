@@ -6,9 +6,9 @@ package runtime_test
 
 import (
 	"fmt"
-	"internal/abi"
-	"internal/syscall/windows/sysdll"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows/sysdll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"math"
 	"os"

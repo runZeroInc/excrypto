@@ -8,15 +8,15 @@ package work
 
 import (
 	"bytes"
-	"cmd/internal/cov/covcmd"
-	"cmd/internal/pathcache"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/cov/covcmd"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pathcache"
 	"context"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"go/token"
-	"internal/lazyregexp"
+	"github.com/runZeroInc/excrypto/stdlib/internal/lazyregexp"
 	"io"
 	"io/fs"
 	"log"
@@ -33,18 +33,18 @@ import (
 	"sync"
 	"time"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/cache"
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/fsys"
-	"cmd/go/internal/gover"
-	"cmd/go/internal/load"
-	"cmd/go/internal/modload"
-	"cmd/go/internal/str"
-	"cmd/go/internal/trace"
-	"cmd/internal/buildid"
-	"cmd/internal/quoted"
-	"cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cache"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/fsys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/load"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modload"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/str"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/buildid"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/quoted"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
 )
 
 const DefaultCFlags = "-O2 -g"
@@ -943,7 +943,7 @@ OverlayLoop:
 
 	// For gccgo on ELF systems, we write the build ID as an assembler file.
 	// This lets us set the SHF_EXCLUDE flag.
-	// This is read by readGccgoArchive in cmd/internal/buildid/buildid.go.
+	// This is read by readGccgoArchive in github.com/runZeroInc/excrypto/stdlib/cmd/internal/buildid/buildid.go.
 	if a.buildID != "" && cfg.BuildToolchainName == "gccgo" {
 		switch cfg.Goos {
 		case "aix", "android", "dragonfly", "freebsd", "illumos", "linux", "netbsd", "openbsd", "solaris":

@@ -25,13 +25,13 @@
 package rsa
 
 import (
-	"crypto"
-	"crypto/internal/bigmod"
-	"crypto/internal/boring"
-	"crypto/internal/boring/bbig"
-	"crypto/internal/randutil"
-	"crypto/rand"
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/bigmod"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring/bbig"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/randutil"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"errors"
 	"hash"
 	"io"
@@ -85,9 +85,9 @@ type OAEPOptions struct {
 }
 
 var (
-	errPublicModulus       = errors.New("crypto/rsa: missing public modulus")
-	errPublicExponentSmall = errors.New("crypto/rsa: public exponent too small")
-	errPublicExponentLarge = errors.New("crypto/rsa: public exponent too large")
+	errPublicModulus       = errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: missing public modulus")
+	errPublicExponentSmall = errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: public exponent too small")
+	errPublicExponentLarge = errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: public exponent too large")
 )
 
 // checkPub sanity checks the public key before we use it.
@@ -199,7 +199,7 @@ func (priv *PrivateKey) Decrypt(rand io.Reader, ciphertext []byte, opts crypto.D
 		}
 
 	default:
-		return nil, errors.New("crypto/rsa: invalid options for Decrypt")
+		return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: invalid options for Decrypt")
 	}
 }
 
@@ -240,12 +240,12 @@ func (priv *PrivateKey) Validate() error {
 	for _, prime := range priv.Primes {
 		// Any primes ≤ 1 will cause divide-by-zero panics later.
 		if prime.Cmp(bigOne) <= 0 {
-			return errors.New("crypto/rsa: invalid prime value")
+			return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: invalid prime value")
 		}
 		modulus.Mul(modulus, prime)
 	}
 	if modulus.Cmp(priv.N) != 0 {
-		return errors.New("crypto/rsa: invalid modulus")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: invalid modulus")
 	}
 
 	// Check that de ≡ 1 mod p-1, for each prime.
@@ -260,7 +260,7 @@ func (priv *PrivateKey) Validate() error {
 		pminus1 := new(big.Int).Sub(prime, bigOne)
 		congruence.Mod(de, pminus1)
 		if congruence.Cmp(bigOne) != 0 {
-			return errors.New("crypto/rsa: invalid exponents")
+			return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: invalid exponents")
 		}
 	}
 	return nil
@@ -313,7 +313,7 @@ func GenerateMultiPrimeKey(random io.Reader, nprimes int, bits int) (*PrivateKey
 		Qinv := bbig.Dec(bQinv)
 		e64 := E.Int64()
 		if !E.IsInt64() || int64(int(e64)) != e64 {
-			return nil, errors.New("crypto/rsa: generated key exponent too large")
+			return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: generated key exponent too large")
 		}
 
 		mn, err := bigmod.NewModulusFromBig(N)
@@ -353,7 +353,7 @@ func GenerateMultiPrimeKey(random io.Reader, nprimes int, bits int) (*PrivateKey
 	priv.E = 65537
 
 	if nprimes < 2 {
-		return nil, errors.New("crypto/rsa: GenerateMultiPrimeKey: nprimes must be >= 2")
+		return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: GenerateMultiPrimeKey: nprimes must be >= 2")
 	}
 
 	if bits < 64 {
@@ -367,7 +367,7 @@ func GenerateMultiPrimeKey(random io.Reader, nprimes int, bits int) (*PrivateKey
 		// in a reasonable amount of time.
 		pi /= 2
 		if pi <= float64(nprimes) {
-			return nil, errors.New("crypto/rsa: too few primes of given length to generate an RSA key")
+			return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: too few primes of given length to generate an RSA key")
 		}
 	}
 
@@ -476,7 +476,7 @@ func mgf1XOR(out []byte, hash hash.Hash, seed []byte) {
 // ErrMessageTooLong is returned when attempting to encrypt or sign a message
 // which is too large for the size of the key. When using [SignPSS], this can also
 // be returned if the size of the salt is too large.
-var ErrMessageTooLong = errors.New("crypto/rsa: message too long for RSA key size")
+var ErrMessageTooLong = errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: message too long for RSA key size")
 
 func encrypt(pub *PublicKey, plaintext []byte) ([]byte, error) {
 	boring.Unreachable()
@@ -571,11 +571,11 @@ func EncryptOAEP(hash hash.Hash, random io.Reader, pub *PublicKey, msg []byte, l
 
 // ErrDecryption represents a failure to decrypt a message.
 // It is deliberately vague to avoid adaptive attacks.
-var ErrDecryption = errors.New("crypto/rsa: decryption error")
+var ErrDecryption = errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: decryption error")
 
 // ErrVerification represents a failure to verify a signature.
 // It is deliberately vague to avoid adaptive attacks.
-var ErrVerification = errors.New("crypto/rsa: verification error")
+var ErrVerification = errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: verification error")
 
 // Precompute performs some calculations that speed up private key operations
 // in the future.

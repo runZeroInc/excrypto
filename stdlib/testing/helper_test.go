@@ -5,7 +5,7 @@
 package testing_test
 
 import (
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"regexp"
 	"strings"

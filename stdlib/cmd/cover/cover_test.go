@@ -7,13 +7,13 @@ package main_test
 import (
 	"bufio"
 	"bytes"
-	cmdcover "cmd/cover"
+	cmdcover "github.com/runZeroInc/excrypto/stdlib/cmd/cover"
 	"flag"
 	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"log"
 	"os"
 	"os/exec"
@@ -358,7 +358,7 @@ func testCoverHTML(t *testing.T, toolexecArg string) {
 
 	// go test -coverprofile testdata/html/html.cov cmd/cover/testdata/html
 	htmlProfile := filepath.Join(dir, "html.cov")
-	cmd := testenv.Command(t, testenv.GoToolPath(t), "test", toolexecArg, "-coverprofile", htmlProfile, "cmd/cover/testdata/html")
+	cmd := testenv.Command(t, testenv.GoToolPath(t), "test", toolexecArg, "-coverprofile", htmlProfile, "github.com/runZeroInc/excrypto/stdlib/cmd/cover/testdata/html")
 	cmd.Env = append(cmd.Environ(), "CMDCOVER_TOOLEXEC=true")
 	run(cmd, t)
 	// testcover -html testdata/html/html.cov -o testdata/html/html.html

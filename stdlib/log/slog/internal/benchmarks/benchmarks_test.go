@@ -7,10 +7,10 @@ package benchmarks
 import (
 	"context"
 	"flag"
-	"internal/race"
+	"github.com/runZeroInc/excrypto/stdlib/internal/race"
 	"io"
 	"log/slog"
-	"log/slog/internal"
+	"github.com/runZeroInc/excrypto/stdlib/log/slog/internal"
 	"testing"
 )
 

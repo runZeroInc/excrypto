@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"go/ast"
 	"go/constant"
-	"go/internal/typeparams"
-	. "internal/types/errors"
+	"github.com/runZeroInc/excrypto/stdlib/go/internal/typeparams"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 	"strings"
 )
 

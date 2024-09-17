@@ -5,22 +5,22 @@
 package base
 
 import (
-	"cmd/internal/cov/covcmd"
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/cov/covcmd"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 	"encoding/json"
 	"flag"
 	"fmt"
-	"internal/buildcfg"
-	"internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
 	"log"
 	"os"
 	"reflect"
 	"runtime"
 	"strings"
 
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
-	"cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
 )
 
 func usage() {

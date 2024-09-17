@@ -33,8 +33,8 @@ package cformat
 import (
 	"cmp"
 	"fmt"
-	"internal/coverage"
-	"internal/coverage/cmerge"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/cmerge"
 	"io"
 	"slices"
 	"strings"

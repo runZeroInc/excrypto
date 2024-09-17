@@ -12,8 +12,8 @@
 package syscall
 
 import (
-	"internal/itoa"
-	runtimesyscall "internal/runtime/syscall"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
+	runtimesyscall "github.com/runZeroInc/excrypto/stdlib/internal/runtime/syscall"
 	"runtime"
 	"unsafe"
 )

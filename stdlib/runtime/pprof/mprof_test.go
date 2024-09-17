@@ -9,7 +9,7 @@ package pprof
 import (
 	"bytes"
 	"fmt"
-	"internal/profile"
+	"github.com/runZeroInc/excrypto/stdlib/internal/profile"
 	"reflect"
 	"regexp"
 	"runtime"

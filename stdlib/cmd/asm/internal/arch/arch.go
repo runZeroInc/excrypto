@@ -6,16 +6,16 @@
 package arch
 
 import (
-	"cmd/internal/obj"
-	"cmd/internal/obj/arm"
-	"cmd/internal/obj/arm64"
-	"cmd/internal/obj/loong64"
-	"cmd/internal/obj/mips"
-	"cmd/internal/obj/ppc64"
-	"cmd/internal/obj/riscv"
-	"cmd/internal/obj/s390x"
-	"cmd/internal/obj/wasm"
-	"cmd/internal/obj/x86"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/arm"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/arm64"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/loong64"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/mips"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/ppc64"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/riscv"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/s390x"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/wasm"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/x86"
 	"fmt"
 	"strings"
 )

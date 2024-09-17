@@ -7,11 +7,11 @@ package net
 import (
 	"bytes"
 	"context"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"internal/poll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/poll"
 	"io"
 	"os"
 	"runtime"
@@ -49,7 +49,7 @@ func expectSendfile(t *testing.T, wantConn Conn, f func()) {
 	)
 	poll.TestHookDidSendFile = func(dstFD *poll.FD, src int, written int64, err error, handled bool) {
 		if called {
-			t.Error("internal/poll.SendFile called multiple times, want one call")
+			t.Error("github.com/runZeroInc/excrypto/stdlib/internal/poll.SendFile called multiple times, want one call")
 		}
 		called = true
 		gotHandled = handled
@@ -57,11 +57,11 @@ func expectSendfile(t *testing.T, wantConn Conn, f func()) {
 	}
 	f()
 	if !called {
-		t.Error("internal/poll.SendFile was not called, want it to be")
+		t.Error("github.com/runZeroInc/excrypto/stdlib/internal/poll.SendFile was not called, want it to be")
 		return
 	}
 	if !gotHandled {
-		t.Error("internal/poll.SendFile did not handle the write, want it to")
+		t.Error("github.com/runZeroInc/excrypto/stdlib/internal/poll.SendFile did not handle the write, want it to")
 		return
 	}
 	if &wantConn.(*TCPConn).fd.pfd != gotFD {

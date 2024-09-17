@@ -5,7 +5,7 @@
 package ssa
 
 import (
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 // findlive returns the reachable blocks and live values in f.

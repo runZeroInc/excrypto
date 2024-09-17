@@ -6,7 +6,7 @@ package net
 
 import (
 	"errors"
-	"internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
 	"sync"
 	"time"
 	_ "unsafe"

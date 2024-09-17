@@ -10,7 +10,7 @@
 package rand
 
 import (
-	"crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
 	"errors"
 	"io"
 	"os"
@@ -42,7 +42,7 @@ type reader struct {
 var altGetRandom func([]byte) (err error)
 
 func warnBlocked() {
-	println("crypto/rand: blocked for 60 seconds waiting to read random data from the kernel")
+	println("github.com/runZeroInc/excrypto/stdlib/crypto/rand: blocked for 60 seconds waiting to read random data from the kernel")
 }
 
 func (r *reader) Read(b []byte) (n int, err error) {

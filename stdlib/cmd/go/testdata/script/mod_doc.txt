@@ -52,7 +52,7 @@ cd $GOROOT/src
 env GOFLAGS=
 env GOWORK=off
 go doc cryptobyte
-stdout '// import "golang.org/x/crypto/cryptobyte"'
+stdout '// import "github.com/runZeroInc/excrypto/x/crypto/cryptobyte"'
 
 cd $GOROOT/src/cmd/go
 go doc modfile
@@ -66,7 +66,7 @@ go doc vendor/golang.org/x/crypto/cryptobyte
 stdout '// import "vendor/golang.org/x/crypto/cryptobyte"'
 
 go doc cmd/vendor/golang.org/x/mod/modfile
-stdout '// import "cmd/vendor/golang.org/x/mod/modfile"'
+stdout '// import "github.com/runZeroInc/excrypto/stdlib/cmd/vendor/golang.org/x/mod/modfile"'
 
 -- go.mod --
 module x

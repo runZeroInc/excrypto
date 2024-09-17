@@ -6,8 +6,8 @@ package test
 
 import (
 	"bufio"
-	"internal/goexperiment"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goexperiment"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"math/bits"
 	"regexp"
@@ -110,13 +110,13 @@ func TestIntendedInlining(t *testing.T) {
 			"(*Buffer).UnreadByte",
 			"(*Buffer).tryGrowByReslice",
 		},
-		"internal/abi": {
+		"github.com/runZeroInc/excrypto/stdlib/internal/abi": {
 			"UseInterfaceSwitchCache",
 		},
-		"internal/runtime/math": {
+		"github.com/runZeroInc/excrypto/stdlib/internal/runtime/math": {
 			"MulUintptr",
 		},
-		"internal/runtime/sys": {},
+		"github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys": {},
 		"compress/flate": {
 			"byLiteral.Len",
 			"byLiteral.Less",
@@ -246,9 +246,9 @@ func TestIntendedInlining(t *testing.T) {
 	if runtime.GOARCH != "386" {
 		// As explained above, TrailingZeros64 and TrailingZeros32 are not Go code on 386.
 		// The same applies to Bswap32.
-		want["internal/runtime/sys"] = append(want["internal/runtime/sys"], "TrailingZeros64")
-		want["internal/runtime/sys"] = append(want["internal/runtime/sys"], "TrailingZeros32")
-		want["internal/runtime/sys"] = append(want["internal/runtime/sys"], "Bswap32")
+		want["github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys"] = append(want["github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys"], "TrailingZeros64")
+		want["github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys"] = append(want["github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys"], "TrailingZeros32")
+		want["github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys"] = append(want["github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys"], "Bswap32")
 	}
 	if runtime.GOARCH == "amd64" || runtime.GOARCH == "arm64" || runtime.GOARCH == "loong64" || runtime.GOARCH == "mips" || runtime.GOARCH == "mips64" || runtime.GOARCH == "ppc64" || runtime.GOARCH == "riscv64" || runtime.GOARCH == "s390x" {
 		// internal/runtime/atomic.Loaduintptr is only intrinsified on these platforms.

@@ -10,8 +10,8 @@ import (
 	"runtime"
 	"strings"
 
-	"cmd/go/internal/cfg"
-	"cmd/internal/quoted"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/quoted"
 )
 
 var goflags []string // cached $GOFLAGS list; can be -x or --x form

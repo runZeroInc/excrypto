@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"go/token"
 	"go/types"
-	"internal/pkgbits"
+	"github.com/runZeroInc/excrypto/stdlib/internal/pkgbits"
 	"sync"
 )
 

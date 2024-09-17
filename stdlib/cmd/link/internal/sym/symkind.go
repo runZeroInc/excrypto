@@ -30,7 +30,7 @@
 
 package sym
 
-import "cmd/internal/objabi"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
 
 // A SymKind describes the kind of memory represented by a symbol.
 type SymKind uint8
@@ -131,7 +131,7 @@ const (
 )
 
 // AbiSymKindToSymKind maps values read from object files (which are
-// of type cmd/internal/objabi.SymKind) to values of type SymKind.
+// of type github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi.SymKind) to values of type SymKind.
 var AbiSymKindToSymKind = [...]SymKind{
 	objabi.Sxxx:                    Sxxx,
 	objabi.STEXT:                   STEXT,

@@ -12,7 +12,7 @@ var stdPkgs = []string{
 	"bytes",
 	"cmp",
 	"context",
-	"crypto",
+	"github.com/runZeroInc/excrypto/stdlib/crypto",
 	"embed",
 	"encoding",
 	"errors",

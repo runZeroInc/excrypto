@@ -7,8 +7,8 @@ package fsys
 import (
 	"encoding/json"
 	"errors"
-	"internal/testenv"
-	"internal/txtar"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/txtar"
 	"io"
 	"io/fs"
 	"os"

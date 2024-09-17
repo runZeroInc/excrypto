@@ -5,7 +5,7 @@
 package loopvar_test
 
 import (
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os/exec"
 	"path/filepath"
 	"regexp"
@@ -119,7 +119,7 @@ func TestLoopVarInlinesGo1_21(t *testing.T) {
 	gocmd := testenv.GoToolPath(t)
 	tmpdir := t.TempDir()
 
-	root := "cmd/compile/internal/loopvar/testdata/inlines"
+	root := "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/loopvar/testdata/inlines"
 
 	f := func(pkg string) string {
 		// This disables the loopvar change, except for the specified package.
@@ -182,7 +182,7 @@ func TestLoopVarHashes(t *testing.T) {
 	gocmd := testenv.GoToolPath(t)
 	tmpdir := t.TempDir()
 
-	root := "cmd/compile/internal/loopvar/testdata/inlines"
+	root := "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/loopvar/testdata/inlines"
 
 	f := func(hash string) string {
 		// This disables the loopvar change, except for the specified hash pattern.
@@ -210,7 +210,7 @@ func TestLoopVarHashes(t *testing.T) {
 		if mCount != otherCount {
 			t.Errorf("%s: too many matches", arg)
 		}
-		mCount = countMatches(m, "cmd/compile/internal/loopvar/testdata/inlines/main.go:27:6: .* \\[bisect-match 0x7802e115b9336ca4\\]")
+		mCount = countMatches(m, "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/loopvar/testdata/inlines/main.go:27:6: .* \\[bisect-match 0x7802e115b9336ca4\\]")
 		otherCount = strings.Count(m, "[bisect-match ")
 		if mCount < 1 {
 			t.Errorf("%s: did not see bisect-match for main.go:27:6", arg)

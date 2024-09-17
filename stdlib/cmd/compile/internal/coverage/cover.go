@@ -6,18 +6,18 @@ package coverage
 
 // This package contains support routines for coverage "fixup" in the
 // compiler, which happens when compiling a package whose source code
-// has been run through "cmd/cover" to add instrumentation. The two
+// has been run through "github.com/runZeroInc/excrypto/stdlib/cmd/cover" to add instrumentation. The two
 // important entry points are FixupVars (called prior to package init
 // generation) and FixupInit (called following package init
 // generation).
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/typecheck"
-	"cmd/compile/internal/types"
-	"cmd/internal/objabi"
-	"internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/typecheck"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
 	"strconv"
 	"strings"
 )

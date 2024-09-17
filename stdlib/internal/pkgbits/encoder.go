@@ -6,7 +6,7 @@ package pkgbits
 
 import (
 	"bytes"
-	"crypto/md5"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/md5"
 	"encoding/binary"
 	"go/constant"
 	"io"

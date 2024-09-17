@@ -12,7 +12,7 @@
 package web
 
 import (
-	"crypto/tls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
 	"errors"
 	"fmt"
 	"io"
@@ -24,10 +24,10 @@ import (
 	"strings"
 	"time"
 
-	"cmd/go/internal/auth"
-	"cmd/go/internal/base"
-	"cmd/go/internal/cfg"
-	"cmd/internal/browser"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/auth"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/browser"
 )
 
 // impatientInsecureHTTPClient is used with GOINSECURE,

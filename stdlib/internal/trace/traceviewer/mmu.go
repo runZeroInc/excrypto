@@ -28,7 +28,7 @@ package traceviewer
 import (
 	"encoding/json"
 	"fmt"
-	"internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
 	"log"
 	"math"
 	"net/http"

@@ -8,7 +8,7 @@ package work
 
 import (
 	"bytes"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"strings"
 	"testing"
 	"unicode"

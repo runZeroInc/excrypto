@@ -6,10 +6,10 @@ package buildid
 
 import (
 	"bytes"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"debug/elf"
 	"encoding/binary"
-	"internal/obscuretestdata"
+	"github.com/runZeroInc/excrypto/stdlib/internal/obscuretestdata"
 	"os"
 	"reflect"
 	"strings"

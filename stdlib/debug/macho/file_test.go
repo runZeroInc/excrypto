@@ -6,7 +6,7 @@ package macho
 
 import (
 	"bytes"
-	"internal/obscuretestdata"
+	"github.com/runZeroInc/excrypto/stdlib/internal/obscuretestdata"
 	"io"
 	"reflect"
 	"testing"

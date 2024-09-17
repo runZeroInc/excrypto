@@ -12,11 +12,11 @@ package carchive_test
 import (
 	"bufio"
 	"bytes"
-	"cmd/cgo/internal/cgotest"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/cgotest"
 	"debug/elf"
 	"flag"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"log"
 	"os"

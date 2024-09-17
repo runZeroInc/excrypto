@@ -32,13 +32,13 @@
 package obj
 
 import (
-	"cmd/internal/goobj"
-	"cmd/internal/hash"
-	"cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/goobj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/hash"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
 	"encoding/base64"
 	"encoding/binary"
 	"fmt"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"log"
 	"math"
 	"sort"

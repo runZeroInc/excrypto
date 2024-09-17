@@ -9,11 +9,11 @@ package http
 import (
 	"bytes"
 	"context"
-	"crypto/tls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
 	"errors"
 	"io"
 	"net"
-	"net/http/internal/testcert"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/internal/testcert"
 	"strings"
 	"testing"
 )

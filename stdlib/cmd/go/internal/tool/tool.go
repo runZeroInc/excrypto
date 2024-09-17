@@ -6,21 +6,21 @@
 package tool
 
 import (
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"go/build"
-	"internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
 	"os"
 	"os/exec"
 	"os/signal"
 	"sort"
 	"strings"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
 )
 
 var CmdTool = &base.Command{

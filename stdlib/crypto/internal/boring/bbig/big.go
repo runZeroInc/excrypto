@@ -5,7 +5,7 @@
 package bbig
 
 import (
-	"crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
 	"math/big"
 	"unsafe"
 )

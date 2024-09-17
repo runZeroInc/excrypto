@@ -7,11 +7,11 @@
 package importer
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/types2"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"
 	"fmt"
 	"go/token"
-	"internal/pkgbits"
+	"github.com/runZeroInc/excrypto/stdlib/internal/pkgbits"
 	"sync"
 )
 

@@ -7,9 +7,9 @@ package importer
 
 import (
 	"go/build"
-	"go/internal/gccgoimporter"
-	"go/internal/gcimporter"
-	"go/internal/srcimporter"
+	"github.com/runZeroInc/excrypto/stdlib/go/internal/gccgoimporter"
+	"github.com/runZeroInc/excrypto/stdlib/go/internal/gcimporter"
+	"github.com/runZeroInc/excrypto/stdlib/go/internal/srcimporter"
 	"go/token"
 	"go/types"
 	"io"

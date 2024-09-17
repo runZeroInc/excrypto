@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	"internal/trace/event"
-	"internal/trace/version"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/event"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/version"
 )
 
 // Event is a simple representation of a trace event.

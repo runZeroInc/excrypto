@@ -6,7 +6,7 @@ package runtime_test
 
 import (
 	"fmt"
-	"internal/goos"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goos"
 	. "runtime"
 	"testing"
 )

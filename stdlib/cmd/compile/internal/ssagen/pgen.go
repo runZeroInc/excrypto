@@ -6,24 +6,24 @@ package ssagen
 
 import (
 	"fmt"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"os"
 	"slices"
 	"sort"
 	"strings"
 	"sync"
 
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/inline"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/liveness"
-	"cmd/compile/internal/objw"
-	"cmd/compile/internal/pgoir"
-	"cmd/compile/internal/ssa"
-	"cmd/compile/internal/types"
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/inline"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/liveness"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/objw"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/pgoir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssa"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 // cmpstackvarlt reports whether the stack variable a sorts before b.

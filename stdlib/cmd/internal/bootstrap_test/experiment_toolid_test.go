@@ -9,7 +9,7 @@ package bootstrap_test
 import (
 	"bytes"
 	"errors"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"path/filepath"

@@ -8,9 +8,9 @@ package runtime_test
 
 import (
 	"fmt"
-	"internal/goos"
-	"internal/platform"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goos"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"runtime"

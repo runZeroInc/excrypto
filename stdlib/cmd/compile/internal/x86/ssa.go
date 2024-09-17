@@ -8,14 +8,14 @@ import (
 	"fmt"
 	"math"
 
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/logopt"
-	"cmd/compile/internal/ssa"
-	"cmd/compile/internal/ssagen"
-	"cmd/compile/internal/types"
-	"cmd/internal/obj"
-	"cmd/internal/obj/x86"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/logopt"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssa"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssagen"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/x86"
 )
 
 // ssaMarkMoves marks any MOVXconst ops that need to avoid clobbering flags.
@@ -690,7 +690,7 @@ func ssaGenValue(s *ssagen.State, v *ssa.Value) {
 		ssagen.CheckLoweredGetClosurePtr(v)
 	case ssa.Op386LoweredGetG:
 		r := v.Reg()
-		// See the comments in cmd/internal/obj/x86/obj6.go
+		// See the comments in github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/x86/obj6.go
 		// near CanUse1InsnTLS for a detailed explanation of these instructions.
 		if x86.CanUse1InsnTLS(base.Ctxt) {
 			// MOVL (TLS), r

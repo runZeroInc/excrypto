@@ -9,11 +9,11 @@ package cgotest
 import (
 	"testing"
 
-	"cmd/cgo/internal/test/issue24161arg"
-	"cmd/cgo/internal/test/issue24161e0"
-	"cmd/cgo/internal/test/issue24161e1"
-	"cmd/cgo/internal/test/issue24161e2"
-	"cmd/cgo/internal/test/issue24161res"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/test/issue24161arg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/test/issue24161e0"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/test/issue24161e1"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/test/issue24161e2"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/test/issue24161res"
 )
 
 func Test24161Arg(t *testing.T) {

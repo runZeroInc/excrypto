@@ -19,7 +19,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 
 	"golang.org/x/arch/arm/armasm"
 	"golang.org/x/arch/arm64/arm64asm"

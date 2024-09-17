@@ -40,8 +40,8 @@ import (
 	"strconv"
 	"strings"
 
-	"cmd/internal/objfile"
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objfile"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 )
 
 var printCode = flag.Bool("S", false, "print Go code alongside assembly")

@@ -8,7 +8,7 @@ package macOS
 
 import (
 	"errors"
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"strconv"
 	"unsafe"
 )

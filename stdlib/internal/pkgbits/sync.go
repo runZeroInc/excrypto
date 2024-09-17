@@ -15,7 +15,7 @@ func fmtFrames(pcs ...uintptr) []string {
 	res := make([]string, 0, len(pcs))
 	walkFrames(pcs, func(file string, line int, name string, offset uintptr) {
 		// Trim package from function name. It's just redundant noise.
-		name = strings.TrimPrefix(name, "cmd/compile/internal/noder.")
+		name = strings.TrimPrefix(name, "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/noder.")
 
 		res = append(res, fmt.Sprintf("%s:%v: %s +0x%v", file, line, name, offset))
 	})

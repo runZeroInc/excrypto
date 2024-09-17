@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"testing"
 
-	"cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
 )
 
 func eq(a, b []string) bool {

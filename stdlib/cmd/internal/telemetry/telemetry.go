@@ -14,7 +14,7 @@ package telemetry
 import (
 	"os"
 
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 
 	"golang.org/x/telemetry"
 )

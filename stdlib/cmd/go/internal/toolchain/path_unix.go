@@ -7,13 +7,13 @@
 package toolchain
 
 import (
-	"internal/syscall/unix"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/unix"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"syscall"
 
-	"cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
 )
 
 // pathDirs returns the directories in the system search path.

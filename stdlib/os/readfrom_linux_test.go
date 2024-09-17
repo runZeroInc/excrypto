@@ -7,8 +7,8 @@ package os_test
 import (
 	"bytes"
 	"errors"
-	"internal/poll"
-	"internal/testpty"
+	"github.com/runZeroInc/excrypto/stdlib/internal/poll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testpty"
 	"io"
 	"math/rand"
 	"net"

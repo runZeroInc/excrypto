@@ -7,9 +7,9 @@
 package runtime
 
 import (
-	"internal/chacha8rand"
-	"internal/goarch"
-	"internal/runtime/math"
+	"github.com/runZeroInc/excrypto/stdlib/internal/chacha8rand"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/math"
 	"unsafe"
 	_ "unsafe" // for go:linkname
 )

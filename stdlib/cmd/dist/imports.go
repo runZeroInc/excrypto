@@ -252,7 +252,7 @@ func readimports(file string) []string {
 //
 // resolveVendor assumes that a package is vendored if and only if its first
 // path component contains a dot. If a package is vendored, its import path
-// is returned with a "vendor" or "cmd/vendor" prefix, depending on srcDir.
+// is returned with a "vendor" or "github.com/runZeroInc/excrypto/stdlib/cmd/vendor" prefix, depending on srcDir.
 // Otherwise, the import path is returned verbatim.
 func resolveVendor(imp, srcDir string) string {
 	var first string

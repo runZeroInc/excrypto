@@ -9,9 +9,9 @@ import (
 	"slices"
 	"sort"
 
-	"cmd/compile/internal/base"
-	"cmd/internal/src"
-	"internal/types/errors"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 )
 
 var PtrSize int
@@ -200,7 +200,7 @@ func isAtomicStdPkg(p *Pkg) bool {
 	if p.Prefix == `""` {
 		panic("bad package prefix")
 	}
-	return p.Prefix == "sync/atomic" || p.Prefix == "internal/runtime/atomic"
+	return p.Prefix == "sync/atomic" || p.Prefix == "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
 }
 
 // CalcSize calculates and stores the size, alignment, eq/hash algorithm,

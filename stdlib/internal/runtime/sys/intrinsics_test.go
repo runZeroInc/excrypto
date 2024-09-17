@@ -5,7 +5,7 @@
 package sys_test
 
 import (
-	"internal/runtime/sys"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys"
 	"testing"
 )
 

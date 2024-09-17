@@ -8,10 +8,10 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"internal/race"
-	"internal/testenv"
-	"internal/trace"
-	"internal/trace/testtrace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/race"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/testtrace"
 	"io"
 	"os"
 	"path/filepath"
@@ -418,7 +418,7 @@ func TestTraceStacks(t *testing.T) {
 		if runtime.GOOS != "windows" && runtime.GOOS != "plan9" {
 			want = append(want, []evDesc{
 				{trace.EventStateTransition, "Goroutine Running->Waiting", []frame{
-					{"internal/poll.(*FD).Accept", 0},
+					{"github.com/runZeroInc/excrypto/stdlib/internal/poll.(*FD).Accept", 0},
 					{"net.(*netFD).accept", 0},
 					{"net.(*TCPListener).accept", 0},
 					{"net.(*TCPListener).Accept", 0},
@@ -427,8 +427,8 @@ func TestTraceStacks(t *testing.T) {
 				{trace.EventStateTransition, "Goroutine Running->Syscall", []frame{
 					{"syscall.read", 0},
 					{"syscall.Read", 0},
-					{"internal/poll.ignoringEINTRIO", 0},
-					{"internal/poll.(*FD).Read", 0},
+					{"github.com/runZeroInc/excrypto/stdlib/internal/poll.ignoringEINTRIO", 0},
+					{"github.com/runZeroInc/excrypto/stdlib/internal/poll.(*FD).Read", 0},
 					{"os.(*File).read", 0},
 					{"os.(*File).Read", 0},
 					{"main.main.func11", 0},

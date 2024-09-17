@@ -6,9 +6,9 @@ package test
 
 import (
 	"fmt"
-	"internal/coverage"
-	"internal/coverage/decodecounter"
-	"internal/coverage/encodecounter"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/decodecounter"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/encodecounter"
 	"io"
 	"os"
 	"path/filepath"

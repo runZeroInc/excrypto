@@ -10,10 +10,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"internal/coverage"
-	"internal/coverage/decodecounter"
-	"internal/coverage/decodemeta"
-	"internal/coverage/pods"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/decodecounter"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/decodemeta"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/pods"
 	"os"
 	"strings"
 )

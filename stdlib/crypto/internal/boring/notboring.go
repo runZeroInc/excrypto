@@ -7,9 +7,9 @@
 package boring
 
 import (
-	"crypto"
-	"crypto/cipher"
-	"crypto/internal/boring/sig"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring/sig"
 	"hash"
 )
 

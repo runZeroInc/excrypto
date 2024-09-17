@@ -36,8 +36,8 @@ func main() {
 	fmt.Fprintln(&b, "package typecheck")
 	fmt.Fprintln(&b)
 	fmt.Fprintln(&b, `import (`)
-	fmt.Fprintln(&b, `      "cmd/compile/internal/types"`)
-	fmt.Fprintln(&b, `      "cmd/internal/src"`)
+	fmt.Fprintln(&b, `      "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"`)
+	fmt.Fprintln(&b, `      "github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"`)
 	fmt.Fprintln(&b, `)`)
 
 	fmt.Fprintln(&b, `

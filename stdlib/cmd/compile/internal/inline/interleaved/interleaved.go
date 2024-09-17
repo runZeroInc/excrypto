@@ -7,13 +7,13 @@
 package interleaved
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/devirtualize"
-	"cmd/compile/internal/inline"
-	"cmd/compile/internal/inline/inlheur"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/pgoir"
-	"cmd/compile/internal/typecheck"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/devirtualize"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/inline"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/inline/inlheur"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/pgoir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/typecheck"
 	"fmt"
 )
 

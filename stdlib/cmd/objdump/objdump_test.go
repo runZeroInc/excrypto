@@ -5,11 +5,11 @@
 package main
 
 import (
-	"cmd/internal/hash"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/hash"
 	"flag"
 	"fmt"
-	"internal/platform"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"path/filepath"
 	"runtime"

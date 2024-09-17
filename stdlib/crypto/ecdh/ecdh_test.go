@@ -6,14 +6,14 @@ package ecdh_test
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/cipher"
-	"crypto/ecdh"
-	"crypto/rand"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"os"
 	"os/exec"
@@ -22,7 +22,7 @@ import (
 	"strings"
 	"testing"
 
-	"golang.org/x/crypto/chacha20"
+	"github.com/runZeroInc/excrypto/x/crypto/chacha20"
 )
 
 // Check that PublicKey and PrivateKey implement the interfaces documented in
@@ -420,8 +420,8 @@ var zeroReader = zr{}
 
 const linkerTestProgram = `
 package main
-import "crypto/ecdh"
-import "crypto/rand"
+import "github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
+import "github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 func main() {
 	curve := ecdh.P384()
 	key, err := curve.GenerateKey(rand.Reader)
@@ -512,7 +512,7 @@ func TestMismatchedCurves(t *testing.T) {
 				if err != nil {
 					t.Fatalf("failed to generate test key: %s", err)
 				}
-				expected := "crypto/ecdh: private key and public key curves do not match"
+				expected := "github.com/runZeroInc/excrypto/stdlib/crypto/ecdh: private key and public key curves do not match"
 				_, err = priv.ECDH(pub.PublicKey())
 				if err.Error() != expected {
 					t.Fatalf("unexpected error: want %q, got %q", expected, err)

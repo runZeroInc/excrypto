@@ -5,10 +5,10 @@
 package loader
 
 import (
-	"cmd/internal/goobj"
-	"cmd/internal/objabi"
-	"cmd/internal/sys"
-	"cmd/link/internal/sym"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/goobj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/sym"
 	"cmp"
 	"slices"
 )

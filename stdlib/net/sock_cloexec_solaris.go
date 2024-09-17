@@ -11,8 +11,8 @@
 package net
 
 import (
-	"internal/poll"
-	"internal/syscall/unix"
+	"github.com/runZeroInc/excrypto/stdlib/internal/poll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/unix"
 	"os"
 	"syscall"
 )

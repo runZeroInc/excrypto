@@ -5,9 +5,9 @@
 package main
 
 import (
-	"cmd/internal/script/scripttest"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/script/scripttest"
 	"flag"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"runtime"
 	"testing"
 )

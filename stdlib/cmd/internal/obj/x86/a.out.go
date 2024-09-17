@@ -30,7 +30,7 @@
 
 package x86
 
-import "cmd/internal/obj"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
 
 const (
 	REG_NONE = 0

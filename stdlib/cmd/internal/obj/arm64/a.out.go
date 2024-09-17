@@ -30,7 +30,7 @@
 
 package arm64
 
-import "cmd/internal/obj"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
 
 const (
 	NSNAME = 8

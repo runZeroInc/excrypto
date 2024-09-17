@@ -21,10 +21,10 @@ import (
 	"sync"
 	"time"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/lockedfile"
-	"cmd/go/internal/web"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/lockedfile"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/web"
 
 	"golang.org/x/mod/module"
 	"golang.org/x/mod/sumdb"

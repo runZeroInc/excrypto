@@ -5,7 +5,7 @@
 package x509
 
 import (
-	macOS "crypto/x509/internal/macos"
+	macOS "github.com/runZeroInc/excrypto/stdlib/crypto/x509/internal/macos"
 	"errors"
 	"fmt"
 )

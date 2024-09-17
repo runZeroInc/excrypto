@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"log/slog/internal/buffer"
+	"github.com/runZeroInc/excrypto/stdlib/log/slog/internal/buffer"
 	"strconv"
 	"time"
 )

@@ -4,9 +4,9 @@ package ssa
 
 import "math"
 import "math/bits"
-import "cmd/internal/obj"
-import "cmd/compile/internal/types"
-import "cmd/compile/internal/ir"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
 
 func rewriteValuegeneric(v *Value) bool {
 	switch v.Op {

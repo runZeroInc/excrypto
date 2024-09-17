@@ -12,7 +12,7 @@ package types
 import (
 	"fmt"
 	"go/ast"
-	. "internal/types/errors"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 	"strings"
 )
 

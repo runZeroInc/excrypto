@@ -5,7 +5,7 @@
 package sort
 
 import (
-	"internal/reflectlite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/reflectlite"
 	"math/bits"
 )
 

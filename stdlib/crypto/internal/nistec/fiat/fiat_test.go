@@ -5,7 +5,7 @@
 package fiat_test
 
 import (
-	"crypto/internal/nistec/fiat"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/nistec/fiat"
 	"testing"
 )
 

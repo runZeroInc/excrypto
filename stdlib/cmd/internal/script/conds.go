@@ -6,7 +6,7 @@ package script
 
 import (
 	"fmt"
-	"internal/syslist"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syslist"
 	"os"
 	"runtime"
 	"sync"

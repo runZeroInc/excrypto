@@ -5,7 +5,7 @@
 package pem_test
 
 import (
-	"crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"encoding/pem"
 	"fmt"
 	"log"

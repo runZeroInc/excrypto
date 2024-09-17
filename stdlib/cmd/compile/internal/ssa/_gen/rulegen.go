@@ -580,13 +580,13 @@ func fprint(w io.Writer, n Node) {
 		fmt.Fprintf(w, "\npackage ssa\n")
 		for _, path := range append([]string{
 			"fmt",
-			"internal/buildcfg",
+			"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg",
 			"math",
 			"math/bits",
-			"cmd/internal/obj",
-			"cmd/compile/internal/base",
-			"cmd/compile/internal/types",
-			"cmd/compile/internal/ir",
+			"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj",
+			"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base",
+			"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types",
+			"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir",
 		}, n.Arch.imports...) {
 			fmt.Fprintf(w, "import %q\n", path)
 		}

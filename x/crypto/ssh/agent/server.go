@@ -17,7 +17,7 @@ import (
 	"log"
 	"math/big"
 
-	"golang.org/x/crypto/ssh"
+	"github.com/runZeroInc/excrypto/x/crypto/ssh"
 )
 
 // server wraps an Agent and uses it to implement the agent side of

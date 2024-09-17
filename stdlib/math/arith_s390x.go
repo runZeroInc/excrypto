@@ -4,7 +4,7 @@
 
 package math
 
-import "internal/cpu"
+import "github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 
 func expTrampolineSetup(x float64) float64
 func expAsm(x float64) float64

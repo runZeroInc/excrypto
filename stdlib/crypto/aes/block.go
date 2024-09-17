@@ -36,7 +36,7 @@
 
 package aes
 
-import "internal/byteorder"
+import "github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 
 // Encrypt one block from src into dst, using the expanded key xk.
 func encryptBlockGo(xk []uint32, dst, src []byte) {

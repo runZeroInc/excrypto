@@ -5,16 +5,16 @@
 package pkginit
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/noder"
-	"cmd/compile/internal/objw"
-	"cmd/compile/internal/staticinit"
-	"cmd/compile/internal/typecheck"
-	"cmd/compile/internal/types"
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/noder"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/objw"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/staticinit"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/typecheck"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 // MakeTask makes an initialization record for the package, if necessary.

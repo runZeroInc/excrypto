@@ -14,8 +14,8 @@ import (
 	"errors"
 	"fmt"
 	"go/token"
-	"internal/buildcfg"
-	. "internal/types/errors"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 )
 
 // A genericType implements access to its type parameters.

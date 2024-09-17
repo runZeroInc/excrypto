@@ -435,7 +435,7 @@ func findgoversion() string {
 	goversionSource := readfile(pathf("%s/src/internal/goversion/goversion.go", goroot))
 	m := regexp.MustCompile(`(?m)^const Version = (\d+)`).FindStringSubmatch(goversionSource)
 	if m == nil {
-		fatalf("internal/goversion/goversion.go does not contain 'const Version = ...'")
+		fatalf("github.com/runZeroInc/excrypto/stdlib/internal/goversion/goversion.go does not contain 'const Version = ...'")
 	}
 	version := fmt.Sprintf("devel go1.%s-", m[1])
 	version += chomp(run(goroot, CheckExit, "git", "log", "-n", "1", "--format=format:%h %cd", "HEAD"))
@@ -670,8 +670,8 @@ var gentab = []struct {
 	gen  func(dir, file string)
 }{
 	{"go/build", "zcgo.go", mkzcgo},
-	{"cmd/go/internal/cfg", "zdefaultcc.go", mkzdefaultcc},
-	{"internal/runtime/sys", "zversion.go", mkzversion},
+	{"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg", "zdefaultcc.go", mkzdefaultcc},
+	{"github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys", "zversion.go", mkzversion},
 	{"time/tzdata", "zzipdata.go", mktzdata},
 }
 
@@ -699,7 +699,7 @@ func startInstall(dir string) chan struct{} {
 // runInstall installs the library, package, or binary associated with pkg,
 // which is relative to $GOROOT/src.
 func runInstall(pkg string, ch chan struct{}) {
-	if pkg == "net" || pkg == "os/user" || pkg == "crypto/x509" {
+	if pkg == "net" || pkg == "os/user" || pkg == "github.com/runZeroInc/excrypto/stdlib/crypto/x509" {
 		fatalf("go_bootstrap cannot depend on cgo package %s", pkg)
 	}
 
@@ -734,7 +734,7 @@ func runInstall(pkg string, ch chan struct{}) {
 	// ispkg predicts whether the package should be linked as a binary, based
 	// on the name. There should be no "main" packages in vendor, since
 	// 'go mod vendor' will only copy imported packages there.
-	ispkg := !strings.HasPrefix(pkg, "cmd/") || strings.Contains(pkg, "/internal/") || strings.Contains(pkg, "/vendor/")
+	ispkg := !strings.HasPrefix(pkg, "github.com/runZeroInc/excrypto/stdlib/cmd/") || strings.Contains(pkg, "/internal/") || strings.Contains(pkg, "/vendor/")
 
 	// Start final link command line.
 	// Note: code below knows that link.p[targ] is the target.
@@ -990,7 +990,7 @@ func runInstall(pkg string, ch chan struct{}) {
 	// For packages containing assembly, this writes go_asm.h, which
 	// the assembly files will need.
 	pkgName := pkg
-	if strings.HasPrefix(pkg, "cmd/") && strings.Count(pkg, "/") == 1 {
+	if strings.HasPrefix(pkg, "github.com/runZeroInc/excrypto/stdlib/cmd/") && strings.Count(pkg, "/") == 1 {
 		pkgName = "main"
 	}
 	b := pathf("%s/_go_.a", workdir)
@@ -1148,7 +1148,7 @@ func shouldbuild(file, pkg string) bool {
 		if code == "package documentation" {
 			return false
 		}
-		if code == "package main" && pkg != "cmd/go" && pkg != "cmd/cgo" {
+		if code == "package main" && pkg != "github.com/runZeroInc/excrypto/stdlib/cmd/go" && pkg != "github.com/runZeroInc/excrypto/stdlib/cmd/cgo" {
 			return false
 		}
 		if !strings.HasPrefix(p, "//") {
@@ -1388,7 +1388,7 @@ func toolenv() []string {
 	return env
 }
 
-var toolchain = []string{"cmd/asm", "cmd/cgo", "cmd/compile", "cmd/link", "cmd/preprofile"}
+var toolchain = []string{"github.com/runZeroInc/excrypto/stdlib/cmd/asm", "github.com/runZeroInc/excrypto/stdlib/cmd/cgo", "github.com/runZeroInc/excrypto/stdlib/cmd/compile", "github.com/runZeroInc/excrypto/stdlib/cmd/link", "github.com/runZeroInc/excrypto/stdlib/cmd/preprofile"}
 
 // The bootstrap command runs a build from scratch,
 // stopping at having installed the go_bootstrap command.
@@ -1456,7 +1456,7 @@ func cmdbootstrap() {
 
 	if debug {
 		// cmd/buildid is used in debug mode.
-		toolchain = append(toolchain, "cmd/buildid")
+		toolchain = append(toolchain, "github.com/runZeroInc/excrypto/stdlib/cmd/buildid")
 	}
 
 	if isdir(pathf("%s/src/pkg", goroot)) {
@@ -1499,7 +1499,7 @@ func cmdbootstrap() {
 	xprintf("Building Go bootstrap cmd/go (go_bootstrap) using Go toolchain1.\n")
 	install("runtime")     // dependency not visible in sources; also sets up textflag.h
 	install("time/tzdata") // no dependency in sources; creates generated file
-	install("cmd/go")
+	install("github.com/runZeroInc/excrypto/stdlib/cmd/go")
 	if vflag > 0 {
 		xprintf("\n")
 	}
@@ -1741,7 +1741,7 @@ func checkNotStale(env []string, goBinary string, targets ...string) {
 	out := runEnv(workdir, CheckExit, env, append(goCmd, targets...)...)
 	if strings.Contains(out, "\tSTALE ") {
 		os.Setenv("GODEBUG", "gocachehash=1")
-		for _, target := range []string{"internal/runtime/sys", "cmd/dist", "cmd/link"} {
+		for _, target := range []string{"github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys", "github.com/runZeroInc/excrypto/stdlib/cmd/dist", "github.com/runZeroInc/excrypto/stdlib/cmd/link"} {
 			if strings.Contains(out, "STALE "+target) {
 				run(workdir, ShowOutput|CheckExit, goBinary, "list", "-f={{.ImportPath}} {{.Stale}}", target)
 				break

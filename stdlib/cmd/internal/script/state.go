@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"internal/txtar"
+	"github.com/runZeroInc/excrypto/stdlib/internal/txtar"
 	"io"
 	"io/fs"
 	"os"

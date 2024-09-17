@@ -6,6 +6,6 @@
 
 package sha512
 
-import "internal/cpu"
+import "github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 
 var useAsm = cpu.S390X.HasSHA512

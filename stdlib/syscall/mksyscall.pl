@@ -84,7 +84,7 @@ if($ARGV[0] =~ /^-/) {
 }
 
 if($libc) {
-	$extraimports = 'import "internal/abi"';
+	$extraimports = 'import "github.com/runZeroInc/excrypto/stdlib/internal/abi"';
 }
 if($darwin) {
 	$extraimports .= "\nimport \"runtime\"";

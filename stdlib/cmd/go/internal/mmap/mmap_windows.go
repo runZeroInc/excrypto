@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
 )
 
 func mmapFile(f *os.File) (Data, error) {

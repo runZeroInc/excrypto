@@ -5,9 +5,9 @@
 package main
 
 import (
-	"cmd/internal/cov"
-	"cmd/internal/pkgpattern"
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/cov"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pkgpattern"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 	"flag"
 	"fmt"
 	"os"

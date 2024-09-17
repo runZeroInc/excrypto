@@ -9,8 +9,8 @@
 package arch
 
 import (
-	"cmd/internal/obj"
-	"cmd/internal/obj/loong64"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/loong64"
 )
 
 func jumpLoong64(word string) bool {

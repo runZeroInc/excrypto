@@ -7,12 +7,12 @@
 package x509
 
 import (
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/internal/boring/fipstls"
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring/fipstls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"fmt"
 	"math/big"
 	"strings"

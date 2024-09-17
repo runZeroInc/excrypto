@@ -7,7 +7,7 @@ package pods
 import (
 	"cmp"
 	"fmt"
-	"internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
 	"os"
 	"path/filepath"
 	"regexp"

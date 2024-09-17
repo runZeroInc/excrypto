@@ -11,7 +11,7 @@ package draw
 import (
 	"image"
 	"image/color"
-	"image/internal/imageutil"
+	"github.com/runZeroInc/excrypto/stdlib/image/internal/imageutil"
 )
 
 // m is the maximum color value returned by image.Color.RGBA.

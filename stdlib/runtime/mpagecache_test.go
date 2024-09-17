@@ -5,7 +5,7 @@
 package runtime_test
 
 import (
-	"internal/goos"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goos"
 	"math/rand"
 	. "runtime"
 	"testing"

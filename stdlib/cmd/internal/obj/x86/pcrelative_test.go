@@ -7,7 +7,7 @@ package x86_test
 import (
 	"bytes"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"path/filepath"
 	"testing"

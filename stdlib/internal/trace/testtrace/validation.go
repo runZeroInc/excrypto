@@ -7,7 +7,7 @@ package testtrace
 import (
 	"errors"
 	"fmt"
-	"internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
 	"slices"
 	"strings"
 )

@@ -7,7 +7,7 @@ package testing
 import (
 	"flag"
 	"fmt"
-	"internal/sysinfo"
+	"github.com/runZeroInc/excrypto/stdlib/internal/sysinfo"
 	"io"
 	"math"
 	"os"

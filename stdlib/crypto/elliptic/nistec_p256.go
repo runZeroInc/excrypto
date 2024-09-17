@@ -7,7 +7,7 @@
 package elliptic
 
 import (
-	"crypto/internal/nistec"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/nistec"
 	"math/big"
 )
 
@@ -23,7 +23,7 @@ func (c p256Curve) Inverse(k *big.Int) *big.Int {
 	scalar := k.FillBytes(make([]byte, 32))
 	inverse, err := nistec.P256OrdInverse(scalar)
 	if err != nil {
-		panic("crypto/elliptic: nistec rejected normalized scalar")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/elliptic: nistec rejected normalized scalar")
 	}
 	return new(big.Int).SetBytes(inverse)
 }

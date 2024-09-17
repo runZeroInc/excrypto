@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"testing"
 
-	. "cmd/compile/internal/types2"
+	. "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"
 )
 
 // BenchmarkLookupFieldOrMethod measures types.LookupFieldOrMethod performance.

@@ -6,7 +6,7 @@ package types2
 
 import (
 	"bytes"
-	"cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
 	"fmt"
 	"go/constant"
 	"strings"

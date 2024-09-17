@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 
-	"internal/trace/version"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/version"
 )
 
 // TextWriter emits the text format of a trace.

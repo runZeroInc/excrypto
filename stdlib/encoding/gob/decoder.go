@@ -7,7 +7,7 @@ package gob
 import (
 	"bufio"
 	"errors"
-	"internal/saferio"
+	"github.com/runZeroInc/excrypto/stdlib/internal/saferio"
 	"io"
 	"reflect"
 	"sync"

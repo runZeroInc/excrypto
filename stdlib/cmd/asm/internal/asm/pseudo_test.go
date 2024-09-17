@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"cmd/asm/internal/lex"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm/internal/lex"
 )
 
 func tokenize(s string) [][]lex.Token {

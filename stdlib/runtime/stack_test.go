@@ -6,7 +6,7 @@ package runtime_test
 
 import (
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"reflect"
 	"regexp"
 	. "runtime"

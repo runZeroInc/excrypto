@@ -7,8 +7,8 @@ standard library in the src/vendor and src/cmd/vendor directories.
 There are two modules, std and cmd, defined in src/go.mod and
 src/cmd/go.mod. When a package outside std or cmd is imported
 by a package inside std or cmd, the import path is interpreted
-as if it had a "vendor/" prefix. For example, within "crypto/tls",
-an import of "golang.org/x/crypto/cryptobyte" resolves to
+as if it had a "vendor/" prefix. For example, within "github.com/runZeroInc/excrypto/stdlib/crypto/tls",
+an import of "github.com/runZeroInc/excrypto/x/crypto/cryptobyte" resolves to
 "vendor/golang.org/x/crypto/cryptobyte". When a package with the
 same path is imported from a package outside std or cmd, it will
 be resolved normally. Consequently, a binary may be built with two

@@ -5,7 +5,7 @@
 package signal
 
 import (
-	"internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
 	"os"
 	"runtime"
 	"syscall"

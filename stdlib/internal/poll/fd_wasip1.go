@@ -5,7 +5,7 @@
 package poll
 
 import (
-	"internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 	"sync/atomic"
 	"syscall"
 	"unsafe"
@@ -231,6 +231,6 @@ func readIntLE(b []byte, size uintptr) uint64 {
 	case 8:
 		return uint64(byteorder.LeUint64(b))
 	default:
-		panic("internal/poll: readInt with unsupported size")
+		panic("github.com/runZeroInc/excrypto/stdlib/internal/poll: readInt with unsupported size")
 	}
 }

@@ -7,8 +7,8 @@
 package cpu_test
 
 import (
-	. "internal/cpu"
-	"internal/godebug"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/cpu"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"testing"
 )
 

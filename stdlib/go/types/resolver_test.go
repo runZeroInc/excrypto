@@ -9,7 +9,7 @@ import (
 	"go/ast"
 	"go/importer"
 	"go/token"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"slices"
 	"testing"
 

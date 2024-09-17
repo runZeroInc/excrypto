@@ -11,13 +11,13 @@ package http
 
 import (
 	"context"
-	"crypto/tls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
 	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
 	"log"
-	"net/http/internal/ascii"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/internal/ascii"
 	"net/url"
 	"reflect"
 	"slices"

@@ -7,7 +7,7 @@ package types
 import (
 	"go/ast"
 	"go/token"
-	. "internal/types/errors"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 	"strconv"
 )
 

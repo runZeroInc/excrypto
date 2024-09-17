@@ -7,11 +7,11 @@
 package runtime
 
 import (
-	"internal/abi"
-	"internal/goarch"
-	"internal/goos"
-	"internal/runtime/atomic"
-	"internal/runtime/sys"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goos"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys"
 	"unsafe"
 )
 

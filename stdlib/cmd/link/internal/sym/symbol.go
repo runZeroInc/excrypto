@@ -5,8 +5,8 @@
 package sym
 
 import (
-	"cmd/internal/obj"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 )
 
 const (

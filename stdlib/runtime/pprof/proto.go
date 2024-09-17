@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"fmt"
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"io"
 	"runtime"
 	"strconv"

@@ -20,11 +20,11 @@ package imports
 
 import (
 	"bytes"
-	"cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
 	"errors"
 	"fmt"
 	"go/build/constraint"
-	"internal/syslist"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syslist"
 	"strings"
 	"unicode"
 )

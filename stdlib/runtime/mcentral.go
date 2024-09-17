@@ -13,8 +13,8 @@
 package runtime
 
 import (
-	"internal/runtime/atomic"
-	"internal/runtime/sys"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys"
 )
 
 // Central list of free objects of a given size.

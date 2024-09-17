@@ -5,12 +5,12 @@
 package main_test
 
 import (
-	cmdcovdata "cmd/covdata"
+	cmdcovdata "github.com/runZeroInc/excrypto/stdlib/cmd/covdata"
 	"flag"
 	"fmt"
-	"internal/coverage/pods"
-	"internal/goexperiment"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/pods"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goexperiment"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"log"
 	"os"
 	"path/filepath"

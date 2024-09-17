@@ -10,7 +10,7 @@ package syscall
 
 import (
 	errorspkg "errors"
-	"internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
 	"runtime"
 	"sync"
 	"unsafe"

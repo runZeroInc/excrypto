@@ -5,7 +5,7 @@
 package asm
 
 import (
-	"cmd/asm/internal/lex"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm/internal/lex"
 	"strings"
 	"testing"
 	"text/scanner"

@@ -8,8 +8,8 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"internal/buildcfg"
-	"internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
 	"io"
 	"log"
 	"os"
@@ -17,14 +17,14 @@ import (
 	"runtime"
 	"strings"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/fsys"
-	"cmd/go/internal/gover"
-	"cmd/go/internal/load"
-	"cmd/go/internal/str"
-	"cmd/internal/quoted"
-	"crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/fsys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/load"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/str"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/quoted"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 )
 
 // Tests can override this by setting $TESTGO_TOOLCHAIN_VERSION.
@@ -89,7 +89,7 @@ func (gcToolchain) gc(b *Builder, a *Action, archive string, importcfg, embedcfg
 	extFiles := len(p.CgoFiles) + len(p.CFiles) + len(p.CXXFiles) + len(p.MFiles) + len(p.FFiles) + len(p.SFiles) + len(p.SysoFiles) + len(p.SwigFiles) + len(p.SwigCXXFiles)
 	if p.Standard {
 		switch p.ImportPath {
-		case "bytes", "internal/poll", "net", "os":
+		case "bytes", "github.com/runZeroInc/excrypto/stdlib/internal/poll", "net", "os":
 			fallthrough
 		case "runtime/metrics", "runtime/pprof", "runtime/trace":
 			fallthrough
@@ -621,13 +621,13 @@ func (gcToolchain) ld(b *Builder, root *Action, targetPath, importcfg, mainpkg s
 
 	// Store BuildID inside toolchain binaries as a unique identifier of the
 	// tool being run, for use by content-based staleness determination.
-	if root.Package.Goroot && strings.HasPrefix(root.Package.ImportPath, "cmd/") {
+	if root.Package.Goroot && strings.HasPrefix(root.Package.ImportPath, "github.com/runZeroInc/excrypto/stdlib/cmd/") {
 		// External linking will include our build id in the external
 		// linker's build id, which will cause our build id to not
 		// match the next time the tool is built.
 		// Rely on the external build id instead.
 		if !platform.MustLinkExternal(cfg.Goos, cfg.Goarch, false) {
-			ldflags = append(ldflags, "-X=cmd/internal/objabi.buildID="+root.buildID)
+			ldflags = append(ldflags, "-X=github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi.buildID="+root.buildID)
 		}
 	}
 

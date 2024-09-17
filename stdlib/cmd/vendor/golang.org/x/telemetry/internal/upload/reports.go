@@ -5,7 +5,7 @@
 package upload
 
 import (
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"

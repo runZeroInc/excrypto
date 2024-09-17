@@ -5,17 +5,17 @@
 package ssa_test
 
 import (
-	cmddwarf "cmd/internal/dwarf"
-	"cmd/internal/quoted"
+	cmddwarf "github.com/runZeroInc/excrypto/stdlib/cmd/internal/dwarf"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/quoted"
 	"cmp"
 	"debug/dwarf"
 	"debug/elf"
 	"debug/macho"
 	"debug/pe"
 	"fmt"
-	"internal/platform"
-	"internal/testenv"
-	"internal/xcoff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/xcoff"
 	"io"
 	"os"
 	"runtime"
@@ -80,7 +80,7 @@ func TestStmtLines(t *testing.T) {
 
 	// Build cmd/go forcing DWARF enabled, as a large test case.
 	dir := t.TempDir()
-	out, err := testenv.Command(t, testenv.GoToolPath(t), "build", "-ldflags=-w=0", "-o", dir+"/test.exe", "cmd/go").CombinedOutput()
+	out, err := testenv.Command(t, testenv.GoToolPath(t), "build", "-ldflags=-w=0", "-o", dir+"/test.exe", "github.com/runZeroInc/excrypto/stdlib/cmd/go").CombinedOutput()
 	if err != nil {
 		t.Fatalf("go build: %v\n%s", err, out)
 	}
@@ -103,7 +103,7 @@ func TestStmtLines(t *testing.T) {
 		if pkgname == "runtime" {
 			continue
 		}
-		if pkgname == "crypto/internal/nistec/fiat" {
+		if pkgname == "github.com/runZeroInc/excrypto/stdlib/crypto/internal/nistec/fiat" {
 			continue // golang.org/issue/49372
 		}
 		if e.Val(dwarf.AttrStmtList) == nil {

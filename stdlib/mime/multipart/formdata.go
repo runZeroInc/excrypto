@@ -7,7 +7,7 @@ package multipart
 import (
 	"bytes"
 	"errors"
-	"internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"io"
 	"math"
 	"net/textproto"

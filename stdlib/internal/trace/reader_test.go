@@ -14,10 +14,10 @@ import (
 	"strings"
 	"testing"
 
-	"internal/trace"
-	"internal/trace/raw"
-	"internal/trace/testtrace"
-	"internal/trace/version"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/raw"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/testtrace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/version"
 )
 
 var (

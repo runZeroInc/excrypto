@@ -4,7 +4,7 @@
 
 package ssa
 
-import "cmd/compile/internal/base"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
 
 // tighten moves Values closer to the Blocks in which they are used.
 // This can reduce the amount of register spilling required,

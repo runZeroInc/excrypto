@@ -11,7 +11,7 @@ package time
 
 import (
 	"errors"
-	"internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
 	"runtime"
 	"syscall"
 	_ "unsafe" // for linkname

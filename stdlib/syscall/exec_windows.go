@@ -7,7 +7,7 @@
 package syscall
 
 import (
-	"internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
 	"runtime"
 	"sync"
 	"unicode/utf16"

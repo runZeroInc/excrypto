@@ -6,16 +6,16 @@ package noder
 
 import (
 	"fmt"
-	"internal/buildcfg"
-	"internal/types/errors"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 	"regexp"
 	"sort"
 
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/rangefunc"
-	"cmd/compile/internal/syntax"
-	"cmd/compile/internal/types2"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/rangefunc"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 var versionErrorRx = regexp.MustCompile(`requires go[0-9]+\.[0-9]+ or later`)

@@ -9,4 +9,4 @@
 
 package cgotest
 
-import _ "cmd/cgo/internal/test/issue29563"
+import _ "github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/test/issue29563"

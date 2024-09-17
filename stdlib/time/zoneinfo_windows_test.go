@@ -5,7 +5,7 @@
 package time_test
 
 import (
-	"internal/syscall/windows/registry"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows/registry"
 	"testing"
 	. "time"
 )

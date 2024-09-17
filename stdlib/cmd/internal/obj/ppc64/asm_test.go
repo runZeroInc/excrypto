@@ -7,8 +7,8 @@ package ppc64
 import (
 	"bytes"
 	"fmt"
-	"internal/buildcfg"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"math"
 	"os"
 	"path/filepath"
@@ -16,8 +16,8 @@ import (
 	"strings"
 	"testing"
 
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
 )
 
 var platformEnvs = [][]string{

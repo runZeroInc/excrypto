@@ -9,7 +9,7 @@ package http
 import (
 	"bufio"
 	"bytes"
-	"crypto/tls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
 	"errors"
 	"fmt"
 	"io"

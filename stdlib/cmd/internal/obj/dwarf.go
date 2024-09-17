@@ -7,9 +7,9 @@
 package obj
 
 import (
-	"cmd/internal/dwarf"
-	"cmd/internal/objabi"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/dwarf"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 	"fmt"
 	"slices"
 	"strings"

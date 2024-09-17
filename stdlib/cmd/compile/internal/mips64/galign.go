@@ -5,10 +5,10 @@
 package mips64
 
 import (
-	"cmd/compile/internal/ssa"
-	"cmd/compile/internal/ssagen"
-	"cmd/internal/obj/mips"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssa"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssagen"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/mips"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 )
 
 func Init(arch *ssagen.ArchInfo) {

@@ -43,7 +43,7 @@ var (
 )
 
 func main() {
-	Package("crypto/internal/nistec")
+	Package("github.com/runZeroInc/excrypto/stdlib/crypto/internal/nistec")
 	ConstraintExpr("!purego")
 	p256OrdLittleToBig()
 	p256OrdBigToLittle()

@@ -7,7 +7,7 @@
 package execenv
 
 import (
-	"internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
 	"syscall"
 	"unsafe"
 )

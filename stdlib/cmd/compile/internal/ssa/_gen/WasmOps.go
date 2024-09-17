@@ -262,7 +262,7 @@ func init() {
 
 	archs = append(archs, arch{
 		name:            "Wasm",
-		pkg:             "cmd/internal/obj/wasm",
+		pkg:             "github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/wasm",
 		genfile:         "../../wasm/ssa.go",
 		ops:             WasmOps,
 		blocks:          nil,

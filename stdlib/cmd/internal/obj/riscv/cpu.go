@@ -32,7 +32,7 @@ import (
 	"errors"
 	"fmt"
 
-	"cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
 )
 
 //go:generate go run ../stringer.go -i $GOFILE -o anames.go -p riscv

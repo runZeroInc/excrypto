@@ -5,7 +5,7 @@
 package dsa
 
 import (
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"math/big"
 	"testing"
 )

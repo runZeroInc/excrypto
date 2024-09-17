@@ -5,11 +5,11 @@
 package tls
 
 import (
-	"crypto/internal/hpke"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/hpke"
 	"errors"
 	"strings"
 
-	"golang.org/x/crypto/cryptobyte"
+	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
 )
 
 type echCipher struct {

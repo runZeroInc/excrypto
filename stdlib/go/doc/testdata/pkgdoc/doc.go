@@ -5,7 +5,7 @@
 package pkgdoc
 
 import (
-	crand "crypto/rand"
+	crand "github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"math/rand"
 )
 

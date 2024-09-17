@@ -15,10 +15,10 @@
 package main
 
 import (
-	"cmd/go/internal/str"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/str"
 	"flag"
 	"fmt"
-	"internal/txtar"
+	"github.com/runZeroInc/excrypto/stdlib/internal/txtar"
 	"io/fs"
 	"log"
 	"os"

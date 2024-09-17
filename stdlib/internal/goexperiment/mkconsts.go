@@ -10,7 +10,7 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"internal/goexperiment"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goexperiment"
 	"log"
 	"os"
 	"reflect"

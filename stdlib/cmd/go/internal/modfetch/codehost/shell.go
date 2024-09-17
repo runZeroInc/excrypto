@@ -20,8 +20,8 @@ import (
 	"strings"
 	"time"
 
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/modfetch/codehost"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modfetch/codehost"
 )
 
 func usage() {

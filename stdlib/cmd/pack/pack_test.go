@@ -6,9 +6,9 @@ package main
 
 import (
 	"bufio"
-	"cmd/internal/archive"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/archive"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"io/fs"
 	"os"

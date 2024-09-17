@@ -7,8 +7,8 @@ package objabi
 import (
 	"flag"
 	"fmt"
-	"internal/bisect"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bisect"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"io"
 	"log"
 	"os"

@@ -13,8 +13,8 @@ package testdeps
 import (
 	"bufio"
 	"context"
-	"internal/fuzz"
-	"internal/testlog"
+	"github.com/runZeroInc/excrypto/stdlib/internal/fuzz"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testlog"
 	"io"
 	"os"
 	"os/signal"

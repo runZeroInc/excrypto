@@ -5,16 +5,16 @@
 package noder
 
 import (
-	"internal/buildcfg"
-	"internal/pkgbits"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/pkgbits"
 	"io"
 
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/reflectdata"
-	"cmd/compile/internal/types"
-	"cmd/internal/goobj"
-	"cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/reflectdata"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/goobj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
 )
 
 // This file implements the unified IR linker, which combines the

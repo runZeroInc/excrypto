@@ -5,8 +5,8 @@
 package cfg
 
 import (
-	"cmd/internal/pathcache"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pathcache"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"testing"
 )
 

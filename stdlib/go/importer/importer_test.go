@@ -7,7 +7,7 @@ package importer
 import (
 	"go/build"
 	"go/token"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"os"
 	"strings"

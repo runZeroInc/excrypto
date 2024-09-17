@@ -5,9 +5,9 @@
 package inlheur
 
 import (
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/pgoir"
-	"cmd/compile/internal/typecheck"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/pgoir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/typecheck"
 	"fmt"
 	"os"
 	"strings"

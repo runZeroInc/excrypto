@@ -6,7 +6,7 @@ package genflags
 
 import (
 	"bytes"
-	"cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
 	"encoding/json"
 	"fmt"
 	"os/exec"

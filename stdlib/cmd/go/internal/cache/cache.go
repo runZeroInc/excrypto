@@ -7,11 +7,11 @@ package cache
 
 import (
 	"bytes"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"io"
 	"io/fs"
 	"os"
@@ -20,8 +20,8 @@ import (
 	"strings"
 	"time"
 
-	"cmd/go/internal/lockedfile"
-	"cmd/go/internal/mmap"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/lockedfile"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/mmap"
 )
 
 // An ActionID is a cache action key, the hash of a complete description of a

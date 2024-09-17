@@ -6,7 +6,7 @@ package base
 
 import (
 	"fmt"
-	"internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"runtime"
 	"strconv"
 	"sync"

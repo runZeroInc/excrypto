@@ -7,7 +7,7 @@
 package net
 
 import (
-	"net/internal/socktest"
+	"github.com/runZeroInc/excrypto/stdlib/net/internal/socktest"
 	"strings"
 	"syscall"
 )

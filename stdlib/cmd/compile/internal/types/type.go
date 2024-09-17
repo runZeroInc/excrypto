@@ -5,13 +5,13 @@
 package types
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/internal/objabi"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 	"fmt"
 	"go/constant"
-	"internal/buildcfg"
-	"internal/types/errors"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 	"sync"
 )
 
@@ -1648,7 +1648,7 @@ func NewNamed(obj Object) *Type {
 		t.SetIsShape(true)
 		t.SetHasShape(true)
 	}
-	if sym.Pkg.Path == "internal/runtime/sys" && sym.Name == "nih" {
+	if sym.Pkg.Path == "github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys" && sym.Name == "nih" {
 		// Recognize the special not-in-heap type. Any type including
 		// this type will also be not-in-heap.
 		// This logic is duplicated in go/types and

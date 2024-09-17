@@ -6,7 +6,7 @@ package rand_test
 
 import (
 	"bytes"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/hex"
 	"io"
 	. "math/rand/v2"

@@ -11,7 +11,7 @@ package types
 
 import (
 	"go/constant"
-	. "internal/types/errors"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 	"unicode"
 )
 

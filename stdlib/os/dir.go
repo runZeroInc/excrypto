@@ -5,8 +5,8 @@
 package os
 
 import (
-	"internal/bytealg"
-	"internal/filepathlite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/filepathlite"
 	"io"
 	"io/fs"
 	"slices"

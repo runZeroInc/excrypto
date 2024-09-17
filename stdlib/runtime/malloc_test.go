@@ -7,8 +7,8 @@ package runtime_test
 import (
 	"flag"
 	"fmt"
-	"internal/race"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/race"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"reflect"

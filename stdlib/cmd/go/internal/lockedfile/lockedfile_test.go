@@ -10,13 +10,13 @@ package lockedfile_test
 
 import (
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
-	"cmd/go/internal/lockedfile"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/lockedfile"
 )
 
 const (

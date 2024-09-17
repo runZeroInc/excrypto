@@ -6,7 +6,7 @@ package os_test
 
 import (
 	"bytes"
-	"internal/poll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/poll"
 	"io"
 	"net"
 	. "os"

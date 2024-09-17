@@ -11,8 +11,8 @@ import (
 	"context"
 	"fmt"
 	"go/build"
-	"internal/buildcfg"
-	"internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/cfg"
 	"io"
 	"os"
 	"path/filepath"
@@ -20,8 +20,8 @@ import (
 	"strings"
 	"sync"
 
-	"cmd/go/internal/fsys"
-	"cmd/internal/pathcache"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/fsys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pathcache"
 )
 
 // Global build parameters (used during package load)

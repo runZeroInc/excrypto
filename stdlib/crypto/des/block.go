@@ -5,7 +5,7 @@
 package des
 
 import (
-	"internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 	"sync"
 )
 

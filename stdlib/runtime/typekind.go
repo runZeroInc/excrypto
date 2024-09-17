@@ -4,7 +4,7 @@
 
 package runtime
 
-import "internal/abi"
+import "github.com/runZeroInc/excrypto/stdlib/internal/abi"
 
 // isDirectIface reports whether t is stored directly in an interface value.
 func isDirectIface(t *_type) bool {

@@ -5,8 +5,8 @@
 package riscv64
 
 import (
-	"cmd/compile/internal/ssagen"
-	"cmd/internal/obj/riscv"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssagen"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/riscv"
 )
 
 func Init(arch *ssagen.ArchInfo) {

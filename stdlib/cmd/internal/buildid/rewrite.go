@@ -6,8 +6,8 @@ package buildid
 
 import (
 	"bytes"
-	"cmd/internal/codesign"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/codesign"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"debug/macho"
 	"fmt"
 	"io"

@@ -7,7 +7,7 @@
 package boring_test
 
 import (
-	"crypto/boring"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/boring"
 	"runtime"
 	"testing"
 )

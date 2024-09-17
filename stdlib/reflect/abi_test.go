@@ -7,7 +7,7 @@
 package reflect_test
 
 import (
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"math"
 	"math/rand"
 	"reflect"

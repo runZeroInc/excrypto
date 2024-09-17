@@ -587,7 +587,7 @@ func init() {
 
 	archs = append(archs, arch{
 		name:            "ARM",
-		pkg:             "cmd/internal/obj/arm",
+		pkg:             "github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/arm",
 		genfile:         "../../arm/ssa.go",
 		ops:             ops,
 		blocks:          blocks,

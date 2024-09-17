@@ -6,9 +6,9 @@ package cipher_test
 
 import (
 	"bytes"
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/des"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/des"
 	"testing"
 )
 
@@ -17,12 +17,12 @@ func TestCryptBlocks(t *testing.T) {
 	block, _ := aes.NewCipher(buf)
 
 	mode := cipher.NewCBCDecrypter(block, buf)
-	mustPanic(t, "crypto/cipher: input not full blocks", func() { mode.CryptBlocks(buf, buf[:3]) })
-	mustPanic(t, "crypto/cipher: output smaller than input", func() { mode.CryptBlocks(buf[:3], buf) })
+	mustPanic(t, "github.com/runZeroInc/excrypto/stdlib/crypto/cipher: input not full blocks", func() { mode.CryptBlocks(buf, buf[:3]) })
+	mustPanic(t, "github.com/runZeroInc/excrypto/stdlib/crypto/cipher: output smaller than input", func() { mode.CryptBlocks(buf[:3], buf) })
 
 	mode = cipher.NewCBCEncrypter(block, buf)
-	mustPanic(t, "crypto/cipher: input not full blocks", func() { mode.CryptBlocks(buf, buf[:3]) })
-	mustPanic(t, "crypto/cipher: output smaller than input", func() { mode.CryptBlocks(buf[:3], buf) })
+	mustPanic(t, "github.com/runZeroInc/excrypto/stdlib/crypto/cipher: input not full blocks", func() { mode.CryptBlocks(buf, buf[:3]) })
+	mustPanic(t, "github.com/runZeroInc/excrypto/stdlib/crypto/cipher: output smaller than input", func() { mode.CryptBlocks(buf[:3], buf) })
 }
 
 func mustPanic(t *testing.T, msg string, f func()) {

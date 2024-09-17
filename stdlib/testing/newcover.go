@@ -8,7 +8,7 @@ package testing
 
 import (
 	"fmt"
-	"internal/goexperiment"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goexperiment"
 	"os"
 	_ "unsafe" // for linkname
 )

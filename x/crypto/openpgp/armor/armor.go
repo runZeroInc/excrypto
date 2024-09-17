@@ -18,7 +18,7 @@ import (
 	"encoding/base64"
 	"io"
 
-	"golang.org/x/crypto/openpgp/errors"
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 )
 
 // A Block represents an OpenPGP armored structure.

@@ -17,21 +17,21 @@ package zip_sum_test
 
 import (
 	"context"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/csv"
 	"encoding/hex"
 	"flag"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/modfetch"
-	"cmd/go/internal/modload"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modfetch"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modload"
 
 	"golang.org/x/mod/module"
 )

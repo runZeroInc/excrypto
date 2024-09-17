@@ -4,7 +4,7 @@
 
 package main
 
-import "cmd/link/internal/ld/testdata/issue32233/lib"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/ld/testdata/issue32233/lib"
 
 func main() {
 	lib.DoC()

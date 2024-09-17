@@ -13,7 +13,7 @@ import (
 	"os/exec"
 	"text/template"
 
-	"cmd/go/internal/test/internal/genflags"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/test/internal/genflags"
 )
 
 func main() {

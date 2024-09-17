@@ -5,8 +5,8 @@
 package ssa
 
 import (
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
 )
 
 // dse does dead-store elimination on the Function.

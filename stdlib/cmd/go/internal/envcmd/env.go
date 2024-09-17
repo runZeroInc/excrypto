@@ -11,7 +11,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go/build"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"io"
 	"os"
 	"path/filepath"
@@ -21,15 +21,15 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/cache"
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/fsys"
-	"cmd/go/internal/load"
-	"cmd/go/internal/modload"
-	"cmd/go/internal/work"
-	"cmd/internal/quoted"
-	"cmd/internal/telemetry"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cache"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/fsys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/load"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modload"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/work"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/quoted"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry"
 )
 
 var CmdEnv = &base.Command{

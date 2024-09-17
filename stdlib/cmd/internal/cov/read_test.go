@@ -5,14 +5,14 @@
 package cov_test
 
 import (
-	"cmd/internal/cov"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/cov"
 	"fmt"
-	"internal/coverage"
-	"internal/coverage/decodecounter"
-	"internal/coverage/decodemeta"
-	"internal/coverage/pods"
-	"internal/goexperiment"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/decodecounter"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/decodemeta"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/pods"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goexperiment"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"path/filepath"
 	"testing"

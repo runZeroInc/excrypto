@@ -10,9 +10,9 @@ import (
 	"fmt"
 	"go/constant"
 
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/types"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 // A Node is the abstract interface to an IR node.

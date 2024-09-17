@@ -8,9 +8,9 @@ package types
 
 import (
 	"go/ast"
-	"go/internal/typeparams"
+	"github.com/runZeroInc/excrypto/stdlib/go/internal/typeparams"
 	"go/token"
-	. "internal/types/errors"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 	"strings"
 )
 

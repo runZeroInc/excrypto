@@ -5,7 +5,7 @@
 package runtime
 
 import (
-	"internal/runtime/sys"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys"
 )
 
 // pageBits is a bitmap representing one bit per page in a palloc chunk.

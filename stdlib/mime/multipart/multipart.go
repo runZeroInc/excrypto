@@ -31,7 +31,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"io"
 	"mime"
 	"mime/quotedprintable"

@@ -10,7 +10,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"internal/saferio"
+	"github.com/runZeroInc/excrypto/stdlib/internal/saferio"
 	"io"
 	"os"
 	"strings"

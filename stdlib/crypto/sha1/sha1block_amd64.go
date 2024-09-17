@@ -6,7 +6,7 @@
 
 package sha1
 
-import "internal/cpu"
+import "github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 
 //go:noescape
 func blockAVX2(dig *digest, p []byte)

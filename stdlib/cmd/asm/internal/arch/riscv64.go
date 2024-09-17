@@ -9,8 +9,8 @@
 package arch
 
 import (
-	"cmd/internal/obj"
-	"cmd/internal/obj/riscv"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/riscv"
 )
 
 // IsRISCV64AMO reports whether the op (as defined by a riscv.A*

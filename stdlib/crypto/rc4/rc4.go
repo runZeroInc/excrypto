@@ -10,7 +10,7 @@
 package rc4
 
 import (
-	"crypto/internal/alias"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/alias"
 	"strconv"
 )
 
@@ -23,7 +23,7 @@ type Cipher struct {
 type KeySizeError int
 
 func (k KeySizeError) Error() string {
-	return "crypto/rc4: invalid key size " + strconv.Itoa(int(k))
+	return "github.com/runZeroInc/excrypto/stdlib/crypto/rc4: invalid key size " + strconv.Itoa(int(k))
 }
 
 // NewCipher creates and returns a new [Cipher]. The key argument should be the
@@ -63,7 +63,7 @@ func (c *Cipher) XORKeyStream(dst, src []byte) {
 		return
 	}
 	if alias.InexactOverlap(dst[:len(src)], src) {
-		panic("crypto/rc4: invalid buffer overlap")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/rc4: invalid buffer overlap")
 	}
 	i, j := c.i, c.j
 	_ = dst[len(src)-1]

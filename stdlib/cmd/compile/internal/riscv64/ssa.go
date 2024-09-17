@@ -5,15 +5,15 @@
 package riscv64
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/logopt"
-	"cmd/compile/internal/objw"
-	"cmd/compile/internal/ssa"
-	"cmd/compile/internal/ssagen"
-	"cmd/compile/internal/types"
-	"cmd/internal/obj"
-	"cmd/internal/obj/riscv"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/logopt"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/objw"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssa"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssagen"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/riscv"
 )
 
 // ssaRegToReg maps ssa register numbers to obj register numbers.

@@ -10,10 +10,10 @@ package fuzz
 import (
 	"bytes"
 	"context"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"errors"
 	"fmt"
-	"internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"io"
 	"math/bits"
 	"os"

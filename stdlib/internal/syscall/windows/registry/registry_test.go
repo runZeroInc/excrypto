@@ -8,13 +8,13 @@ package registry_test
 
 import (
 	"bytes"
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"os"
 	"syscall"
 	"testing"
 	"unsafe"
 
-	"internal/syscall/windows/registry"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows/registry"
 )
 
 func randKeyName(prefix string) string {

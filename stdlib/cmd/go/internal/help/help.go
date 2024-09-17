@@ -15,8 +15,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"cmd/go/internal/base"
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 )
 
 var counterErrorsHelpUnknownTopic = counter.New("go/errors:help-unknown-topic")

@@ -4,7 +4,7 @@
 
 package noder
 
-import "internal/pkgbits"
+import "github.com/runZeroInc/excrypto/stdlib/internal/pkgbits"
 
 // A codeStmt distinguishes among statement encodings.
 type codeStmt int

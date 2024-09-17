@@ -6,7 +6,7 @@
 
 package bigmod
 
-import "internal/cpu"
+import "github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 
 // amd64 assembly uses ADCX/ADOX/MULX if ADX is available to run two carry
 // chains in the flags in parallel across the whole operation, and aggressively

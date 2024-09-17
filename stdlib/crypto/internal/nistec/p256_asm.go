@@ -17,7 +17,7 @@ package nistec
 import (
 	_ "embed"
 	"errors"
-	"internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 	"math/bits"
 	"runtime"
 	"unsafe"

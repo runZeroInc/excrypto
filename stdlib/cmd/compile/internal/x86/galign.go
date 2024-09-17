@@ -5,11 +5,11 @@
 package x86
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/ssagen"
-	"cmd/internal/obj/x86"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssagen"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/x86"
 	"fmt"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"os"
 )
 

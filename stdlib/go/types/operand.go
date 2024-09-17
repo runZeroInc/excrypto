@@ -15,7 +15,7 @@ import (
 	"go/ast"
 	"go/constant"
 	"go/token"
-	. "internal/types/errors"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 )
 
 // An operandMode specifies the (addressing) mode of an operand.

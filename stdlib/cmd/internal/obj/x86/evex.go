@@ -5,7 +5,7 @@
 package x86
 
 import (
-	"cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
 	"errors"
 	"fmt"
 	"strings"

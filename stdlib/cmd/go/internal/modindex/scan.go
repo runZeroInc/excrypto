@@ -5,9 +5,9 @@
 package modindex
 
 import (
-	"cmd/go/internal/base"
-	"cmd/go/internal/fsys"
-	"cmd/go/internal/str"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/fsys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/str"
 	"encoding/json"
 	"errors"
 	"fmt"

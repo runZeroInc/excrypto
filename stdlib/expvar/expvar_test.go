@@ -6,7 +6,7 @@ package expvar
 
 import (
 	"bytes"
-	"crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 	"encoding/json"
 	"fmt"
 	"net"

@@ -11,7 +11,7 @@ import (
 	"strings"
 	"sync"
 
-	"cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
 )
 
 var pathExts = sync.OnceValue(func() []string {

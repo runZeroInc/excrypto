@@ -7,8 +7,8 @@
 package poll
 
 import (
-	"internal/itoa"
-	"internal/syscall/unix"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/unix"
 	"io"
 	"sync/atomic"
 	"syscall"

@@ -24,7 +24,7 @@ package expvar
 
 import (
 	"encoding/json"
-	"internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"log"
 	"math"
 	"net/http"

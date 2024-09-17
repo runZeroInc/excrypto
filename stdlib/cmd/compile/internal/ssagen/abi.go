@@ -6,21 +6,21 @@ package ssagen
 
 import (
 	"fmt"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"log"
 	"os"
 	"strings"
 
-	"cmd/compile/internal/abi"
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/objw"
-	"cmd/compile/internal/typecheck"
-	"cmd/compile/internal/types"
-	"cmd/internal/obj"
-	"cmd/internal/obj/wasm"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/objw"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/typecheck"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/wasm"
 
-	rtabi "internal/abi"
+	rtabi "github.com/runZeroInc/excrypto/stdlib/internal/abi"
 )
 
 // SymABIs records information provided by the assembler about symbol
@@ -57,7 +57,7 @@ func (s *SymABIs) canonicalize(linksym string) string {
 // either "def" for defining a symbol ABI or "ref" for referencing a
 // symbol using an ABI. For both "def" and "ref", the second field is
 // the symbol name and the third field is the ABI name, as one of the
-// named cmd/internal/obj.ABI constants.
+// named github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj.ABI constants.
 func (s *SymABIs) ReadSymABIs(file string) {
 	data, err := os.ReadFile(file)
 	if err != nil {
@@ -338,7 +338,7 @@ func makeABIWrapper(f *ir.Func, wrapperABI obj.ABI) {
 
 // CreateWasmImportWrapper creates a wrapper for imported WASM functions to
 // adapt them to the Go calling convention. The body for this function is
-// generated in cmd/internal/obj/wasm/wasmobj.go
+// generated in github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/wasm/wasmobj.go
 func CreateWasmImportWrapper(fn *ir.Func) bool {
 	if fn.WasmImport == nil {
 		return false
@@ -384,7 +384,7 @@ func GenWasmExportWrapper(wrapped *ir.Func) {
 	// morestack currently doesn't handle. For now we require that
 	// the argument size fits in StackSmall, which we know we have
 	// on stack, so we don't need to split stack.
-	// cmd/internal/obj/wasm supports only 16 argument "registers"
+	// github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/wasm supports only 16 argument "registers"
 	// anyway.
 	if ft.ArgWidth() > rtabi.StackSmall {
 		base.ErrorfAt(wrapped.Pos(), 0, "wasmexport function argument too large")
@@ -408,7 +408,7 @@ func GenWasmExportWrapper(wrapped *ir.Func) {
 	p.To.Name = obj.NAME_EXTERN
 	p.To.Sym = base.Ctxt.Lookup("no_pointers_stackmap")
 	pp.Flush()
-	// Actual code geneneration is in cmd/internal/obj/wasm.
+	// Actual code geneneration is in github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/wasm.
 }
 
 func paramsToWasmFields(f *ir.Func, pragma string, result *abi.ABIParamResultInfo, abiParams []abi.ABIParamAssignment) []obj.WasmField {

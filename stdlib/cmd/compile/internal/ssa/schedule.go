@@ -5,8 +5,8 @@
 package ssa
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
 	"cmp"
 	"container/heap"
 	"slices"

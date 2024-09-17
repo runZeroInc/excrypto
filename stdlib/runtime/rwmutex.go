@@ -5,7 +5,7 @@
 package runtime
 
 import (
-	"internal/runtime/atomic"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
 )
 
 // This is a copy of sync/rwmutex.go rewritten to work in the runtime.

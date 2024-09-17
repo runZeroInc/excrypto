@@ -7,7 +7,7 @@
 package coverage
 
 import (
-	"internal/coverage/cfile"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/cfile"
 	"io"
 )
 

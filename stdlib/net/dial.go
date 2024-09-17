@@ -6,9 +6,9 @@ package net
 
 import (
 	"context"
-	"internal/bytealg"
-	"internal/godebug"
-	"internal/nettrace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/nettrace"
 	"syscall"
 	"time"
 )

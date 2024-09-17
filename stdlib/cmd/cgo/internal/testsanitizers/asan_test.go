@@ -8,8 +8,8 @@ package sanitizers_test
 
 import (
 	"fmt"
-	"internal/platform"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"strings"
 	"testing"
 )

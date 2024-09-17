@@ -18,9 +18,9 @@ package runtime
 //  c.qcount < c.dataqsiz implies that c.sendq is empty.
 
 import (
-	"internal/abi"
-	"internal/runtime/atomic"
-	"internal/runtime/math"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/math"
 	"unsafe"
 )
 

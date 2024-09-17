@@ -5,7 +5,7 @@
 package aes
 
 import (
-	"crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 )
 
 // gcmAble is implemented by cipher.Blocks that can provide an optimized

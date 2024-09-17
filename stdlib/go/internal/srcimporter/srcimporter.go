@@ -4,7 +4,7 @@
 
 // Package srcimporter implements importing directly
 // from source files rather than installed packages.
-package srcimporter // import "go/internal/srcimporter"
+package srcimporter // import "github.com/runZeroInc/excrypto/stdlib/go/internal/srcimporter"
 
 import (
 	"fmt"

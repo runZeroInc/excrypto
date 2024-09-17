@@ -5,7 +5,7 @@
 package net
 
 import (
-	"internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
 	"os"
 	"runtime"
 	"syscall"

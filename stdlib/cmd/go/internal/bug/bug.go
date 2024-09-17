@@ -18,11 +18,11 @@ import (
 	"runtime"
 	"strings"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/envcmd"
-	"cmd/go/internal/web"
-	"cmd/go/internal/work"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/envcmd"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/web"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/work"
 )
 
 var CmdBug = &base.Command{

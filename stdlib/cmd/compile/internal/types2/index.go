@@ -7,9 +7,9 @@
 package types2
 
 import (
-	"cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
 	"go/constant"
-	. "internal/types/errors"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 )
 
 // If e is a valid function instantiation, indexExpr returns true.

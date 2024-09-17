@@ -6,7 +6,7 @@
 
 package runtime
 
-import "internal/runtime/atomic"
+import "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
 
 var netpollInited atomic.Uint32
 

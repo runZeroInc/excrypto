@@ -4,7 +4,7 @@
 
 package crc32
 
-import "internal/cpu"
+import "github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 
 const (
 	vxMinLen    = 64

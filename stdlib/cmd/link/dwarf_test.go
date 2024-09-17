@@ -6,12 +6,12 @@ package main
 
 import (
 	"bytes"
-	cmddwarf "cmd/internal/dwarf"
-	"cmd/internal/objfile"
-	"cmd/internal/quoted"
+	cmddwarf "github.com/runZeroInc/excrypto/stdlib/cmd/internal/dwarf"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objfile"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/quoted"
 	"debug/dwarf"
-	"internal/platform"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"path"

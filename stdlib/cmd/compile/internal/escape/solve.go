@@ -5,10 +5,10 @@
 package escape
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/logopt"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/logopt"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 	"fmt"
 	"strings"
 )

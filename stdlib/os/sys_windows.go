@@ -5,7 +5,7 @@
 package os
 
 import (
-	"internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
 	"syscall"
 )
 

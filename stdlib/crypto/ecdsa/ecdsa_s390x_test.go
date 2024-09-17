@@ -7,7 +7,7 @@
 package ecdsa
 
 import (
-	"crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"testing"
 )
 

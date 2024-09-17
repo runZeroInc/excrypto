@@ -5,7 +5,7 @@
 package main
 
 import (
-	"cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
 	"os"
 	"strings"
 	"testing"

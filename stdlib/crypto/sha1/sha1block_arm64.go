@@ -6,7 +6,7 @@
 
 package sha1
 
-import "internal/cpu"
+import "github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 
 var k = []uint32{
 	0x5A827999,

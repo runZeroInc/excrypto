@@ -13,9 +13,9 @@ package main
 
 import (
 	"bufio"
-	"cmd/internal/objabi"
-	"cmd/internal/pgo"
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pgo"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 	"flag"
 	"fmt"
 	"log"

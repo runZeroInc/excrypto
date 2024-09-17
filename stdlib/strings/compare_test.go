@@ -8,7 +8,7 @@ package strings_test
 // Benchmarks omitted since the underlying implementation is identical.
 
 import (
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	. "strings"
 	"testing"
 	"unsafe"

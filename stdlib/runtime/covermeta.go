@@ -5,7 +5,7 @@
 package runtime
 
 import (
-	"internal/coverage/rtcov"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/rtcov"
 	"unsafe"
 )
 

@@ -5,8 +5,8 @@
 package load
 
 import (
-	"cmd/go/internal/base"
-	"cmd/internal/quoted"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/quoted"
 	"fmt"
 	"strings"
 )

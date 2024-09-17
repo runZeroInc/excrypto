@@ -6,15 +6,15 @@ package base
 
 import (
 	"fmt"
-	"internal/buildcfg"
-	"internal/types/errors"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 	"os"
 	"runtime/debug"
 	"sort"
 	"strings"
 
-	"cmd/internal/src"
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 )
 
 // An errorMsg is a queued error message, waiting to be printed.

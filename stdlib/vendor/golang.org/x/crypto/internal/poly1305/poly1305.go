@@ -17,7 +17,7 @@
 // directly.
 package poly1305
 
-import "crypto/subtle"
+import "github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 
 // TagSize is the size, in bytes, of a poly1305 authenticator.
 const TagSize = 16

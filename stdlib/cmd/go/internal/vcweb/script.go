@@ -7,11 +7,11 @@ package vcweb
 import (
 	"bufio"
 	"bytes"
-	"cmd/internal/script"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/script"
 	"context"
 	"errors"
 	"fmt"
-	"internal/txtar"
+	"github.com/runZeroInc/excrypto/stdlib/internal/txtar"
 	"io"
 	"log"
 	"net/http"

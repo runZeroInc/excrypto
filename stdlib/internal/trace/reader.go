@@ -11,9 +11,9 @@ import (
 	"slices"
 	"strings"
 
-	"internal/trace/event/go122"
-	"internal/trace/internal/oldtrace"
-	"internal/trace/version"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/event/go122"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/internal/oldtrace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/version"
 )
 
 // Reader reads a byte stream, validates it, and produces trace events.

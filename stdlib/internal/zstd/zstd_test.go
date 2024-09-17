@@ -6,10 +6,10 @@ package zstd
 
 import (
 	"bytes"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"fmt"
-	"internal/race"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/race"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"os"
 	"os/exec"

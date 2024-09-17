@@ -6,7 +6,7 @@
 
 package rand
 
-import "internal/syscall/unix"
+import "github.com/runZeroInc/excrypto/stdlib/internal/syscall/unix"
 
 func init() {
 	// getentropy(2) returns a maximum of 256 bytes per call.

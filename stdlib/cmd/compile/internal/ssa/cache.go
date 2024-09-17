@@ -5,7 +5,7 @@
 package ssa
 
 import (
-	"cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
 	"sort"
 )
 

@@ -9,7 +9,7 @@
 package reflectlite_test
 
 import (
-	. "internal/reflectlite"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/reflectlite"
 	"reflect"
 	"strconv"
 )

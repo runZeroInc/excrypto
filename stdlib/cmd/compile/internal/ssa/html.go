@@ -6,7 +6,7 @@ package ssa
 
 import (
 	"bytes"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 	"cmp"
 	"fmt"
 	"html"

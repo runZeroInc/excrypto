@@ -4,7 +4,7 @@
 
 package metrics
 
-import "internal/godebugs"
+import "github.com/runZeroInc/excrypto/stdlib/internal/godebugs"
 
 // Description describes a runtime metric.
 type Description struct {

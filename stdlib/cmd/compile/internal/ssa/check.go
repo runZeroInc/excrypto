@@ -5,8 +5,8 @@
 package ssa
 
 import (
-	"cmd/compile/internal/ir"
-	"cmd/internal/obj/s390x"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/s390x"
 	"math"
 	"math/bits"
 )

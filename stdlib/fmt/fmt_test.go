@@ -7,7 +7,7 @@ package fmt_test
 import (
 	"bytes"
 	. "fmt"
-	"internal/race"
+	"github.com/runZeroInc/excrypto/stdlib/internal/race"
 	"io"
 	"math"
 	"reflect"

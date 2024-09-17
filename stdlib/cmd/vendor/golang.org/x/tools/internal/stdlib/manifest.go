@@ -481,7 +481,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"WithValue", Func, 7},
 		{"WithoutCancel", Func, 21},
 	},
-	"crypto": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto": {
 		{"(Hash).Available", Method, 0},
 		{"(Hash).HashFunc", Method, 4},
 		{"(Hash).New", Method, 0},
@@ -515,13 +515,13 @@ var PackageSymbols = map[string][]Symbol{
 		{"Signer", Type, 4},
 		{"SignerOpts", Type, 4},
 	},
-	"crypto/aes": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes": {
 		{"(KeySizeError).Error", Method, 0},
 		{"BlockSize", Const, 0},
 		{"KeySizeError", Type, 0},
 		{"NewCipher", Func, 0},
 	},
-	"crypto/cipher": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher": {
 		{"(StreamReader).Read", Method, 0},
 		{"(StreamWriter).Close", Method, 0},
 		{"(StreamWriter).Write", Method, 0},
@@ -546,14 +546,14 @@ var PackageSymbols = map[string][]Symbol{
 		{"StreamWriter.S", Field, 0},
 		{"StreamWriter.W", Field, 0},
 	},
-	"crypto/des": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/des": {
 		{"(KeySizeError).Error", Method, 0},
 		{"BlockSize", Const, 0},
 		{"KeySizeError", Type, 0},
 		{"NewCipher", Func, 0},
 		{"NewTripleDESCipher", Func, 0},
 	},
-	"crypto/dsa": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/dsa": {
 		{"ErrInvalidPublicKey", Var, 0},
 		{"GenerateKey", Func, 0},
 		{"GenerateParameters", Func, 0},
@@ -575,7 +575,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"Sign", Func, 0},
 		{"Verify", Func, 0},
 	},
-	"crypto/ecdh": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh": {
 		{"(*PrivateKey).Bytes", Method, 20},
 		{"(*PrivateKey).Curve", Method, 20},
 		{"(*PrivateKey).ECDH", Method, 20},
@@ -593,7 +593,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"PublicKey", Type, 20},
 		{"X25519", Func, 20},
 	},
-	"crypto/ecdsa": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa": {
 		{"(*PrivateKey).ECDH", Method, 20},
 		{"(*PrivateKey).Equal", Method, 15},
 		{"(*PrivateKey).Public", Method, 4},
@@ -625,7 +625,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"Verify", Func, 0},
 		{"VerifyASN1", Func, 15},
 	},
-	"crypto/ed25519": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519": {
 		{"(*Options).HashFunc", Method, 20},
 		{"(PrivateKey).Equal", Method, 15},
 		{"(PrivateKey).Public", Method, 13},
@@ -647,7 +647,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"Verify", Func, 13},
 		{"VerifyWithOptions", Func, 20},
 	},
-	"crypto/elliptic": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic": {
 		{"(*CurveParams).Add", Method, 0},
 		{"(*CurveParams).Double", Method, 0},
 		{"(*CurveParams).IsOnCurve", Method, 0},
@@ -673,23 +673,23 @@ var PackageSymbols = map[string][]Symbol{
 		{"Unmarshal", Func, 0},
 		{"UnmarshalCompressed", Func, 15},
 	},
-	"crypto/hmac": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac": {
 		{"Equal", Func, 1},
 		{"New", Func, 0},
 	},
-	"crypto/md5": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/md5": {
 		{"BlockSize", Const, 0},
 		{"New", Func, 0},
 		{"Size", Const, 0},
 		{"Sum", Func, 2},
 	},
-	"crypto/rand": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand": {
 		{"Int", Func, 0},
 		{"Prime", Func, 0},
 		{"Read", Func, 0},
 		{"Reader", Var, 0},
 	},
-	"crypto/rc4": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rc4": {
 		{"(*Cipher).Reset", Method, 0},
 		{"(*Cipher).XORKeyStream", Method, 0},
 		{"(KeySizeError).Error", Method, 0},
@@ -697,7 +697,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"KeySizeError", Type, 0},
 		{"NewCipher", Func, 0},
 	},
-	"crypto/rsa": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa": {
 		{"(*PSSOptions).HashFunc", Method, 4},
 		{"(*PrivateKey).Decrypt", Method, 5},
 		{"(*PrivateKey).Equal", Method, 15},
@@ -751,13 +751,13 @@ var PackageSymbols = map[string][]Symbol{
 		{"VerifyPKCS1v15", Func, 0},
 		{"VerifyPSS", Func, 2},
 	},
-	"crypto/sha1": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1": {
 		{"BlockSize", Const, 0},
 		{"New", Func, 0},
 		{"Size", Const, 0},
 		{"Sum", Func, 2},
 	},
-	"crypto/sha256": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256": {
 		{"BlockSize", Const, 0},
 		{"New", Func, 0},
 		{"New224", Func, 0},
@@ -766,7 +766,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"Sum224", Func, 2},
 		{"Sum256", Func, 2},
 	},
-	"crypto/sha512": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha512": {
 		{"BlockSize", Const, 0},
 		{"New", Func, 0},
 		{"New384", Func, 0},
@@ -781,7 +781,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"Sum512_224", Func, 5},
 		{"Sum512_256", Func, 5},
 	},
-	"crypto/subtle": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle": {
 		{"ConstantTimeByteEq", Func, 0},
 		{"ConstantTimeCompare", Func, 0},
 		{"ConstantTimeCopy", Func, 0},
@@ -790,7 +790,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"ConstantTimeSelect", Func, 0},
 		{"XORBytes", Func, 20},
 	},
-	"crypto/tls": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls": {
 		{"(*CertificateRequestInfo).Context", Method, 17},
 		{"(*CertificateRequestInfo).SupportsCertificate", Method, 14},
 		{"(*CertificateVerificationError).Error", Method, 20},
@@ -1034,7 +1034,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"X25519", Const, 8},
 		{"X509KeyPair", Func, 0},
 	},
-	"crypto/x509": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509": {
 		{"(*CertPool).AddCert", Method, 0},
 		{"(*CertPool).AddCertWithConstraint", Method, 22},
 		{"(*CertPool).AppendCertsFromPEM", Method, 0},
@@ -1272,7 +1272,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"VerifyOptions.MaxConstraintComparisions", Field, 10},
 		{"VerifyOptions.Roots", Field, 0},
 	},
-	"crypto/x509/pkix": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix": {
 		{"(*CertificateList).HasExpired", Method, 0},
 		{"(*Name).FillFromRDNSequence", Method, 0},
 		{"(Name).String", Method, 10},

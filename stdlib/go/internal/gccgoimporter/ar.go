@@ -9,7 +9,7 @@ import (
 	"debug/elf"
 	"errors"
 	"fmt"
-	"internal/xcoff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/xcoff"
 	"io"
 	"strconv"
 	"strings"

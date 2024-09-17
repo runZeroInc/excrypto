@@ -5,9 +5,9 @@
 package x86
 
 import (
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"path/filepath"
 	"regexp"

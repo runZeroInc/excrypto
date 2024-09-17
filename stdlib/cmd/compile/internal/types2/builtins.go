@@ -7,10 +7,10 @@
 package types2
 
 import (
-	"cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
 	"go/constant"
 	"go/token"
-	. "internal/types/errors"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 )
 
 // builtin type-checks a call to the built-in specified by id and

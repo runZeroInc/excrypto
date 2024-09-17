@@ -217,7 +217,7 @@ func panicIfNotOnCurve(curve Curve, x, y *big.Int) {
 	}
 
 	if !curve.IsOnCurve(x, y) {
-		panic("crypto/elliptic: attempted operation on invalid point")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/elliptic: attempted operation on invalid point")
 	}
 }
 

@@ -6,11 +6,11 @@ package noder
 
 import (
 	"fmt"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"strings"
 
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
 )
 
 func isSpace(c rune) bool {

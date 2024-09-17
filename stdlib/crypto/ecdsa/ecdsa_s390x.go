@@ -7,9 +7,9 @@
 package ecdsa
 
 import (
-	"crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"errors"
-	"internal/cpu"
+	"github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 	"io"
 	"math/big"
 )

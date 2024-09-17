@@ -5,14 +5,14 @@
 package runtime
 
 import (
-	"internal/abi"
-	"internal/cpu"
-	"internal/goarch"
-	"internal/goos"
-	"internal/runtime/atomic"
-	"internal/runtime/exithook"
-	"internal/runtime/sys"
-	"internal/stringslite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/cpu"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goos"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/exithook"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys"
+	"github.com/runZeroInc/excrypto/stdlib/internal/stringslite"
 	"unsafe"
 )
 
@@ -5435,7 +5435,7 @@ func sigprof(pc, sp, lr uintptr, gp *g, mp *m) {
 	// received from somewhere else (with _LostSIGPROFDuringAtomic64 as pc).
 	if GOARCH == "mips" || GOARCH == "mipsle" || GOARCH == "arm" {
 		if f := findfunc(pc); f.valid() {
-			if stringslite.HasPrefix(funcname(f), "internal/runtime/atomic") {
+			if stringslite.HasPrefix(funcname(f), "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic") {
 				cpuprof.lostAtomic++
 				return
 			}

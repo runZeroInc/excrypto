@@ -6,11 +6,11 @@ package types2_test
 
 import (
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"strings"
 	"testing"
 
-	. "cmd/compile/internal/types2"
+	. "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"
 )
 
 func TestIsAlias(t *testing.T) {

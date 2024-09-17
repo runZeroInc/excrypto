@@ -15,7 +15,7 @@ import (
 	"github.com/mmcloughlin/avo/ir"
 	. "github.com/mmcloughlin/avo/operand"
 	. "github.com/mmcloughlin/avo/reg"
-	_ "golang.org/x/crypto/chacha20poly1305"
+	_ "github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305"
 )
 
 //go:generate go run . -out ../chacha20poly1305_amd64.s -pkg chacha20poly1305
@@ -102,7 +102,7 @@ var (
 const ThatPeskyUnicodeDot = "\u00b7"
 
 func main() {
-	Package("golang.org/x/crypto/chacha20poly1305")
+	Package("github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305")
 	ConstraintExpr("gc,!purego")
 	polyHashADInternal()
 	chacha20Poly1305Open()

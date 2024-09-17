@@ -12,7 +12,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"internal/profile"
+	"github.com/runZeroInc/excrypto/stdlib/internal/profile"
 	"log"
 	"os"
 	"runtime"

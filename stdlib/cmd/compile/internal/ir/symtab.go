@@ -5,8 +5,8 @@
 package ir
 
 import (
-	"cmd/compile/internal/types"
-	"cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
 )
 
 // Syms holds known symbols.

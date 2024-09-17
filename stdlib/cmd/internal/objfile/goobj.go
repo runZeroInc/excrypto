@@ -7,10 +7,10 @@
 package objfile
 
 import (
-	"cmd/internal/archive"
-	"cmd/internal/goobj"
-	"cmd/internal/objabi"
-	"cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/archive"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/goobj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
 	"debug/dwarf"
 	"debug/gosym"
 	"errors"

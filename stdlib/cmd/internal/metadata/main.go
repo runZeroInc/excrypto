@@ -14,9 +14,9 @@
 package main
 
 import (
-	"cmd/internal/osinfo"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/osinfo"
 	"fmt"
-	"internal/sysinfo"
+	"github.com/runZeroInc/excrypto/stdlib/internal/sysinfo"
 	"runtime"
 )
 

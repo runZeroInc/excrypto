@@ -5,13 +5,13 @@
 package ssa
 
 import (
-	"cmd/compile/internal/abi"
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/types"
-	"cmd/internal/obj"
-	"cmd/internal/src"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 )
 
 // A Config holds readonly compilation information.
@@ -19,8 +19,8 @@ import (
 // and shared across all compilations.
 type Config struct {
 	arch           string // "amd64", etc.
-	PtrSize        int64  // 4 or 8; copy of cmd/internal/sys.Arch.PtrSize
-	RegSize        int64  // 4 or 8; copy of cmd/internal/sys.Arch.RegSize
+	PtrSize        int64  // 4 or 8; copy of github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys.Arch.PtrSize
+	RegSize        int64  // 4 or 8; copy of github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys.Arch.RegSize
 	Types          Types
 	lowerBlock     blockRewriter  // block lowering function, first round
 	lowerValue     valueRewriter  // value lowering function, first round

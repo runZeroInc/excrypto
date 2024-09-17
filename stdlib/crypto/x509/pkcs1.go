@@ -5,7 +5,7 @@
 package x509
 
 import (
-	"crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"encoding/asn1"
 	"errors"
 	"math/big"

@@ -191,7 +191,7 @@ And then a client could delete boring values from the tree using:
 package iter
 
 import (
-	"internal/race"
+	"github.com/runZeroInc/excrypto/stdlib/internal/race"
 	"runtime"
 	"unsafe"
 )

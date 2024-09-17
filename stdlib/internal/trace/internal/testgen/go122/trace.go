@@ -12,12 +12,12 @@ import (
 	"regexp"
 	"strings"
 
-	"internal/trace"
-	"internal/trace/event"
-	"internal/trace/event/go122"
-	"internal/trace/raw"
-	"internal/trace/version"
-	"internal/txtar"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/event"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/event/go122"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/raw"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/version"
+	"github.com/runZeroInc/excrypto/stdlib/internal/txtar"
 )
 
 func Main(f func(*Trace)) {

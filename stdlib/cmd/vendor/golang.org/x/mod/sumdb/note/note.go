@@ -175,8 +175,8 @@ package note
 
 import (
 	"bytes"
-	"crypto/ed25519"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/base64"
 	"encoding/binary"
 	"errors"

@@ -6,7 +6,7 @@ package poll
 
 import (
 	"errors"
-	"internal/stringslite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/stringslite"
 	"io"
 	"sync"
 	"syscall"

@@ -6,8 +6,8 @@ package poll
 
 import (
 	"errors"
-	"internal/race"
-	"internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/race"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
 	"io"
 	"sync"
 	"syscall"

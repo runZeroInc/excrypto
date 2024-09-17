@@ -7,8 +7,8 @@
 package types2_test
 
 import (
-	gcimporter "cmd/compile/internal/importer"
-	"cmd/compile/internal/types2"
+	gcimporter "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/importer"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"
 	"io"
 )
 

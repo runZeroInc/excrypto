@@ -8,7 +8,7 @@ package exec
 
 import (
 	"errors"
-	"internal/syscall/unix"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/unix"
 	"io/fs"
 	"os"
 	"path/filepath"

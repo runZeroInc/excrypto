@@ -7,7 +7,7 @@ package fuzz
 import (
 	"bytes"
 	"context"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"

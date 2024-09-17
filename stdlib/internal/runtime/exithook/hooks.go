@@ -14,7 +14,7 @@
 package exithook
 
 import (
-	"internal/runtime/atomic"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
 	_ "unsafe" // for linkname
 )
 

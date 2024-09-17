@@ -5,8 +5,8 @@
 package comment
 
 import (
-	"internal/diff"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/diff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"slices"
 	"strings"
 	"testing"

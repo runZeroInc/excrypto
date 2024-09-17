@@ -283,7 +283,7 @@ func init() {
 		return
 	}
 	for _, m := range info.Deps {
-		if m.Path != "golang.org/x/crypto" {
+		if m.Path != "github.com/runZeroInc/excrypto/x/crypto" {
 			continue
 		}
 		if m.Replace == nil {
@@ -296,7 +296,7 @@ func init() {
 // userAgent returns the User-Agent header value. It includes the package name,
 // the module version (if available), and the c.UserAgent value (if set).
 func (c *Client) userAgent() string {
-	ua := "golang.org/x/crypto/acme"
+	ua := "github.com/runZeroInc/excrypto/x/crypto/acme"
 	if packageVersion != "" {
 		ua += "@" + packageVersion
 	}

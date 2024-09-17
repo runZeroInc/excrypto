@@ -9,7 +9,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"internal/race"
+	"github.com/runZeroInc/excrypto/stdlib/internal/race"
 	"io"
 	"os"
 	"os/signal"

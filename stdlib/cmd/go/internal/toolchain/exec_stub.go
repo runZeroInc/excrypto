@@ -6,7 +6,7 @@
 
 package toolchain
 
-import "cmd/go/internal/base"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
 
 func execGoToolchain(gotoolchain, dir, exe string) {
 	base.Fatalf("execGoToolchain unsupported")

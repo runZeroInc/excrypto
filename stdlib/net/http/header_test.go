@@ -6,7 +6,7 @@ package http
 
 import (
 	"bytes"
-	"internal/race"
+	"github.com/runZeroInc/excrypto/stdlib/internal/race"
 	"reflect"
 	"runtime"
 	"strings"

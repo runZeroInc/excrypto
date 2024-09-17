@@ -7,7 +7,7 @@
 package bytes
 
 import (
-	"internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
 	"math/bits"
 	"unicode"
 	"unicode/utf8"

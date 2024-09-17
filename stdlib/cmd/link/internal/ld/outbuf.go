@@ -5,8 +5,8 @@
 package ld
 
 import (
-	"cmd/internal/sys"
-	"cmd/link/internal/loader"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/loader"
 	"encoding/binary"
 	"errors"
 	"log"
@@ -21,7 +21,7 @@ const outbufMode = 0775
 
 // OutBuf is a buffered file writer.
 //
-// It is similar to the Writer in cmd/internal/bio with a few small differences.
+// It is similar to the Writer in github.com/runZeroInc/excrypto/stdlib/cmd/internal/bio with a few small differences.
 //
 // First, it tracks the output architecture and uses it to provide
 // endian helpers.

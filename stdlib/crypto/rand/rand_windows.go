@@ -8,7 +8,7 @@
 package rand
 
 import (
-	"internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
 )
 
 func init() { Reader = &rngReader{} }

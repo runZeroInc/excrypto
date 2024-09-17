@@ -6,8 +6,8 @@ package x509
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"errors"
 	"fmt"
 	"net"
@@ -759,7 +759,7 @@ func (c *Certificate) Verify(opts VerifyOptions) (chains [][]*Certificate, err e
 	for i := 0; i < opts.Intermediates.len(); i++ {
 		c, _, err := opts.Intermediates.cert(i)
 		if err != nil {
-			return nil, fmt.Errorf("crypto/x509: error fetching intermediate: %w", err)
+			return nil, fmt.Errorf("github.com/runZeroInc/excrypto/stdlib/crypto/x509: error fetching intermediate: %w", err)
 		}
 		if len(c.Raw) == 0 {
 			return nil, errNotParsed

@@ -6,7 +6,7 @@ package fs
 
 import (
 	"errors"
-	"internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
 	"slices"
 )
 

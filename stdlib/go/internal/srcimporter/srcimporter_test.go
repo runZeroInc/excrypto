@@ -9,7 +9,7 @@ import (
 	"go/build"
 	"go/token"
 	"go/types"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"path"
 	"path/filepath"
@@ -191,7 +191,7 @@ func TestReimport(t *testing.T) {
 func TestIssue20855(t *testing.T) {
 	testenv.MustHaveSource(t)
 
-	pkg, err := importer.ImportFrom("go/internal/srcimporter/testdata/issue20855", ".", 0)
+	pkg, err := importer.ImportFrom("github.com/runZeroInc/excrypto/stdlib/go/internal/srcimporter/testdata/issue20855", ".", 0)
 	if err == nil || !strings.Contains(err.Error(), "missing function body") {
 		t.Fatalf("got unexpected or no error: %v", err)
 	}
@@ -226,7 +226,7 @@ func TestIssue23092(t *testing.T) {
 
 // TestIssue24392 tests imports against a path containing 'testdata'.
 func TestIssue24392(t *testing.T) {
-	testImportPath(t, "go/internal/srcimporter/testdata/issue24392")
+	testImportPath(t, "github.com/runZeroInc/excrypto/stdlib/go/internal/srcimporter/testdata/issue24392")
 }
 
 func TestCgo(t *testing.T) {
@@ -235,7 +235,7 @@ func TestCgo(t *testing.T) {
 
 	buildCtx := build.Default
 	importer := New(&buildCtx, token.NewFileSet(), make(map[string]*types.Package))
-	_, err := importer.ImportFrom("cmd/cgo/internal/test", buildCtx.Dir, 0)
+	_, err := importer.ImportFrom("github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/test", buildCtx.Dir, 0)
 	if err != nil {
 		t.Fatalf("Import failed: %v", err)
 	}

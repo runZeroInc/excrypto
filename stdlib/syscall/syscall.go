@@ -25,7 +25,7 @@
 // See https://golang.org/s/go1.4-syscall for more information.
 package syscall
 
-import "internal/bytealg"
+import "github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
 
 //go:generate go run ./mksyscall_windows.go -systemdll -output zsyscall_windows.go syscall_windows.go security_windows.go
 

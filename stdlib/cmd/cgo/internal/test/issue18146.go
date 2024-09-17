@@ -10,7 +10,7 @@ package cgotest
 
 import (
 	"bytes"
-	"crypto/md5"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/md5"
 	"os"
 	"os/exec"
 	"runtime"

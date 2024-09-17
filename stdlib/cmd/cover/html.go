@@ -6,7 +6,7 @@ package main
 
 import (
 	"bufio"
-	"cmd/internal/browser"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/browser"
 	"fmt"
 	"html/template"
 	"io"

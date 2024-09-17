@@ -9,7 +9,7 @@ package objfile
 import (
 	"debug/dwarf"
 	"fmt"
-	"internal/xcoff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/xcoff"
 	"io"
 	"unicode"
 )

@@ -5,7 +5,7 @@
 package types2_test
 
 import (
-	"cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
 	"strconv"
 	"testing"
 )

@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 )
 
 const (

@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"io"
 
-	"internal/trace/event"
-	"internal/trace/version"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/event"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/version"
 )
 
 // Writer emits the wire format of a trace.

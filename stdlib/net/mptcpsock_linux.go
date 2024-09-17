@@ -7,8 +7,8 @@ package net
 import (
 	"context"
 	"errors"
-	"internal/poll"
-	"internal/syscall/unix"
+	"github.com/runZeroInc/excrypto/stdlib/internal/poll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/unix"
 	"sync"
 	"syscall"
 )

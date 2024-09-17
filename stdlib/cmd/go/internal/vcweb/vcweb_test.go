@@ -5,7 +5,7 @@
 package vcweb_test
 
 import (
-	"cmd/go/internal/vcweb"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/vcweb"
 	"io"
 	"log"
 	"net/http"

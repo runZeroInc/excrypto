@@ -15,7 +15,7 @@ import (
 	"go/ast"
 	"go/printer"
 	"go/token"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"io/fs"
 	"os"

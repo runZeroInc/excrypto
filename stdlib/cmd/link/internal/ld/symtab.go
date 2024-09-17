@@ -31,13 +31,13 @@
 package ld
 
 import (
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
-	"cmd/link/internal/loader"
-	"cmd/link/internal/sym"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/loader"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/sym"
 	"debug/elf"
 	"fmt"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"path/filepath"
 	"strings"
 )
@@ -143,7 +143,7 @@ func putelfsym(ctxt *Link, x loader.Sym, typ elf.SymType, curbind elf.SymBind) {
 		// symbols this is always 8 bytes except for some special functions.
 		hasPCrel := buildcfg.GOPPC64 >= 10 && buildcfg.GOOS == "linux"
 
-		// This should match the preprocessing behavior in cmd/internal/obj/ppc64/obj9.go
+		// This should match the preprocessing behavior in github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/ppc64/obj9.go
 		// where the distinct global entry is inserted.
 		if !hasPCrel && ldr.SymName(x) != "runtime.duffzero" && ldr.SymName(x) != "runtime.duffcopy" {
 			other |= 3 << 5
@@ -516,7 +516,7 @@ func (ctxt *Link) symtab(pcln *pclntab) []sym.SymKind {
 	// just defined above will be first.
 	// hide the specific symbols.
 	// Some of these symbol section conditions are duplicated
-	// in cmd/internal/obj.contentHashSection.
+	// in github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj.contentHashSection.
 	nsym := loader.Sym(ldr.NSym())
 	symGroupType := make([]sym.SymKind, nsym)
 	for s := loader.Sym(1); s < nsym; s++ {

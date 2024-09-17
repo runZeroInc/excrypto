@@ -6,10 +6,10 @@ package obj
 
 import (
 	"bytes"
-	"cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
 	"fmt"
-	"internal/abi"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"io"
 	"strings"
 )

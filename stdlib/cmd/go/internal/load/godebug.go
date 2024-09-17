@@ -8,14 +8,14 @@ import (
 	"errors"
 	"fmt"
 	"go/build"
-	"internal/godebugs"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebugs"
 	"maps"
 	"sort"
 	"strconv"
 	"strings"
 
-	"cmd/go/internal/gover"
-	"cmd/go/internal/modload"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modload"
 )
 
 var ErrNotGoDebug = errors.New("not //go:debug line")

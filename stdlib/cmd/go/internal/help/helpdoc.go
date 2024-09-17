@@ -4,7 +4,7 @@
 
 package help
 
-import "cmd/go/internal/base"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
 
 var HelpC = &base.Command{
 	UsageLine: "c",
@@ -66,7 +66,7 @@ Go library.
 - "cmd" expands to the Go repository's commands and their
 internal libraries.
 
-Import paths beginning with "cmd/" only match source code in
+Import paths beginning with "github.com/runZeroInc/excrypto/stdlib/cmd/" only match source code in
 the Go repository.
 
 An import path is a pattern if it includes one or more "..." wildcards,

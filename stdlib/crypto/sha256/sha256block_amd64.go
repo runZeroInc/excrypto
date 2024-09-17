@@ -6,7 +6,7 @@
 
 package sha256
 
-import "internal/cpu"
+import "github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 
 var useAVX2 = cpu.X86.HasAVX2 && cpu.X86.HasBMI2
 var useSHA = useAVX2 && cpu.X86.HasSHA

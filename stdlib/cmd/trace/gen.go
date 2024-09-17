@@ -6,8 +6,8 @@ package main
 
 import (
 	"fmt"
-	"internal/trace"
-	"internal/trace/traceviewer"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/traceviewer"
 	"strings"
 )
 

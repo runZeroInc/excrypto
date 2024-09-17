@@ -15,7 +15,7 @@
 package report
 
 import (
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/binary"
 	"fmt"
 

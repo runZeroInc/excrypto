@@ -7,7 +7,7 @@ package lex
 import (
 	"text/scanner"
 
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 // A Slice reads from a slice of Tokens.

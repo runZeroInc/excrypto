@@ -8,16 +8,16 @@ import (
 	"fmt"
 	"go/constant"
 	"go/token"
-	"internal/abi"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"strings"
 
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/escape"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/reflectdata"
-	"cmd/compile/internal/typecheck"
-	"cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/escape"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/reflectdata"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/typecheck"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
 )
 
 // Rewrite append(src, x, y, z) so that any side effects in
@@ -899,7 +899,7 @@ func walkUnsafeSlice(n *ir.BinaryExpr, init *ir.Nodes) ir.Node {
 	return walkExpr(typecheck.Expr(h), init)
 }
 
-var math_MulUintptr = &types.Sym{Pkg: types.NewPkg("internal/runtime/math", "math"), Name: "MulUintptr"}
+var math_MulUintptr = &types.Sym{Pkg: types.NewPkg("github.com/runZeroInc/excrypto/stdlib/internal/runtime/math", "math"), Name: "MulUintptr"}
 
 func walkUnsafeString(n *ir.BinaryExpr, init *ir.Nodes) ir.Node {
 	ptr := safeExpr(n.X, init)

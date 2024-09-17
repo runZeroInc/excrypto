@@ -7,9 +7,9 @@
 package rsa
 
 import (
-	"crypto/internal/boring"
-	"crypto/internal/boring/bbig"
-	"crypto/internal/boring/bcache"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring/bbig"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring/bcache"
 	"math/big"
 )
 

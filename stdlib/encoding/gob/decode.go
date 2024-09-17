@@ -9,7 +9,7 @@ package gob
 import (
 	"encoding"
 	"errors"
-	"internal/saferio"
+	"github.com/runZeroInc/excrypto/stdlib/internal/saferio"
 	"io"
 	"math"
 	"math/bits"

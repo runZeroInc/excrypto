@@ -12,8 +12,8 @@ import (
 	"strings"
 	"unicode"
 
-	"internal/trace/event"
-	"internal/trace/version"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/event"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/version"
 )
 
 // TextReader parses a text format trace with only very basic validation

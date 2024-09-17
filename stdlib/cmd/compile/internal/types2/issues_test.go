@@ -7,15 +7,15 @@
 package types2_test
 
 import (
-	"cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"regexp"
 	"sort"
 	"strings"
 	"testing"
 
-	. "cmd/compile/internal/types2"
+	. "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"
 )
 
 func TestIssue5770(t *testing.T) {

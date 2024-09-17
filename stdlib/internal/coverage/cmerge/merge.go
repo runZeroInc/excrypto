@@ -9,7 +9,7 @@ package cmerge
 
 import (
 	"fmt"
-	"internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
 	"math"
 )
 

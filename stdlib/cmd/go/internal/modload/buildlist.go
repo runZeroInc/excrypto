@@ -17,11 +17,11 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/gover"
-	"cmd/go/internal/mvs"
-	"cmd/internal/par"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/mvs"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/par"
 
 	"golang.org/x/mod/module"
 )

@@ -6,8 +6,8 @@ package net
 
 import (
 	"errors"
-	"internal/itoa"
-	"internal/stringslite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/stringslite"
 	"os"
 )
 

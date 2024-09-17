@@ -5,9 +5,9 @@
 package covcmd
 
 import (
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"fmt"
-	"internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
 )
 
 // CoverPkgConfig is a bundle of information passed from the Go

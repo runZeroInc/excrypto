@@ -9,7 +9,7 @@ import (
 	"go/importer"
 	"go/parser"
 	"go/token"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"path"
 	"path/filepath"
 	"testing"

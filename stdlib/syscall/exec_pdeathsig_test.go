@@ -9,7 +9,7 @@ package syscall_test
 import (
 	"bufio"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"os"
 	"os/exec"

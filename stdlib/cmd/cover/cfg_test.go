@@ -5,10 +5,10 @@
 package main_test
 
 import (
-	"cmd/internal/cov/covcmd"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/cov/covcmd"
 	"encoding/json"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"path/filepath"
 	"strings"

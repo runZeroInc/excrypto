@@ -9,7 +9,7 @@ package types
 
 import (
 	"go/token"
-	. "internal/types/errors"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 	"sort"
 	"strings"
 )

@@ -1,6 +1,6 @@
 package main
 
-import "cmd/link/internal/ld/testdata/issue25459/a"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/ld/testdata/issue25459/a"
 
 var Glob int
 

@@ -5,7 +5,7 @@
 package edwards25519
 
 import (
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 )
 
 // A dynamic lookup table for variable-base, constant-time scalar muls.

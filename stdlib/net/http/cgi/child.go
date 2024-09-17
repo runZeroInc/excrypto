@@ -9,7 +9,7 @@ package cgi
 
 import (
 	"bufio"
-	"crypto/tls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
 	"errors"
 	"fmt"
 	"io"

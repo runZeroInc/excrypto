@@ -13,7 +13,7 @@
 package syscall
 
 import (
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"unsafe"
 )
 

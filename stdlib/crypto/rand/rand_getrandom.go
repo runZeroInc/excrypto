@@ -7,7 +7,7 @@
 package rand
 
 import (
-	"internal/syscall/unix"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/unix"
 	"runtime"
 	"syscall"
 )

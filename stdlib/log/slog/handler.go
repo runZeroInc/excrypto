@@ -8,7 +8,7 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log/slog/internal/buffer"
+	"github.com/runZeroInc/excrypto/stdlib/log/slog/internal/buffer"
 	"reflect"
 	"slices"
 	"strconv"

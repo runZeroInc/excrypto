@@ -13,13 +13,13 @@ import (
 	"strings"
 	"sync"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/fsys"
-	"cmd/go/internal/load"
-	"cmd/go/internal/str"
-	"cmd/internal/pathcache"
-	"cmd/internal/pkgpath"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/fsys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/load"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/str"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pathcache"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pkgpath"
 )
 
 // The Gccgo toolchain.
@@ -55,7 +55,7 @@ func checkGccgoBin() {
 	if gccgoErr == nil {
 		return
 	}
-	fmt.Fprintf(os.Stderr, "cmd/go: gccgo: %s\n", gccgoErr)
+	fmt.Fprintf(os.Stderr, "github.com/runZeroInc/excrypto/stdlib/cmd/go: gccgo: %s\n", gccgoErr)
 	base.SetExitStatus(2)
 	base.Exit()
 }
@@ -597,7 +597,7 @@ func (tools gccgoToolchain) gccgoCleanPkgpath(b *Builder, p *load.Package) strin
 		}
 		fn, err := pkgpath.ToSymbolFunc(tools.compiler(), tmpdir)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "cmd/go: %v\n", err)
+			fmt.Fprintf(os.Stderr, "github.com/runZeroInc/excrypto/stdlib/cmd/go: %v\n", err)
 			base.SetExitStatus(2)
 			base.Exit()
 		}
@@ -630,7 +630,7 @@ func (tools gccgoToolchain) supportsCgoIncomplete(b *Builder, a *Action) bool {
 		sh := b.Shell(a)
 
 		fail := func(err error) {
-			fmt.Fprintf(os.Stderr, "cmd/go: %v\n", err)
+			fmt.Fprintf(os.Stderr, "github.com/runZeroInc/excrypto/stdlib/cmd/go: %v\n", err)
 			base.SetExitStatus(2)
 			base.Exit()
 		}

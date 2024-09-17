@@ -5,7 +5,7 @@
 package gover
 
 import (
-	"internal/goversion"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goversion"
 	"runtime"
 	"strconv"
 )

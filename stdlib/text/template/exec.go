@@ -7,7 +7,7 @@ package template
 import (
 	"errors"
 	"fmt"
-	"internal/fmtsort"
+	"github.com/runZeroInc/excrypto/stdlib/internal/fmtsort"
 	"io"
 	"reflect"
 	"runtime"

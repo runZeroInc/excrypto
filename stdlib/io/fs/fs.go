@@ -11,7 +11,7 @@
 package fs
 
 import (
-	"internal/oserror"
+	"github.com/runZeroInc/excrypto/stdlib/internal/oserror"
 	"time"
 	"unicode/utf8"
 )

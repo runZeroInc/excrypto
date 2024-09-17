@@ -9,7 +9,7 @@
 package stringslite
 
 import (
-	"internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
 	"unsafe"
 )
 

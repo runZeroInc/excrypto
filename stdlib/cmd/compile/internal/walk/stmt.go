@@ -5,8 +5,8 @@
 package walk
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
 )
 
 // The result of walkStmt MUST be assigned back to n, e.g.

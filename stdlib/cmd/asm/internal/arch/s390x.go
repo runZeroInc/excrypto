@@ -9,7 +9,7 @@
 package arch
 
 import (
-	"cmd/internal/obj/s390x"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/s390x"
 )
 
 func jumpS390x(word string) bool {

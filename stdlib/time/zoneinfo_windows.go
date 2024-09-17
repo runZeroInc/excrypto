@@ -6,7 +6,7 @@ package time
 
 import (
 	"errors"
-	"internal/syscall/windows/registry"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows/registry"
 	"syscall"
 )
 

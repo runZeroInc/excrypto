@@ -30,11 +30,11 @@
 package mips
 
 import (
-	"cmd/internal/obj"
-	"cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
 	"encoding/binary"
 	"fmt"
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"log"
 	"math"
 )

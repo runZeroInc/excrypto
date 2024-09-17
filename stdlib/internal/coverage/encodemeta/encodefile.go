@@ -6,11 +6,11 @@ package encodemeta
 
 import (
 	"bufio"
-	"crypto/md5"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/md5"
 	"encoding/binary"
 	"fmt"
-	"internal/coverage"
-	"internal/coverage/stringtab"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/stringtab"
 	"io"
 	"os"
 	"unsafe"

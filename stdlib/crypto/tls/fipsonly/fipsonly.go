@@ -8,7 +8,7 @@
 //
 // The effect is triggered by importing the package anywhere in a program, as in:
 //
-//	import _ "crypto/tls/fipsonly"
+//	import _ "github.com/runZeroInc/excrypto/stdlib/crypto/tls/fipsonly"
 //
 // This package only exists when using Go compiled with GOEXPERIMENT=boringcrypto.
 package fipsonly
@@ -19,8 +19,8 @@ package fipsonly
 // new source file and not modifying any existing source files.
 
 import (
-	"crypto/internal/boring/fipstls"
-	"crypto/internal/boring/sig"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring/fipstls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring/sig"
 )
 
 func init() {

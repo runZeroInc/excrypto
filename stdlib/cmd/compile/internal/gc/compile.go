@@ -6,21 +6,21 @@ package gc
 
 import (
 	"cmp"
-	"internal/race"
+	"github.com/runZeroInc/excrypto/stdlib/internal/race"
 	"math/rand"
 	"slices"
 	"sync"
 
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/liveness"
-	"cmd/compile/internal/objw"
-	"cmd/compile/internal/pgoir"
-	"cmd/compile/internal/ssagen"
-	"cmd/compile/internal/staticinit"
-	"cmd/compile/internal/types"
-	"cmd/compile/internal/walk"
-	"cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/liveness"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/objw"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/pgoir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssagen"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/staticinit"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/walk"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
 )
 
 // "Portable" code generation.
@@ -57,7 +57,7 @@ func enqueueFunc(fn *ir.Func) {
 		if fn.ABI == obj.ABI0 {
 			// The current args_stackmap generation assumes the function
 			// is ABI0, and only ABI0 assembly function can have a FUNCDATA
-			// reference to args_stackmap (see cmd/internal/obj/plist.go:Flushplist).
+			// reference to args_stackmap (see github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/plist.go:Flushplist).
 			// So avoid introducing an args_stackmap if the func is not ABI0.
 			liveness.WriteFuncMap(fn, abiInfo)
 

@@ -7,8 +7,8 @@ package noder
 import (
 	"errors"
 	"fmt"
-	"internal/buildcfg"
-	"internal/pkgbits"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/pkgbits"
 	"os"
 	pathpkg "path"
 	"runtime"
@@ -16,16 +16,16 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/importer"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/typecheck"
-	"cmd/compile/internal/types"
-	"cmd/compile/internal/types2"
-	"cmd/internal/archive"
-	"cmd/internal/bio"
-	"cmd/internal/goobj"
-	"cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/importer"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/typecheck"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/archive"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/bio"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/goobj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
 )
 
 type gcimports struct {

@@ -6,8 +6,8 @@ package rc4
 
 import (
 	"bytes"
-	"crypto/cipher"
-	"crypto/internal/cryptotest"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/cryptotest"
 	"fmt"
 	"testing"
 )

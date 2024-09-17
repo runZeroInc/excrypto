@@ -5,7 +5,7 @@
 package main
 
 import (
-	"internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
 )
 
 var _ generator = &goroutineGenerator{}

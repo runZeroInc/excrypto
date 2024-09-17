@@ -487,7 +487,7 @@ func init() {
 
 	archs = append(archs, arch{
 		name:            "MIPS64",
-		pkg:             "cmd/internal/obj/mips",
+		pkg:             "github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/mips",
 		genfile:         "../../mips64/ssa.go",
 		ops:             ops,
 		blocks:          blocks,

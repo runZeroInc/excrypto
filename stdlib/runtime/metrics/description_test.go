@@ -14,7 +14,7 @@ import (
 	"go/format"
 	"go/parser"
 	"go/token"
-	"internal/diff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/diff"
 	"os"
 	"regexp"
 	"runtime/metrics"

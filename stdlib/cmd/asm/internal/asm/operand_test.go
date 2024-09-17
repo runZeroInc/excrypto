@@ -5,13 +5,13 @@
 package asm
 
 import (
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"strings"
 	"testing"
 
-	"cmd/asm/internal/arch"
-	"cmd/asm/internal/lex"
-	"cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm/internal/arch"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm/internal/lex"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
 )
 
 // A simple in-out test: Do we print what we parse?

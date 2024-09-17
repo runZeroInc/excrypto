@@ -17,11 +17,11 @@ package ed25519
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/internal/edwards25519"
-	cryptorand "crypto/rand"
-	"crypto/sha512"
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/edwards25519"
+	cryptorand "github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"errors"
 	"io"
 	"strconv"

@@ -5,9 +5,9 @@
 package loong64
 
 import (
-	"cmd/compile/internal/ssa"
-	"cmd/compile/internal/ssagen"
-	"cmd/internal/obj/loong64"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssa"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssagen"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/loong64"
 )
 
 func Init(arch *ssagen.ArchInfo) {

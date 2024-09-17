@@ -15,14 +15,14 @@ import (
 	"runtime"
 	"strings"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/gover"
-	"cmd/go/internal/modfetch/codehost"
-	"cmd/go/internal/modinfo"
-	"cmd/go/internal/search"
-	"cmd/internal/par"
-	"cmd/internal/pkgpattern"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modfetch/codehost"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modinfo"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/search"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/par"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pkgpattern"
 
 	"golang.org/x/mod/module"
 )

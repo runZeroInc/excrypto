@@ -5,11 +5,11 @@
 package search
 
 import (
-	"cmd/go/internal/base"
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/fsys"
-	"cmd/go/internal/str"
-	"cmd/internal/pkgpattern"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/fsys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/str"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pkgpattern"
 	"fmt"
 	"go/build"
 	"io/fs"
@@ -195,7 +195,7 @@ func (m *Match) MatchPackages() {
 			// packages under cmd/vendor. At least as of
 			// March, 2017, there is one there for the
 			// vendored pprof tool.
-			if m.pattern == "cmd" && pkg != nil && strings.HasPrefix(pkg.ImportPath, "cmd/vendor") && pkg.Name == "main" {
+			if m.pattern == "cmd" && pkg != nil && strings.HasPrefix(pkg.ImportPath, "github.com/runZeroInc/excrypto/stdlib/cmd/vendor") && pkg.Name == "main" {
 				return nil
 			}
 

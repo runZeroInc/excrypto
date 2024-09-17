@@ -9,7 +9,7 @@ package main_test
 import (
 	"bufio"
 	"context"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"os"
 	"os/exec"

@@ -6,8 +6,8 @@ package cryptotest
 
 import (
 	"bytes"
-	"crypto/cipher"
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"fmt"
 	"strings"
 	"testing"

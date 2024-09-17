@@ -8,13 +8,13 @@ import (
 	"fmt"
 	"go/constant"
 	"go/token"
-	"internal/types/errors"
+	"github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 	"strings"
 
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/types"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 func tcShift(n, l, r ir.Node) (ir.Node, ir.Node, *types.Type) {

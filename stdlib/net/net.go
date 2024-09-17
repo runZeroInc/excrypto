@@ -94,7 +94,7 @@ package net
 import (
 	"context"
 	"errors"
-	"internal/poll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/poll"
 	"io"
 	"os"
 	"sync"

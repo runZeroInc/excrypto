@@ -7,9 +7,9 @@ package pprof
 import (
 	"bytes"
 	"fmt"
-	"internal/profile"
-	"internal/profilerecord"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/profile"
+	"github.com/runZeroInc/excrypto/stdlib/internal/profilerecord"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"runtime"
 	"slices"
 	"strings"

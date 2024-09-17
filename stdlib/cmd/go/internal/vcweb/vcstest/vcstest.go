@@ -7,14 +7,14 @@
 package vcstest
 
 import (
-	"cmd/go/internal/vcs"
-	"cmd/go/internal/vcweb"
-	"cmd/go/internal/web"
-	"crypto/tls"
-	"crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/vcs"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/vcweb"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/web"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"encoding/pem"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"log"
 	"net/http"

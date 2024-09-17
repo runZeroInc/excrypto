@@ -13,8 +13,8 @@ import (
 	"go/parser"
 	"go/token"
 	"go/types"
-	"internal/godebug"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"strings"
 	"testing"
 

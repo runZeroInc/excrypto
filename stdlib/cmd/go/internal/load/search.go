@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"cmd/go/internal/search"
-	"cmd/internal/pkgpattern"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/search"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pkgpattern"
 )
 
 // MatchPackage(pattern, cwd)(p) reports whether package p matches pattern in the working directory cwd.
@@ -49,7 +49,7 @@ func MatchPackage(pattern, cwd string) func(*Package) bool {
 	case pattern == "std":
 		return func(p *Package) bool { return p.Standard }
 	case pattern == "cmd":
-		return func(p *Package) bool { return p.Standard && strings.HasPrefix(p.ImportPath, "cmd/") }
+		return func(p *Package) bool { return p.Standard && strings.HasPrefix(p.ImportPath, "github.com/runZeroInc/excrypto/stdlib/cmd/") }
 	default:
 		matchPath := pkgpattern.MatchPattern(pattern)
 		return func(p *Package) bool { return matchPath(p.ImportPath) }

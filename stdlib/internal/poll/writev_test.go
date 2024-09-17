@@ -5,7 +5,7 @@
 package poll_test
 
 import (
-	"internal/poll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/poll"
 	"reflect"
 	"testing"
 )

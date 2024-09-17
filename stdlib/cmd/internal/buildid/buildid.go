@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"debug/elf"
 	"fmt"
-	"internal/xcoff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/xcoff"
 	"io"
 	"io/fs"
 	"os"

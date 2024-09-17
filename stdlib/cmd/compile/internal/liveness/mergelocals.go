@@ -5,11 +5,11 @@
 package liveness
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/bitvec"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/ssa"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/bitvec"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssa"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 	"fmt"
 	"os"
 	"path/filepath"

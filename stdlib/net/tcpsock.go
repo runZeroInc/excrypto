@@ -6,7 +6,7 @@ package net
 
 import (
 	"context"
-	"internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
 	"io"
 	"net/netip"
 	"os"

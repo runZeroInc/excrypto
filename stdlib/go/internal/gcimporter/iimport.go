@@ -15,7 +15,7 @@ import (
 	"go/constant"
 	"go/token"
 	"go/types"
-	"internal/saferio"
+	"github.com/runZeroInc/excrypto/stdlib/internal/saferio"
 	"io"
 	"math"
 	"math/big"

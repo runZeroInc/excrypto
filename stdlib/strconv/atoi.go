@@ -6,7 +6,7 @@ package strconv
 
 import (
 	"errors"
-	"internal/stringslite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/stringslite"
 )
 
 // lower(c) is a lower-case letter if and only if

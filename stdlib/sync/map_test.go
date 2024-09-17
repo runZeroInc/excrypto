@@ -5,7 +5,7 @@
 package sync_test
 
 import (
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"math/rand"
 	"reflect"
 	"runtime"

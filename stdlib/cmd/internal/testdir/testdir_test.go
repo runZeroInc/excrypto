@@ -14,7 +14,7 @@ import (
 	"go/build"
 	"go/build/constraint"
 	"hash/fnv"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"io/fs"
 	"log"

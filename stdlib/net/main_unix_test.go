@@ -6,7 +6,7 @@
 
 package net
 
-import "internal/poll"
+import "github.com/runZeroInc/excrypto/stdlib/internal/poll"
 
 var (
 	// Placeholders for saving original socket system calls.

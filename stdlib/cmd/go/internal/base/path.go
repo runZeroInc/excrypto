@@ -12,7 +12,7 @@ import (
 	"strings"
 	"sync"
 
-	"cmd/go/internal/str"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/str"
 )
 
 // UncachedCwd returns the current working directory.

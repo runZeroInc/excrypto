@@ -8,8 +8,8 @@ package syscall
 
 import (
 	errorspkg "errors"
-	"internal/itoa"
-	"internal/oserror"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/oserror"
 	"sync"
 	"unsafe"
 )

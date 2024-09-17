@@ -9,6 +9,6 @@
 
 package cgotest
 
-import "cmd/cgo/internal/test/issue27340"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/test/issue27340"
 
 var issue27340Var = issue27340.Issue27340GoFunc

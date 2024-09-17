@@ -7,7 +7,7 @@ package main
 import (
 	"bytes"
 	"flag"
-	"internal/diff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/diff"
 	"os"
 	"path/filepath"
 	"strings"

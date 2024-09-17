@@ -8,13 +8,13 @@ import (
 	. "github.com/mmcloughlin/avo/build"
 	. "github.com/mmcloughlin/avo/operand"
 	. "github.com/mmcloughlin/avo/reg"
-	_ "golang.org/x/crypto/sha3"
+	_ "github.com/runZeroInc/excrypto/x/crypto/sha3"
 )
 
 //go:generate go run . -out ../sum_amd64.s -pkg poly1305
 
 func main() {
-	Package("golang.org/x/crypto/internal/poly1305")
+	Package("github.com/runZeroInc/excrypto/x/crypto/internal/poly1305")
 	ConstraintExpr("gc,!purego")
 	update()
 	Generate()

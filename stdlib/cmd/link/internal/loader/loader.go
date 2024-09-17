@@ -6,15 +6,15 @@ package loader
 
 import (
 	"bytes"
-	"cmd/internal/bio"
-	"cmd/internal/goobj"
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
-	"cmd/internal/sys"
-	"cmd/link/internal/sym"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/bio"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/goobj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/sym"
 	"debug/elf"
 	"fmt"
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"io"
 	"log"
 	"math/bits"
@@ -702,7 +702,7 @@ func (l *Loader) checkdup(name string, r *oReader, li uint32, dup Sym) {
 		reason = fmt.Sprintf("different sizes: new size %d != old size %d",
 			sz, szdup)
 	}
-	fmt.Fprintf(os.Stderr, "cmd/link: while reading object for '%v': duplicate symbol '%s', previous def at '%v', with mismatched payload: %s\n", r.unit.Lib, name, rdup.unit.Lib, reason)
+	fmt.Fprintf(os.Stderr, "github.com/runZeroInc/excrypto/stdlib/cmd/link: while reading object for '%v': duplicate symbol '%s', previous def at '%v', with mismatched payload: %s\n", r.unit.Lib, name, rdup.unit.Lib, reason)
 
 	// For the moment, allow DWARF subprogram DIEs for
 	// auto-generated wrapper functions. What seems to happen
@@ -2337,8 +2337,8 @@ var blockedLinknames = map[string][]string{
 	"runtime.coroswitch": {"iter"},
 	"runtime.newcoro":    {"iter"},
 	// weak references
-	"internal/weak.runtime_registerWeakPointer": {"internal/weak"},
-	"internal/weak.runtime_makeStrongFromWeak":  {"internal/weak"},
+	"github.com/runZeroInc/excrypto/stdlib/internal/weak.runtime_registerWeakPointer": {"github.com/runZeroInc/excrypto/stdlib/internal/weak"},
+	"github.com/runZeroInc/excrypto/stdlib/internal/weak.runtime_makeStrongFromWeak":  {"github.com/runZeroInc/excrypto/stdlib/internal/weak"},
 }
 
 // check if a linkname reference to symbol s from pkg is allowed

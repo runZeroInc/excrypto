@@ -8,14 +8,14 @@ package load
 import (
 	"bytes"
 	"context"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"go/build"
 	"go/scanner"
 	"go/token"
-	"internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
 	"io/fs"
 	"os"
 	pathpkg "path"
@@ -30,22 +30,22 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/fsys"
-	"cmd/go/internal/gover"
-	"cmd/go/internal/imports"
-	"cmd/go/internal/modfetch"
-	"cmd/go/internal/modindex"
-	"cmd/go/internal/modinfo"
-	"cmd/go/internal/modload"
-	"cmd/go/internal/search"
-	"cmd/go/internal/str"
-	"cmd/go/internal/trace"
-	"cmd/go/internal/vcs"
-	"cmd/internal/par"
-	"cmd/internal/pathcache"
-	"cmd/internal/pkgpattern"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/fsys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/imports"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modfetch"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modindex"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modinfo"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modload"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/search"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/str"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/vcs"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/par"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pathcache"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pkgpattern"
 
 	"golang.org/x/mod/modfile"
 	"golang.org/x/mod/module"
@@ -1524,7 +1524,7 @@ func findInternal(path string) (index int, ok bool) {
 		return len(path) - len("internal"), true
 	case strings.Contains(path, "/internal/"):
 		return strings.LastIndex(path, "/internal/") + 1, true
-	case path == "internal", strings.HasPrefix(path, "internal/"):
+	case path == "internal", strings.HasPrefix(path, "github.com/runZeroInc/excrypto/stdlib/internal/"):
 		return 0, true
 	}
 	return 0, false
@@ -1641,9 +1641,9 @@ func InstallTargetDir(p *Package) TargetDir {
 	if strings.HasPrefix(p.ImportPath, "code.google.com/p/go.tools/cmd/") {
 		return StalePath
 	}
-	if p.Goroot && strings.HasPrefix(p.ImportPath, "cmd/") && p.Name == "main" {
+	if p.Goroot && strings.HasPrefix(p.ImportPath, "github.com/runZeroInc/excrypto/stdlib/cmd/") && p.Name == "main" {
 		switch p.ImportPath {
-		case "cmd/go", "cmd/gofmt":
+		case "github.com/runZeroInc/excrypto/stdlib/cmd/go", "github.com/runZeroInc/excrypto/stdlib/cmd/gofmt":
 			return ToBin
 		}
 		return ToTool
@@ -3453,7 +3453,7 @@ func SelectCoverPackages(roots []*Package, match []func(*Package) bool, op strin
 		// mode. Atomic coverage mode uses sync/atomic, so we can't
 		// also do coverage on it.
 		if cfg.BuildCoverMode == "atomic" && p.Standard &&
-			(p.ImportPath == "sync/atomic" || p.ImportPath == "internal/runtime/atomic") {
+			(p.ImportPath == "sync/atomic" || p.ImportPath == "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic") {
 			continue
 		}
 

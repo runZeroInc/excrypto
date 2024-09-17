@@ -5,7 +5,7 @@
 package net
 
 import (
-	"internal/poll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/poll"
 	"io"
 	"os"
 )

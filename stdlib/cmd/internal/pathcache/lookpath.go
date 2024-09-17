@@ -5,7 +5,7 @@
 package pathcache
 
 import (
-	"cmd/internal/par"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/par"
 	"os/exec"
 )
 

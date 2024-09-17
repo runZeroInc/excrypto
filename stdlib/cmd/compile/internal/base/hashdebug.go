@@ -6,10 +6,10 @@ package base
 
 import (
 	"bytes"
-	"cmd/internal/obj"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 	"fmt"
-	"internal/bisect"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bisect"
 	"io"
 	"os"
 	"path/filepath"

@@ -96,8 +96,8 @@ import (
 	"os/exec"
 	"os/signal"
 
-	"cmd/internal/telemetry/counter"
-	"cmd/internal/test2json"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/test2json"
 )
 
 var (

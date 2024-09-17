@@ -6,8 +6,8 @@
 package flags
 
 import (
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
 	"flag"
 	"fmt"
 	"os"

@@ -5,7 +5,7 @@
 package debug_test
 
 import (
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"runtime"
 	. "runtime/debug"

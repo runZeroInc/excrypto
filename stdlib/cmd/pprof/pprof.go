@@ -10,7 +10,7 @@
 package main
 
 import (
-	"crypto/tls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
 	"debug/dwarf"
 	"flag"
 	"fmt"
@@ -24,8 +24,8 @@ import (
 	"sync"
 	"time"
 
-	"cmd/internal/objfile"
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objfile"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 
 	"github.com/google/pprof/driver"
 	"github.com/google/pprof/profile"

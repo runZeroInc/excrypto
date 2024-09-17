@@ -9,8 +9,8 @@ package archive
 import (
 	"bufio"
 	"bytes"
-	"cmd/internal/bio"
-	"cmd/internal/goobj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/bio"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/goobj"
 	"errors"
 	"fmt"
 	"io"
@@ -416,7 +416,7 @@ func (r *objReader) parseArchive(verbose bool) error {
 // The object file consists of a textual header ending in "\n!\n"
 // and then the part we want to parse begins.
 // The format of that part is defined in a comment at the top
-// of cmd/internal/goobj/objfile.go.
+// of github.com/runZeroInc/excrypto/stdlib/cmd/internal/goobj/objfile.go.
 func (r *objReader) parseObject(o *GoObj, size int64) error {
 	h := make([]byte, 0, 256)
 	var c1, c2, c3 byte

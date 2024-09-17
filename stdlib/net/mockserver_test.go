@@ -8,7 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"log"
 	"os"
 	"path/filepath"

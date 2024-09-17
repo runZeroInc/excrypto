@@ -10,7 +10,7 @@ import (
 	"go/ast"
 	"go/importer"
 	"go/types"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"testing"
 )
 

@@ -4,7 +4,7 @@
 
 package sym
 
-import "cmd/internal/dwarf"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/internal/dwarf"
 
 // LoaderSym holds a loader.Sym value. We can't refer to this
 // type from the sym package since loader imports sym.

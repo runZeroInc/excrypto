@@ -6,7 +6,7 @@ package main
 
 import (
 	"bytes"
-	"cmd/internal/cov/covcmd"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/cov/covcmd"
 	"cmp"
 	"encoding/json"
 	"flag"
@@ -14,9 +14,9 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"internal/coverage"
-	"internal/coverage/encodemeta"
-	"internal/coverage/slicewriter"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/encodemeta"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/slicewriter"
 	"io"
 	"log"
 	"os"
@@ -25,9 +25,9 @@ import (
 	"strconv"
 	"strings"
 
-	"cmd/internal/edit"
-	"cmd/internal/objabi"
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/edit"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 )
 
 const usageMessage = "" +
@@ -53,7 +53,7 @@ where -pkgcfg points to a file containing the package path,
 package name, module path, and related info from "go build",
 and -outfilelist points to a file containing the filenames
 of the instrumented output files (one per input file).
-See https://pkg.go.dev/cmd/internal/cov/covcmd#CoverPkgConfig for
+See https://pkg.go.dev/github.com/runZeroInc/excrypto/stdlib/cmd/internal/cov/covcmd#CoverPkgConfig for
 more on the package config.
 `
 

@@ -8,7 +8,7 @@
 package net
 
 import (
-	"internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
 	"io"
 	"os"
 	"time"

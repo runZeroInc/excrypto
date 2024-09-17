@@ -117,7 +117,7 @@ values, and optimizing multiplications and float operations.
 ### 7. Generating machine code
 
 * `cmd/compile/internal/ssa` (SSA lowering and arch-specific passes)
-* `cmd/internal/obj` (machine code generation)
+* `github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj` (machine code generation)
 
 The machine-dependent phase of the compiler begins with the "lower" pass, which
 rewrites generic values into their machine-specific variants. For example, on
@@ -137,7 +137,7 @@ analysis, which computes which on-stack pointers are live at each GC safe point.
 
 At the end of the SSA generation phase, Go functions have been transformed into
 a series of obj.Prog instructions. These are passed to the assembler
-(`cmd/internal/obj`), which turns them into machine code and writes out the
+(`github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj`), which turns them into machine code and writes out the
 final object file. The object file will also contain reflect data, export data,
 and debugging information.
 
@@ -239,11 +239,11 @@ dependencies, so is not suitable for distributed build systems.)
   [test](https://github.com/golang/go/tree/master/test) directory:
 
   ```
-  $ go test cmd/internal/testdir                           # all tests in 'test' dir
-  $ go test cmd/internal/testdir -run='Test/escape.*.go'   # test specific files in 'test' dir
+  $ go test github.com/runZeroInc/excrypto/stdlib/cmd/internal/testdir                           # all tests in 'test' dir
+  $ go test github.com/runZeroInc/excrypto/stdlib/cmd/internal/testdir -run='Test/escape.*.go'   # test specific files in 'test' dir
   ```
   For details, see the [testdir README](https://github.com/golang/go/tree/master/test#readme).
-  The `errorCheck` method in [testdir_test.go](https://github.com/golang/go/blob/master/src/cmd/internal/testdir/testdir_test.go)
+  The `errorCheck` method in [testdir_test.go](https://github.com/golang/go/blob/master/src/github.com/runZeroInc/excrypto/stdlib/cmd/internal/testdir/testdir_test.go)
   is helpful for a description of the `ERROR` comments used in many of those tests.
 
   In addition, the `go/types` package from the standard library and `cmd/compile/internal/types2`

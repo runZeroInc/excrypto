@@ -5,12 +5,12 @@
 package user
 
 import (
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"internal/syscall/windows"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"runtime"

@@ -4,7 +4,7 @@
 
 package ir
 
-import "cmd/compile/internal/types"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
 
 // A Package holds information about the package being compiled.
 type Package struct {

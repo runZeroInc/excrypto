@@ -6,7 +6,7 @@ package mlkem768
 
 import (
 	"bytes"
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	_ "embed"
 	"encoding/hex"
 	"errors"
@@ -15,7 +15,7 @@ import (
 	"strconv"
 	"testing"
 
-	"golang.org/x/crypto/sha3"
+	"github.com/runZeroInc/excrypto/x/crypto/sha3"
 )
 
 func TestFieldReduce(t *testing.T) {

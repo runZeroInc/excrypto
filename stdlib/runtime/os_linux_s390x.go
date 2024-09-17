@@ -4,7 +4,7 @@
 
 package runtime
 
-import "internal/cpu"
+import "github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 
 const (
 	_HWCAP_VX = 1 << 11 // vector facility

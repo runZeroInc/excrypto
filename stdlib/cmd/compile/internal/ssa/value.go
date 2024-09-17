@@ -5,9 +5,9 @@
 package ssa
 
 import (
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/types"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 	"fmt"
 	"math"
 	"sort"
@@ -459,7 +459,7 @@ func (v *Value) isGenericIntConst() bool {
 	return v != nil && (v.Op == OpConst64 || v.Op == OpConst32 || v.Op == OpConst16 || v.Op == OpConst8)
 }
 
-// ResultReg returns the result register assigned to v, in cmd/internal/obj/$ARCH numbering.
+// ResultReg returns the result register assigned to v, in github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/$ARCH numbering.
 // It is similar to Reg and Reg0, except that it is usable interchangeably for all Value Ops.
 // If you know v.Op, using Reg or Reg0 (as appropriate) will be more efficient.
 func (v *Value) ResultReg() int16 {
@@ -476,7 +476,7 @@ func (v *Value) ResultReg() int16 {
 	return reg.(*Register).objNum
 }
 
-// Reg returns the register assigned to v, in cmd/internal/obj/$ARCH numbering.
+// Reg returns the register assigned to v, in github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/$ARCH numbering.
 func (v *Value) Reg() int16 {
 	reg := v.Block.Func.RegAlloc[v.ID]
 	if reg == nil {
@@ -485,7 +485,7 @@ func (v *Value) Reg() int16 {
 	return reg.(*Register).objNum
 }
 
-// Reg0 returns the register assigned to the first output of v, in cmd/internal/obj/$ARCH numbering.
+// Reg0 returns the register assigned to the first output of v, in github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/$ARCH numbering.
 func (v *Value) Reg0() int16 {
 	reg := v.Block.Func.RegAlloc[v.ID].(LocPair)[0]
 	if reg == nil {
@@ -494,7 +494,7 @@ func (v *Value) Reg0() int16 {
 	return reg.(*Register).objNum
 }
 
-// Reg1 returns the register assigned to the second output of v, in cmd/internal/obj/$ARCH numbering.
+// Reg1 returns the register assigned to the second output of v, in github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/$ARCH numbering.
 func (v *Value) Reg1() int16 {
 	reg := v.Block.Func.RegAlloc[v.ID].(LocPair)[1]
 	if reg == nil {
@@ -503,7 +503,7 @@ func (v *Value) Reg1() int16 {
 	return reg.(*Register).objNum
 }
 
-// RegTmp returns the temporary register assigned to v, in cmd/internal/obj/$ARCH numbering.
+// RegTmp returns the temporary register assigned to v, in github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/$ARCH numbering.
 func (v *Value) RegTmp() int16 {
 	reg := v.Block.Func.tempRegs[v.ID]
 	if reg == nil {

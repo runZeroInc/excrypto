@@ -5,10 +5,10 @@
 package pods_test
 
 import (
-	"crypto/md5"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/md5"
 	"fmt"
-	"internal/coverage"
-	"internal/coverage/pods"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/pods"
 	"os"
 	"path/filepath"
 	"runtime"

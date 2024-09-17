@@ -5,7 +5,7 @@
 package rand
 
 import (
-	"crypto/internal/randutil"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/randutil"
 	"errors"
 	"io"
 	"math/big"
@@ -15,7 +15,7 @@ import (
 // Prime will return error for any error returned by [rand.Read] or if bits < 2.
 func Prime(rand io.Reader, bits int) (*big.Int, error) {
 	if bits < 2 {
-		return nil, errors.New("crypto/rand: prime size must be at least 2-bit")
+		return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rand: prime size must be at least 2-bit")
 	}
 
 	randutil.MaybeReadByte(rand)
@@ -61,7 +61,7 @@ func Prime(rand io.Reader, bits int) (*big.Int, error) {
 // Int returns a uniform random value in [0, max). It panics if max <= 0.
 func Int(rand io.Reader, max *big.Int) (n *big.Int, err error) {
 	if max.Sign() <= 0 {
-		panic("crypto/rand: argument to Int is <= 0")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/rand: argument to Int is <= 0")
 	}
 	n = new(big.Int)
 	n.Sub(max, n.SetUint64(1))

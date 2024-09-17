@@ -6,12 +6,12 @@ package rsa_test
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/rand"
-	. "crypto/rsa"
-	"crypto/sha1"
-	"crypto/sha256"
-	"crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	. "github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"

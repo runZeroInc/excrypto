@@ -9,7 +9,7 @@ package big
 import (
 	"errors"
 	"fmt"
-	"internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 )
 
 // Gob codec version. Permits backward-compatible changes to the encoding.

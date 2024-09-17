@@ -5,10 +5,10 @@
 package ed25519_test
 
 import (
-	"crypto/ed25519"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
 	"encoding/hex"
 	"encoding/json"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"path/filepath"

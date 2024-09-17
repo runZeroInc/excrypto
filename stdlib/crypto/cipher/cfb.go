@@ -7,8 +7,8 @@
 package cipher
 
 import (
-	"crypto/internal/alias"
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/alias"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 )
 
 type cfb struct {
@@ -22,10 +22,10 @@ type cfb struct {
 
 func (x *cfb) XORKeyStream(dst, src []byte) {
 	if len(dst) < len(src) {
-		panic("crypto/cipher: output smaller than input")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: output smaller than input")
 	}
 	if alias.InexactOverlap(dst[:len(src)], src) {
-		panic("crypto/cipher: invalid buffer overlap")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: invalid buffer overlap")
 	}
 	for len(src) > 0 {
 		if x.outUsed == len(x.out) {

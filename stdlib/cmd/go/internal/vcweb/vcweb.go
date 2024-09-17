@@ -31,9 +31,9 @@ package vcweb
 
 import (
 	"bufio"
-	"cmd/internal/script"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/script"
 	"context"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"errors"
 	"fmt"
 	"io"

@@ -5,7 +5,7 @@
 package time
 
 import (
-	"internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"unsafe"
 )
 

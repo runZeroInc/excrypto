@@ -11,7 +11,7 @@
 package tlog
 
 import (
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/base64"
 	"errors"
 	"fmt"

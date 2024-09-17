@@ -24,7 +24,7 @@ stderr 'disabled by -mod=readonly'
 ! go build -mod=vendor
 stderr 'http.go:5:2: cannot find module providing package golang.org/x/net/http2/hpack: import lookup disabled by -mod=vendor'
 
-# ...even if they explicitly use the "cmd/vendor/" or "vendor/" prefix.
+# ...even if they explicitly use the "github.com/runZeroInc/excrypto/stdlib/cmd/vendor/" or "vendor/" prefix.
 cd ../importcmd
 ! go build .
 stderr 'use of vendored package'
@@ -68,7 +68,7 @@ module importcmd
 -- importcmd/x.go --
 package importcmd
 
-import _ "cmd/vendor/golang.org/x/tools/go/analysis"
+import _ "github.com/runZeroInc/excrypto/stdlib/cmd/vendor/golang.org/x/tools/go/analysis"
 -- importstd/go.mod --
 module importvendor
 -- importstd/x.go --

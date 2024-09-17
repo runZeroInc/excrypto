@@ -4,7 +4,7 @@
 
 package ssa
 
-import "cmd/internal/src"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 
 // from https://research.swtch.com/sparse
 // in turn, from Briggs and Torczon

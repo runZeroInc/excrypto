@@ -7,7 +7,7 @@ package lex
 import (
 	"text/scanner"
 
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 // A Stack is a stack of TokenReaders. As the top TokenReader hits EOF,

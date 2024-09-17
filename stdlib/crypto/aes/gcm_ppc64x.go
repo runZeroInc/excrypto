@@ -7,11 +7,11 @@
 package aes
 
 import (
-	"crypto/cipher"
-	"crypto/internal/alias"
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/alias"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"errors"
-	"internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 	"runtime"
 )
 
@@ -173,7 +173,7 @@ func (g *gcmAsm) Seal(dst, nonce, plaintext, data []byte) []byte {
 
 	ret, out := sliceForAppend(dst, len(plaintext)+g.tagSize)
 	if alias.InexactOverlap(out[:len(plaintext)], plaintext) {
-		panic("crypto/cipher: invalid buffer overlap")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: invalid buffer overlap")
 	}
 
 	var counter, tagMask [gcmBlockSize]byte
@@ -215,7 +215,7 @@ func (g *gcmAsm) Open(dst, nonce, ciphertext, data []byte) ([]byte, error) {
 
 	ret, out := sliceForAppend(dst, len(ciphertext))
 	if alias.InexactOverlap(out, ciphertext) {
-		panic("crypto/cipher: invalid buffer overlap")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: invalid buffer overlap")
 	}
 
 	if subtle.ConstantTimeCompare(expectedTag[:g.tagSize], tag) != 1 {

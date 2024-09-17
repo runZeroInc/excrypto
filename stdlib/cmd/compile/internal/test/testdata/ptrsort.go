@@ -6,7 +6,7 @@ package main
 import (
 	"fmt"
 
-	"cmd/compile/internal/test/testdata/mysort"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/test/testdata/mysort"
 )
 
 type MyString struct {

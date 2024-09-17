@@ -6,15 +6,15 @@ package wasm
 
 import (
 	"bytes"
-	"cmd/internal/obj"
-	"cmd/internal/obj/wasm"
-	"cmd/internal/objabi"
-	"cmd/link/internal/ld"
-	"cmd/link/internal/loader"
-	"cmd/link/internal/sym"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/wasm"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/ld"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/loader"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/sym"
 	"fmt"
-	"internal/abi"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"io"
 	"regexp"
 )

@@ -11,8 +11,8 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"internal/buildcfg"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"testing"
 )

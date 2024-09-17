@@ -6,7 +6,7 @@ package tls
 
 import (
 	"bytes"
-	"crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"encoding/hex"
 	"math"
 	"math/rand"

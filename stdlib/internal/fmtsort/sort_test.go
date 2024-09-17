@@ -7,7 +7,7 @@ package fmtsort_test
 import (
 	"cmp"
 	"fmt"
-	"internal/fmtsort"
+	"github.com/runZeroInc/excrypto/stdlib/internal/fmtsort"
 	"math"
 	"reflect"
 	"runtime"

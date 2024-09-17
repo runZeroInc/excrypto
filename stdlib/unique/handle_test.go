@@ -6,7 +6,7 @@ package unique
 
 import (
 	"fmt"
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"reflect"
 	"runtime"
 	"strings"

@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
-	"internal/lazyregexp"
+	"github.com/runZeroInc/excrypto/stdlib/internal/lazyregexp"
 	"path"
 	"slices"
 	"strconv"

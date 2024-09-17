@@ -9,8 +9,8 @@ import (
 	"bytes"
 	"debug/macho"
 	"errors"
-	"internal/platform"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -19,7 +19,7 @@ import (
 	"strings"
 	"testing"
 
-	"cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
 )
 
 var AuthorPaidByTheColumnInch struct {

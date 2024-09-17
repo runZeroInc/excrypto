@@ -6,7 +6,7 @@
 package modcmd
 
 import (
-	"cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
 )
 
 var CmdMod = &base.Command{

@@ -3,11 +3,11 @@
 // license that can be found in the LICENSE file.
 
 // Package reflectlite implements lightweight version of reflect, not using
-// any package except for "runtime", "unsafe", and "internal/abi"
+// any package except for "runtime", "unsafe", and "github.com/runZeroInc/excrypto/stdlib/internal/abi"
 package reflectlite
 
 import (
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"unsafe"
 )
 
@@ -68,7 +68,7 @@ type Type interface {
 }
 
 /*
- * These data structures are known to the compiler (../../cmd/internal/reflectdata/reflect.go).
+ * These data structures are known to the compiler (../../github.com/runZeroInc/excrypto/stdlib/cmd/internal/reflectdata/reflect.go).
  * A few are known to ../runtime/type.go to convey to debuggers.
  * They are also known to ../runtime/type.go.
  */

@@ -9,8 +9,8 @@ package boring
 // #include "goboringcrypto.h"
 import "C"
 import (
-	"crypto"
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"errors"
 	"hash"
 	"runtime"
@@ -146,11 +146,11 @@ func setupRSA(withKey func(func(*C.GO_RSA) C.int) C.int,
 	if padding == C.GO_RSA_PKCS1_OAEP_PADDING {
 		md := hashToMD(h)
 		if md == nil {
-			return pkey, ctx, errors.New("crypto/rsa: unsupported hash function")
+			return pkey, ctx, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: unsupported hash function")
 		}
 		mgfMD := hashToMD(mgfHash)
 		if mgfMD == nil {
-			return pkey, ctx, errors.New("crypto/rsa: unsupported hash function")
+			return pkey, ctx, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: unsupported hash function")
 		}
 		if C._goboringcrypto_EVP_PKEY_CTX_set_rsa_oaep_md(ctx, md) == 0 {
 			return pkey, ctx, fail("EVP_PKEY_set_rsa_oaep_md")
@@ -176,7 +176,7 @@ func setupRSA(withKey func(func(*C.GO_RSA) C.int) C.int,
 		}
 		md := cryptoHashToMD(ch)
 		if md == nil {
-			return pkey, ctx, errors.New("crypto/rsa: unsupported hash function")
+			return pkey, ctx, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: unsupported hash function")
 		}
 		if C._goboringcrypto_EVP_PKEY_CTX_set_rsa_mgf1_md(ctx, md) == 0 {
 			return pkey, ctx, fail("EVP_PKEY_set_rsa_mgf1_md")
@@ -252,12 +252,12 @@ func encrypt(ctx *C.GO_EVP_PKEY_CTX, out *C.uint8_t, outLen *C.size_t, in *C.uin
 	return C._goboringcrypto_EVP_PKEY_encrypt(ctx, out, outLen, in, inLen)
 }
 
-var invalidSaltLenErr = errors.New("crypto/rsa: PSSOptions.SaltLength cannot be negative")
+var invalidSaltLenErr = errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: PSSOptions.SaltLength cannot be negative")
 
 func SignRSAPSS(priv *PrivateKeyRSA, h crypto.Hash, hashed []byte, saltLen int) ([]byte, error) {
 	md := cryptoHashToMD(h)
 	if md == nil {
-		return nil, errors.New("crypto/rsa: unsupported hash function")
+		return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: unsupported hash function")
 	}
 
 	// A salt length of -2 is valid in BoringSSL, but not in crypto/rsa, so reject
@@ -290,7 +290,7 @@ func SignRSAPSS(priv *PrivateKeyRSA, h crypto.Hash, hashed []byte, saltLen int) 
 func VerifyRSAPSS(pub *PublicKeyRSA, h crypto.Hash, hashed, sig []byte, saltLen int) error {
 	md := cryptoHashToMD(h)
 	if md == nil {
-		return errors.New("crypto/rsa: unsupported hash function")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: unsupported hash function")
 	}
 
 	// A salt length of -2 is valid in BoringSSL, but not in crypto/rsa, so reject
@@ -333,7 +333,7 @@ func SignRSAPKCS1v15(priv *PrivateKeyRSA, h crypto.Hash, hashed []byte) ([]byte,
 
 	md := cryptoHashToMD(h)
 	if md == nil {
-		return nil, errors.New("crypto/rsa: unsupported hash function: " + strconv.Itoa(int(h)))
+		return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: unsupported hash function: " + strconv.Itoa(int(h)))
 	}
 	nid := C._goboringcrypto_EVP_MD_type(md)
 	var out []byte
@@ -366,7 +366,7 @@ func VerifyRSAPKCS1v15(pub *PublicKeyRSA, h crypto.Hash, hashed, sig []byte) err
 	}
 	md := cryptoHashToMD(h)
 	if md == nil {
-		return errors.New("crypto/rsa: unsupported hash function")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: unsupported hash function")
 	}
 	nid := C._goboringcrypto_EVP_MD_type(md)
 	if pub.withKey(func(key *C.GO_RSA) C.int {

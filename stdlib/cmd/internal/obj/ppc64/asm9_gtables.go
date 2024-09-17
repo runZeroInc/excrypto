@@ -4,7 +4,7 @@
 package ppc64
 
 import (
-	"cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
 )
 
 const (

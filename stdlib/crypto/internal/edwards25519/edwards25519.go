@@ -5,7 +5,7 @@
 package edwards25519
 
 import (
-	"crypto/internal/edwards25519/field"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/edwards25519/field"
 	"errors"
 )
 

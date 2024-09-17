@@ -5,8 +5,8 @@
 package main
 
 import (
-	"cmd/internal/archive"
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/archive"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 	"fmt"
 	"io"
 	"io/fs"

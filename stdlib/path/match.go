@@ -6,7 +6,7 @@ package path
 
 import (
 	"errors"
-	"internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
 	"unicode/utf8"
 )
 

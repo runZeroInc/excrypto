@@ -6,7 +6,7 @@
 
 package bytealg
 
-import "internal/cpu"
+import "github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 
 const MaxBruteForce = 16
 

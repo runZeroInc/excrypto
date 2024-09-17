@@ -8,7 +8,7 @@ package windows_test
 
 import (
 	"fmt"
-	"internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
 	"os"
 	"os/exec"
 	"syscall"

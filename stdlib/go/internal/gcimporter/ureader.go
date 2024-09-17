@@ -7,8 +7,8 @@ package gcimporter
 import (
 	"go/token"
 	"go/types"
-	"internal/godebug"
-	"internal/pkgbits"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/pkgbits"
 	"slices"
 	"strings"
 )

@@ -13,8 +13,8 @@
 package runtime
 
 import (
-	"internal/abi"
-	"internal/runtime/sys"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys"
 	"unsafe"
 )
 

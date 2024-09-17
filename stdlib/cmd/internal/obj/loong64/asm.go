@@ -5,8 +5,8 @@
 package loong64
 
 import (
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
 	"fmt"
 	"log"
 	"slices"

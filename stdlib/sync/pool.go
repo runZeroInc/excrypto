@@ -5,7 +5,7 @@
 package sync
 
 import (
-	"internal/race"
+	"github.com/runZeroInc/excrypto/stdlib/internal/race"
 	"runtime"
 	"sync/atomic"
 	"unsafe"

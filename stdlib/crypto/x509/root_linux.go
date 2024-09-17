@@ -4,7 +4,7 @@
 
 package x509
 
-import "internal/goos"
+import "github.com/runZeroInc/excrypto/stdlib/internal/goos"
 
 // Possible certificate files; stop after finding one.
 var certFiles = []string{

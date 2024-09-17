@@ -42,7 +42,7 @@ var (
 )
 
 func main() {
-	Package("crypto/aes")
+	Package("github.com/runZeroInc/excrypto/stdlib/crypto/aes")
 	ConstraintExpr("!purego")
 
 	gcmAesFinish()

@@ -7,8 +7,8 @@ package runtime_test
 import (
 	"encoding/binary"
 	"fmt"
-	"internal/race"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/race"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"math"
 	"math/rand"
 	"os"

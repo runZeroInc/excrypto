@@ -13,7 +13,7 @@ package main
 
 import (
 	"bytes"
-	"crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"fmt"
 	"go/format"
 	"io"
@@ -152,8 +152,8 @@ const tmplNISTEC = `// Copyright 2022 The Go Authors. All rights reserved.
 package nistec
 
 import (
-	"crypto/internal/nistec/fiat"
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/nistec/fiat"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"errors"
 	"sync"
 )

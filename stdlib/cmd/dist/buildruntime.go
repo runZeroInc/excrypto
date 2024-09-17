@@ -69,7 +69,7 @@ func mkbuildcfg(file string) {
 	writefile(buf.String(), file, writeSkipSame)
 }
 
-// mkobjabi writes cmd/internal/objabi/zbootstrap.go:
+// mkobjabi writes github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi/zbootstrap.go:
 //
 //	package objabi
 //

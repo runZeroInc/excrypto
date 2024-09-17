@@ -8,7 +8,7 @@ package cgotest
 
 import (
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"runtime"
 	"sort"

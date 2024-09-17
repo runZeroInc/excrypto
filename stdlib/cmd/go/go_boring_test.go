@@ -13,7 +13,7 @@ func TestBoringInternalLink(t *testing.T) {
 	defer tg.cleanup()
 	tg.parallel()
 	tg.tempFile("main.go", `package main
-		import "crypto/sha1"
+		import "github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 		func main() {
 			sha1.New()
 		}`)

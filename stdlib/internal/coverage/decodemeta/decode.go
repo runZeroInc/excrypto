@@ -11,9 +11,9 @@ package decodemeta
 import (
 	"encoding/binary"
 	"fmt"
-	"internal/coverage"
-	"internal/coverage/slicereader"
-	"internal/coverage/stringtab"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/slicereader"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/stringtab"
 	"io"
 	"os"
 )

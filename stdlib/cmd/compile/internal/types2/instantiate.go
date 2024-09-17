@@ -8,11 +8,11 @@
 package types2
 
 import (
-	"cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
 	"errors"
 	"fmt"
-	"internal/buildcfg"
-	. "internal/types/errors"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 )
 
 // A genericType implements access to its type parameters.

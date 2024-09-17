@@ -6,7 +6,7 @@ package weak_test
 
 import (
 	"context"
-	"internal/weak"
+	"github.com/runZeroInc/excrypto/stdlib/internal/weak"
 	"runtime"
 	"sync"
 	"testing"

@@ -11,8 +11,8 @@ import (
 	"os"
 	"strings"
 
-	"cmd/internal/buildid"
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/buildid"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 )
 
 func usage() {

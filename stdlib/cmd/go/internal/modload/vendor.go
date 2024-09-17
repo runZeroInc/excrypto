@@ -13,8 +13,8 @@ import (
 	"strings"
 	"sync"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
 
 	"golang.org/x/mod/modfile"
 	"golang.org/x/mod/module"

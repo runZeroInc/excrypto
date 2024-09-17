@@ -8,12 +8,12 @@ package syscall
 
 import (
 	errorspkg "errors"
-	"internal/asan"
-	"internal/bytealg"
-	"internal/itoa"
-	"internal/msan"
-	"internal/oserror"
-	"internal/race"
+	"github.com/runZeroInc/excrypto/stdlib/internal/asan"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/msan"
+	"github.com/runZeroInc/excrypto/stdlib/internal/oserror"
+	"github.com/runZeroInc/excrypto/stdlib/internal/race"
 	"runtime"
 	"sync"
 	"unsafe"

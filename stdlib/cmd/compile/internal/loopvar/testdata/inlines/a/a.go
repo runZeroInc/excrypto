@@ -4,7 +4,7 @@
 
 package a
 
-import "cmd/compile/internal/loopvar/testdata/inlines/b"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/loopvar/testdata/inlines/b"
 
 func F() []*int {
 	var s []*int

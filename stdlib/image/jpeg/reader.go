@@ -10,7 +10,7 @@ package jpeg
 import (
 	"image"
 	"image/color"
-	"image/internal/imageutil"
+	"github.com/runZeroInc/excrypto/stdlib/image/internal/imageutil"
 	"io"
 )
 

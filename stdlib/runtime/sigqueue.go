@@ -33,7 +33,7 @@
 package runtime
 
 import (
-	"internal/runtime/atomic"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
 	_ "unsafe" // for go:linkname
 )
 

@@ -6,7 +6,7 @@ package typecheck
 
 import (
 	"bytes"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"testing"
 )

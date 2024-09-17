@@ -12,7 +12,7 @@ package cgotest
 import "C"
 
 import (
-	"internal/syscall/unix"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/unix"
 	"unsafe"
 )
 

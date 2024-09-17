@@ -8,9 +8,9 @@ import (
 	"flag"
 	"fmt"
 
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/fsys"
-	"cmd/internal/quoted"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/fsys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/quoted"
 )
 
 // A StringsFlag is a command-line flag that interprets its argument

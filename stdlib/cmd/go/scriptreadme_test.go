@@ -6,10 +6,10 @@ package main_test
 
 import (
 	"bytes"
-	"cmd/internal/script"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/script"
 	"flag"
-	"internal/diff"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/diff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"strings"
 	"testing"
@@ -38,7 +38,7 @@ func checkScriptReadme(t *testing.T, engine *script.Engine, env []string) {
 	args.Conditions = conds.String()
 
 	doc := new(strings.Builder)
-	cmd := testenv.Command(t, testGo, "doc", "cmd/internal/script")
+	cmd := testenv.Command(t, testGo, "doc", "github.com/runZeroInc/excrypto/stdlib/cmd/internal/script")
 	cmd.Env = env
 	cmd.Stdout = doc
 	if err := cmd.Run(); err != nil {

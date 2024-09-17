@@ -7,8 +7,8 @@
 package os
 
 import (
-	"internal/itoa"
-	"internal/syscall/execenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/execenv"
 	"runtime"
 	"syscall"
 )

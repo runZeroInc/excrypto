@@ -11,8 +11,8 @@ import (
 	"go/ast"
 	"go/constant"
 	"go/token"
-	"internal/godebug"
-	. "internal/types/errors"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 	"sync/atomic"
 )
 

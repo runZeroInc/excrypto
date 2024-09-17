@@ -10,7 +10,7 @@ package boring
 import "C"
 import (
 	"bytes"
-	"crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"hash"
 	"runtime"
 	"unsafe"

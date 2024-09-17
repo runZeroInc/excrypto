@@ -6,10 +6,10 @@ package reflect
 
 import (
 	"errors"
-	"internal/abi"
-	"internal/goarch"
-	"internal/itoa"
-	"internal/unsafeheader"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/unsafeheader"
 	"math"
 	"runtime"
 	"unsafe"

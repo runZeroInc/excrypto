@@ -7,7 +7,7 @@
 // and must have minimal dependencies.
 package chacha8rand
 
-import "internal/byteorder"
+import "github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 
 const (
 	ctrInc = 4  // increment counter by 4 between block calls

@@ -6,8 +6,8 @@ package net
 
 import (
 	"context"
-	"internal/bytealg"
-	"internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
 	"io/fs"
 	"os"
 	"syscall"

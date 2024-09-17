@@ -7,7 +7,7 @@ package codehost
 import (
 	"bytes"
 	"context"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -25,10 +25,10 @@ import (
 	"sync"
 	"time"
 
-	"cmd/go/internal/base"
-	"cmd/go/internal/lockedfile"
-	"cmd/go/internal/web"
-	"cmd/internal/par"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/lockedfile"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/web"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/par"
 
 	"golang.org/x/mod/semver"
 )

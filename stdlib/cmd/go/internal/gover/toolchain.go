@@ -5,7 +5,7 @@
 package gover
 
 import (
-	"cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
 	"context"
 	"errors"
 	"fmt"

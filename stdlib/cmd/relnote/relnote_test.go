@@ -6,7 +6,7 @@ package main
 
 import (
 	"flag"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io/fs"
 	"os"
 	"path/filepath"

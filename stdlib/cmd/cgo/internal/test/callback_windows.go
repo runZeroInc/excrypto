@@ -45,7 +45,7 @@ USHORT backtrace(ULONG FramesToCapture, PVOID *BackTrace) {
 import "C"
 
 import (
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"reflect"
 	"runtime"
 	"strings"
@@ -97,7 +97,7 @@ func testCallbackCallersSEH(t *testing.T) {
 		}
 		// In module mode, this package has a fully-qualified import path.
 		// Remove it if present.
-		fname = strings.TrimPrefix(fname, "cmd/cgo/internal/")
+		fname = strings.TrimPrefix(fname, "github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/")
 		if !strings.HasPrefix(fname, "test.") {
 			continue
 		}

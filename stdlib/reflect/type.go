@@ -16,8 +16,8 @@
 package reflect
 
 import (
-	"internal/abi"
-	"internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
 	"runtime"
 	"strconv"
 	"sync"

@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	. "internal/chacha8rand"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/chacha8rand"
 	"slices"
 	"testing"
 )

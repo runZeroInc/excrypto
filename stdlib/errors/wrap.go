@@ -5,7 +5,7 @@
 package errors
 
 import (
-	"internal/reflectlite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/reflectlite"
 )
 
 // Unwrap returns the result of calling the Unwrap method on err, if err's

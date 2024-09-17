@@ -7,8 +7,8 @@
 package nistec
 
 import (
-	"crypto/internal/nistec/fiat"
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/nistec/fiat"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"errors"
 	"sync"
 )

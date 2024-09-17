@@ -18,7 +18,7 @@
 package rand
 
 import (
-	"internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"sync"
 	"sync/atomic"
 	_ "unsafe" // for go:linkname

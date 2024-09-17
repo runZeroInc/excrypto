@@ -6,7 +6,7 @@ package crypto_test
 
 import (
 	"go/build"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"log"
 	"os"
 	"os/exec"
@@ -16,10 +16,10 @@ import (
 
 // TestPureGoTag checks that when built with the purego build tag, crypto
 // packages don't require any assembly. This is used by alternative compilers
-// such as TinyGo. See also the "crypto/...:purego" test in cmd/dist, which
+// such as TinyGo. See also the "github.com/runZeroInc/excrypto/stdlib/crypto/...:purego" test in cmd/dist, which
 // ensures the packages build correctly.
 func TestPureGoTag(t *testing.T) {
-	cmd := exec.Command(testenv.GoToolPath(t), "list", "-e", "crypto/...", "math/big")
+	cmd := exec.Command(testenv.GoToolPath(t), "list", "-e", "github.com/runZeroInc/excrypto/stdlib/crypto/...", "math/big")
 	cmd.Env = append(cmd.Env, "GOOS=linux")
 	cmd.Stderr = os.Stderr
 	out, err := cmd.Output()

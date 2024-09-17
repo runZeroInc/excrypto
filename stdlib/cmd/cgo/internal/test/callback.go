@@ -211,7 +211,7 @@ func testCallbackCallers(t *testing.T) {
 		}
 		// In module mode, this package has a fully-qualified import path.
 		// Remove it if present.
-		fname = strings.TrimPrefix(fname, "cmd/cgo/internal/")
+		fname = strings.TrimPrefix(fname, "github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/")
 
 		namei := ""
 		if i < len(name) {

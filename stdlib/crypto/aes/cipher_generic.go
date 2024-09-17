@@ -7,7 +7,7 @@
 package aes
 
 import (
-	"crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 )
 
 // newCipher calls the newCipherGeneric function

@@ -10,6 +10,6 @@
 package cgotest
 
 import (
-	_ "cmd/cgo/internal/test/issue23555a"
-	_ "cmd/cgo/internal/test/issue23555b"
+	_ "github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/test/issue23555a"
+	_ "github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/test/issue23555b"
 )

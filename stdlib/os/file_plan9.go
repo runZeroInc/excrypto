@@ -5,9 +5,9 @@
 package os
 
 import (
-	"internal/bytealg"
-	"internal/poll"
-	"internal/stringslite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/poll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/stringslite"
 	"io"
 	"runtime"
 	"sync"

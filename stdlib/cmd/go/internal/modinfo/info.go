@@ -5,7 +5,7 @@
 package modinfo
 
 import (
-	"cmd/go/internal/modfetch/codehost"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modfetch/codehost"
 	"encoding/json"
 	"time"
 )

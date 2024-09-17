@@ -6,9 +6,9 @@
 package hash
 
 import (
-	"crypto/md5"
-	"crypto/sha1"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/md5"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"hash"
 )
 

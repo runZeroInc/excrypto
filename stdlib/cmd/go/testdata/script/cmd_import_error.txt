@@ -13,4 +13,4 @@ stdout '^package cmd/unknown is not in std \('$GOROOT'[/\\]src[/\\]cmd[/\\]unkno
 -- x.go --
 package x
 
-import _ "cmd/unknown"
+import _ "github.com/runZeroInc/excrypto/stdlib/cmd/unknown"

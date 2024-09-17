@@ -6,7 +6,7 @@ package net
 
 import (
 	"context"
-	"internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
 	"runtime"
 	"sync"
 	_ "unsafe" // for linkname

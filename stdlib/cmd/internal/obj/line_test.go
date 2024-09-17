@@ -5,7 +5,7 @@
 package obj
 
 import (
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 	"fmt"
 	"testing"
 )

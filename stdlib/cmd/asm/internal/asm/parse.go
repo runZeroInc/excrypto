@@ -16,15 +16,15 @@ import (
 	"text/scanner"
 	"unicode/utf8"
 
-	"cmd/asm/internal/arch"
-	"cmd/asm/internal/flags"
-	"cmd/asm/internal/lex"
-	"cmd/internal/obj"
-	"cmd/internal/obj/arm64"
-	"cmd/internal/obj/x86"
-	"cmd/internal/objabi"
-	"cmd/internal/src"
-	"cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm/internal/arch"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm/internal/flags"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm/internal/lex"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/arm64"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/x86"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
 )
 
 type Parser struct {

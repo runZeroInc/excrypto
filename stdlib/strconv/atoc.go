@@ -4,7 +4,7 @@
 
 package strconv
 
-import "internal/stringslite"
+import "github.com/runZeroInc/excrypto/stdlib/internal/stringslite"
 
 const fnParseComplex = "ParseComplex"
 

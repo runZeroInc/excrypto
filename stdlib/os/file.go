@@ -45,9 +45,9 @@ package os
 
 import (
 	"errors"
-	"internal/filepathlite"
-	"internal/poll"
-	"internal/testlog"
+	"github.com/runZeroInc/excrypto/stdlib/internal/filepathlite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/poll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testlog"
 	"io"
 	"io/fs"
 	"runtime"

@@ -5,8 +5,8 @@
 package obj
 
 import (
-	"cmd/internal/goobj"
-	"cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/goobj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
 	"encoding/binary"
 	"fmt"
 	"log"

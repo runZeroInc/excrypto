@@ -8,8 +8,8 @@ import (
 	"cmp"
 	"debug/dwarf"
 	"fmt"
-	"internal/platform"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -18,7 +18,7 @@ import (
 	"strings"
 	"testing"
 
-	"cmd/internal/objfile"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objfile"
 )
 
 type testline struct {

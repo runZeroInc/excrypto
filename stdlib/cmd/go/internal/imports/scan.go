@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	"cmd/go/internal/fsys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/fsys"
 )
 
 func ScanDir(dir string, tags map[string]bool) ([]string, []string, error) {

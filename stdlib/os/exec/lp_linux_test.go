@@ -6,8 +6,8 @@ package exec_test
 
 import (
 	"errors"
-	"internal/syscall/unix"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/unix"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"path/filepath"

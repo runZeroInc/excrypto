@@ -5,9 +5,9 @@
 package ppc64
 
 import (
-	"cmd/compile/internal/ssagen"
-	"cmd/internal/obj/ppc64"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssagen"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/ppc64"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 )
 
 func Init(arch *ssagen.ArchInfo) {

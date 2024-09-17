@@ -5,7 +5,7 @@
 package main
 
 import (
-	"internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
 	"testing"
 )
 

@@ -5,7 +5,7 @@
 package fmt
 
 import (
-	"internal/fmtsort"
+	"github.com/runZeroInc/excrypto/stdlib/internal/fmtsort"
 	"io"
 	"os"
 	"reflect"

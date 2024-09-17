@@ -13,7 +13,7 @@ import (
 	"flag"
 	"fmt"
 	"go/format"
-	"internal/dag"
+	"github.com/runZeroInc/excrypto/stdlib/internal/dag"
 	"io"
 	"log"
 	"os"

@@ -5,8 +5,8 @@
 package s390x
 
 import (
-	"cmd/compile/internal/ssagen"
-	"cmd/internal/obj/s390x"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssagen"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/s390x"
 )
 
 func Init(arch *ssagen.ArchInfo) {

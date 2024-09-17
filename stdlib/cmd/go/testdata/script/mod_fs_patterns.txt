@@ -65,7 +65,7 @@ package x
 
 -- x/vendor/v/v.go --
 package v
-import _ "golang.org/x/crypto"
+import _ "github.com/runZeroInc/excrypto/x/crypto"
 
 -- x/vendor/v.go --
 package main

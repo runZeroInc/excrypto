@@ -35,7 +35,7 @@ import (
 	"go/ast"
 	"go/constant"
 	"go/token"
-	. "internal/types/errors"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 	_ "unsafe" // for linkname
 )
 

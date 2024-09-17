@@ -3,7 +3,7 @@
 package ssa
 
 import (
-	"internal/unsafeheader"
+	"github.com/runZeroInc/excrypto/stdlib/internal/unsafeheader"
 	"math/bits"
 	"sync"
 	"unsafe"

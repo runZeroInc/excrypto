@@ -6,9 +6,9 @@ package scripttest
 
 import (
 	"bytes"
-	"cmd/internal/script"
-	"internal/diff"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/script"
+	"github.com/runZeroInc/excrypto/stdlib/internal/diff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"path/filepath"
 	"strings"
@@ -36,7 +36,7 @@ func checkScriptReadme(t *testing.T, engine *script.Engine, env []string, script
 	args.Conditions = conds.String()
 
 	doc := new(strings.Builder)
-	cmd := testenv.Command(t, gotool, "doc", "cmd/internal/script")
+	cmd := testenv.Command(t, gotool, "doc", "github.com/runZeroInc/excrypto/stdlib/cmd/internal/script")
 	cmd.Env = env
 	cmd.Stdout = doc
 	if err := cmd.Run(); err != nil {
@@ -123,7 +123,7 @@ On Windows, the variables $USERPROFILE and $TMP are set instead of
 $HOME and $TMPDIR.
 
 The lines at the top of the script are a sequence of commands to be executed by
-a small script engine configured in .../cmd/internal/script/scripttest/run.go (not the system shell).
+a small script engine configured in .../github.com/runZeroInc/excrypto/stdlib/cmd/internal/script/scripttest/run.go (not the system shell).
 
 {{.Language}}
 

@@ -7,8 +7,8 @@ package filepath_test
 import (
 	"flag"
 	"fmt"
-	"internal/godebug"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io/fs"
 	"os"
 	"os/exec"

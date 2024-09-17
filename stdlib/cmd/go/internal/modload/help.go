@@ -4,7 +4,7 @@
 
 package modload
 
-import "cmd/go/internal/base"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
 
 var HelpModules = &base.Command{
 	UsageLine: "modules",

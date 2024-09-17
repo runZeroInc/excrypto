@@ -7,7 +7,7 @@ package sort_test
 import (
 	"cmp"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"math"
 	"math/rand/v2"
 	"slices"

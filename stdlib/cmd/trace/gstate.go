@@ -6,9 +6,9 @@ package main
 
 import (
 	"fmt"
-	"internal/trace"
-	"internal/trace/traceviewer"
-	"internal/trace/traceviewer/format"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/traceviewer"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/traceviewer/format"
 	"strings"
 )
 

@@ -5,7 +5,7 @@
 package aes
 
 import (
-	"crypto/internal/cryptotest"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/cryptotest"
 	"fmt"
 	"testing"
 )

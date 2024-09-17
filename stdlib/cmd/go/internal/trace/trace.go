@@ -8,7 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"internal/trace/traceviewer/format"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/traceviewer/format"
 	"os"
 	"strings"
 	"sync/atomic"

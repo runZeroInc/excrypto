@@ -11,11 +11,11 @@
 package sha512
 
 import (
-	"crypto"
-	"crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
 	"errors"
 	"hash"
-	"internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 )
 
 func init() {
@@ -154,7 +154,7 @@ func (d *digest) AppendBinary(b []byte) ([]byte, error) {
 	case crypto.SHA512:
 		b = append(b, magic512...)
 	default:
-		return nil, errors.New("crypto/sha512: invalid hash function")
+		return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha512: invalid hash function")
 	}
 	b = byteorder.BeAppendUint64(b, d.h[0])
 	b = byteorder.BeAppendUint64(b, d.h[1])
@@ -172,7 +172,7 @@ func (d *digest) AppendBinary(b []byte) ([]byte, error) {
 
 func (d *digest) UnmarshalBinary(b []byte) error {
 	if len(b) < len(magic512) {
-		return errors.New("crypto/sha512: invalid hash state identifier")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha512: invalid hash state identifier")
 	}
 	switch {
 	case d.function == crypto.SHA384 && string(b[:len(magic384)]) == magic384:
@@ -180,10 +180,10 @@ func (d *digest) UnmarshalBinary(b []byte) error {
 	case d.function == crypto.SHA512_256 && string(b[:len(magic512_256)]) == magic512_256:
 	case d.function == crypto.SHA512 && string(b[:len(magic512)]) == magic512:
 	default:
-		return errors.New("crypto/sha512: invalid hash state identifier")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha512: invalid hash state identifier")
 	}
 	if len(b) != marshaledSize {
-		return errors.New("crypto/sha512: invalid hash state size")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha512: invalid hash state size")
 	}
 	b = b[len(magic512):]
 	b, d.h[0] = consumeUint64(b)

@@ -6,7 +6,7 @@ package edwards25519
 
 import (
 	"errors"
-	"internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 )
 
 // A Scalar is an integer modulo

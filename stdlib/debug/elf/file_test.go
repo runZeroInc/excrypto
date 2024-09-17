@@ -1154,7 +1154,7 @@ func TestNoSectionOverlaps(t *testing.T) {
 	// Ensure cmd/link outputs sections without overlaps.
 	switch runtime.GOOS {
 	case "aix", "android", "darwin", "ios", "js", "plan9", "windows", "wasip1":
-		t.Skipf("cmd/link doesn't produce ELF binaries on %s", runtime.GOOS)
+		t.Skipf("github.com/runZeroInc/excrypto/stdlib/cmd/link doesn't produce ELF binaries on %s", runtime.GOOS)
 	}
 	_ = net.ResolveIPAddr // force dynamic linkage
 	f, err := Open(os.Args[0])

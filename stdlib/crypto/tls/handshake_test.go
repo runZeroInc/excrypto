@@ -7,8 +7,8 @@ package tls
 import (
 	"bufio"
 	"bytes"
-	"crypto/ed25519"
-	"crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"encoding/hex"
 	"errors"
 	"flag"

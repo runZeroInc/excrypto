@@ -27,8 +27,8 @@ import (
 	"strconv"
 	"strings"
 
-	"cmd/internal/objfile"
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objfile"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 )
 
 func printUsage(w *os.File) {

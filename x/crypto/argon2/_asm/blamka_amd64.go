@@ -8,13 +8,13 @@ import (
 	. "github.com/mmcloughlin/avo/build"
 	. "github.com/mmcloughlin/avo/operand"
 	. "github.com/mmcloughlin/avo/reg"
-	_ "golang.org/x/crypto/argon2"
+	_ "github.com/runZeroInc/excrypto/x/crypto/argon2"
 )
 
 //go:generate go run . -out ../blamka_amd64.s -pkg argon2
 
 func main() {
-	Package("golang.org/x/crypto/argon2")
+	Package("github.com/runZeroInc/excrypto/x/crypto/argon2")
 	ConstraintExpr("amd64,gc,!purego")
 
 	blamkaSSE4()

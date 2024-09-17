@@ -10,9 +10,9 @@
 package main
 
 import (
-	"crypto/rand"
-	"crypto/x509"
-	"crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"encoding/pem"
 	"math/big"
 	"strings"

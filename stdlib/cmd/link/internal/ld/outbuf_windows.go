@@ -5,7 +5,7 @@
 package ld
 
 import (
-	"internal/unsafeheader"
+	"github.com/runZeroInc/excrypto/stdlib/internal/unsafeheader"
 	"syscall"
 	"unsafe"
 )

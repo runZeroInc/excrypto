@@ -5,8 +5,8 @@
 package objabi
 
 import (
-	"internal/abi"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 )
 
 func StackNosplit(race bool) int {

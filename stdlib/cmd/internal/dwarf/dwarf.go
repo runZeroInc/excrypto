@@ -9,11 +9,11 @@ package dwarf
 
 import (
 	"bytes"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 	"cmp"
 	"errors"
 	"fmt"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"os/exec"
 	"slices"
 	"strconv"

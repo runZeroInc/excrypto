@@ -5,7 +5,7 @@
 package ssa
 
 import (
-	"cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
 	"fmt"
 )
 

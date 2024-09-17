@@ -7,7 +7,7 @@
 package base
 
 import (
-	"internal/unsafeheader"
+	"github.com/runZeroInc/excrypto/stdlib/internal/unsafeheader"
 	"os"
 	"runtime"
 	"syscall"

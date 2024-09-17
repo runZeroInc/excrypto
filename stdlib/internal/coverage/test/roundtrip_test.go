@@ -6,10 +6,10 @@ package test
 
 import (
 	"fmt"
-	"internal/coverage"
-	"internal/coverage/decodemeta"
-	"internal/coverage/encodemeta"
-	"internal/coverage/slicewriter"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/decodemeta"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/encodemeta"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/slicewriter"
 	"io"
 	"os"
 	"path/filepath"

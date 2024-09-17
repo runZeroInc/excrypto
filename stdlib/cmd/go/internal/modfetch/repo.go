@@ -13,11 +13,11 @@ import (
 	"strconv"
 	"time"
 
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/modfetch/codehost"
-	"cmd/go/internal/vcs"
-	web "cmd/go/internal/web"
-	"cmd/internal/par"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modfetch/codehost"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/vcs"
+	web "github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/web"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/par"
 
 	"golang.org/x/mod/module"
 )

@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
-	. "internal/types/errors"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 	"runtime"
 	"strings"
 )

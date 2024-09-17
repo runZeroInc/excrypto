@@ -8,7 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/internal/socktest"
+	"github.com/runZeroInc/excrypto/stdlib/net/internal/socktest"
 	"os"
 	"runtime"
 	"testing"

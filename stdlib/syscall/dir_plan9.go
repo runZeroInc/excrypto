@@ -8,7 +8,7 @@ package syscall
 
 import (
 	"errors"
-	"internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 )
 
 var (

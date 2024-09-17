@@ -6,7 +6,7 @@ package oldtrace
 
 import (
 	"bytes"
-	"internal/trace/version"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/version"
 	"os"
 	"path/filepath"
 	"strings"

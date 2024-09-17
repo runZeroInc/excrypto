@@ -7,8 +7,8 @@
 package runtime
 
 import (
-	"internal/goarch"
-	"internal/goos"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goos"
 	"unsafe"
 )
 

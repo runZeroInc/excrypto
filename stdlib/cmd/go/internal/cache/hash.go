@@ -6,7 +6,7 @@ package cache
 
 import (
 	"bytes"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"fmt"
 	"hash"
 	"io"

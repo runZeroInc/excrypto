@@ -7,11 +7,11 @@ package dwarfgen
 import (
 	"sort"
 
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/ir"
-	"cmd/internal/dwarf"
-	"cmd/internal/obj"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/dwarf"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 // See golang.org/issue/20390.

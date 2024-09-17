@@ -5,8 +5,8 @@
 package noder
 
 import (
-	"cmd/compile/internal/types"
-	"cmd/compile/internal/types2"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"
 )
 
 var basics = [...]**types.Type{

@@ -12,13 +12,13 @@ import (
 	"github.com/mmcloughlin/avo/ir"
 	. "github.com/mmcloughlin/avo/operand"
 	. "github.com/mmcloughlin/avo/reg"
-	_ "golang.org/x/crypto/salsa20/salsa"
+	_ "github.com/runZeroInc/excrypto/x/crypto/salsa20/salsa"
 )
 
 //go:generate go run . -out ../salsa20_amd64.s -pkg salsa
 
 func main() {
-	Package("golang.org/x/crypto/salsa20/salsa")
+	Package("github.com/runZeroInc/excrypto/x/crypto/salsa20/salsa")
 	ConstraintExpr("amd64,!purego,gc")
 	salsa2020XORKeyStream()
 	Generate()

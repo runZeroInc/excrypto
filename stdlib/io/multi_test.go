@@ -6,7 +6,7 @@ package io_test
 
 import (
 	"bytes"
-	"crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 	"errors"
 	"fmt"
 	. "io"

@@ -6,7 +6,7 @@
 package objfile
 
 import (
-	"cmd/internal/archive"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/archive"
 	"cmp"
 	"debug/dwarf"
 	"debug/gosym"

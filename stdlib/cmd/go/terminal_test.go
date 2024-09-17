@@ -6,8 +6,8 @@ package main_test
 
 import (
 	"errors"
-	"internal/testenv"
-	"internal/testpty"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testpty"
 	"io"
 	"os"
 	"testing"

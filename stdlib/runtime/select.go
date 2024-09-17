@@ -7,7 +7,7 @@ package runtime
 // This file contains the implementation of Go select statements.
 
 import (
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"unsafe"
 )
 

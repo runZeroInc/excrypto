@@ -7,7 +7,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"internal/coverage/slicewriter"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/slicewriter"
 	"io"
 	"log"
 	"os"

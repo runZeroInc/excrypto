@@ -33,14 +33,14 @@ package obj
 import (
 	"bufio"
 	"bytes"
-	"cmd/internal/dwarf"
-	"cmd/internal/goobj"
-	"cmd/internal/objabi"
-	"cmd/internal/src"
-	"cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/dwarf"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/goobj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
 	"encoding/binary"
 	"fmt"
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"sync"
 	"sync/atomic"
 )
@@ -749,7 +749,7 @@ func (we *WasmExport) CreateAuxSym() {
 type WasmField struct {
 	Type WasmFieldType
 	// Offset holds the frame-pointer-relative locations for Go's stack-based
-	// ABI. This is used by the src/cmd/internal/wasm package to map WASM
+	// ABI. This is used by the src/github.com/runZeroInc/excrypto/stdlib/cmd/internal/wasm package to map WASM
 	// import parameters to the Go stack in a wrapper function.
 	Offset int64
 }

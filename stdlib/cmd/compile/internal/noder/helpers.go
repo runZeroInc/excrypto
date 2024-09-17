@@ -7,12 +7,12 @@ package noder
 import (
 	"go/constant"
 
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/syntax"
-	"cmd/compile/internal/typecheck"
-	"cmd/compile/internal/types"
-	"cmd/compile/internal/types2"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/typecheck"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 // Helpers for constructing typed IR nodes.
@@ -118,7 +118,7 @@ func isTypeParam(t types2.Type) bool {
 func isNotInHeap(typ types2.Type) bool {
 	typ = types2.Unalias(typ)
 	if named, ok := typ.(*types2.Named); ok {
-		if obj := named.Obj(); obj.Name() == "nih" && obj.Pkg().Path() == "internal/runtime/sys" {
+		if obj := named.Obj(); obj.Name() == "nih" && obj.Pkg().Path() == "github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys" {
 			return true
 		}
 		typ = named.Underlying()

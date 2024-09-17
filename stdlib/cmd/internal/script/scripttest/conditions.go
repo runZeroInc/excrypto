@@ -5,11 +5,11 @@
 package scripttest
 
 import (
-	"cmd/internal/script"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/script"
 	"fmt"
-	"internal/buildcfg"
-	"internal/platform"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"runtime"
 	"strings"
 	"testing"
@@ -37,7 +37,7 @@ func AddToolChainScriptConditions(t *testing.T, conds map[string]script.Cond, go
 	add("buildmode", script.PrefixCondition("go supports -buildmode=<suffix>", hasBuildmode))
 	add("cgo", script.BoolCondition("host CGO_ENABLED", testenv.HasCGO()))
 	add("cgolinkext", script.Condition("platform requires external linking for cgo", cgoLinkExt))
-	add("cross", script.BoolCondition("cmd/go GOOS/GOARCH != GOHOSTOS/GOHOSTARCH", goHostOS != runtime.GOOS || goHostArch != runtime.GOARCH))
+	add("cross", script.BoolCondition("github.com/runZeroInc/excrypto/stdlib/cmd/go GOOS/GOARCH != GOHOSTOS/GOHOSTARCH", goHostOS != runtime.GOOS || goHostArch != runtime.GOARCH))
 	add("fuzz", sysCondition("-fuzz", platform.FuzzSupported, false, goHostOS, goHostArch))
 	add("fuzz-instrumented", sysCondition("-fuzz with instrumentation", platform.FuzzInstrumented, false, goHostOS, goHostArch))
 	add("GODEBUG", script.PrefixCondition("GODEBUG contains <suffix>", hasGodebug))

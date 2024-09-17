@@ -5,8 +5,8 @@
 package concurrent
 
 import (
-	"internal/abi"
-	"internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
 	"math/rand/v2"
 	"sync"
 	"sync/atomic"
@@ -62,7 +62,7 @@ func (ht *HashTrieMap[K, V]) Load(key K) (value V, ok bool) {
 		}
 		i = n.indirect()
 	}
-	panic("internal/concurrent.HashMapTrie: ran out of hash bits while iterating")
+	panic("github.com/runZeroInc/excrypto/stdlib/internal/concurrent.HashMapTrie: ran out of hash bits while iterating")
 }
 
 // LoadOrStore returns the existing value for the key if present.
@@ -102,7 +102,7 @@ func (ht *HashTrieMap[K, V]) LoadOrStore(key K, value V) (result V, loaded bool)
 			i = n.indirect()
 		}
 		if !haveInsertPoint {
-			panic("internal/concurrent.HashMapTrie: ran out of hash bits while iterating")
+			panic("github.com/runZeroInc/excrypto/stdlib/internal/concurrent.HashMapTrie: ran out of hash bits while iterating")
 		}
 
 		// Grab the lock and double-check what we saw.
@@ -160,7 +160,7 @@ func (ht *HashTrieMap[K, V]) expand(oldEntry, newEntry *entry[K, V], newHash uin
 	top := newIndirect
 	for {
 		if hashShift == 0 {
-			panic("internal/concurrent.HashMapTrie: ran out of hash bits while inserting")
+			panic("github.com/runZeroInc/excrypto/stdlib/internal/concurrent.HashMapTrie: ran out of hash bits while inserting")
 		}
 		hashShift -= nChildrenLog2 // hashShift is for the level parent is at. We need to go deeper.
 		oi := (oldHash >> hashShift) & nChildrenMask
@@ -214,7 +214,7 @@ func (ht *HashTrieMap[K, V]) CompareAndDelete(key K, old V) (deleted bool) {
 			i = n.indirect()
 		}
 		if !found {
-			panic("internal/concurrent.HashMapTrie: ran out of hash bits while iterating")
+			panic("github.com/runZeroInc/excrypto/stdlib/internal/concurrent.HashMapTrie: ran out of hash bits while iterating")
 		}
 
 		// Grab the lock and double-check what we saw.
@@ -254,7 +254,7 @@ func (ht *HashTrieMap[K, V]) CompareAndDelete(key K, old V) (deleted bool) {
 	// Check if the node is now empty (and isn't the root), and delete it if able.
 	for i.parent != nil && i.empty() {
 		if hashShift == 8*goarch.PtrSize {
-			panic("internal/concurrent.HashMapTrie: ran out of hash bits while iterating")
+			panic("github.com/runZeroInc/excrypto/stdlib/internal/concurrent.HashMapTrie: ran out of hash bits while iterating")
 		}
 		hashShift += nChildrenLog2
 

@@ -12,7 +12,7 @@ import (
 	"strings"
 	"text/scanner"
 
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 // A ScanToken represents an input item. It is a simple wrapping of rune, as

@@ -5,8 +5,8 @@
 package types
 
 import (
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
 	"fmt"
 	"strconv"
 	"sync"
@@ -16,7 +16,7 @@ import (
 var pkgMap = make(map[string]*Pkg)
 
 type Pkg struct {
-	Path    string // string literal used in import statement, e.g. "internal/runtime/sys"
+	Path    string // string literal used in import statement, e.g. "github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys"
 	Name    string // package name, e.g. "sys"
 	Prefix  string // escaped path for use in symbol table
 	Syms    map[string]*Sym

@@ -7,8 +7,8 @@ package user
 import (
 	"errors"
 	"fmt"
-	"internal/syscall/windows"
-	"internal/syscall/windows/registry"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows/registry"
 	"runtime"
 	"syscall"
 	"unsafe"

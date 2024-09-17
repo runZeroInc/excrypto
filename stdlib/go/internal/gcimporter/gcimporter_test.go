@@ -7,7 +7,7 @@ package gcimporter_test
 import (
 	"bytes"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"path"
@@ -24,7 +24,7 @@ import (
 	"go/token"
 	"go/types"
 
-	. "go/internal/gcimporter"
+	. "github.com/runZeroInc/excrypto/stdlib/go/internal/gcimporter"
 )
 
 func TestMain(m *testing.M) {
@@ -386,7 +386,7 @@ var importedObjectTests = []struct {
 	{"math.Pi", "const Pi untyped float"},
 	{"math.Sin", "func Sin(x float64) float64"},
 	{"go/ast.NotNilFilter", "func NotNilFilter(_ string, v reflect.Value) bool"},
-	{"go/internal/gcimporter.FindPkg", "func FindPkg(path string, srcDir string) (filename string, id string, err error)"},
+	{"github.com/runZeroInc/excrypto/stdlib/go/internal/gcimporter.FindPkg", "func FindPkg(path string, srcDir string) (filename string, id string, err error)"},
 
 	// interfaces
 	{"context.Context", "type Context interface{Deadline() (deadline time.Time, ok bool); Done() <-chan struct{}; Err() error; Value(key any) any}"},
@@ -590,7 +590,7 @@ func TestIssue13898(t *testing.T) {
 	// import go/internal/gcimporter which imports go/types partially
 	fset := token.NewFileSet()
 	imports := make(map[string]*types.Package)
-	_, err := Import(fset, imports, "go/internal/gcimporter", ".", nil)
+	_, err := Import(fset, imports, "github.com/runZeroInc/excrypto/stdlib/go/internal/gcimporter", ".", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

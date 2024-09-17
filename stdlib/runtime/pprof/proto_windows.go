@@ -6,7 +6,7 @@ package pprof
 
 import (
 	"errors"
-	"internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
 	"os"
 	"syscall"
 )

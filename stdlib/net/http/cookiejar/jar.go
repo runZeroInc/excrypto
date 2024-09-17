@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"net/http/internal/ascii"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/internal/ascii"
 	"net/url"
 	"slices"
 	"strings"

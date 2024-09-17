@@ -4,7 +4,7 @@
 
 package sym
 
-import "cmd/internal/goobj"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/internal/goobj"
 
 type Library struct {
 	Objref      string

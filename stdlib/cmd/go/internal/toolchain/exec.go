@@ -7,8 +7,8 @@
 package toolchain
 
 import (
-	"cmd/go/internal/base"
-	"internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"os"
 	"os/exec"
 	"runtime"

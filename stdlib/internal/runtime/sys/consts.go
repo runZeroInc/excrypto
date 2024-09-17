@@ -5,13 +5,13 @@
 package sys
 
 import (
-	"internal/goarch"
-	"internal/goos"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goos"
 )
 
 // AIX requires a larger stack for syscalls.
 // The race build also needs more stack. See issue 54291.
-// This arithmetic must match that in cmd/internal/objabi/stack.go:stackGuardMultiplier.
+// This arithmetic must match that in github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi/stack.go:stackGuardMultiplier.
 const StackGuardMultiplier = 1 + goos.IsAix + isRace
 
 // DefaultPhysPageSize is the default physical page size.

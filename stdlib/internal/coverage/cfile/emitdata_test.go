@@ -6,10 +6,10 @@ package cfile
 
 import (
 	"fmt"
-	"internal/coverage"
-	"internal/goexperiment"
-	"internal/platform"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goexperiment"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -530,7 +530,7 @@ func TestIssue59563TruncatedCoverPkgAll(t *testing.T) {
 		// We're only interested in the specific function "large" for
 		// the testcase being built. See the #59563 for details on why
 		// size matters.
-		if !(strings.HasPrefix(f[0], "internal/coverage/cfile/testdata/issue59563/repro.go") && strings.Contains(line, "large")) {
+		if !(strings.HasPrefix(f[0], "github.com/runZeroInc/excrypto/stdlib/internal/coverage/cfile/testdata/issue59563/repro.go") && strings.Contains(line, "large")) {
 			continue
 		}
 		nfound++

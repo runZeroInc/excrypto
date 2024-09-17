@@ -6,7 +6,7 @@ package cryptotest
 
 import (
 	"bytes"
-	"crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"fmt"
 	"testing"
 )

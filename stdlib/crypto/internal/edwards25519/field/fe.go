@@ -6,9 +6,9 @@
 package field
 
 import (
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"errors"
-	"internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 	"math/bits"
 )
 

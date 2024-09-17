@@ -8,7 +8,7 @@ package types2
 
 import (
 	"bytes"
-	"cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
 )
 
 // Internal use of LookupFieldOrMethod: If the obj result is a method

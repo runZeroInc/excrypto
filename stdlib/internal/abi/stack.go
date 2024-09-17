@@ -10,7 +10,7 @@ const (
 	//
 	// This value must be multiplied by the stack guard multiplier, so do not
 	// use it directly. See runtime/stack.go:stackNosplit and
-	// cmd/internal/objabi/stack.go:StackNosplit.
+	// github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi/stack.go:StackNosplit.
 	StackNosplitBase = 800
 
 	// We have three different sequences for stack bounds checks, depending on

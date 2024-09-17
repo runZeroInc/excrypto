@@ -5,7 +5,7 @@
 package inlheur
 
 import (
-	"cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
 	"fmt"
 	"go/constant"
 	"go/token"

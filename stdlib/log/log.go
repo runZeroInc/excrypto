@@ -17,7 +17,7 @@ package log
 import (
 	"fmt"
 	"io"
-	"log/internal"
+	"github.com/runZeroInc/excrypto/stdlib/log/internal"
 	"os"
 	"runtime"
 	"sync"

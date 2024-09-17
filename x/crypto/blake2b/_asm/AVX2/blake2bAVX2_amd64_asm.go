@@ -9,7 +9,7 @@ import (
 	"github.com/mmcloughlin/avo/ir"
 	. "github.com/mmcloughlin/avo/operand"
 	. "github.com/mmcloughlin/avo/reg"
-	_ "golang.org/x/crypto/blake2b"
+	_ "github.com/runZeroInc/excrypto/x/crypto/blake2b"
 )
 
 //go:generate go run . -out ../../blake2bAVX2_amd64.s -pkg blake2b
@@ -17,7 +17,7 @@ import (
 const ThatPeskyUnicodeDot = "\u00b7"
 
 func main() {
-	Package("golang.org/x/crypto/blake2b")
+	Package("github.com/runZeroInc/excrypto/x/crypto/blake2b")
 	ConstraintExpr("amd64,gc,!purego")
 	hashBlocksAVX2()
 	hashBlocksAVX()

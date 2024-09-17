@@ -7,14 +7,14 @@
 package work
 
 import (
-	"cmd/go/internal/base"
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/str"
-	"cmd/internal/cov/covcmd"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/str"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/cov/covcmd"
 	"context"
 	"encoding/json"
 	"fmt"
-	"internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
 	"io"
 	"os"
 	"path/filepath"

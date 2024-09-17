@@ -7,7 +7,7 @@
 package reflect
 
 import (
-	"internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
 	"unsafe"
 )
 

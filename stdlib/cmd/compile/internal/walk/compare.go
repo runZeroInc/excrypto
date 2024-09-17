@@ -11,13 +11,13 @@ import (
 	"hash/fnv"
 	"io"
 
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/compare"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/reflectdata"
-	"cmd/compile/internal/ssagen"
-	"cmd/compile/internal/typecheck"
-	"cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/compare"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/reflectdata"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssagen"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/typecheck"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
 )
 
 func fakePC(n ir.Node) ir.Node {

@@ -5,7 +5,7 @@
 package syscall_test
 
 import (
-	"internal/runtime/syscall"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/syscall"
 	"testing"
 )
 

@@ -7,10 +7,10 @@ package smtp
 import (
 	"bufio"
 	"bytes"
-	"crypto/tls"
-	"crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"net"
 	"net/textproto"

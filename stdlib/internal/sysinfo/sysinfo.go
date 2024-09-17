@@ -7,7 +7,7 @@
 package sysinfo
 
 import (
-	"internal/cpu"
+	"github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 	"sync"
 )
 

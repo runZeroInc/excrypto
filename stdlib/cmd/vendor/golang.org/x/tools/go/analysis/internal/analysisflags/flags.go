@@ -7,7 +7,7 @@
 package analysisflags
 
 import (
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/gob"
 	"encoding/json"
 	"flag"
@@ -189,7 +189,7 @@ func printFlags() {
 // prints the executable version and exits 0.
 //
 // If the -V flag already exists — for example, because it was already
-// registered by a call to cmd/internal/objabi.AddVersionFlag — then
+// registered by a call to github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi.AddVersionFlag — then
 // addVersionFlag does nothing.
 func addVersionFlag() {
 	if flag.Lookup("V") == nil {
@@ -209,7 +209,7 @@ func (versionFlag) Set(s string) error {
 	}
 
 	// This replicates the minimal subset of
-	// cmd/internal/objabi.AddVersionFlag, which is private to the
+	// github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi.AddVersionFlag, which is private to the
 	// go tool yet forms part of our command-line interface.
 	// TODO(adonovan): clarify the contract.
 

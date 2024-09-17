@@ -8,7 +8,7 @@ package http
 
 import (
 	"bytes"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io/fs"
 	"net/url"
 	"os"
@@ -72,7 +72,7 @@ func TestCmdGoNoHTTPServer(t *testing.T) {
 	for sym, want := range wantSym {
 		got := bytes.Contains(out, []byte(sym))
 		if !want && got {
-			t.Errorf("cmd/go unexpectedly links in HTTP server code; found symbol %q in cmd/go", sym)
+			t.Errorf("github.com/runZeroInc/excrypto/stdlib/cmd/go unexpectedly links in HTTP server code; found symbol %q in cmd/go", sym)
 		}
 		if want && !got {
 			t.Errorf("expected to find symbol %q in cmd/go; not found", sym)
@@ -159,7 +159,7 @@ func TestNoUnicodeStrings(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if path == "internal/ascii" {
+		if path == "github.com/runZeroInc/excrypto/stdlib/internal/ascii" {
 			return fs.SkipDir
 		}
 		if !strings.HasSuffix(path, ".go") ||

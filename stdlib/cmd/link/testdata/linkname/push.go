@@ -7,7 +7,7 @@
 package main
 
 import (
-	"cmd/link/testdata/linkname/p"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/testdata/linkname/p"
 	_ "unsafe"
 )
 

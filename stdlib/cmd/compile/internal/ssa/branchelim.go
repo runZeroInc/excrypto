@@ -4,7 +4,7 @@
 
 package ssa
 
-import "cmd/internal/src"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 
 // branchelim tries to eliminate branches by
 // generating CondSelect instructions.

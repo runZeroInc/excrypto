@@ -18,8 +18,8 @@ import (
 	"strings"
 	"sync"
 
-	"golang.org/x/crypto/ssh"
-	"golang.org/x/crypto/ssh/terminal"
+	"github.com/runZeroInc/excrypto/x/crypto/ssh"
+	"github.com/runZeroInc/excrypto/x/crypto/ssh/terminal"
 )
 
 func ExampleNewServerConn() {

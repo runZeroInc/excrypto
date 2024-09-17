@@ -15,7 +15,7 @@ import (
 	"errors"
 	"fmt"
 	"go/build"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"math"
 	"math/bits"

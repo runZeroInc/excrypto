@@ -13,8 +13,8 @@ import (
 	"runtime"
 	"testing"
 
-	"cmd/cgo/internal/test/issue9510a"
-	"cmd/cgo/internal/test/issue9510b"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/test/issue9510a"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/test/issue9510b"
 )
 
 func test9510(t *testing.T) {

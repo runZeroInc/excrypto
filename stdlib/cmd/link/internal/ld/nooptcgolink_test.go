@@ -5,7 +5,7 @@
 package ld
 
 import (
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"path/filepath"
 	"testing"
 )

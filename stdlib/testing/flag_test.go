@@ -6,7 +6,7 @@ package testing_test
 
 import (
 	"flag"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"testing"

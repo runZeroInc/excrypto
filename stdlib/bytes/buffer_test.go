@@ -7,7 +7,7 @@ package bytes_test
 import (
 	. "bytes"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"math/rand"
 	"strconv"

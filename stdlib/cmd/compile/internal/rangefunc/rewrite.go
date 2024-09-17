@@ -528,12 +528,12 @@ TODO: Could call runtime.deferrangefuncend after f.
 package rangefunc
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/syntax"
-	"cmd/compile/internal/types2"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"
 	"fmt"
 	"go/constant"
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"os"
 )
 

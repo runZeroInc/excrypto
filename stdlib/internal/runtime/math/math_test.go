@@ -5,7 +5,7 @@
 package math_test
 
 import (
-	. "internal/runtime/math"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/runtime/math"
 	"testing"
 )
 

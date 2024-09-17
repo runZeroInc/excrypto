@@ -5,7 +5,7 @@
 package load
 
 import (
-	"cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
 	"testing"
 )
 

@@ -5,8 +5,8 @@
 package runtime_test
 
 import (
-	"internal/abi"
-	"internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
 	"runtime"
 	"slices"
 	"testing"

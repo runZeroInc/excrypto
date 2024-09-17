@@ -17,8 +17,8 @@ import (
 	"strings"
 	"sync"
 
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/str"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/str"
 )
 
 // A Command is an implementation of a go command

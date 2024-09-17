@@ -6,10 +6,10 @@ package rsa
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/internal/boring"
-	"crypto/internal/randutil"
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/randutil"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"errors"
 	"io"
 )
@@ -310,12 +310,12 @@ func pkcs1v15ConstructEM(pub *PublicKey, hash crypto.Hash, hashed []byte) ([]byt
 	var prefix []byte
 	if hash != 0 {
 		if len(hashed) != hash.Size() {
-			return nil, errors.New("crypto/rsa: input must be hashed message")
+			return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: input must be hashed message")
 		}
 		var ok bool
 		prefix, ok = hashPrefixes[hash]
 		if !ok {
-			return nil, errors.New("crypto/rsa: unsupported hash function")
+			return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/rsa: unsupported hash function")
 		}
 	}
 

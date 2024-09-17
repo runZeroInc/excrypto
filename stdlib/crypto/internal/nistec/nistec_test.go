@@ -6,10 +6,10 @@ package nistec_test
 
 import (
 	"bytes"
-	"crypto/elliptic"
-	"crypto/internal/nistec"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/nistec"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"math/big"
 	"math/rand"
 	"testing"

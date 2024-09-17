@@ -5,8 +5,8 @@
 package so_test
 
 import (
-	"cmd/cgo/internal/cgotest"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/cgotest"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"log"
 	"os"
 	"os/exec"

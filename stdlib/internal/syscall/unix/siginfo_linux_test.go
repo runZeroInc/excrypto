@@ -5,8 +5,8 @@
 package unix_test
 
 import (
-	"internal/goarch"
-	"internal/syscall/unix"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/unix"
 	"runtime"
 	"strings"
 	"testing"

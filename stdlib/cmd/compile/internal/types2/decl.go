@@ -5,11 +5,11 @@
 package types2
 
 import (
-	"cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
 	"fmt"
 	"go/constant"
-	"internal/buildcfg"
-	. "internal/types/errors"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 )
 
 func (check *Checker) declare(scope *Scope, id *syntax.Name, obj Object, pos syntax.Pos) {

@@ -6,8 +6,8 @@ package runtime_test
 
 import (
 	"fmt"
-	"internal/goarch"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"math"
 	"os"
 	"reflect"

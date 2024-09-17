@@ -5,8 +5,8 @@
 package cipher_test
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"strconv"
 	"testing"
 )

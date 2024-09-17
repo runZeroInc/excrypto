@@ -91,9 +91,9 @@
 package runtime
 
 import (
-	"internal/goos"
-	"internal/runtime/atomic"
-	"internal/runtime/sys"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goos"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys"
 	"unsafe"
 )
 

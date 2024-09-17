@@ -45,24 +45,24 @@ type PkgSpecial struct {
 var runtimePkgs = []string{
 	"runtime",
 
-	"internal/runtime/atomic",
-	"internal/runtime/exithook",
-	"internal/runtime/math",
-	"internal/runtime/sys",
-	"internal/runtime/syscall",
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic",
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/exithook",
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/math",
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys",
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/syscall",
 
-	"internal/abi",
-	"internal/bytealg",
-	"internal/byteorder",
-	"internal/chacha8rand",
-	"internal/coverage/rtcov",
-	"internal/cpu",
-	"internal/goarch",
-	"internal/godebugs",
-	"internal/goexperiment",
-	"internal/goos",
-	"internal/profilerecord",
-	"internal/stringslite",
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi",
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg",
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder",
+	"github.com/runZeroInc/excrypto/stdlib/internal/chacha8rand",
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/rtcov",
+	"github.com/runZeroInc/excrypto/stdlib/internal/cpu",
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch",
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebugs",
+	"github.com/runZeroInc/excrypto/stdlib/internal/goexperiment",
+	"github.com/runZeroInc/excrypto/stdlib/internal/goos",
+	"github.com/runZeroInc/excrypto/stdlib/internal/profilerecord",
+	"github.com/runZeroInc/excrypto/stdlib/internal/stringslite",
 }
 
 // extraNoInstrumentPkgs is the set of packages in addition to runtimePkgs that
@@ -79,15 +79,15 @@ var extraNoInstrumentPkgs = []string{
 	"-internal/bytealg",
 }
 
-var noRaceFuncPkgs = []string{"sync", "sync/atomic", "internal/runtime/atomic"}
+var noRaceFuncPkgs = []string{"sync", "sync/atomic", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"}
 
 var allowAsmABIPkgs = []string{
 	"runtime",
 	"reflect",
 	"syscall",
-	"internal/bytealg",
-	"internal/chacha8rand",
-	"internal/runtime/syscall",
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg",
+	"github.com/runZeroInc/excrypto/stdlib/internal/chacha8rand",
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/syscall",
 	"runtime/internal/startlinetest",
 }
 

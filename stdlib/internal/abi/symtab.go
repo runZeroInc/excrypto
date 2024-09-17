@@ -37,7 +37,7 @@ type FuncID uint8
 
 const (
 	// If you add a FuncID, you probably also want to add an entry to the map in
-	// ../../cmd/internal/objabi/funcid.go
+	// ../../github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi/funcid.go
 
 	FuncIDNormal FuncID = iota // not a special function
 	FuncID_abort

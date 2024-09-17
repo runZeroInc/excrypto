@@ -7,7 +7,7 @@
 package runtime_test
 
 import (
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"runtime"
 	"slices"
 	"testing"

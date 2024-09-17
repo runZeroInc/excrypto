@@ -7,7 +7,7 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -72,7 +72,7 @@ func runAddr2Line(t *testing.T, dbgExePath, addr string) (funcname, path, lineno
 	return funcname, f[0], f[1]
 }
 
-const symName = "cmd/addr2line.TestAddr2Line"
+const symName = "github.com/runZeroInc/excrypto/stdlib/cmd/addr2line.TestAddr2Line"
 
 func testAddr2Line(t *testing.T, dbgExePath, addr string) {
 	funcName, srcPath, srcLineNo := runAddr2Line(t, dbgExePath, addr)
@@ -107,7 +107,7 @@ func TestAddr2Line(t *testing.T) {
 	// Build copy of test binary with debug symbols,
 	// since the one running now may not have them.
 	exepath := filepath.Join(tmpDir, "testaddr2line_test.exe")
-	out, err := testenv.Command(t, testenv.GoToolPath(t), "test", "-c", "-o", exepath, "cmd/addr2line").CombinedOutput()
+	out, err := testenv.Command(t, testenv.GoToolPath(t), "test", "-c", "-o", exepath, "github.com/runZeroInc/excrypto/stdlib/cmd/addr2line").CombinedOutput()
 	if err != nil {
 		t.Fatalf("go test -c -o %v cmd/addr2line: %v\n%s", exepath, err, string(out))
 	}

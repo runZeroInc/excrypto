@@ -8,7 +8,7 @@ package syscall
 
 import (
 	errpkg "errors"
-	"internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
 	"runtime"
 	"unsafe"
 )

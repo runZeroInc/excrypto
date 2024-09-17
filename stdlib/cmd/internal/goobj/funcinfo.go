@@ -7,7 +7,7 @@ package goobj
 import (
 	"bytes"
 	"encoding/binary"
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 )
 
 // CUFileIndex is used to index the filenames that are stored in the

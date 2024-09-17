@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
 )
 
 // pathDirs returns the directories in the system search path.

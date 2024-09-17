@@ -5,8 +5,8 @@
 package trace_test
 
 import (
-	"internal/trace"
-	"internal/trace/testtrace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/testtrace"
 	"io"
 	"testing"
 )

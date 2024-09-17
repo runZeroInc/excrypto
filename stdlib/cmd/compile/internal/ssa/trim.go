@@ -4,7 +4,7 @@
 
 package ssa
 
-import "cmd/internal/src"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 
 // trim removes blocks with no code in them.
 // These blocks were inserted to remove critical edges.

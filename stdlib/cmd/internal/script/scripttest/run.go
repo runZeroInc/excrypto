@@ -7,11 +7,11 @@ package scripttest
 
 import (
 	"bytes"
-	"cmd/internal/script"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/script"
 	"context"
 	"fmt"
-	"internal/testenv"
-	"internal/txtar"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/txtar"
 	"os"
 	"os/exec"
 	"path/filepath"

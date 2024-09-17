@@ -194,7 +194,7 @@ type PosBase struct {
 	filename    string // file name used to open source file, for error messages
 	absFilename string // absolute file name, for PC-Line tables
 	line, col   uint   // relative line, column number at pos
-	inl         int    // inlining index (see cmd/internal/obj/inl.go)
+	inl         int    // inlining index (see github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/inl.go)
 	fileIndex   int    // index of absFilename within PosTable.FileTable
 }
 

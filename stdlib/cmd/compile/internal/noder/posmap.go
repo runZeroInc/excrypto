@@ -5,9 +5,9 @@
 package noder
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/syntax"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 // A posMap handles mapping from syntax.Pos to src.XPos.

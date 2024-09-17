@@ -7,7 +7,7 @@
 package os
 
 import (
-	"internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
 	"syscall"
 )
 

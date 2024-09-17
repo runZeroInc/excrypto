@@ -8,7 +8,7 @@ package coverage
 // is tricky.  For all other packages, you can be guaranteed that
 // the package init function is run before any functions are executed,
 // but this invariant is not maintained for packages such as "runtime",
-// "internal/cpu", etc. To handle this, hard-code the package ID for
+// "github.com/runZeroInc/excrypto/stdlib/internal/cpu", etc. To handle this, hard-code the package ID for
 // the set of packages whose functions may be running before the
 // init function of the package is complete.
 //
@@ -35,8 +35,8 @@ package coverage
 //    slot: 10 path='runtime'  hard-coded id: 9
 //    fatal error: runtime.addCovMeta
 //
-// For the error above, the hard-coded list is missing "internal/goos"
-// and "internal/goexperiment" ; the developer in question will need
+// For the error above, the hard-coded list is missing "github.com/runZeroInc/excrypto/stdlib/internal/goos"
+// and "github.com/runZeroInc/excrypto/stdlib/internal/goexperiment" ; the developer in question will need
 // to copy the list above into "rtPkgs" below.
 //
 // Note: this strategy assumes that the list of dependencies of
@@ -45,18 +45,18 @@ package coverage
 // as opposed to a fixed list.
 
 var rtPkgs = [...]string{
-	"internal/cpu",
-	"internal/goarch",
-	"internal/runtime/atomic",
-	"internal/goos",
-	"internal/chacha8rand",
-	"internal/runtime/sys",
-	"internal/abi",
-	"internal/runtime/math",
-	"internal/bytealg",
-	"internal/goexperiment",
-	"internal/runtime/syscall",
-	"internal/stringslite",
+	"github.com/runZeroInc/excrypto/stdlib/internal/cpu",
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch",
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic",
+	"github.com/runZeroInc/excrypto/stdlib/internal/goos",
+	"github.com/runZeroInc/excrypto/stdlib/internal/chacha8rand",
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys",
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi",
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/math",
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg",
+	"github.com/runZeroInc/excrypto/stdlib/internal/goexperiment",
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/syscall",
+	"github.com/runZeroInc/excrypto/stdlib/internal/stringslite",
 	"runtime",
 }
 

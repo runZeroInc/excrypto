@@ -7,7 +7,7 @@
 package os
 
 import (
-	"internal/filepathlite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/filepathlite"
 	"syscall"
 	"time"
 )

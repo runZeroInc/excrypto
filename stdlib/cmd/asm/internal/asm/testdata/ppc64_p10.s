@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // This contains the valid opcode combinations available
-// in cmd/internal/obj/ppc64/asm9.go which exist for
+// in github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/ppc64/asm9.go which exist for
 // POWER10/ISA 3.1.
 
 #include "../../../../../runtime/textflag.h"

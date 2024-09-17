@@ -6,7 +6,7 @@ package types2_test
 
 import (
 	"go/build"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"testing"
 )

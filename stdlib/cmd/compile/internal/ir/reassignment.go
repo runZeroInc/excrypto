@@ -5,7 +5,7 @@
 package ir
 
 import (
-	"cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
 )
 
 // A ReassignOracle efficiently answers queries about whether local

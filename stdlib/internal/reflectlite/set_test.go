@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"go/ast"
 	"go/token"
-	. "internal/reflectlite"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/reflectlite"
 	"io"
 	"testing"
 )

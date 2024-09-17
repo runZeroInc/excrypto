@@ -7,7 +7,7 @@ package tar
 import (
 	"bytes"
 	"compress/bzip2"
-	"crypto/md5"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/md5"
 	"errors"
 	"fmt"
 	"io"

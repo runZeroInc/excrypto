@@ -5,8 +5,8 @@
 package wasm
 
 import (
-	"cmd/internal/sys"
-	"cmd/link/internal/ld"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/ld"
 )
 
 func Init() (*sys.Arch, ld.Arch) {

@@ -10,13 +10,13 @@ package encodemeta
 
 import (
 	"bytes"
-	"crypto/md5"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/md5"
 	"encoding/binary"
 	"fmt"
 	"hash"
-	"internal/coverage"
-	"internal/coverage/stringtab"
-	"internal/coverage/uleb128"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/stringtab"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/uleb128"
 	"io"
 	"os"
 )

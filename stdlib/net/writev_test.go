@@ -7,7 +7,7 @@ package net
 import (
 	"bytes"
 	"fmt"
-	"internal/poll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/poll"
 	"io"
 	"reflect"
 	"runtime"

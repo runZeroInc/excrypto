@@ -120,7 +120,7 @@ func IsSyncAtomicAlign64(T Type) bool {
 	return obj.Name() == "align64" &&
 		obj.Pkg() != nil &&
 		(obj.Pkg().Path() == "sync/atomic" ||
-			obj.Pkg().Path() == "internal/runtime/atomic")
+			obj.Pkg().Path() == "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic")
 }
 
 func (s *StdSizes) Offsetsof(fields []*Var) []int64 {

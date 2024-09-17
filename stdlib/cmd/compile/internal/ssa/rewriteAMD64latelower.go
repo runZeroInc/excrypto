@@ -2,7 +2,7 @@
 
 package ssa
 
-import "internal/buildcfg"
+import "github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 
 func rewriteValueAMD64latelower(v *Value) bool {
 	switch v.Op {

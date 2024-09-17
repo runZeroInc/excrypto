@@ -13,8 +13,8 @@ package cipher
 
 import (
 	"bytes"
-	"crypto/internal/alias"
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/alias"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 )
 
 type cbc struct {
@@ -71,13 +71,13 @@ func (x *cbcEncrypter) BlockSize() int { return x.blockSize }
 
 func (x *cbcEncrypter) CryptBlocks(dst, src []byte) {
 	if len(src)%x.blockSize != 0 {
-		panic("crypto/cipher: input not full blocks")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: input not full blocks")
 	}
 	if len(dst) < len(src) {
-		panic("crypto/cipher: output smaller than input")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: output smaller than input")
 	}
 	if alias.InexactOverlap(dst[:len(src)], src) {
-		panic("crypto/cipher: invalid buffer overlap")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: invalid buffer overlap")
 	}
 
 	iv := x.iv
@@ -142,13 +142,13 @@ func (x *cbcDecrypter) BlockSize() int { return x.blockSize }
 
 func (x *cbcDecrypter) CryptBlocks(dst, src []byte) {
 	if len(src)%x.blockSize != 0 {
-		panic("crypto/cipher: input not full blocks")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: input not full blocks")
 	}
 	if len(dst) < len(src) {
-		panic("crypto/cipher: output smaller than input")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: output smaller than input")
 	}
 	if alias.InexactOverlap(dst[:len(src)], src) {
-		panic("crypto/cipher: invalid buffer overlap")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: invalid buffer overlap")
 	}
 	if len(src) == 0 {
 		return

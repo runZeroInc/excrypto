@@ -6,7 +6,7 @@ package bigmod
 
 import (
 	"errors"
-	"internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 	"math/big"
 	"math/bits"
 )

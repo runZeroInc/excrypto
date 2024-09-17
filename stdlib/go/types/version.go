@@ -9,7 +9,7 @@ import (
 	"go/ast"
 	"go/token"
 	"go/version"
-	"internal/goversion"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goversion"
 )
 
 // A goVersion is a Go language version string of the form "go1.%d"

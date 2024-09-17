@@ -30,7 +30,7 @@ https://github.com/golang/go/issues instead of relying on this package.
 package weak
 
 import (
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"runtime"
 	"unsafe"
 )

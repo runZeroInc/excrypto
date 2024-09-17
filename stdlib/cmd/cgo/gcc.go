@@ -20,7 +20,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"internal/xcoff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/xcoff"
 	"math"
 	"os"
 	"os/exec"
@@ -30,7 +30,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"cmd/internal/quoted"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/quoted"
 )
 
 var debugDefine = flag.Bool("debug-define", false, "print relevant #defines")

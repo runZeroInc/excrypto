@@ -7,7 +7,7 @@
 package md5
 
 import (
-	"internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 	"math/bits"
 )
 

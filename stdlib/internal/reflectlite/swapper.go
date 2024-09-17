@@ -5,8 +5,8 @@
 package reflectlite
 
 import (
-	"internal/goarch"
-	"internal/unsafeheader"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/unsafeheader"
 	"unsafe"
 )
 

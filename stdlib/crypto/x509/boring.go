@@ -7,10 +7,10 @@
 package x509
 
 import (
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/internal/boring/fipstls"
-	"crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring/fipstls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 )
 
 // boringAllowCert reports whether c is allowed to be used

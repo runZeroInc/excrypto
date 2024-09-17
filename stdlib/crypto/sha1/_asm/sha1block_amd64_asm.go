@@ -21,7 +21,7 @@ import (
 // Chandramouli Narayanan <mouli@linux.intel.com>
 
 func main() {
-	Package("crypto/sha1")
+	Package("github.com/runZeroInc/excrypto/stdlib/crypto/sha1")
 	ConstraintExpr("!purego")
 	blockAMD64()
 	blockAVX2()

@@ -8,13 +8,13 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"internal/buildcfg"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"testing"
 
-	"cmd/internal/bio"
-	"cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/bio"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
 )
 
 func dummyWriter(buf *bytes.Buffer) *Writer {

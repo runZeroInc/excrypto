@@ -6,7 +6,7 @@ package unsafeheader_test
 
 import (
 	"bytes"
-	"internal/unsafeheader"
+	"github.com/runZeroInc/excrypto/stdlib/internal/unsafeheader"
 	"reflect"
 	"testing"
 	"unsafe"

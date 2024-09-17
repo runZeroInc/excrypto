@@ -3,8 +3,8 @@
 package typecheck
 
 import (
-	"cmd/compile/internal/types"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 // Not inlining this function removes a significant chunk of init code.

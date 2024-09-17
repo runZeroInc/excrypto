@@ -7,13 +7,13 @@ package vcs
 import (
 	"errors"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
-	"cmd/go/internal/web"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/web"
 )
 
 func init() {

@@ -13,7 +13,7 @@ import (
 	"image/color"
 	"image/color/palette"
 	"image/draw"
-	"internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 	"io"
 )
 

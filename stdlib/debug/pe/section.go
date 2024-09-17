@@ -7,7 +7,7 @@ package pe
 import (
 	"encoding/binary"
 	"fmt"
-	"internal/saferio"
+	"github.com/runZeroInc/excrypto/stdlib/internal/saferio"
 	"io"
 	"strconv"
 )

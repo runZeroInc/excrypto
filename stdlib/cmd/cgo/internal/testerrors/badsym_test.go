@@ -6,8 +6,8 @@ package errorstest
 
 import (
 	"bytes"
-	"cmd/internal/quoted"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/quoted"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"path/filepath"

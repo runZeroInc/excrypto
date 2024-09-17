@@ -5,8 +5,8 @@
 package types
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
 	"unicode"
 	"unicode/utf8"
 )
@@ -21,7 +21,7 @@ import (
 // handling selector expressions.
 //
 // Ideally, Sym should be used for representing Go language constructs,
-// while cmd/internal/obj.LSym is used for representing emitted artifacts.
+// while github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj.LSym is used for representing emitted artifacts.
 //
 // NOTE: In practice, things can be messier than the description above
 // for various reasons (historical, convenience).

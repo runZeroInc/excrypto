@@ -5,9 +5,9 @@
 package main
 
 import (
-	"cmd/compile/internal/loopvar/testdata/inlines/a"
-	"cmd/compile/internal/loopvar/testdata/inlines/b"
-	"cmd/compile/internal/loopvar/testdata/inlines/c"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/loopvar/testdata/inlines/a"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/loopvar/testdata/inlines/b"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/loopvar/testdata/inlines/c"
 	"fmt"
 	"os"
 )

@@ -11,10 +11,10 @@
 package md5
 
 import (
-	"crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"errors"
 	"hash"
-	"internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 )
 
 func init() {
@@ -74,10 +74,10 @@ func (d *digest) AppendBinary(b []byte) ([]byte, error) {
 
 func (d *digest) UnmarshalBinary(b []byte) error {
 	if len(b) < len(magic) || string(b[:len(magic)]) != magic {
-		return errors.New("crypto/md5: invalid hash state identifier")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/md5: invalid hash state identifier")
 	}
 	if len(b) != marshaledSize {
-		return errors.New("crypto/md5: invalid hash state size")
+		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/md5: invalid hash state size")
 	}
 	b = b[len(magic):]
 	b, d.s[0] = consumeUint32(b)

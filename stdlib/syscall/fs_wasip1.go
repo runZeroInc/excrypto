@@ -7,7 +7,7 @@
 package syscall
 
 import (
-	"internal/stringslite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/stringslite"
 	"runtime"
 	"unsafe"
 )

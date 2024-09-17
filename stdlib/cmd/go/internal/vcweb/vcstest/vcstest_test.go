@@ -5,7 +5,7 @@
 package vcstest_test
 
 import (
-	"cmd/go/internal/vcweb"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/vcweb"
 	"errors"
 	"flag"
 	"fmt"

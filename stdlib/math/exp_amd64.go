@@ -6,6 +6,6 @@
 
 package math
 
-import "internal/cpu"
+import "github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 
 var useFMA = cpu.X86.HasAVX && cpu.X86.HasFMA

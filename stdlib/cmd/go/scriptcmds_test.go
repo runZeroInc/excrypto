@@ -5,9 +5,9 @@
 package main_test
 
 import (
-	"cmd/go/internal/work"
-	"cmd/internal/script"
-	"cmd/internal/script/scripttest"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/work"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/script"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/script/scripttest"
 	"errors"
 	"fmt"
 	"os"

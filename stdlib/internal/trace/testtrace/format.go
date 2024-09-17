@@ -7,8 +7,8 @@ package testtrace
 import (
 	"bytes"
 	"fmt"
-	"internal/trace/raw"
-	"internal/txtar"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/raw"
+	"github.com/runZeroInc/excrypto/stdlib/internal/txtar"
 	"io"
 )
 

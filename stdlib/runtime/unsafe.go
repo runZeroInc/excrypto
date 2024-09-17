@@ -5,7 +5,7 @@
 package runtime
 
 import (
-	"internal/runtime/math"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/math"
 	"unsafe"
 )
 

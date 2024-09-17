@@ -6,7 +6,7 @@ package rand
 
 import (
 	"errors"
-	"internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 	"math/bits"
 )
 

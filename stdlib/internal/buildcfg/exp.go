@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"strings"
 
-	"internal/goexperiment"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goexperiment"
 )
 
 // ExperimentFlags represents a set of GOEXPERIMENT flags relative to a baseline

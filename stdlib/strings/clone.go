@@ -5,7 +5,7 @@
 package strings
 
 import (
-	"internal/stringslite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/stringslite"
 )
 
 // Clone returns a fresh copy of s.

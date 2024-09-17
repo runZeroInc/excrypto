@@ -6,7 +6,7 @@ package net
 
 import (
 	"errors"
-	"internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
 	"io/fs"
 	"net/netip"
 	"sync"

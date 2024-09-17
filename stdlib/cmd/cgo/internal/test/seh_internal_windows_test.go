@@ -7,7 +7,7 @@
 package cgotest
 
 import (
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"testing"
 )
 

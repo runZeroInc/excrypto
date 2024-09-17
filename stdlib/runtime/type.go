@@ -7,8 +7,8 @@
 package runtime
 
 import (
-	"internal/abi"
-	"internal/goexperiment"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goexperiment"
 	"unsafe"
 )
 

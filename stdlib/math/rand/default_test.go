@@ -6,8 +6,8 @@ package rand_test
 
 import (
 	"fmt"
-	"internal/race"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/race"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	. "math/rand"
 	"os"
 	"runtime"

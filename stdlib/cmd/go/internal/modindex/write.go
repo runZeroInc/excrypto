@@ -5,7 +5,7 @@
 package modindex
 
 import (
-	"cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
 	"encoding/binary"
 	"go/token"
 	"sort"

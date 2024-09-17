@@ -5,9 +5,9 @@
 package typebits
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/bitvec"
-	"cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/bitvec"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
 )
 
 // NOTE: The bitmap for a specific type t could be cached in t after

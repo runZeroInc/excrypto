@@ -2,7 +2,7 @@
 
 package arm
 
-import "cmd/internal/obj"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
 
 var Anames = []string{
 	obj.A_ARCHSPECIFIC: "AND",

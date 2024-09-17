@@ -5,7 +5,7 @@
 package net
 
 import (
-	"internal/syscall/unix"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/unix"
 	"testing"
 )
 

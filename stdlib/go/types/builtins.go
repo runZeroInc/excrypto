@@ -13,7 +13,7 @@ import (
 	"go/ast"
 	"go/constant"
 	"go/token"
-	. "internal/types/errors"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 )
 
 // builtin type-checks a call to the built-in specified by id and

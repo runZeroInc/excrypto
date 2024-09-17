@@ -18,7 +18,7 @@
 package smtp
 
 import (
-	"crypto/tls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
 	"encoding/base64"
 	"errors"
 	"fmt"

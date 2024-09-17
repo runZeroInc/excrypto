@@ -33,17 +33,17 @@ package ld
 
 import (
 	"bytes"
-	"cmd/internal/gcprog"
-	"cmd/internal/objabi"
-	"cmd/internal/sys"
-	"cmd/link/internal/loader"
-	"cmd/link/internal/loadpe"
-	"cmd/link/internal/sym"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/gcprog"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/loader"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/loadpe"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/sym"
 	"compress/zlib"
 	"debug/elf"
 	"encoding/binary"
 	"fmt"
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"log"
 	"math/rand"
 	"os"
@@ -59,10 +59,10 @@ func isRuntimeDepPkg(pkg string) bool {
 	switch pkg {
 	case "runtime",
 		"sync/atomic",          // runtime may call to sync/atomic, due to go:linkname
-		"internal/abi",         // used by reflectcall (and maybe more)
-		"internal/bytealg",     // for IndexByte
-		"internal/chacha8rand", // for rand
-		"internal/cpu":         // for cpu features
+		"github.com/runZeroInc/excrypto/stdlib/internal/abi",         // used by reflectcall (and maybe more)
+		"github.com/runZeroInc/excrypto/stdlib/internal/bytealg",     // for IndexByte
+		"github.com/runZeroInc/excrypto/stdlib/internal/chacha8rand", // for rand
+		"github.com/runZeroInc/excrypto/stdlib/internal/cpu":         // for cpu features
 		return true
 	}
 	return strings.HasPrefix(pkg, "runtime/internal/") && !strings.HasSuffix(pkg, "_test")
@@ -1939,8 +1939,8 @@ func (state *dodataState) allocateDataSections(ctxt *Link) {
 		sect := state.allocateNamedSectionAndAssignSyms(&Segdata, ".go.fuzzcntrs", sym.SLIBFUZZER_8BIT_COUNTER, sym.Sxxx, 06)
 		ldr.SetSymSect(ldr.LookupOrCreateSym("runtime.__start___sancov_cntrs", 0), sect)
 		ldr.SetSymSect(ldr.LookupOrCreateSym("runtime.__stop___sancov_cntrs", 0), sect)
-		ldr.SetSymSect(ldr.LookupOrCreateSym("internal/fuzz._counters", 0), sect)
-		ldr.SetSymSect(ldr.LookupOrCreateSym("internal/fuzz._ecounters", 0), sect)
+		ldr.SetSymSect(ldr.LookupOrCreateSym("github.com/runZeroInc/excrypto/stdlib/internal/fuzz._counters", 0), sect)
+		ldr.SetSymSect(ldr.LookupOrCreateSym("github.com/runZeroInc/excrypto/stdlib/internal/fuzz._ecounters", 0), sect)
 	}
 
 	// Assign runtime.end to the last section of data segment.
@@ -2983,8 +2983,8 @@ func (ctxt *Link) address() []*sym.Segment {
 	if fuzzCounters != nil {
 		ctxt.xdefine("runtime.__start___sancov_cntrs", sym.SLIBFUZZER_8BIT_COUNTER, int64(fuzzCounters.Vaddr))
 		ctxt.xdefine("runtime.__stop___sancov_cntrs", sym.SLIBFUZZER_8BIT_COUNTER, int64(fuzzCounters.Vaddr+fuzzCounters.Length))
-		ctxt.xdefine("internal/fuzz._counters", sym.SLIBFUZZER_8BIT_COUNTER, int64(fuzzCounters.Vaddr))
-		ctxt.xdefine("internal/fuzz._ecounters", sym.SLIBFUZZER_8BIT_COUNTER, int64(fuzzCounters.Vaddr+fuzzCounters.Length))
+		ctxt.xdefine("github.com/runZeroInc/excrypto/stdlib/internal/fuzz._counters", sym.SLIBFUZZER_8BIT_COUNTER, int64(fuzzCounters.Vaddr))
+		ctxt.xdefine("github.com/runZeroInc/excrypto/stdlib/internal/fuzz._ecounters", sym.SLIBFUZZER_8BIT_COUNTER, int64(fuzzCounters.Vaddr+fuzzCounters.Length))
 	}
 
 	if ctxt.IsSolaris() {

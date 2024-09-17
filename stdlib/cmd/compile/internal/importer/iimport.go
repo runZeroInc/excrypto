@@ -8,9 +8,9 @@
 package importer
 
 import (
-	"cmd/compile/internal/syntax"
-	"cmd/compile/internal/typecheck"
-	"cmd/compile/internal/types2"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/typecheck"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types2"
 	"encoding/binary"
 	"fmt"
 	"go/constant"

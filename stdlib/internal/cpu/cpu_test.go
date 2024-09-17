@@ -5,9 +5,9 @@
 package cpu_test
 
 import (
-	. "internal/cpu"
-	"internal/godebug"
-	"internal/testenv"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/cpu"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"testing"

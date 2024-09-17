@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/build/constraint"
-	"go/internal/typeparams"
+	"github.com/runZeroInc/excrypto/stdlib/go/internal/typeparams"
 	"go/scanner"
 	"go/token"
 	"strings"

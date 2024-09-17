@@ -6,7 +6,7 @@
 
 package sha512
 
-import "internal/cpu"
+import "github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 
 func block(dig *digest, p []byte) {
 	if cpu.ARM64.HasSHA512 {

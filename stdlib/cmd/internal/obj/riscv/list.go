@@ -7,7 +7,7 @@ package riscv
 import (
 	"fmt"
 
-	"cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
 )
 
 func init() {

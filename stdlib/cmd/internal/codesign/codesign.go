@@ -11,12 +11,12 @@
 package codesign
 
 import (
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"debug/macho"
 	"encoding/binary"
 	"io"
 
-	"cmd/internal/hash"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/hash"
 )
 
 // Code signature layout.

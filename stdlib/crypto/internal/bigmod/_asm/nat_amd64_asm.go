@@ -15,7 +15,7 @@ import (
 //go:generate go run . -out ../nat_amd64.s -pkg bigmod
 
 func main() {
-	Package("crypto/internal/bigmod")
+	Package("github.com/runZeroInc/excrypto/stdlib/crypto/internal/bigmod")
 	ConstraintExpr("!purego")
 
 	addMulVVW(1024)

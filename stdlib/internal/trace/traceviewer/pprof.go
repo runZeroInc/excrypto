@@ -9,8 +9,8 @@ package traceviewer
 import (
 	"bufio"
 	"fmt"
-	"internal/profile"
-	"internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/profile"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
 	"net/http"
 	"os"
 	"os/exec"

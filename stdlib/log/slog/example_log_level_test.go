@@ -7,7 +7,7 @@ package slog_test
 import (
 	"log"
 	"log/slog"
-	"log/slog/internal/slogtest"
+	"github.com/runZeroInc/excrypto/stdlib/log/slog/internal/slogtest"
 	"os"
 )
 

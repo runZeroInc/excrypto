@@ -5,9 +5,9 @@
 package reflect
 
 import (
-	"internal/abi"
-	"internal/goarch"
-	"internal/unsafeheader"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/unsafeheader"
 	"unsafe"
 )
 

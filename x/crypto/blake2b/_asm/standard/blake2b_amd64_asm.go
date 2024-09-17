@@ -8,7 +8,7 @@ import (
 	. "github.com/mmcloughlin/avo/build"
 	. "github.com/mmcloughlin/avo/operand"
 	. "github.com/mmcloughlin/avo/reg"
-	_ "golang.org/x/crypto/blake2b"
+	_ "github.com/runZeroInc/excrypto/x/crypto/blake2b"
 )
 
 //go:generate go run . -out ../../blake2b_amd64.s -pkg blake2b
@@ -18,7 +18,7 @@ const ThatPeskyUnicodeDot = "\u00b7"
 var iv0_DATA_ptr, iv1_DATA_ptr, iv2_DATA_ptr, iv3_DATA_ptr, c40_DATA_ptr, c48_DATA_ptr *Mem
 
 func main() {
-	Package("golang.org/x/crypto/blake2b")
+	Package("github.com/runZeroInc/excrypto/x/crypto/blake2b")
 	ConstraintExpr("amd64,gc,!purego")
 	hashBlocksSSE4()
 	Generate()

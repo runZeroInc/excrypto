@@ -7,7 +7,7 @@
 package socktest_test
 
 import (
-	"net/internal/socktest"
+	"github.com/runZeroInc/excrypto/stdlib/net/internal/socktest"
 	"os"
 	"sync"
 	"syscall"

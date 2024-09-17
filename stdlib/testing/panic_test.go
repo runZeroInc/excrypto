@@ -7,7 +7,7 @@ package testing_test
 import (
 	"flag"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"regexp"

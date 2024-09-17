@@ -6,7 +6,7 @@ package base
 
 import (
 	"bytes"
-	"internal/bisect"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bisect"
 	"strings"
 	"testing"
 )

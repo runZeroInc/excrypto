@@ -5,7 +5,7 @@
 package ld
 
 import (
-	"cmd/link/internal/loader"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/loader"
 	"encoding/binary"
 	"fmt"
 	"os"

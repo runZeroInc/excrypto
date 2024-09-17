@@ -32,30 +32,30 @@ import (
 // These will be imported during bootstrap as bootstrap/name, like bootstrap/math/big.
 var bootstrapDirs = []string{
 	"cmp",
-	"cmd/asm",
-	"cmd/asm/internal/...",
-	"cmd/cgo",
-	"cmd/compile",
-	"cmd/compile/internal/...",
-	"cmd/internal/archive",
-	"cmd/internal/bio",
-	"cmd/internal/codesign",
-	"cmd/internal/dwarf",
-	"cmd/internal/edit",
-	"cmd/internal/gcprog",
-	"cmd/internal/goobj",
-	"cmd/internal/hash",
-	"cmd/internal/obj/...",
-	"cmd/internal/objabi",
-	"cmd/internal/pgo",
-	"cmd/internal/pkgpath",
-	"cmd/internal/quoted",
-	"cmd/internal/src",
-	"cmd/internal/sys",
-	"cmd/internal/telemetry",
-	"cmd/internal/telemetry/counter",
-	"cmd/link",
-	"cmd/link/internal/...",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm/internal/...",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/cgo",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/...",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/archive",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/bio",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/codesign",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/dwarf",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/edit",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/gcprog",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/goobj",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/hash",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/...",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pgo",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pkgpath",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/quoted",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/...",
 	"compress/flate",
 	"compress/zlib",
 	"container/heap",
@@ -66,32 +66,32 @@ var bootstrapDirs = []string{
 	"go/build/constraint",
 	"go/constant",
 	"go/version",
-	"internal/abi",
-	"internal/coverage",
-	"cmd/internal/cov/covcmd",
-	"internal/bisect",
-	"internal/buildcfg",
-	"internal/goarch",
-	"internal/godebugs",
-	"internal/goexperiment",
-	"internal/goroot",
-	"internal/gover",
-	"internal/goversion",
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi",
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage",
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/cov/covcmd",
+	"github.com/runZeroInc/excrypto/stdlib/internal/bisect",
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg",
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch",
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebugs",
+	"github.com/runZeroInc/excrypto/stdlib/internal/goexperiment",
+	"github.com/runZeroInc/excrypto/stdlib/internal/goroot",
+	"github.com/runZeroInc/excrypto/stdlib/internal/gover",
+	"github.com/runZeroInc/excrypto/stdlib/internal/goversion",
 	// internal/lazyregexp is provided by Go 1.17, which permits it to
 	// be imported by other packages in this list, but is not provided
 	// by the Go 1.17 version of gccgo. It's on this list only to
 	// support gccgo, and can be removed if we require gccgo 14 or later.
-	"internal/lazyregexp",
-	"internal/pkgbits",
-	"internal/platform",
-	"internal/profile",
-	"internal/race",
-	"internal/saferio",
-	"internal/syscall/unix",
-	"internal/types/errors",
-	"internal/unsafeheader",
-	"internal/xcoff",
-	"internal/zstd",
+	"github.com/runZeroInc/excrypto/stdlib/internal/lazyregexp",
+	"github.com/runZeroInc/excrypto/stdlib/internal/pkgbits",
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform",
+	"github.com/runZeroInc/excrypto/stdlib/internal/profile",
+	"github.com/runZeroInc/excrypto/stdlib/internal/race",
+	"github.com/runZeroInc/excrypto/stdlib/internal/saferio",
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/unix",
+	"github.com/runZeroInc/excrypto/stdlib/internal/types/errors",
+	"github.com/runZeroInc/excrypto/stdlib/internal/unsafeheader",
+	"github.com/runZeroInc/excrypto/stdlib/internal/xcoff",
+	"github.com/runZeroInc/excrypto/stdlib/internal/zstd",
 	"math/bits",
 	"sort",
 }
@@ -137,7 +137,7 @@ func bootstrapBuildTools() {
 	xprintf("Building Go toolchain1 using %s.\n", goroot_bootstrap)
 
 	mkbuildcfg(pathf("%s/src/internal/buildcfg/zbootstrap.go", goroot))
-	mkobjabi(pathf("%s/src/cmd/internal/objabi/zbootstrap.go", goroot))
+	mkobjabi(pathf("%s/src/github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi/zbootstrap.go", goroot))
 
 	// Use $GOROOT/pkg/bootstrap as the bootstrap workspace root.
 	// We use a subdirectory of $GOROOT/pkg because that's the
@@ -171,7 +171,7 @@ func bootstrapBuildTools() {
 				}
 
 				xmkdirall(dst)
-				if path == "cmd/cgo" {
+				if path == "github.com/runZeroInc/excrypto/stdlib/cmd/cgo" {
 					// Write to src because we need the file both for bootstrap
 					// and for later in the main build.
 					mkzdefaultcc("", pathf("%s/zdefaultcc.go", src))
@@ -241,10 +241,10 @@ func bootstrapBuildTools() {
 
 	// Copy binaries into tool binary directory.
 	for _, name := range bootstrapDirs {
-		if !strings.HasPrefix(name, "cmd/") {
+		if !strings.HasPrefix(name, "github.com/runZeroInc/excrypto/stdlib/cmd/") {
 			continue
 		}
-		name = name[len("cmd/"):]
+		name = name[len("github.com/runZeroInc/excrypto/stdlib/cmd/"):]
 		if !strings.Contains(name, "/") {
 			copyfile(pathf("%s/%s%s", tooldir, name, exe), pathf("%s/bin/%s%s", workspace, name, exe), writeExec)
 		}
@@ -353,7 +353,7 @@ func bootstrapFixImports(srcFile string) string {
 		}
 
 		path := m[2]
-		if strings.HasPrefix(path, "cmd/") {
+		if strings.HasPrefix(path, "github.com/runZeroInc/excrypto/stdlib/cmd/") {
 			path = "bootstrap/" + path
 		} else {
 			for _, dir := range bootstrapDirs {
@@ -365,7 +365,7 @@ func bootstrapFixImports(srcFile string) string {
 		}
 
 		// Rewrite use of internal/reflectlite to be plain reflect.
-		if path == "internal/reflectlite" {
+		if path == "github.com/runZeroInc/excrypto/stdlib/internal/reflectlite" {
 			lines[i] = strings.ReplaceAll(line, `"reflect"`, `reflectlite "reflect"`)
 			continue
 		}
@@ -377,7 +377,7 @@ func bootstrapFixImports(srcFile string) string {
 		// bootstrapDirs and made into bootstrap copies based on the
 		// current repo's source code. Those are fine; this is catching
 		// references to internal packages in the older bootstrap toolchain.
-		if strings.HasPrefix(path, "internal/") {
+		if strings.HasPrefix(path, "github.com/runZeroInc/excrypto/stdlib/internal/") {
 			fatalf("%s:%d: bootstrap-copied source file cannot import %s", srcFile, i+1, path)
 		}
 		if path != m[2] {

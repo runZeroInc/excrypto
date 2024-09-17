@@ -1,4 +1,4 @@
-// Based on cmd/internal/obj/ppc64/a.out.go.
+// Based on github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/ppc64/a.out.go.
 //
 //	Copyright © 1994-1999 Lucent Technologies Inc.  All rights reserved.
 //	Portions Copyright © 1995-1997 C H Forsyth (forsyth@terzarima.net)
@@ -29,7 +29,7 @@
 
 package s390x
 
-import "cmd/internal/obj"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
 
 //go:generate go run ../stringer.go -i $GOFILE -o anames.go -p s390x
 

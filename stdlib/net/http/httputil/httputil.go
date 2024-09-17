@@ -8,7 +8,7 @@ package httputil
 
 import (
 	"io"
-	"net/http/internal"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/internal"
 )
 
 // NewChunkedReader returns a new chunkedReader that translates the data read from r

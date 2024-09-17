@@ -5,7 +5,7 @@
 package pkgbits_test
 
 import (
-	"internal/pkgbits"
+	"github.com/runZeroInc/excrypto/stdlib/internal/pkgbits"
 	"strings"
 	"testing"
 )

@@ -10,7 +10,7 @@ package pgo
 import (
 	"errors"
 	"fmt"
-	"internal/profile"
+	"github.com/runZeroInc/excrypto/stdlib/internal/profile"
 	"io"
 	"sort"
 )

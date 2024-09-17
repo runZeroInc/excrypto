@@ -5,11 +5,11 @@
 package ld
 
 import (
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
-	"cmd/link/internal/loader"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/loader"
 	"fmt"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"sort"
 	"strings"
 )

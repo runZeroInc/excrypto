@@ -13,7 +13,7 @@ package tar
 import (
 	"errors"
 	"fmt"
-	"internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"io/fs"
 	"maps"
 	"math"

@@ -9,8 +9,8 @@
 package arch
 
 import (
-	"cmd/internal/obj"
-	"cmd/internal/obj/ppc64"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/ppc64"
 )
 
 func jumpPPC64(word string) bool {

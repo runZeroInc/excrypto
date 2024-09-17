@@ -5,15 +5,15 @@
 package main_test
 
 import (
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"runtime"
 	"testing"
 
-	"cmd/internal/buildid"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/buildid"
 )
 
 func TestNoteReading(t *testing.T) {
-	// cmd/internal/buildid already has tests that the basic reading works.
+	// github.com/runZeroInc/excrypto/stdlib/cmd/internal/buildid already has tests that the basic reading works.
 	// This test is essentially checking that -ldflags=-buildid=XXX works,
 	// both in internal and external linking mode.
 	tg := testgo(t)

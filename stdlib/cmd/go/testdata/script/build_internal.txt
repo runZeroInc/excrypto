@@ -18,7 +18,7 @@ env GO111MODULE=''
 [compiler:gccgo] skip # gccgo does not have GOROOT
 cd ../testinternal
 ! go build -v .
-stderr 'p\.go:3:8: use of internal package net/http/internal not allowed'
+stderr 'p\.go:3:8: use of internal package github.com/runZeroInc/excrypto/stdlib/net/http/internal not allowed'
 
 -- testinternal/go.mod --
 module testinternal
@@ -27,7 +27,7 @@ go 1.16
 -- testinternal/p.go --
 package p
 
-import _ "net/http/internal"
+import _ "github.com/runZeroInc/excrypto/stdlib/net/http/internal"
 -- testinternal2/go.mod --
 module testinternal2
 
@@ -45,7 +45,7 @@ go 1.16
 -- testinternal3/t.go --
 package t
 
-import _ "internal/does-not-exist"
+import _ "github.com/runZeroInc/excrypto/stdlib/internal/does-not-exist"
 -- testinternal4/go.mod --
 module testinternal4
 

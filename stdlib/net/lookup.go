@@ -7,8 +7,8 @@ package net
 import (
 	"context"
 	"errors"
-	"internal/nettrace"
-	"internal/singleflight"
+	"github.com/runZeroInc/excrypto/stdlib/internal/nettrace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/singleflight"
 	"net/netip"
 	"sync"
 

@@ -31,12 +31,12 @@
 package x86
 
 import (
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
-	"cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
 	"encoding/binary"
 	"fmt"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"log"
 	"strings"
 )
@@ -4405,7 +4405,7 @@ func (ab *AsmBuf) doasm(ctxt *obj.Link, cursym *obj.LSym, p *obj.Prog) {
 				}
 				// NOTE(rsc): This is probably safe to do always,
 				// but when enabled it chooses different encodings
-				// than the old cmd/internal/obj/i386 code did,
+				// than the old github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/i386 code did,
 				// which breaks our "same bits out" checks.
 				// In particular, CMPB AX, $0 encodes as 80 f8 00
 				// in the original obj/i386, and it would encode

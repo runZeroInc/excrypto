@@ -6,14 +6,14 @@ package obj
 
 import (
 	"bytes"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"path/filepath"
 	"testing"
 	"unsafe"
 
-	"cmd/internal/goobj"
-	"cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/goobj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
 )
 
 var dummyArch = LinkArch{Arch: sys.ArchAMD64}

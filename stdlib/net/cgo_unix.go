@@ -14,7 +14,7 @@ package net
 import (
 	"context"
 	"errors"
-	"internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
 	"net/netip"
 	"syscall"
 	"unsafe"

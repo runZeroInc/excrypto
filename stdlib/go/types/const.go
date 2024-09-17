@@ -12,7 +12,7 @@ package types
 import (
 	"go/constant"
 	"go/token"
-	. "internal/types/errors"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 	"math"
 )
 

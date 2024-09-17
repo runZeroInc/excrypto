@@ -5,9 +5,9 @@
 package unique
 
 import (
-	"internal/abi"
-	"internal/concurrent"
-	"internal/weak"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/concurrent"
+	"github.com/runZeroInc/excrypto/stdlib/internal/weak"
 	"runtime"
 	"sync"
 	_ "unsafe"

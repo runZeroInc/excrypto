@@ -6,8 +6,8 @@ package ld
 
 import (
 	"fmt"
-	"internal/buildcfg"
-	"internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
 )
 
 // A BuildMode indicates the sort of object we are building.

@@ -9,8 +9,8 @@ import (
 	"io"
 	"strings"
 
-	"cmd/internal/hash"
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/hash"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 func printFunc(f *Func) {

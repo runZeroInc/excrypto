@@ -6,8 +6,8 @@ package net
 
 import (
 	"context"
-	"internal/poll"
-	"internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/poll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
 	"os"
 	"runtime"
 	"syscall"

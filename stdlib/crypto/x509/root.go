@@ -5,7 +5,7 @@
 package x509
 
 import (
-	"internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"sync"
 	_ "unsafe" // for linkname
 )

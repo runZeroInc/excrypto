@@ -5,7 +5,7 @@
 package mime
 
 import (
-	"internal/syscall/windows/registry"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows/registry"
 )
 
 func init() {

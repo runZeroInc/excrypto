@@ -5,10 +5,10 @@
 package arm
 
 import (
-	"cmd/compile/internal/ssa"
-	"cmd/compile/internal/ssagen"
-	"cmd/internal/obj/arm"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssa"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssagen"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/arm"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 )
 
 func Init(arch *ssagen.ArchInfo) {

@@ -45,7 +45,7 @@ int EVP_AEAD_CTX_open_wrapper(const GO_EVP_AEAD_CTX *ctx, uint8_t *out,
 import "C"
 import (
 	"bytes"
-	"crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"errors"
 	"runtime"
 	"strconv"
@@ -55,7 +55,7 @@ import (
 type aesKeySizeError int
 
 func (k aesKeySizeError) Error() string {
-	return "crypto/aes: invalid key size " + strconv.Itoa(int(k))
+	return "github.com/runZeroInc/excrypto/stdlib/crypto/aes: invalid key size " + strconv.Itoa(int(k))
 }
 
 const aesBlockSize = 16
@@ -90,13 +90,13 @@ func (c *aesCipher) BlockSize() int { return aesBlockSize }
 
 func (c *aesCipher) Encrypt(dst, src []byte) {
 	if inexactOverlap(dst, src) {
-		panic("crypto/cipher: invalid buffer overlap")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: invalid buffer overlap")
 	}
 	if len(src) < aesBlockSize {
-		panic("crypto/aes: input not full block")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: input not full block")
 	}
 	if len(dst) < aesBlockSize {
-		panic("crypto/aes: output not full block")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: output not full block")
 	}
 	C._goboringcrypto_AES_encrypt(
 		(*C.uint8_t)(unsafe.Pointer(&src[0])),
@@ -106,13 +106,13 @@ func (c *aesCipher) Encrypt(dst, src []byte) {
 
 func (c *aesCipher) Decrypt(dst, src []byte) {
 	if inexactOverlap(dst, src) {
-		panic("crypto/cipher: invalid buffer overlap")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: invalid buffer overlap")
 	}
 	if len(src) < aesBlockSize {
-		panic("crypto/aes: input not full block")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: input not full block")
 	}
 	if len(dst) < aesBlockSize {
-		panic("crypto/aes: output not full block")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: output not full block")
 	}
 	C._goboringcrypto_AES_decrypt(
 		(*C.uint8_t)(unsafe.Pointer(&src[0])),
@@ -130,13 +130,13 @@ func (x *aesCBC) BlockSize() int { return aesBlockSize }
 
 func (x *aesCBC) CryptBlocks(dst, src []byte) {
 	if inexactOverlap(dst, src) {
-		panic("crypto/cipher: invalid buffer overlap")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: invalid buffer overlap")
 	}
 	if len(src)%aesBlockSize != 0 {
-		panic("crypto/cipher: input not full blocks")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: input not full blocks")
 	}
 	if len(dst) < len(src) {
-		panic("crypto/cipher: output smaller than input")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: output smaller than input")
 	}
 	if len(src) > 0 {
 		C._goboringcrypto_AES_cbc_encrypt(
@@ -175,10 +175,10 @@ type aesCTR struct {
 
 func (x *aesCTR) XORKeyStream(dst, src []byte) {
 	if inexactOverlap(dst, src) {
-		panic("crypto/cipher: invalid buffer overlap")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: invalid buffer overlap")
 	}
 	if len(dst) < len(src) {
-		panic("crypto/cipher: output smaller than input")
+		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: output smaller than input")
 	}
 	if len(src) == 0 {
 		return
@@ -210,7 +210,7 @@ const (
 type aesNonceSizeError int
 
 func (n aesNonceSizeError) Error() string {
-	return "crypto/aes: invalid GCM nonce size " + strconv.Itoa(int(n))
+	return "github.com/runZeroInc/excrypto/stdlib/crypto/aes: invalid GCM nonce size " + strconv.Itoa(int(n))
 }
 
 type noGCM struct {
@@ -219,7 +219,7 @@ type noGCM struct {
 
 func (c *aesCipher) NewGCM(nonceSize, tagSize int) (cipher.AEAD, error) {
 	if nonceSize != gcmStandardNonceSize && tagSize != gcmTagSize {
-		return nil, errors.New("crypto/aes: GCM tag and nonce sizes can't be non-standard at the same time")
+		return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/aes: GCM tag and nonce sizes can't be non-standard at the same time")
 	}
 	// Fall back to standard library for GCM with non-standard nonce or tag size.
 	if nonceSize != gcmStandardNonceSize {

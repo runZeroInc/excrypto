@@ -6,12 +6,12 @@ package plugin_test
 
 import (
 	"bytes"
-	"cmd/cgo/internal/cgotest"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/cgo/internal/cgotest"
 	"context"
 	"flag"
 	"fmt"
-	"internal/platform"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/platform"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"log"
 	"os"
 	"os/exec"

@@ -16,7 +16,7 @@ import (
 	"strconv"
 	"time"
 
-	"cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
 )
 
 func svnParseStat(rev, out string) (*RevInfo, error) {

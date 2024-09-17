@@ -8,8 +8,8 @@
 package rand
 
 import (
-	"crypto/aes"
-	"internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 	"io"
 	"os"
 	"sync"
@@ -36,7 +36,7 @@ type reader struct {
 func (r *reader) Read(b []byte) (n int, err error) {
 	r.seeded.Do(func() {
 		t := time.AfterFunc(time.Minute, func() {
-			println("crypto/rand: blocked for 60 seconds waiting to read random data from the kernel")
+			println("github.com/runZeroInc/excrypto/stdlib/crypto/rand: blocked for 60 seconds waiting to read random data from the kernel")
 		})
 		defer t.Stop()
 		entropy, err := os.Open(randomDevice)
@@ -64,7 +64,7 @@ func (r *reader) Read(b []byte) (n int, err error) {
 	inc := func() {
 		counter++
 		if counter == 0 {
-			panic("crypto/rand counter wrapped")
+			panic("github.com/runZeroInc/excrypto/stdlib/crypto/rand counter wrapped")
 		}
 		byteorder.LePutUint64(block[:], counter)
 	}

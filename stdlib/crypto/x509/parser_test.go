@@ -8,7 +8,7 @@ import (
 	"encoding/asn1"
 	"testing"
 
-	cryptobyte_asn1 "golang.org/x/crypto/cryptobyte/asn1"
+	cryptobyte_asn1 "github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
 )
 
 func TestParseASN1String(t *testing.T) {

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	b "cmd/link/internal/ld/testdata/issue26237/b.dir"
+	b "github.com/runZeroInc/excrypto/stdlib/cmd/link/internal/ld/testdata/issue26237/b.dir"
 )
 
 var skyx int

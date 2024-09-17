@@ -7,8 +7,8 @@ package main_test
 import (
 	"flag"
 	"go/format"
-	"internal/diff"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/diff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"strings"
 	"testing"

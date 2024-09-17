@@ -19,8 +19,8 @@ import (
 	"strings"
 	"time"
 
-	"cmd/go/internal/gover"
-	"cmd/go/internal/modfetch/codehost"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/modfetch/codehost"
 
 	"golang.org/x/mod/modfile"
 	"golang.org/x/mod/module"

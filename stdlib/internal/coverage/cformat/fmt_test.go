@@ -5,8 +5,8 @@
 package cformat_test
 
 import (
-	"internal/coverage"
-	"internal/coverage/cformat"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/cformat"
 	"slices"
 	"strings"
 	"testing"

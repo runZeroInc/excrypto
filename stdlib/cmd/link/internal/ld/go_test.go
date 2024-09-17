@@ -5,14 +5,14 @@
 package ld
 
 import (
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"path/filepath"
 	"reflect"
 	"runtime"
 	"testing"
 
-	"cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
 )
 
 func TestDedupLibraries(t *testing.T) {

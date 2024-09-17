@@ -5,9 +5,9 @@
 package test
 
 import (
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/test/internal/genflags"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/test/internal/genflags"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"maps"
 	"os"
 	"testing"

@@ -19,7 +19,7 @@ func init() {
 	batchedGetRandom = batched(getRandom, maxGetRandomRead)
 }
 
-var jsCrypto = js.Global().Get("crypto")
+var jsCrypto = js.Global().Get("github.com/runZeroInc/excrypto/stdlib/crypto")
 var uint8Array = js.Global().Get("Uint8Array")
 
 // reader implements a pseudorandom generator

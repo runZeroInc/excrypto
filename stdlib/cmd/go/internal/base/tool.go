@@ -10,8 +10,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"cmd/go/internal/cfg"
-	"cmd/internal/par"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/par"
 )
 
 // Tool returns the path to the named tool (for example, "vet").

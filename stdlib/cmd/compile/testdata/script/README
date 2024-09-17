@@ -40,7 +40,7 @@ On Windows, the variables $USERPROFILE and $TMP are set instead of
 $HOME and $TMPDIR.
 
 The lines at the top of the script are a sequence of commands to be executed by
-a small script engine configured in .../cmd/internal/script/scripttest/run.go (not the system shell).
+a small script engine configured in .../github.com/runZeroInc/excrypto/stdlib/cmd/internal/script/scripttest/run.go (not the system shell).
 
 Each line of a script is parsed into a sequence of space-separated command
 words, with environment variable expansion within each word and # marking

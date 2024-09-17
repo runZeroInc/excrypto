@@ -2,9 +2,9 @@
 
 package ssa
 
-import "internal/buildcfg"
+import "github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 import "math"
-import "cmd/compile/internal/types"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
 
 func rewriteValuePPC64(v *Value) bool {
 	switch v.Op {

@@ -10,29 +10,29 @@ import (
 	"fmt"
 	"go/constant"
 	"html"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 
-	"cmd/compile/internal/abi"
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/liveness"
-	"cmd/compile/internal/objw"
-	"cmd/compile/internal/reflectdata"
-	"cmd/compile/internal/rttype"
-	"cmd/compile/internal/ssa"
-	"cmd/compile/internal/staticdata"
-	"cmd/compile/internal/typecheck"
-	"cmd/compile/internal/types"
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
-	"cmd/internal/src"
-	"cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/liveness"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/objw"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/reflectdata"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/rttype"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssa"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/staticdata"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/typecheck"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
 
-	rtabi "internal/abi"
+	rtabi "github.com/runZeroInc/excrypto/stdlib/internal/abi"
 )
 
 var ssaConfig *ssa.Config
@@ -2035,7 +2035,7 @@ func (s *state) stmt(n ir.Node) {
 		if base.Flag.N == 0 && rtabi.UseInterfaceSwitchCache(Arch.LinkArch.Name) {
 			// Note: we can only use the cache if we have the right atomic load instruction.
 			// Double-check that here.
-			if intrinsics.lookup(Arch.LinkArch.Arch, "internal/runtime/atomic", "Loadp") == nil {
+			if intrinsics.lookup(Arch.LinkArch.Arch, "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Loadp") == nil {
 				s.Fatalf("atomic load not available")
 			}
 			merge = s.f.NewBlock(ssa.BlockPlain)
@@ -5757,7 +5757,7 @@ func (s *state) dottype1(pos src.XPos, src, dst *types.Type, iface, source, targ
 			if base.Flag.N == 0 && rtabi.UseInterfaceSwitchCache(Arch.LinkArch.Name) {
 				// Note: we can only use the cache if we have the right atomic load instruction.
 				// Double-check that here.
-				if intrinsics.lookup(Arch.LinkArch.Arch, "internal/runtime/atomic", "Loadp") == nil {
+				if intrinsics.lookup(Arch.LinkArch.Arch, "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Loadp") == nil {
 					s.Fatalf("atomic load not available")
 				}
 				// Pick right size ops.

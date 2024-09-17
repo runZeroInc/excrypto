@@ -12,9 +12,9 @@ import (
 	"math"
 	"strings"
 
-	"internal/trace/event"
-	"internal/trace/event/go122"
-	"internal/trace/version"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/event"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/event/go122"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/version"
 )
 
 // maxArgs is the maximum number of arguments for "plain" events,

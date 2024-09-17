@@ -19,8 +19,8 @@
 package main
 
 import (
-	"internal/trace/event/go122"
-	testgen "internal/trace/internal/testgen/go122"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/event/go122"
+	testgen "github.com/runZeroInc/excrypto/stdlib/internal/trace/internal/testgen/go122"
 )
 
 func main() {

@@ -15,7 +15,7 @@ import (
 	"io"
 	"strconv"
 
-	"golang.org/x/crypto/blowfish"
+	"github.com/runZeroInc/excrypto/x/crypto/blowfish"
 )
 
 const (

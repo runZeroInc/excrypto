@@ -6,9 +6,9 @@ package main
 
 import "fmt"
 
-// quotedSplit is a verbatim copy from cmd/internal/quoted.go:Split and its
+// quotedSplit is a verbatim copy from github.com/runZeroInc/excrypto/stdlib/cmd/internal/quoted.go:Split and its
 // dependencies (isSpaceByte). Since this package is built using the host's
-// Go compiler, it cannot use `cmd/internal/...`. We also don't want to export
+// Go compiler, it cannot use `github.com/runZeroInc/excrypto/stdlib/cmd/internal/...`. We also don't want to export
 // it to all Go users.
 //
 // Please keep those in sync.

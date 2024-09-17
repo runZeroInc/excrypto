@@ -7,8 +7,8 @@
 package os
 
 import (
-	"internal/byteorder"
-	"internal/goarch"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goarch"
 	"io"
 	"runtime"
 	"sync"

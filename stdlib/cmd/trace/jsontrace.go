@@ -13,8 +13,8 @@ import (
 	"strconv"
 	"time"
 
-	"internal/trace"
-	"internal/trace/traceviewer"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/traceviewer"
 )
 
 func JSONTraceHandler(parsed *parsedTrace) http.Handler {

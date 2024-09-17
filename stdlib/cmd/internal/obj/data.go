@@ -32,7 +32,7 @@
 package obj
 
 import (
-	"cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
 	"log"
 	"math"
 )

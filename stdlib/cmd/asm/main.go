@@ -8,19 +8,19 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"log"
 	"os"
 
-	"cmd/asm/internal/arch"
-	"cmd/asm/internal/asm"
-	"cmd/asm/internal/flags"
-	"cmd/asm/internal/lex"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm/internal/arch"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm/internal/asm"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm/internal/flags"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/asm/internal/lex"
 
-	"cmd/internal/bio"
-	"cmd/internal/obj"
-	"cmd/internal/objabi"
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/bio"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/objabi"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 )
 
 func main() {

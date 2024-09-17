@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // Package gcimporter implements Import for gc-generated object files.
-package gcimporter // import "go/internal/gcimporter"
+package gcimporter // import "github.com/runZeroInc/excrypto/stdlib/go/internal/gcimporter"
 
 import (
 	"bufio"
@@ -13,8 +13,8 @@ import (
 	"go/build"
 	"go/token"
 	"go/types"
-	"internal/pkgbits"
-	"internal/saferio"
+	"github.com/runZeroInc/excrypto/stdlib/internal/pkgbits"
+	"github.com/runZeroInc/excrypto/stdlib/internal/saferio"
 	"io"
 	"os"
 	"os/exec"

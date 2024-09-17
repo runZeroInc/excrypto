@@ -6,7 +6,7 @@
 
 package runtime
 
-import "internal/cpu"
+import "github.com/runZeroInc/excrypto/stdlib/internal/cpu"
 
 func archauxv(tag, val uintptr) {
 	switch tag {

@@ -14,7 +14,7 @@ import (
 	"go/scanner"
 	"go/token"
 	"go/version"
-	"internal/diff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/diff"
 	"io"
 	"io/fs"
 	"os"
@@ -22,7 +22,7 @@ import (
 	"slices"
 	"strings"
 
-	"cmd/internal/telemetry/counter"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/telemetry/counter"
 )
 
 var (

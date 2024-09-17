@@ -10,9 +10,9 @@
 package runtime_test
 
 import (
-	"internal/abi"
-	"internal/runtime/atomic"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"runtime"

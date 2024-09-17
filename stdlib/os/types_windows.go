@@ -5,9 +5,9 @@
 package os
 
 import (
-	"internal/filepathlite"
-	"internal/godebug"
-	"internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/filepathlite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
 	"sync"
 	"syscall"
 	"time"

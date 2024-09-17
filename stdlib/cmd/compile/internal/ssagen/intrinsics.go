@@ -6,13 +6,13 @@ package ssagen
 
 import (
 	"fmt"
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/ir"
-	"cmd/compile/internal/ssa"
-	"cmd/compile/internal/types"
-	"cmd/internal/sys"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ir"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssa"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/types"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/sys"
 )
 
 var intrinsics intrinsicBuilders
@@ -141,7 +141,7 @@ func initIntrinsics(cfg *intrinsicBuildConfig) {
 			},
 			all...)
 	}
-	addF("internal/runtime/math", "MulUintptr",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/math", "MulUintptr",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			if s.config.PtrSize == 4 {
 				return s.newValue2(ssa.OpMul32uover, types.NewTuple(types.Types[types.TUINT], types.Types[types.TUINT]), args[0], args[1])
@@ -188,12 +188,12 @@ func initIntrinsics(cfg *intrinsicBuildConfig) {
 		brev_arch = append(brev_arch, sys.PPC64)
 	}
 	/******** internal/runtime/sys ********/
-	addF("internal/runtime/sys", "Bswap32",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys", "Bswap32",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			return s.newValue1(ssa.OpBswap32, types.Types[types.TUINT32], args[0])
 		},
 		brev_arch...)
-	addF("internal/runtime/sys", "Bswap64",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys", "Bswap64",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			return s.newValue1(ssa.OpBswap64, types.Types[types.TUINT64], args[0])
 		},
@@ -209,48 +209,48 @@ func initIntrinsics(cfg *intrinsicBuildConfig) {
 
 	// Make Prefetch intrinsics for supported platforms
 	// On the unsupported platforms stub function will be eliminated
-	addF("internal/runtime/sys", "Prefetch", makePrefetchFunc(ssa.OpPrefetchCache),
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys", "Prefetch", makePrefetchFunc(ssa.OpPrefetchCache),
 		sys.AMD64, sys.ARM64, sys.PPC64)
-	addF("internal/runtime/sys", "PrefetchStreamed", makePrefetchFunc(ssa.OpPrefetchCacheStreamed),
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys", "PrefetchStreamed", makePrefetchFunc(ssa.OpPrefetchCacheStreamed),
 		sys.AMD64, sys.ARM64, sys.PPC64)
 
 	/******** internal/runtime/atomic ********/
-	addF("internal/runtime/atomic", "Load",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Load",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			v := s.newValue2(ssa.OpAtomicLoad32, types.NewTuple(types.Types[types.TUINT32], types.TypeMem), args[0], s.mem())
 			s.vars[memVar] = s.newValue1(ssa.OpSelect1, types.TypeMem, v)
 			return s.newValue1(ssa.OpSelect0, types.Types[types.TUINT32], v)
 		},
 		sys.AMD64, sys.ARM64, sys.Loong64, sys.MIPS, sys.MIPS64, sys.PPC64, sys.RISCV64, sys.S390X)
-	addF("internal/runtime/atomic", "Load8",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Load8",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			v := s.newValue2(ssa.OpAtomicLoad8, types.NewTuple(types.Types[types.TUINT8], types.TypeMem), args[0], s.mem())
 			s.vars[memVar] = s.newValue1(ssa.OpSelect1, types.TypeMem, v)
 			return s.newValue1(ssa.OpSelect0, types.Types[types.TUINT8], v)
 		},
 		sys.AMD64, sys.ARM64, sys.Loong64, sys.MIPS, sys.MIPS64, sys.PPC64, sys.RISCV64, sys.S390X)
-	addF("internal/runtime/atomic", "Load64",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Load64",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			v := s.newValue2(ssa.OpAtomicLoad64, types.NewTuple(types.Types[types.TUINT64], types.TypeMem), args[0], s.mem())
 			s.vars[memVar] = s.newValue1(ssa.OpSelect1, types.TypeMem, v)
 			return s.newValue1(ssa.OpSelect0, types.Types[types.TUINT64], v)
 		},
 		sys.AMD64, sys.ARM64, sys.Loong64, sys.MIPS64, sys.PPC64, sys.RISCV64, sys.S390X)
-	addF("internal/runtime/atomic", "LoadAcq",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "LoadAcq",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			v := s.newValue2(ssa.OpAtomicLoadAcq32, types.NewTuple(types.Types[types.TUINT32], types.TypeMem), args[0], s.mem())
 			s.vars[memVar] = s.newValue1(ssa.OpSelect1, types.TypeMem, v)
 			return s.newValue1(ssa.OpSelect0, types.Types[types.TUINT32], v)
 		},
 		sys.PPC64)
-	addF("internal/runtime/atomic", "LoadAcq64",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "LoadAcq64",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			v := s.newValue2(ssa.OpAtomicLoadAcq64, types.NewTuple(types.Types[types.TUINT64], types.TypeMem), args[0], s.mem())
 			s.vars[memVar] = s.newValue1(ssa.OpSelect1, types.TypeMem, v)
 			return s.newValue1(ssa.OpSelect0, types.Types[types.TUINT64], v)
 		},
 		sys.PPC64)
-	addF("internal/runtime/atomic", "Loadp",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Loadp",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			v := s.newValue2(ssa.OpAtomicLoadPtr, types.NewTuple(s.f.Config.Types.BytePtr, types.TypeMem), args[0], s.mem())
 			s.vars[memVar] = s.newValue1(ssa.OpSelect1, types.TypeMem, v)
@@ -258,51 +258,51 @@ func initIntrinsics(cfg *intrinsicBuildConfig) {
 		},
 		sys.AMD64, sys.ARM64, sys.Loong64, sys.MIPS, sys.MIPS64, sys.PPC64, sys.RISCV64, sys.S390X)
 
-	addF("internal/runtime/atomic", "Store",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Store",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			s.vars[memVar] = s.newValue3(ssa.OpAtomicStore32, types.TypeMem, args[0], args[1], s.mem())
 			return nil
 		},
 		sys.AMD64, sys.ARM64, sys.Loong64, sys.MIPS, sys.MIPS64, sys.PPC64, sys.RISCV64, sys.S390X)
-	addF("internal/runtime/atomic", "Store8",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Store8",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			s.vars[memVar] = s.newValue3(ssa.OpAtomicStore8, types.TypeMem, args[0], args[1], s.mem())
 			return nil
 		},
 		sys.AMD64, sys.ARM64, sys.Loong64, sys.MIPS, sys.MIPS64, sys.PPC64, sys.RISCV64, sys.S390X)
-	addF("internal/runtime/atomic", "Store64",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Store64",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			s.vars[memVar] = s.newValue3(ssa.OpAtomicStore64, types.TypeMem, args[0], args[1], s.mem())
 			return nil
 		},
 		sys.AMD64, sys.ARM64, sys.Loong64, sys.MIPS64, sys.PPC64, sys.RISCV64, sys.S390X)
-	addF("internal/runtime/atomic", "StorepNoWB",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "StorepNoWB",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			s.vars[memVar] = s.newValue3(ssa.OpAtomicStorePtrNoWB, types.TypeMem, args[0], args[1], s.mem())
 			return nil
 		},
 		sys.AMD64, sys.ARM64, sys.Loong64, sys.MIPS, sys.MIPS64, sys.RISCV64, sys.S390X)
-	addF("internal/runtime/atomic", "StoreRel",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "StoreRel",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			s.vars[memVar] = s.newValue3(ssa.OpAtomicStoreRel32, types.TypeMem, args[0], args[1], s.mem())
 			return nil
 		},
 		sys.PPC64)
-	addF("internal/runtime/atomic", "StoreRel64",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "StoreRel64",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			s.vars[memVar] = s.newValue3(ssa.OpAtomicStoreRel64, types.TypeMem, args[0], args[1], s.mem())
 			return nil
 		},
 		sys.PPC64)
 
-	addF("internal/runtime/atomic", "Xchg",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchg",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			v := s.newValue3(ssa.OpAtomicExchange32, types.NewTuple(types.Types[types.TUINT32], types.TypeMem), args[0], args[1], s.mem())
 			s.vars[memVar] = s.newValue1(ssa.OpSelect1, types.TypeMem, v)
 			return s.newValue1(ssa.OpSelect0, types.Types[types.TUINT32], v)
 		},
 		sys.AMD64, sys.Loong64, sys.MIPS, sys.MIPS64, sys.PPC64, sys.RISCV64, sys.S390X)
-	addF("internal/runtime/atomic", "Xchg64",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchg64",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			v := s.newValue3(ssa.OpAtomicExchange64, types.NewTuple(types.Types[types.TUINT64], types.TypeMem), args[0], args[1], s.mem())
 			s.vars[memVar] = s.newValue1(ssa.OpSelect1, types.TypeMem, v)
@@ -365,21 +365,21 @@ func initIntrinsics(cfg *intrinsicBuildConfig) {
 			s.vars[n] = s.newValue1(ssa.OpSelect0, types.Types[typ], v)
 		}
 	}
-	addF("internal/runtime/atomic", "Xchg",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchg",
 		makeAtomicGuardedIntrinsicARM64(ssa.OpAtomicExchange32, ssa.OpAtomicExchange32Variant, types.TUINT32, atomicEmitterARM64),
 		sys.ARM64)
-	addF("internal/runtime/atomic", "Xchg64",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchg64",
 		makeAtomicGuardedIntrinsicARM64(ssa.OpAtomicExchange64, ssa.OpAtomicExchange64Variant, types.TUINT64, atomicEmitterARM64),
 		sys.ARM64)
 
-	addF("internal/runtime/atomic", "Xadd",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xadd",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			v := s.newValue3(ssa.OpAtomicAdd32, types.NewTuple(types.Types[types.TUINT32], types.TypeMem), args[0], args[1], s.mem())
 			s.vars[memVar] = s.newValue1(ssa.OpSelect1, types.TypeMem, v)
 			return s.newValue1(ssa.OpSelect0, types.Types[types.TUINT32], v)
 		},
 		sys.AMD64, sys.Loong64, sys.MIPS, sys.MIPS64, sys.PPC64, sys.RISCV64, sys.S390X)
-	addF("internal/runtime/atomic", "Xadd64",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xadd64",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			v := s.newValue3(ssa.OpAtomicAdd64, types.NewTuple(types.Types[types.TUINT64], types.TypeMem), args[0], args[1], s.mem())
 			s.vars[memVar] = s.newValue1(ssa.OpSelect1, types.TypeMem, v)
@@ -387,28 +387,28 @@ func initIntrinsics(cfg *intrinsicBuildConfig) {
 		},
 		sys.AMD64, sys.Loong64, sys.MIPS64, sys.PPC64, sys.RISCV64, sys.S390X)
 
-	addF("internal/runtime/atomic", "Xadd",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xadd",
 		makeAtomicGuardedIntrinsicARM64(ssa.OpAtomicAdd32, ssa.OpAtomicAdd32Variant, types.TUINT32, atomicEmitterARM64),
 		sys.ARM64)
-	addF("internal/runtime/atomic", "Xadd64",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xadd64",
 		makeAtomicGuardedIntrinsicARM64(ssa.OpAtomicAdd64, ssa.OpAtomicAdd64Variant, types.TUINT64, atomicEmitterARM64),
 		sys.ARM64)
 
-	addF("internal/runtime/atomic", "Cas",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Cas",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			v := s.newValue4(ssa.OpAtomicCompareAndSwap32, types.NewTuple(types.Types[types.TBOOL], types.TypeMem), args[0], args[1], args[2], s.mem())
 			s.vars[memVar] = s.newValue1(ssa.OpSelect1, types.TypeMem, v)
 			return s.newValue1(ssa.OpSelect0, types.Types[types.TBOOL], v)
 		},
 		sys.AMD64, sys.Loong64, sys.MIPS, sys.MIPS64, sys.PPC64, sys.RISCV64, sys.S390X)
-	addF("internal/runtime/atomic", "Cas64",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Cas64",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			v := s.newValue4(ssa.OpAtomicCompareAndSwap64, types.NewTuple(types.Types[types.TBOOL], types.TypeMem), args[0], args[1], args[2], s.mem())
 			s.vars[memVar] = s.newValue1(ssa.OpSelect1, types.TypeMem, v)
 			return s.newValue1(ssa.OpSelect0, types.Types[types.TBOOL], v)
 		},
 		sys.AMD64, sys.Loong64, sys.MIPS64, sys.PPC64, sys.RISCV64, sys.S390X)
-	addF("internal/runtime/atomic", "CasRel",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "CasRel",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			v := s.newValue4(ssa.OpAtomicCompareAndSwap32, types.NewTuple(types.Types[types.TBOOL], types.TypeMem), args[0], args[1], args[2], s.mem())
 			s.vars[memVar] = s.newValue1(ssa.OpSelect1, types.TypeMem, v)
@@ -424,33 +424,33 @@ func initIntrinsics(cfg *intrinsicBuildConfig) {
 		}
 	}
 
-	addF("internal/runtime/atomic", "Cas",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Cas",
 		makeAtomicGuardedIntrinsicARM64(ssa.OpAtomicCompareAndSwap32, ssa.OpAtomicCompareAndSwap32Variant, types.TBOOL, atomicCasEmitterARM64),
 		sys.ARM64)
-	addF("internal/runtime/atomic", "Cas64",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Cas64",
 		makeAtomicGuardedIntrinsicARM64(ssa.OpAtomicCompareAndSwap64, ssa.OpAtomicCompareAndSwap64Variant, types.TBOOL, atomicCasEmitterARM64),
 		sys.ARM64)
 
 	// Old-style atomic logical operation API (all supported archs except arm64).
-	addF("internal/runtime/atomic", "And8",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "And8",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			s.vars[memVar] = s.newValue3(ssa.OpAtomicAnd8, types.TypeMem, args[0], args[1], s.mem())
 			return nil
 		},
 		sys.AMD64, sys.MIPS, sys.MIPS64, sys.PPC64, sys.RISCV64, sys.S390X)
-	addF("internal/runtime/atomic", "And",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "And",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			s.vars[memVar] = s.newValue3(ssa.OpAtomicAnd32, types.TypeMem, args[0], args[1], s.mem())
 			return nil
 		},
 		sys.AMD64, sys.MIPS, sys.MIPS64, sys.PPC64, sys.RISCV64, sys.S390X)
-	addF("internal/runtime/atomic", "Or8",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Or8",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			s.vars[memVar] = s.newValue3(ssa.OpAtomicOr8, types.TypeMem, args[0], args[1], s.mem())
 			return nil
 		},
 		sys.AMD64, sys.MIPS, sys.MIPS64, sys.PPC64, sys.RISCV64, sys.S390X)
-	addF("internal/runtime/atomic", "Or",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Or",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			s.vars[memVar] = s.newValue3(ssa.OpAtomicOr32, types.TypeMem, args[0], args[1], s.mem())
 			return nil
@@ -459,33 +459,33 @@ func initIntrinsics(cfg *intrinsicBuildConfig) {
 
 	// arm64 always uses the new-style atomic logical operations, for both the
 	// old and new style API.
-	addF("internal/runtime/atomic", "And8",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "And8",
 		makeAtomicGuardedIntrinsicARM64old(ssa.OpAtomicAnd8value, ssa.OpAtomicAnd8valueVariant, types.TUINT8, atomicEmitterARM64),
 		sys.ARM64)
-	addF("internal/runtime/atomic", "Or8",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Or8",
 		makeAtomicGuardedIntrinsicARM64old(ssa.OpAtomicOr8value, ssa.OpAtomicOr8valueVariant, types.TUINT8, atomicEmitterARM64),
 		sys.ARM64)
-	addF("internal/runtime/atomic", "And64",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "And64",
 		makeAtomicGuardedIntrinsicARM64(ssa.OpAtomicAnd64value, ssa.OpAtomicAnd64valueVariant, types.TUINT64, atomicEmitterARM64),
 		sys.ARM64)
-	addF("internal/runtime/atomic", "And32",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "And32",
 		makeAtomicGuardedIntrinsicARM64(ssa.OpAtomicAnd32value, ssa.OpAtomicAnd32valueVariant, types.TUINT32, atomicEmitterARM64),
 		sys.ARM64)
-	addF("internal/runtime/atomic", "And",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "And",
 		makeAtomicGuardedIntrinsicARM64old(ssa.OpAtomicAnd32value, ssa.OpAtomicAnd32valueVariant, types.TUINT32, atomicEmitterARM64),
 		sys.ARM64)
-	addF("internal/runtime/atomic", "Or64",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Or64",
 		makeAtomicGuardedIntrinsicARM64(ssa.OpAtomicOr64value, ssa.OpAtomicOr64valueVariant, types.TUINT64, atomicEmitterARM64),
 		sys.ARM64)
-	addF("internal/runtime/atomic", "Or32",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Or32",
 		makeAtomicGuardedIntrinsicARM64(ssa.OpAtomicOr32value, ssa.OpAtomicOr32valueVariant, types.TUINT32, atomicEmitterARM64),
 		sys.ARM64)
-	addF("internal/runtime/atomic", "Or",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Or",
 		makeAtomicGuardedIntrinsicARM64old(ssa.OpAtomicOr32value, ssa.OpAtomicOr32valueVariant, types.TUINT32, atomicEmitterARM64),
 		sys.ARM64)
 
 	// New-style atomic logical operations, which return the old memory value.
-	addF("internal/runtime/atomic", "And64",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "And64",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			v := s.newValue3(ssa.OpAtomicAnd64value, types.NewTuple(types.Types[types.TUINT64], types.TypeMem), args[0], args[1], s.mem())
 			p0, p1 := s.split(v)
@@ -493,7 +493,7 @@ func initIntrinsics(cfg *intrinsicBuildConfig) {
 			return p0
 		},
 		sys.AMD64)
-	addF("internal/runtime/atomic", "And32",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "And32",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			v := s.newValue3(ssa.OpAtomicAnd32value, types.NewTuple(types.Types[types.TUINT32], types.TypeMem), args[0], args[1], s.mem())
 			p0, p1 := s.split(v)
@@ -501,7 +501,7 @@ func initIntrinsics(cfg *intrinsicBuildConfig) {
 			return p0
 		},
 		sys.AMD64)
-	addF("internal/runtime/atomic", "Or64",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Or64",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			v := s.newValue3(ssa.OpAtomicOr64value, types.NewTuple(types.Types[types.TUINT64], types.TypeMem), args[0], args[1], s.mem())
 			p0, p1 := s.split(v)
@@ -509,7 +509,7 @@ func initIntrinsics(cfg *intrinsicBuildConfig) {
 			return p0
 		},
 		sys.AMD64)
-	addF("internal/runtime/atomic", "Or32",
+	addF("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Or32",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			v := s.newValue3(ssa.OpAtomicOr32value, types.NewTuple(types.Types[types.TUINT32], types.TypeMem), args[0], args[1], s.mem())
 			p0, p1 := s.split(v)
@@ -519,55 +519,55 @@ func initIntrinsics(cfg *intrinsicBuildConfig) {
 		sys.AMD64)
 
 	// Aliases for atomic load operations
-	alias("internal/runtime/atomic", "Loadint32", "internal/runtime/atomic", "Load", all...)
-	alias("internal/runtime/atomic", "Loadint64", "internal/runtime/atomic", "Load64", all...)
-	alias("internal/runtime/atomic", "Loaduintptr", "internal/runtime/atomic", "Load", p4...)
-	alias("internal/runtime/atomic", "Loaduintptr", "internal/runtime/atomic", "Load64", p8...)
-	alias("internal/runtime/atomic", "Loaduint", "internal/runtime/atomic", "Load", p4...)
-	alias("internal/runtime/atomic", "Loaduint", "internal/runtime/atomic", "Load64", p8...)
-	alias("internal/runtime/atomic", "LoadAcq", "internal/runtime/atomic", "Load", lwatomics...)
-	alias("internal/runtime/atomic", "LoadAcq64", "internal/runtime/atomic", "Load64", lwatomics...)
-	alias("internal/runtime/atomic", "LoadAcquintptr", "internal/runtime/atomic", "LoadAcq", p4...)
-	alias("sync", "runtime_LoadAcquintptr", "internal/runtime/atomic", "LoadAcq", p4...) // linknamed
-	alias("internal/runtime/atomic", "LoadAcquintptr", "internal/runtime/atomic", "LoadAcq64", p8...)
-	alias("sync", "runtime_LoadAcquintptr", "internal/runtime/atomic", "LoadAcq64", p8...) // linknamed
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Loadint32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Load", all...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Loadint64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Load64", all...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Loaduintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Load", p4...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Loaduintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Load64", p8...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Loaduint", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Load", p4...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Loaduint", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Load64", p8...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "LoadAcq", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Load", lwatomics...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "LoadAcq64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Load64", lwatomics...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "LoadAcquintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "LoadAcq", p4...)
+	alias("sync", "runtime_LoadAcquintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "LoadAcq", p4...) // linknamed
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "LoadAcquintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "LoadAcq64", p8...)
+	alias("sync", "runtime_LoadAcquintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "LoadAcq64", p8...) // linknamed
 
 	// Aliases for atomic store operations
-	alias("internal/runtime/atomic", "Storeint32", "internal/runtime/atomic", "Store", all...)
-	alias("internal/runtime/atomic", "Storeint64", "internal/runtime/atomic", "Store64", all...)
-	alias("internal/runtime/atomic", "Storeuintptr", "internal/runtime/atomic", "Store", p4...)
-	alias("internal/runtime/atomic", "Storeuintptr", "internal/runtime/atomic", "Store64", p8...)
-	alias("internal/runtime/atomic", "StoreRel", "internal/runtime/atomic", "Store", lwatomics...)
-	alias("internal/runtime/atomic", "StoreRel64", "internal/runtime/atomic", "Store64", lwatomics...)
-	alias("internal/runtime/atomic", "StoreReluintptr", "internal/runtime/atomic", "StoreRel", p4...)
-	alias("sync", "runtime_StoreReluintptr", "internal/runtime/atomic", "StoreRel", p4...) // linknamed
-	alias("internal/runtime/atomic", "StoreReluintptr", "internal/runtime/atomic", "StoreRel64", p8...)
-	alias("sync", "runtime_StoreReluintptr", "internal/runtime/atomic", "StoreRel64", p8...) // linknamed
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Storeint32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Store", all...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Storeint64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Store64", all...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Storeuintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Store", p4...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Storeuintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Store64", p8...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "StoreRel", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Store", lwatomics...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "StoreRel64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Store64", lwatomics...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "StoreReluintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "StoreRel", p4...)
+	alias("sync", "runtime_StoreReluintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "StoreRel", p4...) // linknamed
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "StoreReluintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "StoreRel64", p8...)
+	alias("sync", "runtime_StoreReluintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "StoreRel64", p8...) // linknamed
 
 	// Aliases for atomic swap operations
-	alias("internal/runtime/atomic", "Xchgint32", "internal/runtime/atomic", "Xchg", all...)
-	alias("internal/runtime/atomic", "Xchgint64", "internal/runtime/atomic", "Xchg64", all...)
-	alias("internal/runtime/atomic", "Xchguintptr", "internal/runtime/atomic", "Xchg", p4...)
-	alias("internal/runtime/atomic", "Xchguintptr", "internal/runtime/atomic", "Xchg64", p8...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchgint32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchg", all...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchgint64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchg64", all...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchguintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchg", p4...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchguintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchg64", p8...)
 
 	// Aliases for atomic add operations
-	alias("internal/runtime/atomic", "Xaddint32", "internal/runtime/atomic", "Xadd", all...)
-	alias("internal/runtime/atomic", "Xaddint64", "internal/runtime/atomic", "Xadd64", all...)
-	alias("internal/runtime/atomic", "Xadduintptr", "internal/runtime/atomic", "Xadd", p4...)
-	alias("internal/runtime/atomic", "Xadduintptr", "internal/runtime/atomic", "Xadd64", p8...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xaddint32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xadd", all...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xaddint64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xadd64", all...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xadduintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xadd", p4...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xadduintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xadd64", p8...)
 
 	// Aliases for atomic CAS operations
-	alias("internal/runtime/atomic", "Casint32", "internal/runtime/atomic", "Cas", all...)
-	alias("internal/runtime/atomic", "Casint64", "internal/runtime/atomic", "Cas64", all...)
-	alias("internal/runtime/atomic", "Casuintptr", "internal/runtime/atomic", "Cas", p4...)
-	alias("internal/runtime/atomic", "Casuintptr", "internal/runtime/atomic", "Cas64", p8...)
-	alias("internal/runtime/atomic", "Casp1", "internal/runtime/atomic", "Cas", p4...)
-	alias("internal/runtime/atomic", "Casp1", "internal/runtime/atomic", "Cas64", p8...)
-	alias("internal/runtime/atomic", "CasRel", "internal/runtime/atomic", "Cas", lwatomics...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Casint32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Cas", all...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Casint64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Cas64", all...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Casuintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Cas", p4...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Casuintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Cas64", p8...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Casp1", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Cas", p4...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Casp1", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Cas64", p8...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "CasRel", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Cas", lwatomics...)
 
 	// Aliases for atomic And/Or operations
-	alias("internal/runtime/atomic", "Anduintptr", "internal/runtime/atomic", "And64", sys.ArchARM64)
-	alias("internal/runtime/atomic", "Oruintptr", "internal/runtime/atomic", "Or64", sys.ArchARM64)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Anduintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "And64", sys.ArchARM64)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Oruintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Or64", sys.ArchARM64)
 
 	/******** math ********/
 	addF("math", "sqrt",
@@ -784,8 +784,8 @@ func initIntrinsics(cfg *intrinsicBuildConfig) {
 			return s.newValue1(ssa.OpCtz64, types.Types[types.TINT], y)
 		},
 		sys.S390X)
-	alias("math/bits", "ReverseBytes64", "internal/runtime/sys", "Bswap64", all...)
-	alias("math/bits", "ReverseBytes32", "internal/runtime/sys", "Bswap32", all...)
+	alias("math/bits", "ReverseBytes64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys", "Bswap64", all...)
+	alias("math/bits", "ReverseBytes32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys", "Bswap32", all...)
 	// ReverseBytes inlines correctly, no need to intrinsify it.
 	// Nothing special is needed for targets where ReverseBytes16 lowers to a rotate
 	// On Power10, 16-bit rotate is not available so use BRH instruction
@@ -972,14 +972,14 @@ func initIntrinsics(cfg *intrinsicBuildConfig) {
 		},
 		sys.AMD64, sys.ARM64, sys.PPC64, sys.S390X, sys.MIPS64, sys.RISCV64, sys.Loong64)
 	alias("math/bits", "Mul", "math/bits", "Mul64", p8...)
-	alias("internal/runtime/math", "Mul64", "math/bits", "Mul64", p8...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/math", "Mul64", "math/bits", "Mul64", p8...)
 	addF("math/bits", "Add64",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			return s.newValue3(ssa.OpAdd64carry, types.NewTuple(types.Types[types.TUINT64], types.Types[types.TUINT64]), args[0], args[1], args[2])
 		},
 		sys.AMD64, sys.ARM64, sys.PPC64, sys.S390X, sys.RISCV64, sys.Loong64, sys.MIPS64)
 	alias("math/bits", "Add", "math/bits", "Add64", p8...)
-	alias("internal/runtime/math", "Add64", "math/bits", "Add64", all...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/math", "Add64", "math/bits", "Add64", all...)
 	addF("math/bits", "Sub64",
 		func(s *state, n *ir.CallExpr, args []*ssa.Value) *ssa.Value {
 			return s.newValue3(ssa.OpSub64borrow, types.NewTuple(types.Types[types.TUINT64], types.Types[types.TUINT64]), args[0], args[1], args[2])
@@ -998,63 +998,63 @@ func initIntrinsics(cfg *intrinsicBuildConfig) {
 		sys.AMD64)
 	alias("math/bits", "Div", "math/bits", "Div64", sys.ArchAMD64)
 
-	alias("internal/runtime/sys", "TrailingZeros8", "math/bits", "TrailingZeros8", all...)
-	alias("internal/runtime/sys", "TrailingZeros32", "math/bits", "TrailingZeros32", all...)
-	alias("internal/runtime/sys", "TrailingZeros64", "math/bits", "TrailingZeros64", all...)
-	alias("internal/runtime/sys", "Len8", "math/bits", "Len8", all...)
-	alias("internal/runtime/sys", "Len64", "math/bits", "Len64", all...)
-	alias("internal/runtime/sys", "OnesCount64", "math/bits", "OnesCount64", all...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys", "TrailingZeros8", "math/bits", "TrailingZeros8", all...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys", "TrailingZeros32", "math/bits", "TrailingZeros32", all...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys", "TrailingZeros64", "math/bits", "TrailingZeros64", all...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys", "Len8", "math/bits", "Len8", all...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys", "Len64", "math/bits", "Len64", all...)
+	alias("github.com/runZeroInc/excrypto/stdlib/internal/runtime/sys", "OnesCount64", "math/bits", "OnesCount64", all...)
 
 	/******** sync/atomic ********/
 
 	// Note: these are disabled by flag_race in findIntrinsic below.
-	alias("sync/atomic", "LoadInt32", "internal/runtime/atomic", "Load", all...)
-	alias("sync/atomic", "LoadInt64", "internal/runtime/atomic", "Load64", all...)
-	alias("sync/atomic", "LoadPointer", "internal/runtime/atomic", "Loadp", all...)
-	alias("sync/atomic", "LoadUint32", "internal/runtime/atomic", "Load", all...)
-	alias("sync/atomic", "LoadUint64", "internal/runtime/atomic", "Load64", all...)
-	alias("sync/atomic", "LoadUintptr", "internal/runtime/atomic", "Load", p4...)
-	alias("sync/atomic", "LoadUintptr", "internal/runtime/atomic", "Load64", p8...)
+	alias("sync/atomic", "LoadInt32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Load", all...)
+	alias("sync/atomic", "LoadInt64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Load64", all...)
+	alias("sync/atomic", "LoadPointer", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Loadp", all...)
+	alias("sync/atomic", "LoadUint32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Load", all...)
+	alias("sync/atomic", "LoadUint64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Load64", all...)
+	alias("sync/atomic", "LoadUintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Load", p4...)
+	alias("sync/atomic", "LoadUintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Load64", p8...)
 
-	alias("sync/atomic", "StoreInt32", "internal/runtime/atomic", "Store", all...)
-	alias("sync/atomic", "StoreInt64", "internal/runtime/atomic", "Store64", all...)
+	alias("sync/atomic", "StoreInt32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Store", all...)
+	alias("sync/atomic", "StoreInt64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Store64", all...)
 	// Note: not StorePointer, that needs a write barrier.  Same below for {CompareAnd}Swap.
-	alias("sync/atomic", "StoreUint32", "internal/runtime/atomic", "Store", all...)
-	alias("sync/atomic", "StoreUint64", "internal/runtime/atomic", "Store64", all...)
-	alias("sync/atomic", "StoreUintptr", "internal/runtime/atomic", "Store", p4...)
-	alias("sync/atomic", "StoreUintptr", "internal/runtime/atomic", "Store64", p8...)
+	alias("sync/atomic", "StoreUint32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Store", all...)
+	alias("sync/atomic", "StoreUint64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Store64", all...)
+	alias("sync/atomic", "StoreUintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Store", p4...)
+	alias("sync/atomic", "StoreUintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Store64", p8...)
 
-	alias("sync/atomic", "SwapInt32", "internal/runtime/atomic", "Xchg", all...)
-	alias("sync/atomic", "SwapInt64", "internal/runtime/atomic", "Xchg64", all...)
-	alias("sync/atomic", "SwapUint32", "internal/runtime/atomic", "Xchg", all...)
-	alias("sync/atomic", "SwapUint64", "internal/runtime/atomic", "Xchg64", all...)
-	alias("sync/atomic", "SwapUintptr", "internal/runtime/atomic", "Xchg", p4...)
-	alias("sync/atomic", "SwapUintptr", "internal/runtime/atomic", "Xchg64", p8...)
+	alias("sync/atomic", "SwapInt32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchg", all...)
+	alias("sync/atomic", "SwapInt64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchg64", all...)
+	alias("sync/atomic", "SwapUint32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchg", all...)
+	alias("sync/atomic", "SwapUint64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchg64", all...)
+	alias("sync/atomic", "SwapUintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchg", p4...)
+	alias("sync/atomic", "SwapUintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xchg64", p8...)
 
-	alias("sync/atomic", "CompareAndSwapInt32", "internal/runtime/atomic", "Cas", all...)
-	alias("sync/atomic", "CompareAndSwapInt64", "internal/runtime/atomic", "Cas64", all...)
-	alias("sync/atomic", "CompareAndSwapUint32", "internal/runtime/atomic", "Cas", all...)
-	alias("sync/atomic", "CompareAndSwapUint64", "internal/runtime/atomic", "Cas64", all...)
-	alias("sync/atomic", "CompareAndSwapUintptr", "internal/runtime/atomic", "Cas", p4...)
-	alias("sync/atomic", "CompareAndSwapUintptr", "internal/runtime/atomic", "Cas64", p8...)
+	alias("sync/atomic", "CompareAndSwapInt32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Cas", all...)
+	alias("sync/atomic", "CompareAndSwapInt64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Cas64", all...)
+	alias("sync/atomic", "CompareAndSwapUint32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Cas", all...)
+	alias("sync/atomic", "CompareAndSwapUint64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Cas64", all...)
+	alias("sync/atomic", "CompareAndSwapUintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Cas", p4...)
+	alias("sync/atomic", "CompareAndSwapUintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Cas64", p8...)
 
-	alias("sync/atomic", "AddInt32", "internal/runtime/atomic", "Xadd", all...)
-	alias("sync/atomic", "AddInt64", "internal/runtime/atomic", "Xadd64", all...)
-	alias("sync/atomic", "AddUint32", "internal/runtime/atomic", "Xadd", all...)
-	alias("sync/atomic", "AddUint64", "internal/runtime/atomic", "Xadd64", all...)
-	alias("sync/atomic", "AddUintptr", "internal/runtime/atomic", "Xadd", p4...)
-	alias("sync/atomic", "AddUintptr", "internal/runtime/atomic", "Xadd64", p8...)
+	alias("sync/atomic", "AddInt32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xadd", all...)
+	alias("sync/atomic", "AddInt64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xadd64", all...)
+	alias("sync/atomic", "AddUint32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xadd", all...)
+	alias("sync/atomic", "AddUint64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xadd64", all...)
+	alias("sync/atomic", "AddUintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xadd", p4...)
+	alias("sync/atomic", "AddUintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Xadd64", p8...)
 
-	alias("sync/atomic", "AndInt32", "internal/runtime/atomic", "And32", sys.ArchARM64, sys.ArchAMD64)
-	alias("sync/atomic", "AndUint32", "internal/runtime/atomic", "And32", sys.ArchARM64, sys.ArchAMD64)
-	alias("sync/atomic", "AndInt64", "internal/runtime/atomic", "And64", sys.ArchARM64, sys.ArchAMD64)
-	alias("sync/atomic", "AndUint64", "internal/runtime/atomic", "And64", sys.ArchARM64, sys.ArchAMD64)
-	alias("sync/atomic", "AndUintptr", "internal/runtime/atomic", "And64", sys.ArchARM64, sys.ArchAMD64)
-	alias("sync/atomic", "OrInt32", "internal/runtime/atomic", "Or32", sys.ArchARM64, sys.ArchAMD64)
-	alias("sync/atomic", "OrUint32", "internal/runtime/atomic", "Or32", sys.ArchARM64, sys.ArchAMD64)
-	alias("sync/atomic", "OrInt64", "internal/runtime/atomic", "Or64", sys.ArchARM64, sys.ArchAMD64)
-	alias("sync/atomic", "OrUint64", "internal/runtime/atomic", "Or64", sys.ArchARM64, sys.ArchAMD64)
-	alias("sync/atomic", "OrUintptr", "internal/runtime/atomic", "Or64", sys.ArchARM64, sys.ArchAMD64)
+	alias("sync/atomic", "AndInt32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "And32", sys.ArchARM64, sys.ArchAMD64)
+	alias("sync/atomic", "AndUint32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "And32", sys.ArchARM64, sys.ArchAMD64)
+	alias("sync/atomic", "AndInt64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "And64", sys.ArchARM64, sys.ArchAMD64)
+	alias("sync/atomic", "AndUint64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "And64", sys.ArchARM64, sys.ArchAMD64)
+	alias("sync/atomic", "AndUintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "And64", sys.ArchARM64, sys.ArchAMD64)
+	alias("sync/atomic", "OrInt32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Or32", sys.ArchARM64, sys.ArchAMD64)
+	alias("sync/atomic", "OrUint32", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Or32", sys.ArchARM64, sys.ArchAMD64)
+	alias("sync/atomic", "OrInt64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Or64", sys.ArchARM64, sys.ArchAMD64)
+	alias("sync/atomic", "OrUint64", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Or64", sys.ArchARM64, sys.ArchAMD64)
+	alias("sync/atomic", "OrUintptr", "github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic", "Or64", sys.ArchARM64, sys.ArchAMD64)
 
 	/******** math/big ********/
 	alias("math/big", "mulWW", "math/bits", "Mul64", p8...)

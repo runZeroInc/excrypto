@@ -5,10 +5,10 @@
 package s390x
 
 import (
-	"cmd/compile/internal/base"
-	"cmd/compile/internal/objw"
-	"cmd/internal/obj"
-	"cmd/internal/obj/s390x"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/objw"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/s390x"
 )
 
 // clearLoopCutOff is the (somewhat arbitrary) value above which it is better

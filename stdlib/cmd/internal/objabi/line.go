@@ -5,7 +5,7 @@
 package objabi
 
 import (
-	"internal/buildcfg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
 	"os"
 	"path/filepath"
 	"runtime"

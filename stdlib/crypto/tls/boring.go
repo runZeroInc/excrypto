@@ -6,7 +6,7 @@
 
 package tls
 
-import "crypto/internal/boring/fipstls"
+import "github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring/fipstls"
 
 // needFIPS returns fipstls.Required(), which is not available without the
 // boringcrypto build tag.

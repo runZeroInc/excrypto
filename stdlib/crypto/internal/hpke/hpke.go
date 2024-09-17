@@ -5,17 +5,17 @@
 package hpke
 
 import (
-	"crypto"
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/ecdh"
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"encoding/binary"
 	"errors"
 	"math/bits"
 
-	"golang.org/x/crypto/chacha20poly1305"
-	"golang.org/x/crypto/hkdf"
+	"github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305"
+	"github.com/runZeroInc/excrypto/x/crypto/hkdf"
 )
 
 // testingOnlyGenerateKey is only used during testing, to provide

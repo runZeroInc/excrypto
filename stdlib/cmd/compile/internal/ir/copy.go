@@ -5,7 +5,7 @@
 package ir
 
 import (
-	"cmd/internal/src"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/src"
 )
 
 // Copy returns a shallow copy of n.

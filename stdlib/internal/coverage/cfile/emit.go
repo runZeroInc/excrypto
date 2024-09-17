@@ -9,12 +9,12 @@
 package cfile
 
 import (
-	"crypto/md5"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/md5"
 	"fmt"
-	"internal/coverage"
-	"internal/coverage/encodecounter"
-	"internal/coverage/encodemeta"
-	"internal/coverage/rtcov"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/encodecounter"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/encodemeta"
+	"github.com/runZeroInc/excrypto/stdlib/internal/coverage/rtcov"
 	"io"
 	"os"
 	"path/filepath"

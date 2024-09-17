@@ -2,14 +2,14 @@ package tls
 
 import (
 	"bytes"
-	"crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
 	"flag"
 	"fmt"
-	"internal/byteorder"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"log"
 	"net"
@@ -22,7 +22,7 @@ import (
 	"strings"
 	"testing"
 
-	"golang.org/x/crypto/cryptobyte"
+	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
 )
 
 var (

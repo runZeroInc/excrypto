@@ -12,7 +12,7 @@ import (
 	"sort"
 	"sync"
 
-	"cmd/internal/par"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/par"
 
 	"golang.org/x/mod/module"
 )

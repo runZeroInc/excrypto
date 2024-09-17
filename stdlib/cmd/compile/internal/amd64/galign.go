@@ -5,8 +5,8 @@
 package amd64
 
 import (
-	"cmd/compile/internal/ssagen"
-	"cmd/internal/obj/x86"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/ssagen"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/obj/x86"
 )
 
 var leaptr = x86.ALEAQ

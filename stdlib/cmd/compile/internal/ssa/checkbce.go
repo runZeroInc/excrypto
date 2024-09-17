@@ -4,7 +4,7 @@
 
 package ssa
 
-import "cmd/compile/internal/logopt"
+import "github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/logopt"
 
 // checkbce prints all bounds checks that are present in the function.
 // Useful to find regressions. checkbce is only activated when with

@@ -6,7 +6,7 @@
 
 package net
 
-import "internal/poll"
+import "github.com/runZeroInc/excrypto/stdlib/internal/poll"
 
 func init() {
 	extraTestHookInstallers = append(extraTestHookInstallers, installAccept4TestHook)

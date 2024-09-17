@@ -4,7 +4,7 @@
 
 package strings
 
-import "internal/bytealg"
+import "github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
 
 // Compare returns an integer comparing two strings lexicographically.
 // The result will be 0 if a == b, -1 if a < b, and +1 if a > b.

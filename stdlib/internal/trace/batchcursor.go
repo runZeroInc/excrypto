@@ -9,8 +9,8 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"internal/trace/event"
-	"internal/trace/event/go122"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/event"
+	"github.com/runZeroInc/excrypto/stdlib/internal/trace/event/go122"
 )
 
 type batchCursor struct {

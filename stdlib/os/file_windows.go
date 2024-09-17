@@ -6,10 +6,10 @@ package os
 
 import (
 	"errors"
-	"internal/filepathlite"
-	"internal/godebug"
-	"internal/poll"
-	"internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/filepathlite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/poll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
 	"runtime"
 	"sync"
 	"sync/atomic"

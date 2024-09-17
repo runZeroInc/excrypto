@@ -14,9 +14,9 @@ package netip
 import (
 	"cmp"
 	"errors"
-	"internal/bytealg"
-	"internal/byteorder"
-	"internal/itoa"
+	"github.com/runZeroInc/excrypto/stdlib/internal/bytealg"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
+	"github.com/runZeroInc/excrypto/stdlib/internal/itoa"
 	"math"
 	"strconv"
 	"unique"

@@ -8,7 +8,7 @@ package net
 
 import (
 	"context"
-	"internal/poll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/poll"
 	"net/netip"
 	"runtime"
 	"syscall"

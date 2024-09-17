@@ -5,7 +5,7 @@
 package reflect
 
 import (
-	"internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
 	"unsafe"
 	_ "unsafe"
 )

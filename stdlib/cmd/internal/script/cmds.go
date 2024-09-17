@@ -5,11 +5,11 @@
 package script
 
 import (
-	"cmd/internal/pathcache"
-	"cmd/internal/robustio"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/pathcache"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/robustio"
 	"errors"
 	"fmt"
-	"internal/diff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/diff"
 	"io/fs"
 	"os"
 	"os/exec"

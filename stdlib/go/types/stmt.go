@@ -10,8 +10,8 @@ import (
 	"go/ast"
 	"go/constant"
 	"go/token"
-	"internal/buildcfg"
-	. "internal/types/errors"
+	"github.com/runZeroInc/excrypto/stdlib/internal/buildcfg"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 	"slices"
 )
 

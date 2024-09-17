@@ -6,12 +6,12 @@ package types
 
 import (
 	"fmt"
-	"internal/goversion"
-	"internal/lazyregexp"
+	"github.com/runZeroInc/excrypto/stdlib/internal/goversion"
+	"github.com/runZeroInc/excrypto/stdlib/internal/lazyregexp"
 	"log"
 	"strconv"
 
-	"cmd/compile/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/base"
 )
 
 // A lang is a language version broken into major and minor numbers.

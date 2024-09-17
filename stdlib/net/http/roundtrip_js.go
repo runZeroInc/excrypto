@@ -10,7 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/http/internal/ascii"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/internal/ascii"
 	"strconv"
 	"strings"
 	"syscall/js"

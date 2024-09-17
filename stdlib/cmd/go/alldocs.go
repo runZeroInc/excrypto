@@ -2946,7 +2946,7 @@
 // - "cmd" expands to the Go repository's commands and their
 // internal libraries.
 //
-// Import paths beginning with "cmd/" only match source code in
+// Import paths beginning with "github.com/runZeroInc/excrypto/stdlib/cmd/" only match source code in
 // the Go repository.
 //
 // An import path is a pattern if it includes one or more "..." wildcards,

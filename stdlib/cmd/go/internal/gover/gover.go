@@ -11,7 +11,7 @@
 package gover
 
 import (
-	"internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/internal/gover"
 )
 
 // Compare returns -1, 0, or +1 depending on whether

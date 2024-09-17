@@ -9,7 +9,7 @@ package syscall_test
 import (
 	"flag"
 	"fmt"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"net"
 	"os"

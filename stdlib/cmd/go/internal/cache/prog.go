@@ -6,10 +6,10 @@ package cache
 
 import (
 	"bufio"
-	"cmd/go/internal/base"
-	"cmd/internal/quoted"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/base"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/quoted"
 	"context"
-	"crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"errors"

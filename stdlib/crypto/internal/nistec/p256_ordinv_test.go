@@ -8,8 +8,8 @@ package nistec_test
 
 import (
 	"bytes"
-	"crypto/elliptic"
-	"crypto/internal/nistec"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/nistec"
 	"math/big"
 	"testing"
 )

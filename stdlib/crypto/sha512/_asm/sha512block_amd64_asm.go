@@ -138,7 +138,7 @@ var _K = []uint64{
 }
 
 func main() {
-	Package("crypto/sha512")
+	Package("github.com/runZeroInc/excrypto/stdlib/crypto/sha512")
 	ConstraintExpr("!purego")
 	blockAMD64()
 	blockAVX2()

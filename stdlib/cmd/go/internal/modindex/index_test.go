@@ -8,7 +8,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"go/build"
-	"internal/diff"
+	"github.com/runZeroInc/excrypto/stdlib/internal/diff"
 	"path/filepath"
 	"reflect"
 	"runtime"
@@ -52,7 +52,7 @@ func TestIndex(t *testing.T) {
 
 	// Check packages in increasing complexity, one at a time.
 	pkgs := []string{
-		"crypto",
+		"github.com/runZeroInc/excrypto/stdlib/crypto",
 		"encoding",
 		"unsafe",
 		"encoding/json",

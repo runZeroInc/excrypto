@@ -8,7 +8,7 @@ package testing
 
 import (
 	"errors"
-	"internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
 	"math/bits"
 	"syscall"
 	"time"

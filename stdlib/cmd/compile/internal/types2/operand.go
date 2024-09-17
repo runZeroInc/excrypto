@@ -8,10 +8,10 @@ package types2
 
 import (
 	"bytes"
-	"cmd/compile/internal/syntax"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/compile/internal/syntax"
 	"fmt"
 	"go/constant"
-	. "internal/types/errors"
+	. "github.com/runZeroInc/excrypto/stdlib/internal/types/errors"
 )
 
 // An operandMode specifies the (addressing) mode of an operand.

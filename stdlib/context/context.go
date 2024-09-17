@@ -55,7 +55,7 @@ package context
 
 import (
 	"errors"
-	"internal/reflectlite"
+	"github.com/runZeroInc/excrypto/stdlib/internal/reflectlite"
 	"sync"
 	"sync/atomic"
 	"time"

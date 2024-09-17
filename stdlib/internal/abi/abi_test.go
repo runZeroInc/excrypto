@@ -5,8 +5,8 @@
 package abi_test
 
 import (
-	"internal/abi"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/abi"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -43,7 +43,7 @@ func TestFuncPCCompileError(t *testing.T) {
 
 	// Write an importcfg file for the dependencies of the package.
 	importcfgfile := filepath.Join(tmpdir, "hello.importcfg")
-	testenv.WriteImportcfg(t, importcfgfile, nil, "internal/abi")
+	testenv.WriteImportcfg(t, importcfgfile, nil, "github.com/runZeroInc/excrypto/stdlib/internal/abi")
 
 	// parse assembly code for symabi.
 	cmd := testenv.Command(t, testenv.GoToolPath(t), "tool", "asm", "-p=p", "-gensymabis", "-o", symabi, asmSrc)

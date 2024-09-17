@@ -5,7 +5,7 @@
 package tls
 
 import (
-	"crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"runtime"
 	"sync"
 	"sync/atomic"

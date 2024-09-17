@@ -48,7 +48,7 @@
 package runtime
 
 import (
-	"internal/runtime/atomic"
+	"github.com/runZeroInc/excrypto/stdlib/internal/runtime/atomic"
 	"unsafe"
 )
 

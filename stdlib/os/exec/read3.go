@@ -14,11 +14,11 @@ package main
 
 import (
 	"fmt"
-	"internal/poll"
+	"github.com/runZeroInc/excrypto/stdlib/internal/poll"
 	"io"
 	"os"
 	"os/exec"
-	"os/exec/internal/fdtest"
+	"github.com/runZeroInc/excrypto/stdlib/os/exec/internal/fdtest"
 	"runtime"
 	"strings"
 )

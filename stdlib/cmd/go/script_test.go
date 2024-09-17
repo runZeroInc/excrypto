@@ -15,8 +15,8 @@ import (
 	"context"
 	_ "embed"
 	"flag"
-	"internal/testenv"
-	"internal/txtar"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/txtar"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -25,11 +25,11 @@ import (
 	"testing"
 	"time"
 
-	"cmd/go/internal/cfg"
-	"cmd/go/internal/gover"
-	"cmd/go/internal/vcweb/vcstest"
-	"cmd/internal/script"
-	"cmd/internal/script/scripttest"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/cfg"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/gover"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/vcweb/vcstest"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/script"
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/script/scripttest"
 
 	"golang.org/x/telemetry/counter/countertest"
 )

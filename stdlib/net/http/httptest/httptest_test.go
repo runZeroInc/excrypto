@@ -6,7 +6,7 @@ package httptest
 
 import (
 	"context"
-	"crypto/tls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
 	"io"
 	"net/http"
 	"net/url"

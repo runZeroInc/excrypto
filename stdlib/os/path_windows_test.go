@@ -6,8 +6,8 @@ package os_test
 
 import (
 	"fmt"
-	"internal/syscall/windows"
-	"internal/testenv"
+	"github.com/runZeroInc/excrypto/stdlib/internal/syscall/windows"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"path/filepath"
 	"strings"

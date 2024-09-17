@@ -8,8 +8,8 @@ package httptrace
 
 import (
 	"context"
-	"crypto/tls"
-	"internal/nettrace"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
+	"github.com/runZeroInc/excrypto/stdlib/internal/nettrace"
 	"net"
 	"net/textproto"
 	"reflect"

@@ -17,8 +17,8 @@
 package transport
 
 import (
-	"crypto/tls"
-	"crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"fmt"
 	"net/http"
 	"os"
