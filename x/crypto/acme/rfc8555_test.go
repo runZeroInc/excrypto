@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"context"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"

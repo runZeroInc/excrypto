@@ -5,7 +5,7 @@
 package secretbox_test
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"io"

@@ -5,7 +5,7 @@
 package ssh
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"errors"
 	"fmt"
 	"io"

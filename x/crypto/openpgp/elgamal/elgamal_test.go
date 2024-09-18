@@ -6,7 +6,7 @@ package elgamal
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"math/big"
 	"testing"
 )

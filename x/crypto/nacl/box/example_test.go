@@ -1,7 +1,7 @@
 package box_test
 
 import (
-	crypto_rand "github.com/runZeroInc/excrypto/stdlib/crypto/rand" // Custom so it's clear which rand we're using.
+	crypto_rand "crypto/rand" // Custom so it's clear which rand we're using.
 	"fmt"
 	"io"
 

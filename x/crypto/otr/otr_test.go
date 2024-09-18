@@ -7,7 +7,7 @@ package otr
 import (
 	"bufio"
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"encoding/hex"
 	"math/big"
 	"os"

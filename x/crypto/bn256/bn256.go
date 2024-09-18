@@ -26,7 +26,7 @@
 package bn256
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"io"
 	"math/big"
 )

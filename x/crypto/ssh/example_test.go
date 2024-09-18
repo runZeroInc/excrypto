@@ -7,7 +7,7 @@ package ssh_test
 import (
 	"bufio"
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"fmt"
 	"log"

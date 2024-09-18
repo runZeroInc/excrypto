@@ -8,7 +8,7 @@ package bcrypt
 
 // The code is a port of Provos and Mazières's C implementation.
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"errors"
 	"fmt"

@@ -6,7 +6,7 @@ package packet
 
 import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"io"
 	"time"
 )

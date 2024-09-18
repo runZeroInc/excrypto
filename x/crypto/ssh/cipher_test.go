@@ -7,7 +7,7 @@ package ssh
 import (
 	"bytes"
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"encoding/binary"
 	"io"
 	"testing"

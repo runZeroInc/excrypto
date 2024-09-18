@@ -11,7 +11,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	_ "github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 	_ "github.com/runZeroInc/excrypto/stdlib/crypto/sha256"

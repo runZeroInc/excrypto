@@ -11,7 +11,7 @@ import (
 	"bufio"
 	"bytes"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 	"encoding/base64"
 	"errors"
@@ -469,7 +469,7 @@ func HashHostname(hostname string) string {
 
 	_, err := rand.Read(salt)
 	if err != nil {
-		panic(fmt.Sprintf("github.com/runZeroInc/excrypto/stdlib/crypto/rand failure %v", err))
+		panic(fmt.Sprintf("crypto/rand failure %v", err))
 	}
 
 	hash := hashHost(hostname, salt)

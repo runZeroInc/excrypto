@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	_ "github.com/runZeroInc/excrypto/stdlib/crypto/md5"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 	_ "github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	_ "github.com/runZeroInc/excrypto/stdlib/crypto/sha512"

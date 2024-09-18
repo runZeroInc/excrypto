@@ -5,7 +5,7 @@
 package poly1305
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"encoding/binary"
 	"encoding/hex"
 	"flag"

@@ -7,7 +7,7 @@ package packet
 import (
 	"bytes"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"crypto/rand"
 	"testing"
 )
 
