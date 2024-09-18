@@ -49,12 +49,13 @@ package godebug
 // meaning it cannot introduce a GODEBUG setting of its own.
 // We keep imports to the absolute bare minimum.
 import (
-	"github.com/runZeroInc/excrypto/stdlib/internal/bisect"
-	"github.com/runZeroInc/excrypto/stdlib/internal/godebugs"
 	"sync"
 	"sync/atomic"
 	"unsafe"
 	_ "unsafe" // go:linkname
+
+	"github.com/runZeroInc/excrypto/stdlib/internal/bisect"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebugs"
 )
 
 // A Setting is a single setting in the $GODEBUG environment variable.
@@ -124,10 +125,7 @@ func (s *Setting) IncNonDefault() {
 }
 
 func (s *Setting) register() {
-	if s.info == nil || s.info.Opaque {
-		panic("godebug: unexpected IncNonDefault of " + s.name)
-	}
-	registerMetric("/godebug/non-default-behavior/"+s.Name()+":events", s.nonDefault.Load)
+
 }
 
 // cache is a cache of all the GODEBUG settings,
@@ -182,47 +180,6 @@ func lookup(name string) *setting {
 	}
 
 	return s
-}
-
-// setUpdate is provided by package runtime.
-// It calls update(def, env), where def is the default GODEBUG setting
-// and env is the current value of the $GODEBUG environment variable.
-// After that first call, the runtime calls update(def, env)
-// again each time the environment variable changes
-// (due to use of os.Setenv, for example).
-//
-//go:linkname setUpdate
-func setUpdate(update func(string, string))
-
-// registerMetric is provided by package runtime.
-// It forwards registrations to runtime/metrics.
-//
-//go:linkname registerMetric
-func registerMetric(name string, read func() uint64)
-
-// setNewIncNonDefault is provided by package runtime.
-// The runtime can do
-//
-//	inc := newNonDefaultInc(name)
-//
-// instead of
-//
-//	inc := godebug.New(name).IncNonDefault
-//
-// since it cannot import godebug.
-//
-//go:linkname setNewIncNonDefault
-func setNewIncNonDefault(newIncNonDefault func(string) func())
-
-func init() {
-	setUpdate(update)
-	setNewIncNonDefault(newIncNonDefault)
-}
-
-func newIncNonDefault(name string) func() {
-	s := New(name)
-	s.Value()
-	return s.IncNonDefault
 }
 
 var updateMu sync.Mutex
