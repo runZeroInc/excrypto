@@ -8,8 +8,8 @@ import (
 	"context"
 	"io"
 	"net"
-	"net/http"
-	"net/http/httptrace"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/httptrace"
 	"testing"
 )
 

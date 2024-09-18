@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"github.com/runZeroInc/excrypto/stdlib/internal/profile"
 	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"os"
 	"os/exec"
 	"path/filepath"

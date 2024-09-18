@@ -17,7 +17,7 @@ package driver
 import (
 	"encoding/json"
 	"html/template"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 
 	"github.com/google/pprof/internal/measurement"
 )

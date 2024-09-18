@@ -19,7 +19,7 @@ import (
 	"go/format"
 	"io"
 	"log"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"os"
 	"slices"
 	"strings"

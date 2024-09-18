@@ -17,7 +17,7 @@ go 1.16
 -- d.go --
 package d
 
-import "net/http"
+import "github.com/runZeroInc/excrypto/stdlib/net/http"
 
 const d = http.MethodGet
 func Get() string { return d; }

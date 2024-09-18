@@ -8,8 +8,8 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/cmd/go/internal/vcweb"
 	"io"
 	"log"
-	"net/http"
-	"net/http/httptest"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/httptest"
 	"os"
 	"testing"
 )

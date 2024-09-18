@@ -6,7 +6,7 @@ package upload
 
 import (
 	"bytes"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"os"
 	"path/filepath"
 	"regexp"

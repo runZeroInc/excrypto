@@ -254,7 +254,7 @@ func (c *Cookie) String() string {
 			b.WriteString("; Domain=")
 			b.WriteString(d)
 		} else {
-			log.Printf("net/http: invalid Cookie.Domain %q; dropping domain attribute", c.Domain)
+			log.Printf("github.com/runZeroInc/excrypto/stdlib/net/http: invalid Cookie.Domain %q; dropping domain attribute", c.Domain)
 		}
 	}
 	var buf [len(TimeFormat)]byte
@@ -488,7 +488,7 @@ func sanitizeOrWarn(fieldName string, valid func(byte) bool, v string) string {
 		if valid(v[i]) {
 			continue
 		}
-		log.Printf("net/http: invalid byte %q in %s; dropping invalid bytes", v[i], fieldName)
+		log.Printf("github.com/runZeroInc/excrypto/stdlib/net/http: invalid byte %q in %s; dropping invalid bytes", v[i], fieldName)
 		ok = false
 		break
 	}

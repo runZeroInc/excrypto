@@ -6,8 +6,8 @@ package vcweb
 
 import (
 	"log"
-	"net/http"
-	"net/http/cgi"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/cgi"
 	"os/exec"
 	"runtime"
 	"slices"

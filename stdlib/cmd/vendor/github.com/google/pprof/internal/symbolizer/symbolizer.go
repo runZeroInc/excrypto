@@ -20,7 +20,7 @@ package symbolizer
 import (
 	"fmt"
 	"io"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"net/url"
 	"path/filepath"
 	"strings"

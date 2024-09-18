@@ -897,7 +897,7 @@ func BenchmarkScanFiles(b *testing.B) {
 	for _, p := range []string{
 		"go/types/expr.go",
 		"go/parser/parser.go",
-		"net/http/server.go",
+		"github.com/runZeroInc/excrypto/stdlib/net/http/server.go",
 		"go/scanner/errors.go",
 	} {
 		b.Run(p, func(b *testing.B) {

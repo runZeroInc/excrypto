@@ -10,7 +10,7 @@ import (
 	"html/template"
 	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
 	"github.com/runZeroInc/excrypto/stdlib/internal/trace/traceviewer"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"net/url"
 	"slices"
 	"sort"

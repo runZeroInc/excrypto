@@ -8,7 +8,7 @@ import (
 	"bufio"
 	"io"
 	"net"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"sync"
 	"testing"
 )

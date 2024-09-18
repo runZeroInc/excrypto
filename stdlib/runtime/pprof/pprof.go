@@ -54,7 +54,7 @@
 // the following line will install handlers under the /debug/pprof/
 // URL to download live profiles:
 //
-//	import _ "net/http/pprof"
+//	import _ "github.com/runZeroInc/excrypto/stdlib/net/http/pprof"
 //
 // See the net/http/pprof package for more details.
 //

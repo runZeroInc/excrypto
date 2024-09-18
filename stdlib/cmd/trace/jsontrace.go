@@ -8,7 +8,7 @@ import (
 	"cmp"
 	"log"
 	"math"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"slices"
 	"strconv"
 	"time"

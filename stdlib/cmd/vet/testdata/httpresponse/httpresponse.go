@@ -6,7 +6,7 @@ package httpresponse
 
 import (
 	"log"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 )
 
 func goodHTTPGet() {

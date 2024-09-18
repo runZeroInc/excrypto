@@ -7,7 +7,7 @@ package race_test
 import (
 	"fmt"
 	"net"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"os"
 	"path/filepath"
 	"sync"

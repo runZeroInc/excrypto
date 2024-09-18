@@ -513,7 +513,7 @@ func TestCorrectMethodPackage(t *testing.T) {
 
 	imports := make(map[string]*types.Package)
 	fset := token.NewFileSet()
-	_, err := Import(fset, imports, "net/http", ".", nil)
+	_, err := Import(fset, imports, "github.com/runZeroInc/excrypto/stdlib/net/http", ".", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
 	"github.com/runZeroInc/excrypto/stdlib/internal/trace/traceviewer"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"slices"
 	"strings"
 	"time"

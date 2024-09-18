@@ -8,8 +8,8 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"log"
-	"net/http"
-	"net/http/httptest"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/httptest"
 	"os"
 	"time"
 )

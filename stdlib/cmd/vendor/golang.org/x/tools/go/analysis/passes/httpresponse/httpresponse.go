@@ -47,7 +47,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 	// Fast path: if the package doesn't import net/http,
 	// skip the traversal.
-	if !analysisutil.Imports(pass.Pkg, "net/http") {
+	if !analysisutil.Imports(pass.Pkg, "github.com/runZeroInc/excrypto/stdlib/net/http") {
 		return nil, nil
 	}
 
@@ -119,7 +119,7 @@ func isHTTPFuncOrMethodOnClient(info *types.Info, expr *ast.CallExpr) bool {
 		return false // the function called does not return two values.
 	}
 	isPtr, named := typesinternal.ReceiverNamed(res.At(0))
-	if !isPtr || named == nil || !analysisutil.IsNamedType(named, "net/http", "Response") {
+	if !isPtr || named == nil || !analysisutil.IsNamedType(named, "github.com/runZeroInc/excrypto/stdlib/net/http", "Response") {
 		return false // the first return type is not *http.Response.
 	}
 
@@ -134,11 +134,11 @@ func isHTTPFuncOrMethodOnClient(info *types.Info, expr *ast.CallExpr) bool {
 		return ok && id.Name == "http" // function in net/http package.
 	}
 
-	if analysisutil.IsNamedType(typ, "net/http", "Client") {
+	if analysisutil.IsNamedType(typ, "github.com/runZeroInc/excrypto/stdlib/net/http", "Client") {
 		return true // method on http.Client.
 	}
 	ptr, ok := aliases.Unalias(typ).(*types.Pointer)
-	return ok && analysisutil.IsNamedType(ptr.Elem(), "net/http", "Client") // method on *http.Client.
+	return ok && analysisutil.IsNamedType(ptr.Elem(), "github.com/runZeroInc/excrypto/stdlib/net/http", "Client") // method on *http.Client.
 }
 
 // restOfBlock, given a traversal stack, finds the innermost containing

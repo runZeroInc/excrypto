@@ -6,7 +6,7 @@ package http
 
 import (
 	"io"
-	"net/http/httptrace"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/httptrace"
 	"github.com/runZeroInc/excrypto/stdlib/net/http/internal/ascii"
 	"net/textproto"
 	"slices"

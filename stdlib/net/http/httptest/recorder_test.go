@@ -7,7 +7,7 @@ package httptest
 import (
 	"fmt"
 	"io"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"testing"
 )
 

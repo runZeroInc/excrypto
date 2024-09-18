@@ -17,7 +17,7 @@ package plugin
 
 import (
 	"io"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"regexp"
 	"time"
 

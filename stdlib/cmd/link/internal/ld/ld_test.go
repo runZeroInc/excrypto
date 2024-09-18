@@ -342,7 +342,7 @@ func main() {
 			`
 package main
 import "runtime"
-import _ "net/http/pprof"
+import _ "github.com/runZeroInc/excrypto/stdlib/net/http/pprof"
 func main() {
 	println(runtime.MemProfileRate)
 }

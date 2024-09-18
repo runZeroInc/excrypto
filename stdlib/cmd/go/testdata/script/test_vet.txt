@@ -70,7 +70,7 @@ func F() {
 -- vetall/p.go --
 package p
 
-import "net/http"
+import "github.com/runZeroInc/excrypto/stdlib/net/http"
 
 func F() {
 	resp, err := http.Head("example.com")

@@ -37,7 +37,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"strings"
 	"sync"
 	"time"

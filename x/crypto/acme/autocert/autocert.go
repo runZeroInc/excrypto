@@ -25,7 +25,7 @@ import (
 	"io"
 	mathrand "math/rand"
 	"net"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"path"
 	"strings"
 	"sync"

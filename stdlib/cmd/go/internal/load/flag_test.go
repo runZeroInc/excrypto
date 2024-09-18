@@ -64,7 +64,7 @@ var ppfTests = []ppfTest{
 		args: []string{"net/...=-S"},
 		pkgs: []ppfTestPackage{
 			{path: "net", flags: []string{"-S"}},
-			{path: "net/http", flags: []string{"-S"}},
+			{path: "github.com/runZeroInc/excrypto/stdlib/net/http", flags: []string{"-S"}},
 			{path: "math", flags: []string{}},
 		},
 	},
@@ -78,7 +78,7 @@ var ppfTests = []ppfTest{
 			{path: "net", cmdline: true, flags: []string{"-m"}},
 			{path: "math", cmdline: true, flags: []string{"-m"}},
 			{path: "net", cmdline: false, flags: []string{"-S"}},
-			{path: "net/http", flags: []string{"-S"}},
+			{path: "github.com/runZeroInc/excrypto/stdlib/net/http", flags: []string{"-S"}},
 			{path: "math", flags: []string{}},
 		},
 	},

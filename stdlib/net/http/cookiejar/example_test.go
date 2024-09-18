@@ -7,9 +7,9 @@ package cookiejar_test
 import (
 	"fmt"
 	"log"
-	"net/http"
-	"net/http/cookiejar"
-	"net/http/httptest"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/cookiejar"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/httptest"
 	"net/url"
 )
 

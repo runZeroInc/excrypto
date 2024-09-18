@@ -6,7 +6,7 @@ package repro
 
 import (
 	"fmt"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 )
 
 func small() {

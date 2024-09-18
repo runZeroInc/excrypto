@@ -392,7 +392,7 @@ func TestCorrectMethodPackage(t *testing.T) {
 	}
 
 	imports := make(map[string]*types2.Package)
-	_, err := Import(imports, "net/http", ".", nil)
+	_, err := Import(imports, "github.com/runZeroInc/excrypto/stdlib/net/http", ".", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

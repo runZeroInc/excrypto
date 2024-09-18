@@ -13,7 +13,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
 	"github.com/runZeroInc/excrypto/stdlib/internal/trace/traceviewer"
 	"log"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"slices"
 	"sort"
 	"strings"

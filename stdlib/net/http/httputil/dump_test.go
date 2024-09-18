@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"net/url"
 	"runtime"
 	"runtime/pprof"

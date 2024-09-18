@@ -18,7 +18,7 @@ import (
 	"io"
 	"mime"
 	"net"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	urlpkg "net/url"
 	"os"
 	"strings"

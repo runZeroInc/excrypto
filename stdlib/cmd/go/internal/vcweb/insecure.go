@@ -6,7 +6,7 @@ package vcweb
 
 import (
 	"log"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 )
 
 // insecureHandler redirects requests to the same host and path but using the

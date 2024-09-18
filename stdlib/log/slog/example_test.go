@@ -6,7 +6,7 @@ package slog_test
 
 import (
 	"log/slog"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"os"
 	"time"
 )

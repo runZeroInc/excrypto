@@ -6,7 +6,7 @@ package cookiejar
 
 import (
 	"fmt"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"net/url"
 	"slices"
 	"strings"

@@ -14,7 +14,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/internal/txtar"
 	"io"
 	"log"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"os"
 	"os/exec"
 	"path/filepath"

@@ -20,7 +20,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"fmt"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"os"
 	"sync"
 

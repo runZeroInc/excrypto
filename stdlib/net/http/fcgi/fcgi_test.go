@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"errors"
 	"io"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"strings"
 	"testing"
 	"time"

@@ -12,7 +12,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"io"
 	"maps"
-	"net/http/httptrace"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/httptrace"
 	"github.com/runZeroInc/excrypto/stdlib/net/http/internal"
 	"github.com/runZeroInc/excrypto/stdlib/net/http/internal/ascii"
 	"net/textproto"

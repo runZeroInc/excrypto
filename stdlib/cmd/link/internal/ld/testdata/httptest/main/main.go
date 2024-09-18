@@ -5,8 +5,8 @@
 package main
 
 import (
-	"net/http"
-	"net/http/httptest"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/httptest"
 )
 
 type statusHandler int

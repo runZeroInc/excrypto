@@ -22,7 +22,7 @@ import (
 	"log"
 	"maps"
 	"net"
-	"net/http/httptrace"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/httptrace"
 	"github.com/runZeroInc/excrypto/stdlib/net/http/internal/ascii"
 	"net/textproto"
 	"net/url"
@@ -557,13 +557,13 @@ func (t *Transport) roundTrip(req *Request) (_ *Response, err error) {
 		// Validate the outgoing headers.
 		if err := validateHeaders(req.Header); err != "" {
 			req.closeBody()
-			return nil, fmt.Errorf("net/http: invalid header %s", err)
+			return nil, fmt.Errorf("github.com/runZeroInc/excrypto/stdlib/net/http: invalid header %s", err)
 		}
 
 		// Validate the outgoing trailers too.
 		if err := validateHeaders(req.Trailer); err != "" {
 			req.closeBody()
-			return nil, fmt.Errorf("net/http: invalid trailer %s", err)
+			return nil, fmt.Errorf("github.com/runZeroInc/excrypto/stdlib/net/http: invalid trailer %s", err)
 		}
 	}
 
@@ -586,7 +586,7 @@ func (t *Transport) roundTrip(req *Request) (_ *Response, err error) {
 	}
 	if req.Method != "" && !validMethod(req.Method) {
 		req.closeBody()
-		return nil, fmt.Errorf("net/http: invalid method %q", req.Method)
+		return nil, fmt.Errorf("github.com/runZeroInc/excrypto/stdlib/net/http: invalid method %q", req.Method)
 	}
 	if req.URL.Host == "" {
 		req.closeBody()
@@ -707,7 +707,7 @@ func awaitLegacyCancel(ctx context.Context, cancel context.CancelCauseFunc, req 
 	}
 }
 
-var errCannotRewind = errors.New("net/http: cannot rewind body after connection loss")
+var errCannotRewind = errors.New("github.com/runZeroInc/excrypto/stdlib/net/http: cannot rewind body after connection loss")
 
 type readTrackingBody struct {
 	io.ReadCloser
@@ -812,7 +812,7 @@ func (pc *persistConn) shouldRetryRequest(req *Request, err error) bool {
 }
 
 // ErrSkipAltProtocol is a sentinel error value defined by Transport.RegisterProtocol.
-var ErrSkipAltProtocol = errors.New("net/http: skip alternate protocol")
+var ErrSkipAltProtocol = errors.New("github.com/runZeroInc/excrypto/stdlib/net/http: skip alternate protocol")
 
 // RegisterProtocol registers a new protocol with scheme.
 // The [Transport] will pass requests using the given scheme to rt.
@@ -987,7 +987,7 @@ type transportReadFromServerError struct {
 func (e transportReadFromServerError) Unwrap() error { return e.err }
 
 func (e transportReadFromServerError) Error() string {
-	return fmt.Sprintf("net/http: Transport failed to read from server: %v", e.err)
+	return fmt.Sprintf("github.com/runZeroInc/excrypto/stdlib/net/http: Transport failed to read from server: %v", e.err)
 }
 
 func (t *Transport) putOrCloseIdleConn(pconn *persistConn) {
@@ -1236,14 +1236,14 @@ func (t *Transport) dial(ctx context.Context, network, addr string) (net.Conn, e
 	if t.DialContext != nil {
 		c, err := t.DialContext(ctx, network, addr)
 		if c == nil && err == nil {
-			err = errors.New("net/http: Transport.DialContext hook returned (nil, nil)")
+			err = errors.New("github.com/runZeroInc/excrypto/stdlib/net/http: Transport.DialContext hook returned (nil, nil)")
 		}
 		return c, err
 	}
 	if t.Dial != nil {
 		c, err := t.Dial(network, addr)
 		if c == nil && err == nil {
-			err = errors.New("net/http: Transport.Dial hook returned (nil, nil)")
+			err = errors.New("github.com/runZeroInc/excrypto/stdlib/net/http: Transport.Dial hook returned (nil, nil)")
 		}
 		return c, err
 	}
@@ -1304,7 +1304,7 @@ func (w *wantConn) tryDeliver(pc *persistConn, err error, idleAt time.Time) bool
 		return false
 	}
 	if (pc == nil) == (err == nil) {
-		panic("net/http: internal error: misuse of tryDeliver")
+		panic("github.com/runZeroInc/excrypto/stdlib/net/http: internal error: misuse of tryDeliver")
 	}
 	w.ctx = nil
 	w.done = true
@@ -1431,7 +1431,7 @@ func (t *Transport) customDialTLS(ctx context.Context, network, addr string) (co
 		conn, err = t.DialTLS(network, addr)
 	}
 	if conn == nil && err == nil {
-		err = errors.New("net/http: Transport.DialTLS or DialTLSContext returned (nil, nil)")
+		err = errors.New("github.com/runZeroInc/excrypto/stdlib/net/http: Transport.DialTLS or DialTLSContext returned (nil, nil)")
 	}
 	return
 }
@@ -1597,7 +1597,7 @@ func (t *Transport) decConnsPerHost(key connectMethodKey) {
 	if n == 0 {
 		// Shouldn't happen, but if it does, the counting is buggy and could
 		// easily lead to a silent deadlock, so report the problem loudly.
-		panic("net/http: internal error: connCount underflow")
+		panic("github.com/runZeroInc/excrypto/stdlib/net/http: internal error: connCount underflow")
 	}
 
 	// Can we hand this count to a goroutine still waiting to dial?
@@ -2167,7 +2167,7 @@ func (pc *persistConn) mapRoundTripError(req *transportRequest, startBytesWritte
 		if pc.nwrite == startBytesWritten {
 			return nothingWrittenError{err}
 		}
-		return fmt.Errorf("net/http: HTTP/1.x transport connection broken: %w", err)
+		return fmt.Errorf("github.com/runZeroInc/excrypto/stdlib/net/http: HTTP/1.x transport connection broken: %w", err)
 	}
 	return err
 }
@@ -2236,7 +2236,7 @@ func (pc *persistConn) readLoop() {
 
 		if err != nil {
 			if pc.readLimit <= 0 {
-				err = fmt.Errorf("net/http: server response headers exceeded %d bytes; aborted", pc.maxHeaderResponseSize())
+				err = fmt.Errorf("github.com/runZeroInc/excrypto/stdlib/net/http: server response headers exceeded %d bytes; aborted", pc.maxHeaderResponseSize())
 			}
 
 			select {
@@ -2421,7 +2421,7 @@ func (pc *persistConn) readResponse(rc requestAndChan, trace *httptrace.ClientTr
 		if is1xxNonTerminal {
 			num1xx++
 			if num1xx > max1xxResponses {
-				return nil, errors.New("net/http: too many 1xx informational responses")
+				return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/net/http: too many 1xx informational responses")
 			}
 			pc.readLimit = pc.maxHeaderResponseSize() // reset the limit
 			if trace != nil && trace.Got1xxResponse != nil {
@@ -2652,16 +2652,16 @@ func (e *timeoutError) Timeout() bool     { return true }
 func (e *timeoutError) Temporary() bool   { return true }
 func (e *timeoutError) Is(err error) bool { return err == context.DeadlineExceeded }
 
-var errTimeout error = &timeoutError{"net/http: timeout awaiting response headers"}
+var errTimeout error = &timeoutError{"github.com/runZeroInc/excrypto/stdlib/net/http: timeout awaiting response headers"}
 
 // errRequestCanceled is set to be identical to the one from h2 to facilitate
 // testing.
 var errRequestCanceled = http2errRequestCanceled
-var errRequestCanceledConn = errors.New("net/http: request canceled while waiting for connection") // TODO: unify?
+var errRequestCanceledConn = errors.New("github.com/runZeroInc/excrypto/stdlib/net/http: request canceled while waiting for connection") // TODO: unify?
 
 // errRequestDone is used to cancel the round trip Context after a request is successfully done.
 // It should not be seen by the user.
-var errRequestDone = errors.New("net/http: request completed")
+var errRequestDone = errors.New("github.com/runZeroInc/excrypto/stdlib/net/http: request completed")
 
 func nop() {}
 
@@ -2996,7 +2996,7 @@ type tlsHandshakeTimeoutError struct{}
 
 func (tlsHandshakeTimeoutError) Timeout() bool   { return true }
 func (tlsHandshakeTimeoutError) Temporary() bool { return true }
-func (tlsHandshakeTimeoutError) Error() string   { return "net/http: TLS handshake timeout" }
+func (tlsHandshakeTimeoutError) Error() string   { return "github.com/runZeroInc/excrypto/stdlib/net/http: TLS handshake timeout" }
 
 // fakeLocker is a sync.Locker which does nothing. It's used to guard
 // test-only fields when not under test, to avoid runtime atomic

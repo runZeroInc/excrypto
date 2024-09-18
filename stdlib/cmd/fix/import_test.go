@@ -326,7 +326,7 @@ var x = 1 // comment on x, not on url
 	},
 	{
 		Name: "import.16",
-		Fn:   rewriteImportFn("http", "net/http", "template", "text/template"),
+		Fn:   rewriteImportFn("http", "github.com/runZeroInc/excrypto/stdlib/net/http", "template", "text/template"),
 		In: `package main
 
 import (
@@ -343,7 +343,7 @@ var addr = flag.String("addr", ":1718", "http service address") // Q=17, R=18
 import (
 	"flag"
 	"log"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"text/template"
 )
 

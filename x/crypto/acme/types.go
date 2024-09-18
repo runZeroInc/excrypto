@@ -9,7 +9,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"errors"
 	"fmt"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"strings"
 	"time"
 )

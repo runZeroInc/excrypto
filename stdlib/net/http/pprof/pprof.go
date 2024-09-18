@@ -12,10 +12,10 @@
 //
 // To use pprof, link this package into your program:
 //
-//	import _ "net/http/pprof"
+//	import _ "github.com/runZeroInc/excrypto/stdlib/net/http/pprof"
 //
 // If your application is not already running an http server, you
-// need to start one. Add "net/http" and "log" to your imports and
+// need to start one. Add "github.com/runZeroInc/excrypto/stdlib/net/http" and "log" to your imports and
 // the following code to your main function:
 //
 //	go func() {
@@ -80,7 +80,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/internal/profile"
 	"io"
 	"log"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"net/url"
 	"os"
 	"runtime"

@@ -7,7 +7,7 @@ package cgi
 import (
 	"fmt"
 	"io"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"os"
 	"path"
 	"slices"

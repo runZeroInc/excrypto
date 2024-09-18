@@ -15,7 +15,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"net/url"
 	"os"
 	"regexp"

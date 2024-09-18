@@ -11,7 +11,7 @@ import (
 	"context"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
 	"io"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"strings"
 )
 

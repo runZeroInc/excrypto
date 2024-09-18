@@ -38,7 +38,7 @@ func BenchmarkCheck(b *testing.B) {
 	testenv.MustHaveGoBuild(b) // The Go command is needed for the importer to determine the locations of stdlib .a files.
 
 	for _, p := range []string{
-		"net/http",
+		"github.com/runZeroInc/excrypto/stdlib/net/http",
 		"go/parser",
 		"go/constant",
 		"runtime",

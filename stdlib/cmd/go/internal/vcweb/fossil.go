@@ -7,8 +7,8 @@ package vcweb
 import (
 	"fmt"
 	"log"
-	"net/http"
-	"net/http/cgi"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/cgi"
 	"os"
 	"os/exec"
 	"path/filepath"

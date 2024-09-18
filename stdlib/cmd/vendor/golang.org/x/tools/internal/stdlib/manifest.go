@@ -8119,7 +8119,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"UnixListener", Type, 0},
 		{"UnknownNetworkError", Type, 0},
 	},
-	"net/http": {
+	"github.com/runZeroInc/excrypto/stdlib/net/http": {
 		{"(*Client).CloseIdleConnections", Method, 12},
 		{"(*Client).Do", Method, 0},
 		{"(*Client).Get", Method, 0},
@@ -8468,7 +8468,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"Transport.TLSNextProto", Field, 6},
 		{"Transport.WriteBufferSize", Field, 13},
 	},
-	"net/http/cgi": {
+	"github.com/runZeroInc/excrypto/stdlib/net/http/cgi": {
 		{"(*Handler).ServeHTTP", Method, 0},
 		{"Handler", Type, 0},
 		{"Handler.Args", Field, 0},
@@ -8484,7 +8484,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"RequestFromMap", Func, 0},
 		{"Serve", Func, 0},
 	},
-	"net/http/cookiejar": {
+	"github.com/runZeroInc/excrypto/stdlib/net/http/cookiejar": {
 		{"(*Jar).Cookies", Method, 1},
 		{"(*Jar).SetCookies", Method, 1},
 		{"Jar", Type, 1},
@@ -8493,13 +8493,13 @@ var PackageSymbols = map[string][]Symbol{
 		{"Options.PublicSuffixList", Field, 1},
 		{"PublicSuffixList", Type, 1},
 	},
-	"net/http/fcgi": {
+	"github.com/runZeroInc/excrypto/stdlib/net/http/fcgi": {
 		{"ErrConnClosed", Var, 5},
 		{"ErrRequestAborted", Var, 5},
 		{"ProcessEnv", Func, 9},
 		{"Serve", Func, 0},
 	},
-	"net/http/httptest": {
+	"github.com/runZeroInc/excrypto/stdlib/net/http/httptest": {
 		{"(*ResponseRecorder).Flush", Method, 0},
 		{"(*ResponseRecorder).Header", Method, 0},
 		{"(*ResponseRecorder).Result", Method, 7},
@@ -8531,7 +8531,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"Server.TLS", Field, 0},
 		{"Server.URL", Field, 0},
 	},
-	"net/http/httptrace": {
+	"github.com/runZeroInc/excrypto/stdlib/net/http/httptrace": {
 		{"ClientTrace", Type, 7},
 		{"ClientTrace.ConnectDone", Field, 7},
 		{"ClientTrace.ConnectStart", Field, 7},
@@ -8565,7 +8565,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"WroteRequestInfo", Type, 7},
 		{"WroteRequestInfo.Err", Field, 7},
 	},
-	"net/http/httputil": {
+	"github.com/runZeroInc/excrypto/stdlib/net/http/httputil": {
 		{"(*ClientConn).Close", Method, 0},
 		{"(*ClientConn).Do", Method, 0},
 		{"(*ClientConn).Hijack", Method, 0},
@@ -8609,7 +8609,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"ReverseProxy.Transport", Field, 0},
 		{"ServerConn", Type, 0},
 	},
-	"net/http/pprof": {
+	"github.com/runZeroInc/excrypto/stdlib/net/http/pprof": {
 		{"Cmdline", Func, 0},
 		{"Handler", Func, 0},
 		{"Index", Func, 0},

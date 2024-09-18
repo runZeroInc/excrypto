@@ -181,7 +181,7 @@ func TestSkipInternal(t *testing.T) {
 		pkg  string
 		want bool
 	}{
-		{"net/http", true},
+		{"github.com/runZeroInc/excrypto/stdlib/net/http", true},
 		{"github.com/runZeroInc/excrypto/stdlib/net/http/internal-foo", true},
 		{"github.com/runZeroInc/excrypto/stdlib/net/http/internal", false},
 		{"github.com/runZeroInc/excrypto/stdlib/net/http/internal/bar", false},

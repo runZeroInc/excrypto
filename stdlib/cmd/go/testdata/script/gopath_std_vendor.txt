@@ -39,6 +39,6 @@ import _ "golang.org/x/net/http2/hpack"
 -- importnethttp/http.go --
 package importnethttp
 
-import _ "net/http"
+import _ "github.com/runZeroInc/excrypto/stdlib/net/http"
 -- $GOPATH/src/vendor/golang.org/x/net/http2/hpack/hpack.go --
 package hpack

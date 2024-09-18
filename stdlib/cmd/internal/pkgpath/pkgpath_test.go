@@ -100,7 +100,7 @@ var symbolTests = []struct {
 		"bytes",
 	},
 	{
-		"net/http",
+		"github.com/runZeroInc/excrypto/stdlib/net/http",
 		"net_http",
 		"net..z2fhttp",
 		"net_1http",

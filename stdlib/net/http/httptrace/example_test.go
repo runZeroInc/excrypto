@@ -7,8 +7,8 @@ package httptrace_test
 import (
 	"fmt"
 	"log"
-	"net/http"
-	"net/http/httptrace"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/httptrace"
 )
 
 func Example() {

@@ -30,7 +30,7 @@ func TestScan(t *testing.T) {
 			// A dependency but not an import
 			t.Errorf("json reported as importing encoding/binary but does not")
 		}
-		if p == "net/http" {
+		if p == "github.com/runZeroInc/excrypto/stdlib/net/http" {
 			// A test import but not an import
 			t.Errorf("json reported as importing net/http but does not")
 		}
@@ -41,7 +41,7 @@ func TestScan(t *testing.T) {
 
 	foundHTTP := false
 	for _, p := range testImports {
-		if p == "net/http" {
+		if p == "github.com/runZeroInc/excrypto/stdlib/net/http" {
 			foundHTTP = true
 		}
 		if p == "unicode/utf16" {

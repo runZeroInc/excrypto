@@ -20,7 +20,7 @@ import (
 	"html/template"
 	"io"
 	"net"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	gourl "net/url"
 	"os"
 	"os/exec"

@@ -31,7 +31,7 @@
 // following line will install a handler under the /debug/pprof/trace URL
 // to download a live trace:
 //
-//	import _ "net/http/pprof"
+//	import _ "github.com/runZeroInc/excrypto/stdlib/net/http/pprof"
 //
 // See the [net/http/pprof] package for more details about all of the
 // debug endpoints installed by this import.

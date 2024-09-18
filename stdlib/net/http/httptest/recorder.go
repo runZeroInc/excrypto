@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"net/textproto"
 	"strconv"
 	"strings"

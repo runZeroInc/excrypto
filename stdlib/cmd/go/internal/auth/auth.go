@@ -5,7 +5,7 @@
 // Package auth provides access to user-provided authentication credentials.
 package auth
 
-import "net/http"
+import "github.com/runZeroInc/excrypto/stdlib/net/http"
 
 // AddCredentials fills in the user's credentials for req, if any.
 // The return value reports whether any matching credentials were found.

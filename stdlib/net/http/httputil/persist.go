@@ -9,7 +9,7 @@ import (
 	"errors"
 	"io"
 	"net"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"net/textproto"
 	"sync"
 )

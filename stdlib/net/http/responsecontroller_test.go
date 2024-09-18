@@ -8,7 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	. "net/http"
+	. "github.com/runZeroInc/excrypto/stdlib/net/http"
 	"os"
 	"sync"
 	"testing"

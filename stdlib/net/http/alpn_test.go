@@ -11,8 +11,8 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"fmt"
 	"io"
-	. "net/http"
-	"net/http/httptest"
+	. "github.com/runZeroInc/excrypto/stdlib/net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/httptest"
 	"strings"
 	"testing"
 )

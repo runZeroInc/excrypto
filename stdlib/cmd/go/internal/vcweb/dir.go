@@ -6,7 +6,7 @@ package vcweb
 
 import (
 	"log"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 )
 
 // dirHandler is a vcsHandler that serves the raw contents of a directory.

@@ -14,7 +14,7 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"net/url"
 	"os"
 	"strconv"

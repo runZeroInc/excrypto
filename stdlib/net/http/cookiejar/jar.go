@@ -10,7 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"github.com/runZeroInc/excrypto/stdlib/net/http/internal/ascii"
 	"net/url"
 	"slices"

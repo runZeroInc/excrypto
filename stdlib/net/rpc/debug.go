@@ -12,7 +12,7 @@ package rpc
 import (
 	"fmt"
 	"html/template"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"slices"
 	"strings"
 )

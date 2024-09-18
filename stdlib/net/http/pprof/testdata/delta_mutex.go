@@ -16,9 +16,9 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"net/http"
-	"net/http/pprof"
-	"net/http/httptest"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/pprof"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/httptest"
 	"runtime"
 )
 

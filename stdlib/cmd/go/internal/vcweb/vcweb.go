@@ -31,15 +31,12 @@ package vcweb
 
 import (
 	"bufio"
-	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/script"
 	"context"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"errors"
 	"fmt"
 	"io"
 	"io/fs"
 	"log"
-	"net/http"
 	"os"
 	"os/exec"
 	"path"
@@ -49,6 +46,10 @@ import (
 	"sync"
 	"text/tabwriter"
 	"time"
+
+	"github.com/runZeroInc/excrypto/stdlib/cmd/internal/script"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 )
 
 // A Server serves cached, dynamically-generated version control repositories.

@@ -29,7 +29,7 @@ package x
 -- x_test.go --
 package x
 import "testing"
-import _ "net/http"
+import _ "github.com/runZeroInc/excrypto/stdlib/net/http"
 func Test(t *testing.T) {}
 
 -- broken/go.mod --
@@ -38,6 +38,6 @@ module broken
 package broken
 
 import (
-	_ "net/http"
+	_ "github.com/runZeroInc/excrypto/stdlib/net/http"
 	_ "golang.org/x/net/http/httpproxy"
 )

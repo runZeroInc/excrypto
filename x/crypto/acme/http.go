@@ -14,7 +14,7 @@ import (
 	"fmt"
 	"io"
 	"math/big"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"runtime/debug"
 	"strconv"
 	"strings"

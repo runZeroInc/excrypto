@@ -19,7 +19,7 @@ import (
 // package path into a string suitable for use as a symbol.
 // cmd is the gccgo/GoLLVM compiler in use, and tmpdir is a temporary
 // directory to pass to os.CreateTemp().
-// For example, this returns a function that converts "net/http"
+// For example, this returns a function that converts "github.com/runZeroInc/excrypto/stdlib/net/http"
 // into a string like "net..z2fhttp". The actual string varies for
 // different gccgo/GoLLVM versions, which is why this returns a function
 // that does the conversion appropriate for the compiler in use.

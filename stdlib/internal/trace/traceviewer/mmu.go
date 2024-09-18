@@ -31,7 +31,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/internal/trace"
 	"log"
 	"math"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"strconv"
 	"strings"
 	"sync"

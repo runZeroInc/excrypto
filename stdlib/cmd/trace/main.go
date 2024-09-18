@@ -17,8 +17,8 @@ import (
 	"io"
 	"log"
 	"net"
-	"net/http"
-	_ "net/http/pprof" // Required to use pprof
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
+	_ "github.com/runZeroInc/excrypto/stdlib/net/http/pprof" // Required to use pprof
 	"os"
 	"slices"
 	"sync/atomic"

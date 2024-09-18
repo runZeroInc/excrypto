@@ -7,7 +7,7 @@ package http_test
 import (
 	"fmt"
 	"log"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"sync"
 )
 

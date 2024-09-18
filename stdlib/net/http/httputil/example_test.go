@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net/http"
-	"net/http/httptest"
-	"net/http/httputil"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/httptest"
+	"github.com/runZeroInc/excrypto/stdlib/net/http/httputil"
 	"net/url"
 	"strings"
 )

@@ -7,7 +7,7 @@ package embed_test
 import (
 	"embed"
 	"log"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 )
 
 //go:embed internal/embedtest/testdata/*.txt

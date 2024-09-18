@@ -7,7 +7,7 @@ package sumdb
 
 import (
 	"context"
-	"net/http"
+	"github.com/runZeroInc/excrypto/stdlib/net/http"
 	"os"
 	"strings"
 
