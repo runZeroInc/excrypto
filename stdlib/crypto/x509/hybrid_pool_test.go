@@ -5,17 +5,18 @@
 package x509_test
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"crypto/rand"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
-	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"math/big"
 	"runtime"
 	"testing"
 	"time"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 )
 
 func TestHybridPool(t *testing.T) {
@@ -87,18 +88,24 @@ func TestHybridPool(t *testing.T) {
 	if err != nil {
 		t.Fatalf("SystemCertPool failed: %s", err)
 	}
+
+	subCnt := len(pool.Subjects())
+	if subCnt < 150 {
+		t.Errorf("SystemCertPool has %d subjects, wanted >= 150", subCnt)
+	}
+
 	opts := x509.VerifyOptions{Roots: pool}
 
 	_, err = googChain[0].Verify(opts)
 	if err != nil {
-		t.Fatalf("verification failed for google.com chain (system only pool): %s", err)
+		t.Errorf("verification failed for google.com chain (system only pool): %s", err)
 	}
 
 	pool.AddCert(root)
 
 	_, err = googChain[0].Verify(opts)
 	if err != nil {
-		t.Fatalf("verification failed for google.com chain (hybrid pool): %s", err)
+		t.Errorf("verification failed for google.com chain (hybrid pool): %s", err)
 	}
 
 	certTmpl := &x509.Certificate{
@@ -118,6 +125,6 @@ func TestHybridPool(t *testing.T) {
 
 	_, err = cert.Verify(opts)
 	if err != nil {
-		t.Fatalf("verification failed for custom chain (hybrid pool): %s", err)
+		t.Errorf("verification failed for custom chain (hybrid pool): %s", err)
 	}
 }

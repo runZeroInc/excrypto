@@ -34,12 +34,9 @@ func initSystemRoots() {
 
 func loadSystemRoots() (*CertPool, error) {
 	p := NewCertPool()
+	p.systemPool = true
 	for _, c := range fallbackBundle {
 		p.AddCert(c)
 	}
 	return p, nil
-}
-
-func init() {
-	initSystemRoots()
 }

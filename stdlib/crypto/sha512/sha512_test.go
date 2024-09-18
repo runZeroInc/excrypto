@@ -11,7 +11,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/cryptotest"
 	"crypto/rand"
-	"encoding"
+	"github.com/runZeroInc/excrypto/stdlib/encoding"
 	"encoding/hex"
 	"fmt"
 	"hash"

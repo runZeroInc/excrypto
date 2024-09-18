@@ -36,7 +36,8 @@ type cacheEntry[K, V any] struct {
 	next *cacheEntry[K, V] // immutable once linked into table
 }
 
-func registerCache(unsafe.Pointer) // provided by runtime
+func registerCache(unsafe.Pointer) {
+}
 
 // Register registers the cache with the runtime,
 // so that c.ptable can be cleared at the start of each GC.

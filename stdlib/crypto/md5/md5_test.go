@@ -6,14 +6,15 @@ package md5
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/cryptotest"
 	"crypto/rand"
-	"encoding"
 	"fmt"
 	"hash"
 	"io"
 	"testing"
 	"unsafe"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/cryptotest"
+	"github.com/runZeroInc/excrypto/stdlib/encoding"
 )
 
 type md5Test struct {
