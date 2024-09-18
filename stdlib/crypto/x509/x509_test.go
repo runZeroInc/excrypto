@@ -6,24 +6,13 @@ package x509
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/dsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"crypto/rand"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
-	_ "github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
-	_ "github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"encoding/asn1"
 	"encoding/base64"
 	"encoding/gob"
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
-	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"math"
 	"math/big"
@@ -36,6 +25,19 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/dsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
+	_ "github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
+	_ "github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 )
 
 func TestParsePKCS1PrivateKey(t *testing.T) {
@@ -1900,7 +1902,9 @@ func TestSHA1(t *testing.T) {
 		t.Fatalf("certificate verification returned %v (%T), wanted InsecureAlgorithmError", err, err)
 	}
 
-	t.Setenv("GODEBUG", "x509sha1=1")
+	godebug.SetEnv("GODEBUG", "x509sha1=1")
+	t.Cleanup(func() { godebug.ResetEnv() })
+
 	if err = cert.CheckSignatureFrom(cert); err != nil {
 		t.Fatalf("SHA-1 certificate did not verify with GODEBUG=x509sha1=1: %v", err)
 	}
@@ -3986,7 +3990,9 @@ func TestCertificatePoliciesGODEBUG(t *testing.T) {
 		t.Errorf("cert.Policies = %v, want: %v", cert.Policies, expectPolicies)
 	}
 
-	t.Setenv("GODEBUG", "x509usepolicies=1")
+	godebug.SetEnv("GODEBUG", "x509usepolicies=1")
+	t.Cleanup(func() { godebug.ResetEnv() })
+
 	expectPolicies = []OID{mustNewOIDFromInts(t, []uint64{1, 2, math.MaxUint32 + 1})}
 
 	certDER, err = CreateCertificate(rand.Reader, &template, &template, rsaPrivateKey.Public(), rsaPrivateKey)

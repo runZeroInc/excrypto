@@ -196,7 +196,7 @@ func goDebugCalcDefaults() {
 		if v.Old == "0" {
 			def = append(def, v.Name+"=1")
 		} else {
-			def = append(def, v.Name+"=1")
+			def = append(def, v.Name+"=0")
 		}
 	}
 	goDebugDefaults = strings.Join(def, ",")
@@ -211,6 +211,18 @@ func SetEnv(key, value string) error {
 	}
 	update(goDebugDefaults, value)
 	return nil
+}
+
+// ResetEnv restores GODEBUG to the binary defaults
+func ResetEnv() {
+	goDebugDefaultCalc.Do(goDebugCalcDefaults)
+	os.Setenv("GODEBUG", goDebugDefaults)
+	update(goDebugDefaults, goDebugDefaults)
+}
+
+func GetGODEBUGDefaults() string {
+	goDebugDefaultCalc.Do(goDebugCalcDefaults)
+	return goDebugDefaults
 }
 
 var updateMu sync.Mutex
