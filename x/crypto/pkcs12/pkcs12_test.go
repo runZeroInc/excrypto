@@ -5,8 +5,8 @@
 package pkcs12
 
 import (
-	"crypto/rsa"
-	"crypto/tls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
 	"encoding/base64"
 	"encoding/pem"
 	"testing"

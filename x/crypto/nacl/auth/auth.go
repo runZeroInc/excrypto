@@ -24,8 +24,8 @@ This package is interoperable with NaCl: https://nacl.cr.yp.to/auth.html.
 package auth
 
 import (
-	"crypto/hmac"
-	"crypto/sha512"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
 )
 
 const (

@@ -6,7 +6,7 @@ package agent
 
 import (
 	"bytes"
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"errors"
 	"io"
 	"net"

@@ -2,7 +2,7 @@ package openpgp
 
 import (
 	"bytes"
-	"crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"strings"
 	"testing"
 	"time"

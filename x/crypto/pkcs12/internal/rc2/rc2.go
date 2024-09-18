@@ -12,7 +12,7 @@ This code is licensed under the MIT license.
 package rc2
 
 import (
-	"crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"encoding/binary"
 	"math/bits"
 )

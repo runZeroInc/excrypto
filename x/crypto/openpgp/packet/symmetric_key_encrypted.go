@@ -6,7 +6,7 @@ package packet
 
 import (
 	"bytes"
-	"crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"io"
 	"strconv"
 

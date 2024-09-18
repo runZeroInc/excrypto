@@ -6,7 +6,7 @@ package wycheproof
 
 import (
 	"bytes"
-	"crypto/ecdh"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
 	"fmt"
 	"testing"
 )

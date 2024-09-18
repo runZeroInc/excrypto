@@ -9,7 +9,7 @@
 package bcrypt_pbkdf
 
 import (
-	"crypto/sha512"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
 	"errors"
 	"github.com/runZeroInc/excrypto/x/crypto/blowfish"
 )

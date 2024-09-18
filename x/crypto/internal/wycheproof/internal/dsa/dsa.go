@@ -7,7 +7,7 @@
 package dsa
 
 import (
-	"crypto/dsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/dsa"
 	"math/big"
 
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"

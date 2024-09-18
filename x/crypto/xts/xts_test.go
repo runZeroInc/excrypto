@@ -6,7 +6,7 @@ package xts
 
 import (
 	"bytes"
-	"crypto/aes"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
 	"encoding/hex"
 	"testing"
 )

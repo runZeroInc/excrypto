@@ -30,7 +30,7 @@ type Cipher struct {
 type KeySizeError int
 
 func (k KeySizeError) Error() string {
-	return "crypto/blowfish: invalid key size " + strconv.Itoa(int(k))
+	return "github.com/runZeroInc/excrypto/stdlib/crypto/blowfish: invalid key size " + strconv.Itoa(int(k))
 }
 
 // NewCipher creates and returns a Cipher.
@@ -64,7 +64,7 @@ func NewSaltedCipher(key, salt []byte) (*Cipher, error) {
 
 // BlockSize returns the Blowfish block size, 8 bytes.
 // It is necessary to satisfy the Block interface in the
-// package "crypto/cipher".
+// package "github.com/runZeroInc/excrypto/stdlib/crypto/cipher".
 func (c *Cipher) BlockSize() int { return BlockSize }
 
 // Encrypt encrypts the 8-byte buffer src using the key k

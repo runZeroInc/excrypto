@@ -4,7 +4,7 @@
 
 package fallback
 
-import "crypto/x509"
+import "github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 import "encoding/pem"
 
 func mustParse(b []byte) []*x509.Certificate {

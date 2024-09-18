@@ -10,7 +10,7 @@
 // in the crypto/ecdh package.
 package curve25519
 
-import "crypto/ecdh"
+import "github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
 
 // ScalarMult sets dst to the product scalar * point.
 //

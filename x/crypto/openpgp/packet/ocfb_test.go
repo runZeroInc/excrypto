@@ -6,8 +6,8 @@ package packet
 
 import (
 	"bytes"
-	"crypto/aes"
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"testing"
 )
 

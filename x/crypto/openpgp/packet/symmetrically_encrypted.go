@@ -5,9 +5,9 @@
 package packet
 
 import (
-	"crypto/cipher"
-	"crypto/sha1"
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 	"hash"
 	"io"

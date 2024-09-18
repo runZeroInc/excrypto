@@ -7,7 +7,7 @@ package ssh
 // Key exchange tests.
 
 import (
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"fmt"
 	"reflect"
 	"sync"

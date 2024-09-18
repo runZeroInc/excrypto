@@ -10,9 +10,9 @@ package knownhosts
 import (
 	"bufio"
 	"bytes"
-	"crypto/hmac"
-	"crypto/rand"
-	"crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -469,7 +469,7 @@ func HashHostname(hostname string) string {
 
 	_, err := rand.Read(salt)
 	if err != nil {
-		panic(fmt.Sprintf("crypto/rand failure %v", err))
+		panic(fmt.Sprintf("github.com/runZeroInc/excrypto/stdlib/crypto/rand failure %v", err))
 	}
 
 	hash := hashHost(hostname, salt)

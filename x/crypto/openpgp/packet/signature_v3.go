@@ -5,7 +5,7 @@
 package packet
 
 import (
-	"crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"encoding/binary"
 	"fmt"
 	"io"

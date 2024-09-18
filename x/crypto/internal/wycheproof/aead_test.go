@@ -6,8 +6,8 @@ package wycheproof
 
 import (
 	"bytes"
-	"crypto/aes"
-	"crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"fmt"
 	"testing"
 

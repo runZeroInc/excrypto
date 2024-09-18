@@ -6,9 +6,9 @@ package packet
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/dsa"
-	"crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/dsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"encoding/asn1"
 	"encoding/binary"
 	"hash"

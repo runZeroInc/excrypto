@@ -5,8 +5,8 @@
 package packet
 
 import (
-	"crypto"
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"io"
 	"time"
 )

@@ -13,10 +13,10 @@
 package pkcs12
 
 import (
-	"crypto/ecdsa"
-	"crypto/rsa"
-	"crypto/x509"
-	"crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"encoding/asn1"
 	"encoding/hex"
 	"encoding/pem"

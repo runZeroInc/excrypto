@@ -14,7 +14,7 @@ package ripemd160
 // http://homes.esat.kuleuven.be/~cosicart/pdf/AB-9601/AB-9601.pdf.
 
 import (
-	"crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"hash"
 )
 

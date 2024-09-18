@@ -13,7 +13,7 @@
 package s2k
 
 import (
-	"crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"hash"
 	"io"
 	"strconv"

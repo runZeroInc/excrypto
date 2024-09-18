@@ -7,8 +7,8 @@ package acme
 import (
 	"bytes"
 	"context"
-	"crypto"
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"

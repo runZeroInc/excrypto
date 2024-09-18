@@ -6,7 +6,7 @@ package auth
 
 import (
 	"bytes"
-	rand "crypto/rand"
+	rand "github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	mrand "math/rand"
 	"testing"
 )

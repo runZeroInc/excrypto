@@ -14,11 +14,11 @@ package agent
 
 import (
 	"bytes"
-	"crypto/dsa"
-	"crypto/ecdsa"
-	"crypto/ed25519"
-	"crypto/elliptic"
-	"crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/dsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"encoding/base64"
 	"encoding/binary"
 	"errors"

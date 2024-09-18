@@ -5,7 +5,7 @@
 package sha3
 
 import (
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"encoding/binary"
 	"unsafe"
 

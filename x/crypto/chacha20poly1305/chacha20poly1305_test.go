@@ -6,8 +6,8 @@ package chacha20poly1305
 
 import (
 	"bytes"
-	"crypto/cipher"
-	cryptorand "crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	cryptorand "github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"encoding/hex"
 	"fmt"
 	mathrand "math/rand"

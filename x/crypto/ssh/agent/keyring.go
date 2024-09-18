@@ -6,8 +6,8 @@ package agent
 
 import (
 	"bytes"
-	"crypto/rand"
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"errors"
 	"fmt"
 	"sync"

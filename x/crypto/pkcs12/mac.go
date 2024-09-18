@@ -5,9 +5,9 @@
 package pkcs12
 
 import (
-	"crypto/hmac"
-	"crypto/sha1"
-	"crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"encoding/asn1"
 )
 

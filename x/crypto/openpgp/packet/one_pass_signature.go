@@ -5,7 +5,7 @@
 package packet
 
 import (
-	"crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"encoding/binary"
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/s2k"

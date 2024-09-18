@@ -6,7 +6,7 @@ package pkcs12
 
 import (
 	"bytes"
-	"crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"encoding/asn1"
 	"testing"
 )

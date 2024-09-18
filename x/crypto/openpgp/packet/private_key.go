@@ -6,12 +6,12 @@ package packet
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/cipher"
-	"crypto/dsa"
-	"crypto/ecdsa"
-	"crypto/rsa"
-	"crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/dsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 	"io"
 	"math/big"
 	"strconv"

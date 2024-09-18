@@ -6,7 +6,7 @@ package pkcs12
 
 import (
 	"bytes"
-	"crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 	"math/big"
 )
 

@@ -5,7 +5,7 @@
 package bn256
 
 import (
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 )
 
 func ExamplePair() {

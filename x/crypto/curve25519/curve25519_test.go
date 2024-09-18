@@ -6,7 +6,7 @@ package curve25519_test
 
 import (
 	"bytes"
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"encoding/hex"
 	"testing"
 

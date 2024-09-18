@@ -5,7 +5,7 @@
 package wycheproof
 
 import (
-	"crypto/ed25519"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
 	"testing"
 )
 

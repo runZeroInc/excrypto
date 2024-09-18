@@ -7,8 +7,8 @@
 package wycheproof
 
 import (
-	"crypto"
-	"crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"encoding/hex"
 	"encoding/json"
 	"flag"
@@ -19,9 +19,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	_ "crypto/sha1"
-	_ "crypto/sha256"
-	_ "crypto/sha512"
+	_ "github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
+	_ "github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
+	_ "github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
 )
 
 const wycheproofModVer = "v0.0.0-20191219022705-2196000605e4"

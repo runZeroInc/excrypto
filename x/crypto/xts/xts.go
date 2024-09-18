@@ -24,7 +24,7 @@
 package xts
 
 import (
-	"crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"encoding/binary"
 	"errors"
 	"sync"

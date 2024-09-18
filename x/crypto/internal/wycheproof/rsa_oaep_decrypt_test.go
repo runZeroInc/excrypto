@@ -6,8 +6,8 @@ package wycheproof
 
 import (
 	"bytes"
-	"crypto/rsa"
-	"crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"fmt"
 	"testing"
 )

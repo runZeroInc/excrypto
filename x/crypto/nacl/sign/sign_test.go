@@ -6,7 +6,7 @@ package sign
 
 import (
 	"bytes"
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"encoding/hex"
 	"testing"
 )

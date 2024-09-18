@@ -20,7 +20,7 @@
 // available.
 package fallback
 
-import "crypto/x509"
+import "github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 
 func init() {
 	p := x509.NewCertPool()

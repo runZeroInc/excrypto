@@ -9,7 +9,7 @@
 package test
 
 import (
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"fmt"
 
 	"github.com/runZeroInc/excrypto/x/crypto/ssh"

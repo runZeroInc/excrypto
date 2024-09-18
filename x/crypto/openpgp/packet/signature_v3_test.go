@@ -6,7 +6,7 @@ package packet
 
 import (
 	"bytes"
-	"crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"encoding/hex"
 	"io"
 	"testing"

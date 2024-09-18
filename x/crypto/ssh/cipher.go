@@ -5,11 +5,11 @@
 package ssh
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/des"
-	"crypto/rc4"
-	"crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/des"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rc4"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"encoding/binary"
 	"errors"
 	"fmt"

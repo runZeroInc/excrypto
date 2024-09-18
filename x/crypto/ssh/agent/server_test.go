@@ -5,8 +5,8 @@
 package agent
 
 import (
-	"crypto"
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"fmt"
 	pseudorand "math/rand"
 	"reflect"

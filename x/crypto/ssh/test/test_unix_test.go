@@ -10,7 +10,7 @@ package test
 
 import (
 	"bytes"
-	"crypto/rand"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand"
 	"encoding/base64"
 	"fmt"
 	"log"

@@ -5,7 +5,7 @@
 package wycheproof
 
 import (
-	"crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"math/big"
 	"testing"
 

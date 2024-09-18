@@ -5,7 +5,7 @@
 package wycheproof
 
 import (
-	"crypto/dsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/dsa"
 	"testing"
 
 	wdsa "github.com/runZeroInc/excrypto/x/crypto/internal/wycheproof/internal/dsa"

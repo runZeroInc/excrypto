@@ -15,7 +15,7 @@
 package ed25519
 
 import (
-	"crypto/ed25519"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
 	"io"
 )
 

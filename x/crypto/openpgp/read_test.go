@@ -6,7 +6,7 @@ package openpgp
 
 import (
 	"bytes"
-	_ "crypto/sha512"
+	_ "github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
 	"encoding/hex"
 	"io"
 	"strings"

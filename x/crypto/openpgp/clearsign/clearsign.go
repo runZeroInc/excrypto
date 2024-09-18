@@ -18,7 +18,7 @@ package clearsign
 import (
 	"bufio"
 	"bytes"
-	"crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"fmt"
 	"hash"
 	"io"

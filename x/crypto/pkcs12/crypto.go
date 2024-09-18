@@ -6,9 +6,9 @@ package pkcs12
 
 import (
 	"bytes"
-	"crypto/cipher"
-	"crypto/des"
-	"crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/des"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"encoding/asn1"
 	"errors"
 

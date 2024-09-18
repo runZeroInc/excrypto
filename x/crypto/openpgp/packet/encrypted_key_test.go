@@ -6,8 +6,8 @@ package packet
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"encoding/hex"
 	"fmt"
 	"io"

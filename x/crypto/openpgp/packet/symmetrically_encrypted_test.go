@@ -6,7 +6,7 @@ package packet
 
 import (
 	"bytes"
-	"crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 	"encoding/hex"
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 	"io"

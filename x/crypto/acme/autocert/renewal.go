@@ -6,7 +6,7 @@ package autocert
 
 import (
 	"context"
-	"crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"sync"
 	"time"
 )

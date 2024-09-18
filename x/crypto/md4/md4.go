@@ -10,7 +10,7 @@
 package md4
 
 import (
-	"crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"hash"
 )
 

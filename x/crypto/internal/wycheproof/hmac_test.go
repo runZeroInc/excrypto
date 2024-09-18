@@ -5,7 +5,7 @@
 package wycheproof
 
 import (
-	"crypto/hmac"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac"
 	"testing"
 )
 

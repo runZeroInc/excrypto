@@ -5,7 +5,7 @@
 package openpgp
 
 import (
-	"crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"io"
 	"time"
 

@@ -6,8 +6,8 @@ package autocert
 
 import (
 	"context"
-	"crypto"
-	"crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"testing"
 	"time"
 

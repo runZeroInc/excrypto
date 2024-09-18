@@ -14,10 +14,10 @@ package packet
 
 import (
 	"bufio"
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/des"
-	"crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/des"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"io"
 	"math/big"
 	"math/bits"

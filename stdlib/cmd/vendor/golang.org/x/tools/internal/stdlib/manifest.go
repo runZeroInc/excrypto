@@ -683,7 +683,7 @@ var PackageSymbols = map[string][]Symbol{
 		{"Size", Const, 0},
 		{"Sum", Func, 2},
 	},
-	"crypto/rand": {
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rand": {
 		{"Int", Func, 0},
 		{"Prime", Func, 0},
 		{"Read", Func, 0},

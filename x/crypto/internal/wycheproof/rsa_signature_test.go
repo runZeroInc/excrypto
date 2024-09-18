@@ -5,7 +5,7 @@
 package wycheproof
 
 import (
-	"crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"testing"
 )
 

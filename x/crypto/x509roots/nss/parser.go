@@ -12,8 +12,8 @@ package nss
 import (
 	"bufio"
 	"bytes"
-	"crypto/sha1"
-	"crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"errors"
 	"fmt"
 	"io"

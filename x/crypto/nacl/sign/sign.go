@@ -21,7 +21,7 @@
 package sign
 
 import (
-	"crypto/ed25519"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
 	"io"
 
 	"github.com/runZeroInc/excrypto/x/crypto/internal/alias"
