@@ -5,13 +5,16 @@
 package tls_test
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"log"
-	"github.com/runZeroInc/excrypto/stdlib/net/http"
-	"github.com/runZeroInc/excrypto/stdlib/net/http/httptest"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"time"
+
+	rtls "crypto/tls"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 )
 
 // zeroSource is an io.Reader that returns an unlimited number of zero bytes.
@@ -77,7 +80,7 @@ func ExampleConfig_keyLogWriter() {
 	// Dummy test HTTP server for the example with insecure random so output is
 	// reproducible.
 	server := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
-	server.TLS = &tls.Config{
+	server.TLS = &rtls.Config{
 		Rand: zeroSource{}, // for example only; don't do this.
 	}
 	server.StartTLS()
@@ -89,7 +92,7 @@ func ExampleConfig_keyLogWriter() {
 
 	client := &http.Client{
 		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
+			TLSClientConfig: &rtls.Config{
 				KeyLogWriter: w,
 
 				Rand:               zeroSource{}, // for reproducible output; don't do this.
@@ -167,11 +170,11 @@ MHcCAQEEIIrYSSNQFaA2Hwf1duRSxKtLYX5CB04fSeQ6tF1aY/PuoAoGCCqGSM49
 AwEHoUQDQgAEPR3tU2Fta9ktY+6P9G0cWO+0kETA6SFs38GecTyudlHz6xvCdz8q
 EKTcWGekdmdDPsHloRNtsiCa697B2O9IFA==
 -----END EC PRIVATE KEY-----`)
-	cert, err := tls.X509KeyPair(certPem, keyPem)
+	cert, err := rtls.X509KeyPair(certPem, keyPem)
 	if err != nil {
 		log.Fatal(err)
 	}
-	cfg := &tls.Config{Certificates: []tls.Certificate{cert}}
+	cfg := &rtls.Config{Certificates: []rtls.Certificate{cert}}
 	srv := &http.Server{
 		TLSConfig:    cfg,
 		ReadTimeout:  time.Minute,

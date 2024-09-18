@@ -9,17 +9,17 @@
 // func addMulVVW1024(z, x *uint, y uint) (c uint)
 TEXT ·addMulVVW1024(SB), $0-32
 	MOVD	$4, R6 // R6 = z_len/4
-	JMP		addMulVVWx<>(SB)
+	JMP		addMulVVWxExCrypto<>(SB)
 
 // func addMulVVW1536(z, x *uint, y uint) (c uint)
 TEXT ·addMulVVW1536(SB), $0-32
 	MOVD	$6, R6 // R6 = z_len/4
-	JMP		addMulVVWx<>(SB)
+	JMP		addMulVVWxExCrypto<>(SB)
 
 // func addMulVVW2048(z, x *uint, y uint) (c uint)
 TEXT ·addMulVVW2048(SB), $0-32
 	MOVD	$8, R6 // R6 = z_len/4
-	JMP		addMulVVWx<>(SB)
+	JMP		addMulVVWxExCrypto<>(SB)
 
 // This local function expects to be called only by
 // callers above. R6 contains the z length/4
@@ -27,7 +27,7 @@ TEXT ·addMulVVW2048(SB), $0-32
 // loop iteration, and is guaranteed to be > 0.
 // If other callers are added this function might
 // need to change.
-TEXT addMulVVWx<>(SB), NOSPLIT, $0
+TEXT addMulVVWxExCrypto<>(SB), NOSPLIT, $0
 	MOVD	z+0(FP), R3
 	MOVD	x+8(FP), R4
 	MOVD	y+16(FP), R5
