@@ -5,9 +5,10 @@
 package tls
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"slices"
 	_ "unsafe" // for linkname
+
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 )
 
 // Defaults are collected in this file to allow distributions to more easily patch

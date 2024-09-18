@@ -7,18 +7,12 @@ package tls
 import (
 	"bytes"
 	"context"
-	"github.com/runZeroInc/excrypto/stdlib/crypto"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"crypto/rand"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"encoding/asn1"
 	"encoding/json"
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"io"
 	"math"
 	"math/big"
@@ -29,6 +23,14 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 )
 
 var rsaCertPEM = `-----BEGIN CERTIFICATE-----
@@ -1839,6 +1841,7 @@ func testVerifyCertificates(t *testing.T, version uint16) {
 }
 
 func TestHandshakeKyber(t *testing.T) {
+
 	if x25519Kyber768Draft00.String() != "X25519Kyber768Draft00" {
 		t.Fatalf("unexpected CurveID string: %v", x25519Kyber768Draft00.String())
 	}
@@ -1901,7 +1904,8 @@ func TestHandshakeKyber(t *testing.T) {
 		{
 			name: "GODEBUG",
 			preparation: func(t *testing.T) {
-				t.Setenv("GODEBUG", "tlskyber=0")
+				godebug.SetEnv("GODEBUG", "tlskyber=0")
+				t.Cleanup(func() { godebug.SetEnv("GODEBUG", "") })
 			},
 			expectClientSupport: false,
 		},
@@ -1924,7 +1928,7 @@ func TestHandshakeKyber(t *testing.T) {
 				if !test.expectClientSupport && slices.Contains(hello.SupportedCurves, x25519Kyber768Draft00) {
 					return nil, errors.New("client supports Kyber768Draft00")
 				} else if test.expectClientSupport && !slices.Contains(hello.SupportedCurves, x25519Kyber768Draft00) {
-					return nil, errors.New("client does not support Kyber768Draft00")
+					return nil, fmt.Errorf("client does not support Kyber768Draft00: %v", hello.SupportedCurves)
 				}
 				return nil, nil
 			}
@@ -1991,7 +1995,8 @@ func TestX509KeyPairPopulateCertificate(t *testing.T) {
 	certPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certDER})
 
 	t.Run("x509keypairleaf=0", func(t *testing.T) {
-		t.Setenv("GODEBUG", "x509keypairleaf=0")
+		godebug.SetEnv("GODEBUG", "x509keypairleaf=0")
+		t.Cleanup(func() { godebug.SetEnv("GODEBUG", "") })
 		cert, err := X509KeyPair(certPEM, keyPEM)
 		if err != nil {
 			t.Fatal(err)
@@ -2001,7 +2006,8 @@ func TestX509KeyPairPopulateCertificate(t *testing.T) {
 		}
 	})
 	t.Run("x509keypairleaf=1", func(t *testing.T) {
-		t.Setenv("GODEBUG", "x509keypairleaf=1")
+		godebug.SetEnv("GODEBUG", "x509keypairleaf=1")
+		t.Cleanup(func() { godebug.SetEnv("GODEBUG", "") })
 		cert, err := X509KeyPair(certPEM, keyPEM)
 		if err != nil {
 			t.Fatal(err)

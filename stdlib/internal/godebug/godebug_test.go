@@ -6,15 +6,16 @@ package godebug_test
 
 import (
 	"fmt"
-	. "github.com/runZeroInc/excrypto/stdlib/internal/godebug"
-	"github.com/runZeroInc/excrypto/stdlib/internal/race"
-	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"os"
 	"os/exec"
 	"runtime/metrics"
 	"slices"
 	"strings"
 	"testing"
+
+	. "github.com/runZeroInc/excrypto/stdlib/internal/godebug"
+	"github.com/runZeroInc/excrypto/stdlib/internal/race"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 )
 
 func TestGet(t *testing.T) {

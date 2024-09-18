@@ -49,6 +49,8 @@ package godebug
 // meaning it cannot introduce a GODEBUG setting of its own.
 // We keep imports to the absolute bare minimum.
 import (
+	"os"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"unsafe"
@@ -180,6 +182,35 @@ func lookup(name string) *setting {
 	}
 
 	return s
+}
+
+var goDebugDefaults string
+var goDebugDefaultCalc sync.Once
+
+func goDebugCalcDefaults() {
+	def := []string{}
+	for _, v := range godebugs.All {
+		if v.Old == "" {
+			continue
+		}
+		if v.Old == "0" {
+			def = append(def, v.Name+"=1")
+		} else {
+			def = append(def, v.Name+"=1")
+		}
+	}
+	goDebugDefaults = strings.Join(def, ",")
+}
+
+// SetEnv is a wrapper that updates our stdlib GODEBUG parameters
+func SetEnv(key, value string) error {
+	goDebugDefaultCalc.Do(goDebugCalcDefaults)
+	os.Setenv(key, value)
+	if key != "GODEBUG" {
+		return nil
+	}
+	update(goDebugDefaults, value)
+	return nil
 }
 
 var updateMu sync.Mutex
