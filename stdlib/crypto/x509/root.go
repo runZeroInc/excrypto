@@ -5,9 +5,10 @@
 package x509
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"sync"
 	_ "unsafe" // for linkname
+
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 )
 
 // systemRoots should be an internal detail,
@@ -82,4 +83,8 @@ func SetFallbackRoots(roots *CertPool) {
 		x509usefallbackroots.IncNonDefault()
 	}
 	systemRoots, systemRootsErr = roots, nil
+}
+
+func loadSystemRoots() (*CertPool, error) {
+	return NewCertPool(), nil
 }

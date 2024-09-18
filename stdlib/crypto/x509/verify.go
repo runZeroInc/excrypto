@@ -6,17 +6,17 @@ package x509
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"errors"
 	"fmt"
 	"net"
 	"net/url"
 	"reflect"
-	"runtime"
 	"strings"
 	"time"
 	"unicode/utf8"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 )
 
 type InvalidReason int
@@ -763,25 +763,6 @@ func (c *Certificate) Verify(opts VerifyOptions) (chains [][]*Certificate, err e
 		}
 		if len(c.Raw) == 0 {
 			return nil, errNotParsed
-		}
-	}
-
-	// Use platform verifiers, where available, if Roots is from SystemCertPool.
-	if runtime.GOOS == "windows" || runtime.GOOS == "darwin" || runtime.GOOS == "ios" {
-		// Don't use the system verifier if the system pool was replaced with a non-system pool,
-		// i.e. if SetFallbackRoots was called with x509usefallbackroots=1.
-		systemPool := systemRootsPool()
-		if opts.Roots == nil && (systemPool == nil || systemPool.systemPool) {
-			return c.systemVerify(&opts)
-		}
-		if opts.Roots != nil && opts.Roots.systemPool {
-			platformChains, err := c.systemVerify(&opts)
-			// If the platform verifier succeeded, or there are no additional
-			// roots, return the platform verifier result. Otherwise, continue
-			// with the Go verifier.
-			if err == nil || opts.Roots.len() == 0 {
-				return platformChains, err
-			}
 		}
 	}
 
