@@ -1905,7 +1905,7 @@ func TestHandshakeKyber(t *testing.T) {
 			name: "GODEBUG",
 			preparation: func(t *testing.T) {
 				godebug.SetEnv("GODEBUG", "tlskyber=0")
-				t.Cleanup(func() { godebug.SetEnv("GODEBUG", "") })
+				t.Cleanup(func() { godebug.ResetEnv() })
 			},
 			expectClientSupport: false,
 		},
