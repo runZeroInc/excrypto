@@ -6,20 +6,8 @@ package x509
 
 import (
 	"sync"
-	_ "unsafe" // for linkname
-
-	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 )
 
-// systemRoots should be an internal detail,
-// but widely used packages access it using linkname.
-// Notable members of the hall of shame include:
-//   - github.com/breml/rootcerts
-//
-// Do not remove or change the type signature.
-// See go.dev/issue/67401.
-//
-//go:linkname systemRoots
 var (
 	once           sync.Once
 	systemRootsMu  sync.RWMutex
@@ -44,47 +32,14 @@ func initSystemRoots() {
 	}
 }
 
-var x509usefallbackroots = godebug.New("x509usefallbackroots")
-
-// SetFallbackRoots sets the roots to use during certificate verification, if no
-// custom roots are specified and a platform verifier or a system certificate
-// pool is not available (for instance in a container which does not have a root
-// certificate bundle). SetFallbackRoots will panic if roots is nil.
-//
-// SetFallbackRoots may only be called once, if called multiple times it will
-// panic.
-//
-// The fallback behavior can be forced on all platforms, even when there is a
-// system certificate pool, by setting GODEBUG=x509usefallbackroots=1 (note that
-// on Windows and macOS this will disable usage of the platform verification
-// APIs and cause the pure Go verifier to be used). Setting
-// x509usefallbackroots=1 without calling SetFallbackRoots has no effect.
-func SetFallbackRoots(roots *CertPool) {
-	if roots == nil {
-		panic("roots must be non-nil")
+func loadSystemRoots() (*CertPool, error) {
+	p := NewCertPool()
+	for _, c := range fallbackBundle {
+		p.AddCert(c)
 	}
-
-	// trigger initSystemRoots if it hasn't already been called before we
-	// take the lock
-	_ = systemRootsPool()
-
-	systemRootsMu.Lock()
-	defer systemRootsMu.Unlock()
-
-	if fallbacksSet {
-		panic("SetFallbackRoots has already been called")
-	}
-	fallbacksSet = true
-
-	if systemRoots != nil && (systemRoots.len() > 0 || systemRoots.systemPool) {
-		if x509usefallbackroots.Value() != "1" {
-			return
-		}
-		x509usefallbackroots.IncNonDefault()
-	}
-	systemRoots, systemRootsErr = roots, nil
+	return p, nil
 }
 
-func loadSystemRoots() (*CertPool, error) {
-	return NewCertPool(), nil
+func init() {
+	initSystemRoots()
 }
