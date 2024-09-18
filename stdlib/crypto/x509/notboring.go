@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build !boringcrypto
-
 package x509
 
 func boringAllowCert(c *Certificate) bool { return true }
