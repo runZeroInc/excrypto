@@ -11,7 +11,7 @@ package boring
 // When enabled is false, all functions in this package panic.
 //
 // BoringCrypto is only available on linux/amd64 and linux/arm64 systems.
-const Enabled = available
+const Enabled = false
 
 // A BigInt is the raw words from a BigInt.
 // This definition allows us to avoid importing math/big.
