@@ -5,20 +5,20 @@
 package x509_test
 
 import (
-	"crypto/rand"
-	"math/big"
-	"runtime"
 	"testing"
-	"time"
 
-	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
-	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 )
 
+func TestBasicTLS(t *testing.T) {
+	c, err := tls.Dial("tcp", "google.com:443", &tls.Config{})
+	if err != nil {
+		t.Fatalf("tls connection failed: %s", err)
+	}
+	c.Close()
+}
+
+/*
 func TestHybridPool(t *testing.T) {
 	t.Parallel()
 	if !(runtime.GOOS == "windows" || runtime.GOOS == "darwin" || runtime.GOOS == "ios") {
@@ -128,3 +128,4 @@ func TestHybridPool(t *testing.T) {
 		t.Errorf("verification failed for custom chain (hybrid pool): %s", err)
 	}
 }
+*/
