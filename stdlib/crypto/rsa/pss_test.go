@@ -8,17 +8,19 @@ import (
 	"bufio"
 	"bytes"
 	"compress/bzip2"
-	"github.com/runZeroInc/excrypto/stdlib/crypto"
-	"crypto/rand"
-	. "github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/hex"
 	"math/big"
 	"os"
 	"strconv"
 	"strings"
 	"testing"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	. "github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 )
 
 func TestEMSAPSS(t *testing.T) {

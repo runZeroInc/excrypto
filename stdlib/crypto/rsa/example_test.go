@@ -5,15 +5,17 @@
 package rsa_test
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
-	"crypto/rand"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"os"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 )
 
 // RSA is able to encrypt only a very limited amount of data. In order

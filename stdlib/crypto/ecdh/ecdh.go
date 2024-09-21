@@ -7,12 +7,13 @@
 package ecdh
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"errors"
 	"io"
 	"sync"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 )
 
 type Curve interface {
@@ -150,6 +151,7 @@ func (k *PrivateKey) Equal(x crypto.PrivateKey) bool {
 	if !ok {
 		return false
 	}
+	k.Curve()
 	return k.curve == xx.curve &&
 		subtle.ConstantTimeCompare(k.privateKey, xx.privateKey) == 1
 }

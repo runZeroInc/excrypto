@@ -6,7 +6,6 @@ package mlkem768
 
 import (
 	"bytes"
-	"crypto/rand"
 	_ "embed"
 	"encoding/hex"
 	"errors"
@@ -14,6 +13,8 @@ import (
 	"math/big"
 	"strconv"
 	"testing"
+
+	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/x/crypto/sha3"
 )

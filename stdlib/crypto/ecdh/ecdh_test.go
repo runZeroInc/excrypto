@@ -6,12 +6,13 @@ package ecdh_test
 
 import (
 	"bytes"
-	"crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"io"
 	"strings"
 	"testing"
+
+	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"

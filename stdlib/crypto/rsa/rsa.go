@@ -25,18 +25,20 @@
 package rsa
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/bigmod"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring/bbig"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/randutil"
-	"crypto/rand"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"errors"
 	"hash"
 	"io"
 	"math"
 	"math/big"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/bigmod"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring/bbig"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/randutil"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 )
 
 var bigOne = big.NewInt(1)

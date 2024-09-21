@@ -25,7 +25,6 @@ func testSignAndVerify(t *testing.T, i int, priv *PrivateKey) {
 }
 
 func testParameterGeneration(t *testing.T, sizes ParameterSizes, L, N int) {
-	t.Helper()
 	var priv PrivateKey
 	params := &priv.Parameters
 

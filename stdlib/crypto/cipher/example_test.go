@@ -6,13 +6,15 @@ package cipher_test
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
-	"crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 )
 
 func ExampleNewGCM_encrypt() {

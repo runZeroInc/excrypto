@@ -6,18 +6,20 @@ package rsa_test
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto"
-	"crypto/rand"
-	. "github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
 	"io"
 	"testing"
 	"testing/quick"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	. "github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 )
 
 func decodeBase64(in string) []byte {

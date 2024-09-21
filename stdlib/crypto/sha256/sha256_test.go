@@ -8,14 +8,16 @@ package sha256
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/cryptotest"
-	"crypto/rand"
-	"github.com/runZeroInc/excrypto/stdlib/encoding"
 	"fmt"
 	"hash"
 	"io"
 	"testing"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/cryptotest"
+	"github.com/runZeroInc/excrypto/stdlib/encoding"
 )
 
 type sha256Test struct {

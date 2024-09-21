@@ -28,9 +28,11 @@ package mlkem768
 // background at https://words.filippo.io/kyber-math/ useful.
 
 import (
-	"crypto/rand"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"errors"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 
 	"github.com/runZeroInc/excrypto/x/crypto/sha3"
