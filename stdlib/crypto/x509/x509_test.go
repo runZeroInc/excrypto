@@ -628,6 +628,8 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 		{"ECDSA/RSAPSS", &ecdsaPriv.PublicKey, testPrivateKey, false, SHA256WithRSAPSS},
 		{"RSAPSS/ECDSA", &testPrivateKey.PublicKey, ecdsaPriv, false, ECDSAWithSHA384},
 		{"Ed25519", ed25519Pub, ed25519Priv, true, PureEd25519},
+		{"ECDSAA-Aug/RSA", &AugmentedECDSA{Pub: &ecdsaPriv.PublicKey}, testPrivateKey, false, SHA256WithRSA},
+		{"ECDSA/ECDSA-Aug", &AugmentedECDSA{Pub: &ecdsaPriv.PublicKey}, ecdsaPriv, true, ECDSAWithSHA1},
 	}
 
 	testExtKeyUsage := []ExtKeyUsage{ExtKeyUsageClientAuth, ExtKeyUsageServerAuth}

@@ -113,9 +113,14 @@ func marshalPublicKey(pub any) (publicKeyBytes []byte, publicKeyAlgorithm pkix.A
 			return
 		}
 		publicKeyAlgorithm.Parameters.FullBytes = paramBytes
+	case *AugmentedECDSA:
+		return marshalPublicKey(pub.Pub)
 	case ed25519.PublicKey:
 		publicKeyBytes = pub
 		publicKeyAlgorithm.Algorithm = oidPublicKeyEd25519
+	case X25519PublicKey:
+		publicKeyAlgorithm.Algorithm = oidKeyX25519
+		return []byte(pub), publicKeyAlgorithm, nil
 	case *ecdh.PublicKey:
 		publicKeyBytes = pub.Bytes()
 		if pub.Curve() == ecdh.X25519() {
@@ -196,6 +201,17 @@ type dsaAlgorithmParameters struct {
 	P, Q, G *big.Int
 }
 
+type dsaSignature struct {
+	R, S *big.Int
+}
+
+type ecdsaSignature dsaSignature
+
+type AugmentedECDSA struct {
+	Pub *ecdsa.PublicKey
+	Raw asn1.BitString
+}
+
 type validity struct {
 	NotBefore, NotAfter time.Time
 }
@@ -245,6 +261,25 @@ func (algo SignatureAlgorithm) isRSAPSS() bool {
 	return false
 }
 
+var algoName = [...]string{
+	MD2WithRSA:       "MD2-RSA",
+	MD5WithRSA:       "MD5-RSA",
+	SHA1WithRSA:      "SHA1-RSA",
+	SHA256WithRSA:    "SHA256-RSA",
+	SHA384WithRSA:    "SHA384-RSA",
+	SHA512WithRSA:    "SHA512-RSA",
+	SHA256WithRSAPSS: "SHA256-RSAPSS",
+	SHA384WithRSAPSS: "SHA384-RSAPSS",
+	SHA512WithRSAPSS: "SHA512-RSAPSS",
+	DSAWithSHA1:      "DSA-SHA1",
+	DSAWithSHA256:    "DSA-SHA256",
+	ECDSAWithSHA1:    "ECDSA-SHA1",
+	ECDSAWithSHA256:  "ECDSA-SHA256",
+	ECDSAWithSHA384:  "ECDSA-SHA384",
+	ECDSAWithSHA512:  "ECDSA-SHA512",
+	PureEd25519:      "Ed25519",
+}
+
 func (algo SignatureAlgorithm) hashFunc() crypto.Hash {
 	for _, details := range signatureAlgorithmDetails {
 		if details.algo == algo {
@@ -263,6 +298,15 @@ func (algo SignatureAlgorithm) String() string {
 	return strconv.Itoa(int(algo))
 }
 
+var keyAlgorithmNames = []string{
+	"unknown_algorithm",
+	"RSA",
+	"DSA",
+	"ECDSA",
+	"Ed25519",
+	"X25519",
+}
+
 type PublicKeyAlgorithm int
 
 const (
@@ -271,13 +315,19 @@ const (
 	DSA // Only supported for parsing.
 	ECDSA
 	Ed25519
+	X25519
+	total_key_algorithms
 )
+
+// curve25519 package does not expose key types
+type X25519PublicKey []byte
 
 var publicKeyAlgoName = [...]string{
 	RSA:     "RSA",
 	DSA:     "DSA",
 	ECDSA:   "ECDSA",
 	Ed25519: "Ed25519",
+	X25519:  "X25519",
 }
 
 func (algo PublicKeyAlgorithm) String() string {
@@ -510,6 +560,8 @@ func getPublicKeyAlgorithmFromOID(oid asn1.ObjectIdentifier) PublicKeyAlgorithm 
 		return ECDSA
 	case oid.Equal(oidPublicKeyEd25519):
 		return Ed25519
+	case oid.Equal(oidKeyX25519):
+		return X25519
 	}
 	return UnknownPublicKeyAlgorithm
 }
@@ -535,6 +587,14 @@ var (
 	oidNamedCurveP256 = asn1.ObjectIdentifier{1, 2, 840, 10045, 3, 1, 7}
 	oidNamedCurveP384 = asn1.ObjectIdentifier{1, 3, 132, 0, 34}
 	oidNamedCurveP521 = asn1.ObjectIdentifier{1, 3, 132, 0, 35}
+)
+
+// https://datatracker.ietf.org/doc/draft-ietf-curdle-pkix/?include_text=1
+// id-X25519    OBJECT IDENTIFIER ::= { 1 3 101 110 }
+// id-Ed25519   OBJECT IDENTIFIER ::= { 1 3 101 112 }
+var (
+	oidKeyX25519  = asn1.ObjectIdentifier{1, 3, 101, 110}
+	oidKeyEd25519 = asn1.ObjectIdentifier{1, 3, 101, 112}
 )
 
 func namedCurveFromOID(oid asn1.ObjectIdentifier) elliptic.Curve {

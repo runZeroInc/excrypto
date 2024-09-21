@@ -12,11 +12,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
-
 	"github.com/runZeroInc/excrypto/stdlib/crypto/dsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	jsonKeys "github.com/runZeroInc/excrypto/stdlib/crypto/json"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/util"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
@@ -299,6 +298,24 @@ func GetECDSAPublicKeyJSON(key *ecdsa.PublicKey) *ECDSAPublicKeyJSON {
 	}
 }
 
+// GetAugmentedECDSAPublicKeyJSON - get the GetECDSAPublicKeyJSON for the given "augmented"
+// ECDSA PublicKey.
+func GetAugmentedECDSAPublicKeyJSON(key *AugmentedECDSA) *ECDSAPublicKeyJSON {
+	params := key.Pub.Params()
+	return &ECDSAPublicKeyJSON{
+		P:      params.P.Bytes(),
+		N:      params.N.Bytes(),
+		B:      params.B.Bytes(),
+		Gx:     params.Gx.Bytes(),
+		Gy:     params.Gy.Bytes(),
+		X:      key.Pub.X.Bytes(),
+		Y:      key.Pub.Y.Bytes(),
+		Curve:  key.Pub.Curve.Params().Name,
+		Length: key.Pub.Curve.Params().BitSize,
+		Pub:    key.Raw.Bytes,
+	}
+}
+
 // jsonifySubjectKey - Convert public key data in a Certificate
 // into json output format for JSONCertificate
 func (c *Certificate) jsonifySubjectKey() JSONSubjectKeyInfo {
@@ -331,6 +348,20 @@ func (c *Certificate) jsonifySubjectKey() JSONSubjectKeyInfo {
 			Y:      key.Y.Bytes(),
 			Curve:  key.Curve.Params().Name,
 			Length: key.Curve.Params().BitSize,
+		}
+	case *AugmentedECDSA:
+		params := key.Pub.Params()
+		j.ECDSAPublicKey = &ECDSAPublicKeyJSON{
+			P:      params.P.Bytes(),
+			N:      params.N.Bytes(),
+			B:      params.B.Bytes(),
+			Gx:     params.Gx.Bytes(),
+			Gy:     params.Gy.Bytes(),
+			X:      key.Pub.X.Bytes(),
+			Y:      key.Pub.Y.Bytes(),
+			Curve:  key.Pub.Curve.Params().Name,
+			Length: key.Pub.Curve.Params().BitSize,
+			Pub:    key.Raw.Bytes,
 		}
 	}
 	return j
@@ -561,4 +592,57 @@ func invertMask(mask net.IPMask) net.IPMask {
 		out[idx] = ^mask[idx]
 	}
 	return out
+}
+
+type auxGeneralSubtreeIP struct {
+	CIDR  string `json:"cidr,omitempty"`
+	Begin string `json:"begin,omitempty"`
+	End   string `json:"end,omitempty"`
+	Mask  string `json:"mask,omitempty"`
+}
+
+func (g *GeneralSubtreeIP) MarshalJSON() ([]byte, error) {
+	aux := auxGeneralSubtreeIP{}
+	aux.CIDR = g.Data.String()
+	// Check to see if the subnet is valid. An invalid subnet will return 0,0
+	// from Size(). If the subnet is invalid, only output the CIDR.
+	ones, bits := g.Data.Mask.Size()
+	if ones == 0 && bits == 0 {
+		return json.Marshal(&aux)
+	}
+	// The first IP in the range should be `ip & mask`.
+	begin := g.Data.IP.Mask(g.Data.Mask)
+	if begin != nil {
+		aux.Begin = begin.String()
+	}
+	// The last IP (inclusive) is `ip & (^mask)`.
+	inverseMask := invertMask(g.Data.Mask)
+	end := orMask(g.Data.IP, inverseMask)
+	if end != nil {
+		aux.End = end.String()
+	}
+	// Output the mask as an IP, but enforce it can be formatted correctly.
+	// net.IP.String() only works on byte arrays of the correct length.
+	maskLen := len(g.Data.Mask)
+	if maskLen == net.IPv4len || maskLen == net.IPv6len {
+		maskAsIP := net.IP(g.Data.Mask)
+		aux.Mask = maskAsIP.String()
+	}
+	return json.Marshal(&aux)
+}
+
+func (g *GeneralSubtreeIP) UnmarshalJSON(b []byte) error {
+	aux := auxGeneralSubtreeIP{}
+	if err := json.Unmarshal(b, &aux); err != nil {
+		return err
+	}
+	ip, ipNet, err := net.ParseCIDR(aux.CIDR)
+	if err != nil {
+		return err
+	}
+	g.Data.IP = ip
+	g.Data.Mask = ipNet.Mask
+	g.Min = 0
+	g.Max = 0
+	return nil
 }

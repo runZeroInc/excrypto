@@ -5,10 +5,10 @@
 package tls
 
 import (
-	"crypto"
 	"errors"
 	"hash"
 
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/md5"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
