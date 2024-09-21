@@ -6,7 +6,7 @@ package cryptobyte
 
 import (
 	"bytes"
-	encoding_asn1 "encoding/asn1"
+	encoding_asn1 "github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"math/big"
 	"reflect"
 	"testing"

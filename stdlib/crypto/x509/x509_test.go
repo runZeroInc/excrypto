@@ -7,12 +7,12 @@ package x509
 import (
 	"bytes"
 	"crypto/rand"
-	"encoding/asn1"
 	"encoding/base64"
 	"encoding/gob"
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"io"
 	"math"
 	"math/big"

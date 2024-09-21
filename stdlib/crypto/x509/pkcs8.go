@@ -5,14 +5,14 @@
 package x509
 
 import (
+	"errors"
+	"fmt"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
-	"encoding/asn1"
-	"errors"
-	"fmt"
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 )
 
 // pkcs8 reflects an ASN.1, PKCS #8 PrivateKey. See

@@ -6,10 +6,10 @@ package x509
 
 import (
 	"crypto/rand"
-	"encoding/asn1"
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"math/big"
 	"os/exec"
 	"runtime"

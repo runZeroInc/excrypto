@@ -6,8 +6,8 @@ package x509
 
 import (
 	"bytes"
-	"encoding/asn1"
 	"errors"
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"math"
 	"math/big"
 	"math/bits"

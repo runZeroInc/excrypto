@@ -7,9 +7,9 @@
 package pkix
 
 import (
-	"encoding/asn1"
 	"encoding/hex"
 	"fmt"
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"math/big"
 	"time"
 )

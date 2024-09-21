@@ -5,7 +5,7 @@
 package x509
 
 import (
-	"encoding/asn1"
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"testing"
 
 	cryptobyte_asn1 "github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"

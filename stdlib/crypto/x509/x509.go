@@ -22,6 +22,9 @@ package x509
 
 import (
 	"bytes"
+	"encoding/pem"
+	"errors"
+	"fmt"
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
@@ -30,10 +33,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
-	"encoding/asn1"
-	"encoding/pem"
-	"errors"
-	"fmt"
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"io"
 	"math/big"

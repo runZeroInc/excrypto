@@ -6,7 +6,7 @@ package x509
 
 import (
 	"github.com/runZeroInc/excrypto/stdlib/encoding"
-	"encoding/asn1"
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"math"
 	"testing"
 )

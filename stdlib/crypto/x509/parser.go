@@ -6,6 +6,8 @@ package x509
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/dsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
@@ -13,9 +15,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
-	"encoding/asn1"
-	"errors"
-	"fmt"
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"math/big"
 	"net"

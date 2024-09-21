@@ -5,8 +5,8 @@
 package cryptobyte
 
 import (
-	encoding_asn1 "encoding/asn1"
 	"fmt"
+	encoding_asn1 "github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"math/big"
 	"reflect"
 	"time"
