@@ -30,15 +30,16 @@ import (
 )
 
 type clientHandshakeState struct {
-	c            *Conn
-	ctx          context.Context
-	serverHello  *serverHelloMsg
-	hello        *clientHelloMsg
-	suite        *cipherSuite
-	finishedHash finishedHash
-	masterSecret []byte
-	session      *SessionState // the session being resumed
-	ticket       []byte        // a fresh ticket received during this handshake
+	c               *Conn
+	ctx             context.Context
+	serverHello     *serverHelloMsg
+	hello           *clientHelloMsg
+	suite           *cipherSuite
+	finishedHash    finishedHash
+	masterSecret    []byte
+	session         *SessionState // the session being resumed
+	ticket          []byte        // a fresh ticket received during this handshake
+	preMasterSecret []byte
 }
 
 type CacheKeyGenerator interface {

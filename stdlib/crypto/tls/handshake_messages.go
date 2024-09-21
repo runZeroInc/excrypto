@@ -1769,6 +1769,7 @@ func (m *serverHelloDoneMsg) unmarshal(data []byte) bool {
 
 type clientKeyExchangeMsg struct {
 	ciphertext []byte
+	raw        []byte
 }
 
 func (m *clientKeyExchangeMsg) marshal() ([]byte, error) {
@@ -1792,6 +1793,7 @@ func (m *clientKeyExchangeMsg) unmarshal(data []byte) bool {
 		return false
 	}
 	m.ciphertext = data[4:]
+	m.raw = data
 	return true
 }
 

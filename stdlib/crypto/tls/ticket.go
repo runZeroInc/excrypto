@@ -5,14 +5,15 @@
 package tls
 
 import (
+	"errors"
+	"io"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
-	"errors"
-	"io"
 
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
 )
@@ -398,6 +399,10 @@ func (c *Config) decryptTicket(encrypted []byte, ticketKeys []ticketKey) []byte 
 // resume a previous TLS session.
 type ClientSessionState struct {
 	session *SessionState
+	// zcrypto
+	preMasterSecret PreMasterSecret
+	sessionTicket   SessionTicket
+	lifetimeHint    uint32
 }
 
 // ResumptionState returns the session ticket sent by the server (also known as
