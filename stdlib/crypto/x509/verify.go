@@ -800,7 +800,7 @@ func (c *Certificate) Verify(opts VerifyOptions) (current, expired, never [][]*C
 	}
 	for i := 0; i < opts.Intermediates.len(); i++ {
 		c, _, iErr := opts.Intermediates.cert(i)
-		if err != nil {
+		if iErr != nil {
 			err = fmt.Errorf("crypto/x509: error fetching intermediate: %w", iErr)
 			return
 		}
