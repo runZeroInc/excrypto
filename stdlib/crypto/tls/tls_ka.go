@@ -17,6 +17,31 @@ import (
 // json.Unmarshaler
 type SignatureAndHash SigAndHash
 
+func (s *SigAndHash) ToSignatureAndHash() SignatureAndHash {
+	return SignatureAndHash{s.Signature, s.Hash}
+}
+
+func SignatureAndHashFromSignatureScheme(inp SignatureScheme) SignatureAndHash {
+	v := inp.Bytes()
+	return SignatureAndHash{Signature: v[0], Hash: v[1]}
+}
+
+func SignatureAndHashesFromSignatureSchemes(inp []SignatureScheme) []SignatureAndHash {
+	res := make([]SignatureAndHash, len(inp))
+	for i, s := range inp {
+		res[i] = SignatureAndHashFromSignatureScheme(s)
+	}
+	return res
+}
+
+func SignatureAndHashesToSignatureSchemes(inp []SignatureAndHash) []SignatureScheme {
+	res := make([]SignatureScheme, len(inp))
+	for i, s := range inp {
+		res[i] = SignatureScheme((uint16(s.Signature) << 8) + uint16(s.Hash))
+	}
+	return res
+}
+
 type auxSignatureAndHash struct {
 	SignatureAlgorithm string `json:"signature_algorithm"`
 	HashAlgorithm      string `json:"hash_algorithm"`

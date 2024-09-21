@@ -571,7 +571,7 @@ type ClientSessionCache interface {
 	Put(sessionKey string, cs *ClientSessionState)
 }
 
-func isSupportedSignatureAndHash(sigHash SigAndHash, sigHashes []SigAndHash) bool {
+func isSupportedSignatureAndHash(sigHash SignatureAndHash, sigHashes []SignatureAndHash) bool {
 	for _, s := range sigHashes {
 		if s == sigHash {
 			return true

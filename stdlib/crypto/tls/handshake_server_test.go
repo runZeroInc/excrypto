@@ -1091,7 +1091,7 @@ func TestHandshakeServerGetCertificateExtensions(t *testing.T) {
 				serverName:                   "test",
 				keyShares:                    []keyShare{{group: X25519, data: pk.PublicKey().Bytes()}},
 				supportedCurves:              []CurveID{X25519},
-				supportedSignatureAlgorithms: []SignatureScheme{Ed25519},
+				supportedSignatureAlgorithms: SignatureAndHashesFromSignatureSchemes([]SignatureScheme{Ed25519}),
 			}
 
 			// the clientHelloMsg initialized just above is serialized with

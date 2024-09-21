@@ -101,7 +101,7 @@ func (c *clientHelloMsg) WriteToConfig(config *Config) error {
 	config.ExtendedRandom = c.extendedRandomEnabled
 	config.ForceSessionTicketExt = c.ticketSupported
 	config.ExtendedMasterSecret = c.extendedMasterSecret
-	config.SignedCertificateTimestampExt = c.sctEnabled
+	config.SignedCertificateTimestampExt = c.scts
 	return nil
 }
 
@@ -319,10 +319,10 @@ func (c *Conn) makeClientHello() (*clientHelloMsg, *keySharePrivateKeys, *echCon
 	}
 
 	if maxVersion >= VersionTLS12 {
-		hello.supportedSignatureAlgorithms = supportedSignatureAlgorithms()
+		hello.supportedSignatureAlgorithms = SignatureAndHashesFromSignatureSchemes(supportedSignatureAlgorithms())
 	}
 	if testingOnlyForceClientHelloSignatureAlgorithms != nil {
-		hello.supportedSignatureAlgorithms = testingOnlyForceClientHelloSignatureAlgorithms
+		hello.supportedSignatureAlgorithms = SignatureAndHashesFromSignatureSchemes(testingOnlyForceClientHelloSignatureAlgorithms)
 	}
 
 	var keyShareKeys *keySharePrivateKeys

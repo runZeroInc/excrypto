@@ -188,7 +188,7 @@ func (ka *nilKeyAgreementAuthentication) verifyParameters(config *Config, client
 // pickTLS12HashForSignature returns a TLS 1.2 hash identifier for signing a
 // ServerKeyExchange given the signature type being used and the client's
 // advertised list of supported signature and hash combinations.
-func pickTLS12HashForSignature(sigType uint8, clientList, serverList []SigAndHash) (uint8, error) {
+func pickTLS12HashForSignature(sigType uint8, clientList, serverList []SignatureAndHash) (uint8, error) {
 	if len(clientList) == 0 {
 		// If the client didn't specify any signature_algorithms
 		// extension then we can assume that it supports SHA1. See
@@ -222,7 +222,12 @@ func (ka *signedKeyAgreement) signParameters(config *Config, cert *Certificate, 
 	var tlsHashID uint8
 	var err error
 	if ka.version >= VersionTLS12 {
-		if tlsHashID, err = pickTLS12HashForSignature(ka.sigType, clientHello.signatureAndHashes, config.signatureAndHashesForServer()); err != nil {
+		serverSigs := config.signatureAndHashesForServer()
+		serverSignatureAndHashes := make([]SignatureAndHash, len(serverSigs))
+		for i, s := range serverSigs {
+			serverSignatureAndHashes[i] = SignatureAndHash{Signature: s.Signature, Hash: s.Hash}
+		}
+		if tlsHashID, err = pickTLS12HashForSignature(ka.sigType, clientHello.supportedSignatureAlgorithms, serverSignatureAndHashes); err != nil {
 			return nil, err
 		}
 		ka.sh.Hash = tlsHashID
@@ -299,7 +304,13 @@ func (ka *signedKeyAgreement) verifyParameters(config *Config, clientHello *clie
 			return nil, errServerKeyExchange
 		}
 
-		if !isSupportedSignatureAndHash(SigAndHash{ka.sigType, tlsHashID}, config.signatureAndHashesForClient()) {
+		clientSigs := config.signatureAndHashesForServer()
+		clientSignatureAndHashes := make([]SignatureAndHash, len(clientSigs))
+		for i, s := range clientSigs {
+			clientSignatureAndHashes[i] = SignatureAndHash{Signature: s.Signature, Hash: s.Hash}
+		}
+
+		if !isSupportedSignatureAndHash(SignatureAndHash{ka.sigType, tlsHashID}, clientSignatureAndHashes) {
 			return nil, errors.New("tls: unsupported hash function for ServerKeyExchange")
 		}
 	}

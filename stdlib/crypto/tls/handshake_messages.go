@@ -81,8 +81,8 @@ type clientHelloMsg struct {
 	supportedPoints                  []uint8
 	ticketSupported                  bool
 	sessionTicket                    []uint8
-	supportedSignatureAlgorithms     []SignatureScheme
-	supportedSignatureAlgorithmsCert []SignatureScheme
+	supportedSignatureAlgorithms     []SignatureAndHash
+	supportedSignatureAlgorithmsCert []SignatureAndHash
 	secureRenegotiationSupported     bool
 	secureRenegotiation              []byte
 	extendedMasterSecret             bool
@@ -101,17 +101,12 @@ type clientHelloMsg struct {
 	extensions []uint16
 
 	// zcrypto
-	raw                   []byte
-	nextProtoNeg          bool
-	signatureAndHashes    []SigAndHash
-	heartbeatEnabled      bool
-	heartbeatMode         uint8
-	extendedRandomEnabled bool
-	extendedRandom        []byte
-	sctEnabled            bool
-
-	// TODO: ZGrab2 : populate
-	unknownExtensions [][]byte
+	heartbeatEnabled            bool
+	heartbeatMode               uint8
+	extendedRandomEnabled       bool
+	extendedRandom              []byte
+	extendedNextProtoNegEnabled bool
+	unknownExtensions           [][]byte
 }
 
 func (m *clientHelloMsg) marshalMsg(echInner bool) ([]byte, error) {
@@ -223,7 +218,7 @@ func (m *clientHelloMsg) marshalMsg(echInner bool) ([]byte, error) {
 			exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
 				exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
 					for _, sigAlgo := range m.supportedSignatureAlgorithms {
-						exts.AddUint16(uint16(sigAlgo))
+						exts.AddUint16(uint16(sigAlgo.Signature))
 					}
 				})
 			})
@@ -238,7 +233,7 @@ func (m *clientHelloMsg) marshalMsg(echInner bool) ([]byte, error) {
 			exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
 				exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
 					for _, sigAlgo := range m.supportedSignatureAlgorithmsCert {
-						exts.AddUint16(uint16(sigAlgo))
+						exts.AddUint16(uint16(sigAlgo.Signature))
 					}
 				})
 			})
@@ -258,6 +253,38 @@ func (m *clientHelloMsg) marshalMsg(echInner bool) ([]byte, error) {
 						})
 					}
 				})
+			})
+		}
+	}
+	if m.heartbeatEnabled {
+		if echInner {
+			echOuterExts = append(echOuterExts, extensionHeartbeat)
+		} else {
+			exts.AddUint16(extensionHeartbeat)
+			exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
+				exts.AddBytes([]byte{m.heartbeatMode})
+			})
+		}
+	}
+	if m.extendedRandomEnabled {
+		if echInner {
+			echOuterExts = append(echOuterExts, extensionExtendedRandom)
+		} else {
+			exts.AddUint16(extensionExtendedRandom)
+			exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
+				exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
+					exts.AddBytes(m.extendedRandom)
+				})
+			})
+		}
+	}
+	if m.extendedNextProtoNegEnabled {
+		if echInner {
+			echOuterExts = append(echOuterExts, extensionNextProtoNeg)
+		} else {
+			exts.AddUint16(extensionNextProtoNeg)
+			exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
+				exts.AddBytes([]byte{})
 			})
 		}
 	}
@@ -287,6 +314,11 @@ func (m *clientHelloMsg) marshalMsg(echInner bool) ([]byte, error) {
 					exts.AddBytes(m.cookie)
 				})
 			})
+		}
+	}
+	if len(m.unknownExtensions) > 0 {
+		for _, unkExt := range m.unknownExtensions {
+			exts.AddBytes(unkExt)
 		}
 	}
 	if len(m.keyShares) > 0 {
@@ -552,12 +584,15 @@ func (m *clientHelloMsg) unmarshal(data []byte) bool {
 				return false
 			}
 			for !sigAndAlgs.Empty() {
-				var sigAndAlg uint16
-				if !sigAndAlgs.ReadUint16(&sigAndAlg) {
+				var ssig, shash uint8
+				if !sigAndAlgs.ReadUint8(&ssig) {
+					return false
+				}
+				if !sigAndAlgs.ReadUint8(&shash) {
 					return false
 				}
 				m.supportedSignatureAlgorithms = append(
-					m.supportedSignatureAlgorithms, SignatureScheme(sigAndAlg))
+					m.supportedSignatureAlgorithms, SignatureAndHash(SigAndHash{Signature: ssig, Hash: shash}))
 			}
 		case extensionSignatureAlgorithmsCert:
 			// RFC 8446, Section 4.2.3
@@ -566,12 +601,15 @@ func (m *clientHelloMsg) unmarshal(data []byte) bool {
 				return false
 			}
 			for !sigAndAlgs.Empty() {
-				var sigAndAlg uint16
-				if !sigAndAlgs.ReadUint16(&sigAndAlg) {
+				var ssig, shash uint8
+				if !sigAndAlgs.ReadUint8(&ssig) {
 					return false
 				}
-				m.supportedSignatureAlgorithmsCert = append(
-					m.supportedSignatureAlgorithmsCert, SignatureScheme(sigAndAlg))
+				if !sigAndAlgs.ReadUint8(&shash) {
+					return false
+				}
+				m.supportedSignatureAlgorithms = append(
+					m.supportedSignatureAlgorithms, SignatureAndHash(SigAndHash{Signature: ssig, Hash: shash}))
 			}
 		case extensionRenegotiationInfo:
 			// RFC 5746, Section 3.2
@@ -595,6 +633,27 @@ func (m *clientHelloMsg) unmarshal(data []byte) bool {
 				}
 				m.alpnProtocols = append(m.alpnProtocols, string(proto))
 			}
+		case extensionHeartbeat:
+			m.heartbeatEnabled = true
+			var hbm cryptobyte.String
+			if !extData.ReadUint8LengthPrefixed(&hbm) || hbm.Empty() {
+				return false
+			}
+			_ = hbm.ReadUint8(&m.heartbeatMode)
+		case extensionExtendedRandom:
+			var extRandSet cryptobyte.String
+			if !extData.ReadUint16LengthPrefixed(&extRandSet) || extRandSet.Empty() {
+				return false
+			}
+			var extRand cryptobyte.String
+			if !extData.ReadUint16LengthPrefixed(&extRand) || extRand.Empty() {
+				return false
+			}
+			m.extendedRandomEnabled = true
+			m.extendedRandom = make([]byte, len(extData))
+			extRand.CopyBytes(m.extendedRandom)
+		case extensionNextProtoNeg:
+			m.extendedNextProtoNegEnabled = true
 		case extensionSCT:
 			// RFC 6962, Section 3.3.1
 			m.scts = true
@@ -676,8 +735,9 @@ func (m *clientHelloMsg) unmarshal(data []byte) bool {
 				m.pskBinders = append(m.pskBinders, binder)
 			}
 		default:
-			// Ignore unknown extensions.
-			continue
+			buff := make([]byte, len(extData))
+			extData.CopyBytes(buff)
+			m.unknownExtensions = append(m.unknownExtensions, buff)
 		}
 
 		if !extData.Empty() {
@@ -722,6 +782,12 @@ func (m *clientHelloMsg) clone() *clientHelloMsg {
 		pskBinders:                       slices.Clone(m.pskBinders),
 		quicTransportParameters:          slices.Clone(m.quicTransportParameters),
 		encryptedClientHello:             slices.Clone(m.encryptedClientHello),
+		// zcrypto
+		heartbeatEnabled:      m.heartbeatEnabled,
+		heartbeatMode:         m.heartbeatMode,
+		extendedRandomEnabled: m.extendedRandomEnabled,
+		extendedRandom:        slices.Clone(m.extendedRandom),
+		unknownExtensions:     slices.Clone(m.unknownExtensions),
 	}
 }
 
@@ -750,6 +816,13 @@ type serverHelloMsg struct {
 	// HelloRetryRequest extensions
 	cookie        []byte
 	selectedGroup CurveID
+
+	// zcrypto
+	heartbeatEnabled      bool
+	heartbeatMode         uint8
+	extendedRandomEnabled bool
+	extendedRandom        []byte
+	unknownExtensions     [][]byte
 }
 
 func (m *serverHelloMsg) marshal() ([]byte, error) {
@@ -781,6 +854,20 @@ func (m *serverHelloMsg) marshal() ([]byte, error) {
 				exts.AddUint8LengthPrefixed(func(exts *cryptobyte.Builder) {
 					exts.AddBytes([]byte(m.alpnProtocol))
 				})
+			})
+		})
+	}
+	if m.heartbeatEnabled {
+		exts.AddUint16(extensionHeartbeat)
+		exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
+			exts.AddBytes([]byte{m.heartbeatMode})
+		})
+	}
+	if m.extendedRandomEnabled {
+		exts.AddUint16(extensionExtendedRandom)
+		exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
+			exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
+				exts.AddBytes(m.extendedRandom)
 			})
 		})
 	}
@@ -936,6 +1023,25 @@ func (m *serverHelloMsg) unmarshal(data []byte) bool {
 				return false
 			}
 			m.alpnProtocol = string(proto)
+		case extensionHeartbeat:
+			m.heartbeatEnabled = true
+			var hbm cryptobyte.String
+			if !extData.ReadUint8LengthPrefixed(&hbm) || hbm.Empty() {
+				return false
+			}
+			_ = hbm.ReadUint8(&m.heartbeatMode)
+		case extensionExtendedRandom:
+			var extRandSet cryptobyte.String
+			if !extData.ReadUint16LengthPrefixed(&extRandSet) || extRandSet.Empty() {
+				return false
+			}
+			var extRand cryptobyte.String
+			if !extData.ReadUint16LengthPrefixed(&extRand) || extRand.Empty() {
+				return false
+			}
+			m.extendedRandomEnabled = true
+			m.extendedRandom = make([]byte, len(extData))
+			extRand.CopyBytes(m.extendedRandom)
 		case extensionSCT:
 			var sctList cryptobyte.String
 			if !extData.ReadUint16LengthPrefixed(&sctList) || sctList.Empty() {
@@ -993,8 +1099,9 @@ func (m *serverHelloMsg) unmarshal(data []byte) bool {
 			}
 			m.serverNameAck = true
 		default:
-			// Ignore unknown extensions.
-			continue
+			buff := make([]byte, len(extData))
+			extData.CopyBytes(buff)
+			m.unknownExtensions = append(m.unknownExtensions, buff)
 		}
 
 		if !extData.Empty() {
@@ -1099,8 +1206,7 @@ func (m *encryptedExtensionsMsg) unmarshal(data []byte) bool {
 				return false
 			}
 		default:
-			// Ignore unknown extensions.
-			continue
+			// Ignore unknown extensions
 		}
 
 		if !extData.Empty() {
@@ -1223,8 +1329,7 @@ func (m *newSessionTicketMsgTLS13) unmarshal(data []byte) bool {
 				return false
 			}
 		default:
-			// Ignore unknown extensions.
-			continue
+			// Ignore unknown extensions
 		}
 
 		if !extData.Empty() {
@@ -1241,6 +1346,7 @@ type certificateRequestMsgTLS13 struct {
 	supportedSignatureAlgorithms     []SignatureScheme
 	supportedSignatureAlgorithmsCert []SignatureScheme
 	certificateAuthorities           [][]byte
+	unknownExtensions                [][]byte
 }
 
 func (m *certificateRequestMsgTLS13) marshal() ([]byte, error) {
@@ -1296,6 +1402,11 @@ func (m *certificateRequestMsgTLS13) marshal() ([]byte, error) {
 						}
 					})
 				})
+			}
+			if len(m.unknownExtensions) > 0 {
+				for _, unkExt := range m.unknownExtensions {
+					b.AddBytes(unkExt)
+				}
 			}
 		})
 	})
@@ -1367,8 +1478,9 @@ func (m *certificateRequestMsgTLS13) unmarshal(data []byte) bool {
 				m.certificateAuthorities = append(m.certificateAuthorities, ca)
 			}
 		default:
-			// Ignore unknown extensions.
-			continue
+			buff := make([]byte, len(extData))
+			extData.CopyBytes(buff)
+			m.unknownExtensions = append(m.unknownExtensions, buff)
 		}
 
 		if !extData.Empty() {
@@ -1577,8 +1689,7 @@ func unmarshalCertificate(s *cryptobyte.String, certificate *Certificate) bool {
 						certificate.SignedCertificateTimestamps, sct)
 				}
 			default:
-				// Ignore unknown extensions.
-				continue
+				// Ignore unknown extensions
 			}
 
 			if !extData.Empty() {

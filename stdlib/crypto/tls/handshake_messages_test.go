@@ -6,7 +6,6 @@ package tls
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"encoding/hex"
 	"math"
 	"math/rand"
@@ -15,6 +14,8 @@ import (
 	"testing"
 	"testing/quick"
 	"time"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 )
 
 var tests = []handshakeMessage{
@@ -183,10 +184,10 @@ func (*clientHelloMsg) Generate(rand *rand.Rand, size int) reflect.Value {
 		}
 	}
 	if rand.Intn(10) > 5 {
-		m.supportedSignatureAlgorithms = supportedSignatureAlgorithms()
+		m.supportedSignatureAlgorithms = SignatureAndHashesFromSignatureSchemes(supportedSignatureAlgorithms())
 	}
 	if rand.Intn(10) > 5 {
-		m.supportedSignatureAlgorithmsCert = supportedSignatureAlgorithms()
+		m.supportedSignatureAlgorithmsCert = SignatureAndHashesFromSignatureSchemes(supportedSignatureAlgorithms())
 	}
 	for i := 0; i < rand.Intn(5); i++ {
 		m.alpnProtocols = append(m.alpnProtocols, randomString(rand.Intn(20)+1, rand))
