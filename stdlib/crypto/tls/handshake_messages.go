@@ -99,6 +99,19 @@ type clientHelloMsg struct {
 	encryptedClientHello             []byte
 	// extensions are only populated on the server-side of a handshake
 	extensions []uint16
+
+	// zcrypto
+	raw                   []byte
+	nextProtoNeg          bool
+	signatureAndHashes    []SigAndHash
+	heartbeatEnabled      bool
+	heartbeatMode         uint8
+	extendedRandomEnabled bool
+	extendedRandom        []byte
+	sctEnabled            bool
+
+	// TODO: ZGrab2 : populate
+	unknownExtensions [][]byte
 }
 
 func (m *clientHelloMsg) marshalMsg(echInner bool) ([]byte, error) {
@@ -1577,7 +1590,8 @@ func unmarshalCertificate(s *cryptobyte.String, certificate *Certificate) bool {
 }
 
 type serverKeyExchangeMsg struct {
-	key []byte
+	key    []byte
+	digest []byte
 }
 
 func (m *serverKeyExchangeMsg) marshal() ([]byte, error) {

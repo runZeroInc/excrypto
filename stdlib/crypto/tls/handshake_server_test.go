@@ -7,11 +7,6 @@ package tls
 import (
 	"bytes"
 	"context"
-	"github.com/runZeroInc/excrypto/stdlib/crypto"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
-	"crypto/rand"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -26,6 +21,13 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 )
 
 func testClientHello(t *testing.T, serverConfig *Config, m handshakeMessage) {

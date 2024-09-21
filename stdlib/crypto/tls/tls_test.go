@@ -12,7 +12,6 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"io"
 	"math"
 	"math/big"
@@ -29,6 +28,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 )

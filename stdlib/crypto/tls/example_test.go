@@ -202,7 +202,7 @@ func ExampleConfig_verifyConnection() {
 			for _, cert := range cs.PeerCertificates[1:] {
 				opts.Intermediates.AddCert(cert)
 			}
-			_, err := cs.PeerCertificates[0].Verify(opts)
+			_, _, _, err := cs.PeerCertificates[0].Verify(opts)
 			return err
 		},
 	}
@@ -222,7 +222,7 @@ func ExampleConfig_verifyConnection() {
 			for _, cert := range cs.PeerCertificates[1:] {
 				opts.Intermediates.AddCert(cert)
 			}
-			_, err := cs.PeerCertificates[0].Verify(opts)
+			_, _, _, err := cs.PeerCertificates[0].Verify(opts)
 			return err
 		},
 	}

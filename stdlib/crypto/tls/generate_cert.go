@@ -10,13 +10,6 @@
 package main
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
-	"crypto/rand"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"encoding/pem"
 	"flag"
 	"log"
@@ -25,6 +18,15 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 )
 
 var (

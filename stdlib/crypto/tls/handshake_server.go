@@ -6,18 +6,19 @@ package tls
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"hash"
+	"io"
+	"time"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
-	"errors"
-	"fmt"
-	"hash"
 	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
-	"io"
-	"time"
 )
 
 // serverHandshakeState contains details of a server handshake in progress.
@@ -910,7 +911,7 @@ func (c *Conn) processCertsFromClient(certificate Certificate) error {
 			opts.Intermediates.AddCert(cert)
 		}
 
-		chains, err := certs[0].Verify(opts)
+		chains, _, _, err := certs[0].Verify(opts)
 		if err != nil {
 			var errCertificateInvalid x509.CertificateInvalidError
 			if errors.As(err, &x509.UnknownAuthorityError{}) {

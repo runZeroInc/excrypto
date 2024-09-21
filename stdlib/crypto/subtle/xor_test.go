@@ -6,11 +6,13 @@ package subtle_test
 
 import (
 	"bytes"
-	"crypto/rand"
-	. "github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"fmt"
 	"io"
 	"testing"
+
+	"crypto/rand"
+
+	. "github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 )
 
 func TestXORBytes(t *testing.T) {
