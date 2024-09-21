@@ -9,9 +9,10 @@ package pkix
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"math/big"
 	"time"
+
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 )
 
 // AlgorithmIdentifier represents the ASN.1 structure of the same name. See RFC
@@ -121,10 +122,16 @@ type Extension struct {
 // structure. If an accurate representation is needed, asn1.Unmarshal the raw
 // subject or issuer as an [RDNSequence].
 type Name struct {
-	Country, Organization, OrganizationalUnit []string
-	Locality, Province                        []string
-	StreetAddress, PostalCode                 []string
-	SerialNumber, CommonName                  string
+	Country, Organization, OrganizationalUnit  []string
+	Locality, Province                         []string
+	StreetAddress, PostalCode, DomainComponent []string
+	EmailAddress                               []string
+	SerialNumber, CommonName                   string
+	SerialNumbers, CommonNames                 []string
+	GivenName, Surname                         []string
+	OrganizationIDs                            []string
+	// EV Components
+	JurisdictionLocality, JurisdictionProvince, JurisdictionCountry []string
 
 	// Names contains all parsed attributes. When parsing distinguished names,
 	// this can be used to extract non-standard attributes that are not parsed
@@ -136,6 +143,11 @@ type Name struct {
 	// distinguished names. Values override any attributes with the same OID.
 	// The ExtraNames field is not populated when parsing, see Names.
 	ExtraNames []AttributeTypeAndValue
+
+	// OriginalRDNS is saved if the name is populated using FillFromRDNSequence.
+	// Additionally, if OriginalRDNS is non-nil, the String and ToRDNSequence
+	// methods will simply use this.
+	OriginalRDNS RDNSequence
 }
 
 // FillFromRDNSequence populates n from the provided [RDNSequence].
@@ -159,6 +171,9 @@ func (n *Name) FillFromRDNSequence(rdns *RDNSequence) {
 				switch t[3] {
 				case 3:
 					n.CommonName = value
+					n.CommonNames = append(n.CommonNames, value)
+				case 4:
+					n.Surname = append(n.Surname, value)
 				case 5:
 					n.SerialNumber = value
 				case 6:
@@ -175,7 +190,22 @@ func (n *Name) FillFromRDNSequence(rdns *RDNSequence) {
 					n.OrganizationalUnit = append(n.OrganizationalUnit, value)
 				case 17:
 					n.PostalCode = append(n.PostalCode, value)
+				case 42:
+					n.GivenName = append(n.GivenName, value)
+				case 97:
+					n.OrganizationIDs = append(n.OrganizationIDs, value)
 				}
+			} else if t.Equal(oidDomainComponent) {
+				n.DomainComponent = append(n.DomainComponent, value)
+			} else if t.Equal(oidDNEmailAddress) {
+				// Deprecated, see RFC 5280 Section 4.1.2.6
+				n.EmailAddress = append(n.EmailAddress, value)
+			} else if t.Equal(oidJurisdictionLocality) {
+				n.JurisdictionLocality = append(n.JurisdictionLocality, value)
+			} else if t.Equal(oidJurisdictionProvince) {
+				n.JurisdictionProvince = append(n.JurisdictionProvince, value)
+			} else if t.Equal(oidJurisdictionCountry) {
+				n.JurisdictionCountry = append(n.JurisdictionCountry, value)
 			}
 		}
 	}
@@ -191,6 +221,16 @@ var (
 	oidProvince           = []int{2, 5, 4, 8}
 	oidStreetAddress      = []int{2, 5, 4, 9}
 	oidPostalCode         = []int{2, 5, 4, 17}
+	oidSurname            = []int{2, 5, 4, 4}
+	oidGivenName          = []int{2, 5, 4, 42}
+	oidDomainComponent    = []int{0, 9, 2342, 19200300, 100, 1, 25}
+	oidDNEmailAddress     = []int{1, 2, 840, 113549, 1, 9, 1}
+	// EV
+	oidJurisdictionLocality = []int{1, 3, 6, 1, 4, 1, 311, 60, 2, 1, 1}
+	oidJurisdictionProvince = []int{1, 3, 6, 1, 4, 1, 311, 60, 2, 1, 2}
+	oidJurisdictionCountry  = []int{1, 3, 6, 1, 4, 1, 311, 60, 2, 1, 3}
+	// QWACS
+	oidOrganizationID = []int{2, 5, 4, 97}
 )
 
 // appendRDNs appends a relativeDistinguishedNameSET to the given RDNSequence
@@ -231,6 +271,18 @@ func (n Name) ToRDNSequence() (ret RDNSequence) {
 	ret = n.appendRDNs(ret, n.PostalCode, oidPostalCode)
 	ret = n.appendRDNs(ret, n.Organization, oidOrganization)
 	ret = n.appendRDNs(ret, n.OrganizationalUnit, oidOrganizationalUnit)
+	ret = n.appendRDNs(ret, n.DomainComponent, oidDomainComponent)
+	// EV Components
+	ret = n.appendRDNs(ret, n.JurisdictionLocality, oidJurisdictionLocality)
+	ret = n.appendRDNs(ret, n.JurisdictionProvince, oidJurisdictionProvince)
+	ret = n.appendRDNs(ret, n.JurisdictionCountry, oidJurisdictionCountry)
+
+	// QWACS
+	ret = n.appendRDNs(ret, n.OrganizationIDs, oidOrganizationID)
+	if len(n.SerialNumber) > 0 {
+		ret = n.appendRDNs(ret, []string{n.SerialNumber}, oidSerialNumber)
+	}
+
 	if len(n.CommonName) > 0 {
 		ret = n.appendRDNs(ret, []string{n.CommonName}, oidCommonName)
 	}
@@ -255,7 +307,7 @@ func (n Name) String() string {
 			t := atv.Type
 			if len(t) == 4 && t[0] == 2 && t[1] == 5 && t[2] == 4 {
 				switch t[3] {
-				case 3, 5, 6, 7, 8, 9, 10, 11, 17:
+				case 3, 4, 5, 6, 7, 8, 9, 10, 11, 17, 42, 97:
 					// These attributes were already parsed into named fields.
 					continue
 				}
@@ -267,6 +319,20 @@ func (n Name) String() string {
 	}
 	rdns = append(rdns, n.ToRDNSequence()...)
 	return rdns.String()
+}
+
+// OtherName represents the ASN.1 structure of the same name. See RFC
+// 5280, section 4.2.1.6.
+type OtherName struct {
+	TypeID asn1.ObjectIdentifier
+	Value  asn1.RawValue `asn1:"explicit"`
+}
+
+// EDIPartyName represents the ASN.1 structure of the same name. See RFC
+// 5280, section 4.2.1.6.
+type EDIPartyName struct {
+	NameAssigner string `asn1:"tag:0,optional,explicit" json:"name_assigner,omitempty"`
+	PartyName    string `asn1:"tag:1,explicit" json:"party_name"`
 }
 
 // oidInAttributeTypeAndValue reports whether a type with the given OID exists

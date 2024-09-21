@@ -6,15 +6,16 @@ package x509
 
 import (
 	"bytes"
+	"encoding/hex"
+	"reflect"
+	"strings"
+	"testing"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
-	"encoding/hex"
-	"reflect"
-	"strings"
-	"testing"
 )
 
 // Generated using:

@@ -8,6 +8,14 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"math/big"
+	"net"
+	"strconv"
+	"strings"
+	"time"
+	"unicode/utf16"
+	"unicode/utf8"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto/dsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
@@ -17,14 +25,6 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
-	"math/big"
-	"net"
-	"net/url"
-	"strconv"
-	"strings"
-	"time"
-	"unicode/utf16"
-	"unicode/utf8"
 
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
 	cryptobyte_asn1 "github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
@@ -371,7 +371,7 @@ func forEachSAN(der cryptobyte.String, callback func(tag int, data []byte) error
 	return nil
 }
 
-func parseSANExtension(der cryptobyte.String) (dnsNames, emailAddresses []string, ipAddresses []net.IP, uris []*url.URL, err error) {
+func parseSANExtension(der cryptobyte.String) (dnsNames, emailAddresses []string, ipAddresses []net.IP, uris []string, err error) {
 	err = forEachSAN(der, func(tag int, data []byte) error {
 		switch tag {
 		case nameTypeEmail:
@@ -387,20 +387,7 @@ func parseSANExtension(der cryptobyte.String) (dnsNames, emailAddresses []string
 			}
 			dnsNames = append(dnsNames, string(name))
 		case nameTypeURI:
-			uriStr := string(data)
-			if err := isIA5String(uriStr); err != nil {
-				return errors.New("x509: SAN uniformResourceIdentifier is malformed")
-			}
-			uri, err := url.Parse(uriStr)
-			if err != nil {
-				return fmt.Errorf("x509: cannot parse URI %q: %s", uriStr, err)
-			}
-			if len(uri.Host) > 0 {
-				if _, ok := domainToReverseLabels(uri.Host); !ok {
-					return fmt.Errorf("x509: cannot parse URI %q: invalid domain", uriStr)
-				}
-			}
-			uris = append(uris, uri)
+			uris = append(uris, string(data))
 		case nameTypeIP:
 			switch len(data) {
 			case net.IPv4len, net.IPv6len:
@@ -536,7 +523,7 @@ func parseNameConstraintsExtension(out *Certificate, e pkix.Extension) (unhandle
 		return false, errors.New("x509: empty name constraints extension")
 	}
 
-	getValues := func(subtrees cryptobyte.String) (dnsNames []string, ips []*net.IPNet, emails, uriDomains []string, err error) {
+	getValues := func(subtrees cryptobyte.String) (dnsNames []GeneralSubtreeString, ips []GeneralSubtreeIP, emails, uriDomains []GeneralSubtreeString, err error) {
 		for !subtrees.Empty() {
 			var seq, value cryptobyte.String
 			var tag cryptobyte_asn1.Tag
@@ -570,7 +557,7 @@ func parseNameConstraintsExtension(out *Certificate, e pkix.Extension) (unhandle
 				if _, ok := domainToReverseLabels(trimmedDomain); !ok {
 					return nil, nil, nil, nil, fmt.Errorf("x509: failed to parse dnsName constraint %q", domain)
 				}
-				dnsNames = append(dnsNames, domain)
+				dnsNames = append(dnsNames, GeneralSubtreeString{Data: trimmedDomain})
 
 			case ipTag:
 				l := len(value)
@@ -593,7 +580,7 @@ func parseNameConstraintsExtension(out *Certificate, e pkix.Extension) (unhandle
 					return nil, nil, nil, nil, fmt.Errorf("x509: IP constraint contained invalid mask %x", mask)
 				}
 
-				ips = append(ips, &net.IPNet{IP: net.IP(ip), Mask: net.IPMask(mask)})
+				ips = append(ips, GeneralSubtreeIP{Data: net.IPNet{IP: net.IP(ip), Mask: net.IPMask(mask)}})
 
 			case emailTag:
 				constraint := string(value)
@@ -617,7 +604,7 @@ func parseNameConstraintsExtension(out *Certificate, e pkix.Extension) (unhandle
 						return nil, nil, nil, nil, fmt.Errorf("x509: failed to parse rfc822Name constraint %q", constraint)
 					}
 				}
-				emails = append(emails, constraint)
+				emails = append(emails, GeneralSubtreeString{Data: constraint})
 
 			case uriTag:
 				domain := string(value)
@@ -640,7 +627,7 @@ func parseNameConstraintsExtension(out *Certificate, e pkix.Extension) (unhandle
 				if _, ok := domainToReverseLabels(trimmedDomain); !ok {
 					return nil, nil, nil, nil, fmt.Errorf("x509: failed to parse URI constraint %q", domain)
 				}
-				uriDomains = append(uriDomains, domain)
+				uriDomains = append(uriDomains, GeneralSubtreeString{Data: domain})
 
 			default:
 				unhandled = true
@@ -650,13 +637,13 @@ func parseNameConstraintsExtension(out *Certificate, e pkix.Extension) (unhandle
 		return dnsNames, ips, emails, uriDomains, nil
 	}
 
-	if out.PermittedDNSDomains, out.PermittedIPRanges, out.PermittedEmailAddresses, out.PermittedURIDomains, err = getValues(permitted); err != nil {
+	if out.PermittedDNSNames, out.PermittedIPAddresses, out.PermittedEmailAddresses, out.PermittedURIs, err = getValues(permitted); err != nil {
 		return false, err
 	}
-	if out.ExcludedDNSDomains, out.ExcludedIPRanges, out.ExcludedEmailAddresses, out.ExcludedURIDomains, err = getValues(excluded); err != nil {
+	if out.ExcludedDNSNames, out.ExcludedIPAddresses, out.ExcludedEmailAddresses, out.ExcludedURIs, err = getValues(excluded); err != nil {
 		return false, err
 	}
-	out.PermittedDNSDomainsCritical = e.Critical
+	out.NameConstraintsCritical = e.Critical
 
 	return unhandled, nil
 }

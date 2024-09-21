@@ -12,7 +12,6 @@ import (
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
-	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"io"
 	"math"
 	"math/big"
@@ -25,6 +24,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/dsa"
@@ -670,21 +671,22 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 			OCSPServer:            []string{"http://ocsp.example.com"},
 			IssuingCertificateURL: []string{"http://crt.example.com/ca1.crt"},
 
-			DNSNames:       []string{"test.example.com"},
-			EmailAddresses: []string{"gopher@golang.org"},
-			IPAddresses:    []net.IP{net.IPv4(127, 0, 0, 1).To4(), net.ParseIP("2001:4860:0:2001::68")},
-			URIs:           []*url.URL{parseURI("https://foo.com/wibble#foo")},
+			DNSNames:          []string{"test.example.com"},
+			EmailAddresses:    []string{"gopher@golang.org"},
+			IPAddresses:       []net.IP{net.IPv4(127, 0, 0, 1).To4(), net.ParseIP("2001:4860:0:2001::68")},
+			URIs:              []string{"https://foo.com/wibble#foo"},
+			PolicyIdentifiers: []asn1.ObjectIdentifier{[]int{1, 2, 3}},
+			Policies:          []OID{mustNewOIDFromInts(t, []uint64{1, 2, 3, math.MaxUint32, math.MaxUint64})},
+			PermittedDNSNames: []GeneralSubtreeString{{Data: ".example.com"}, {Data: "example.com"}},
+			ExcludedDNSNames:  []GeneralSubtreeString{{Data: "bar.example.com"}},
 
-			PolicyIdentifiers:       []asn1.ObjectIdentifier{[]int{1, 2, 3}},
-			Policies:                []OID{mustNewOIDFromInts(t, []uint64{1, 2, 3, math.MaxUint32, math.MaxUint64})},
-			PermittedDNSDomains:     []string{".example.com", "example.com"},
-			ExcludedDNSDomains:      []string{"bar.example.com"},
-			PermittedIPRanges:       []*net.IPNet{parseCIDR("192.168.1.1/16"), parseCIDR("1.2.3.4/8")},
-			ExcludedIPRanges:        []*net.IPNet{parseCIDR("2001:db8::/48")},
-			PermittedEmailAddresses: []string{"foo@example.com"},
-			ExcludedEmailAddresses:  []string{".example.com", "example.com"},
-			PermittedURIDomains:     []string{".bar.com", "bar.com"},
-			ExcludedURIDomains:      []string{".bar2.com", "bar2.com"},
+			PermittedIPAddresses: []GeneralSubtreeIP{{Data: *parseCIDR("192.168.1.1/16")}, {Data: *parseCIDR("1.2.3.4/8")}},
+			ExcludedIPAddresses:  []GeneralSubtreeIP{{Data: *parseCIDR("2001:db8::/48")}},
+
+			PermittedEmailAddresses: []GeneralSubtreeString{{Data: "foo@example.com"}},
+			ExcludedEmailAddresses:  []GeneralSubtreeString{{Data: ".example.com"}, {Data: "example.com"}},
+			PermittedURIs:           []GeneralSubtreeString{{Data: ".bar.com"}, {Data: "bar.com"}},
+			ExcludedURIs:            []GeneralSubtreeString{{Data: ".bar2.com"}, {Data: "bar2.com"}},
 
 			CRLDistributionPoints: []string{"http://crl1.example.com/ca1.crl", "http://crl2.example.com/ca1.crl"},
 
@@ -718,36 +720,36 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 			t.Errorf("%s: failed to parse policy identifiers: got:%#v want:%#v", test.name, cert.PolicyIdentifiers, template.PolicyIdentifiers)
 		}
 
-		if len(cert.PermittedDNSDomains) != 2 || cert.PermittedDNSDomains[0] != ".example.com" || cert.PermittedDNSDomains[1] != "example.com" {
-			t.Errorf("%s: failed to parse name constraints: %#v", test.name, cert.PermittedDNSDomains)
+		if len(cert.PermittedDNSNames) != 2 || cert.PermittedDNSNames[0].Data != ".example.com" || cert.PermittedDNSNames[1].Data != "example.com" {
+			t.Errorf("%s: failed to parse name constraints: %#v", test.name, cert.PermittedDNSNames)
 		}
 
-		if len(cert.ExcludedDNSDomains) != 1 || cert.ExcludedDNSDomains[0] != "bar.example.com" {
-			t.Errorf("%s: failed to parse name constraint exclusions: %#v", test.name, cert.ExcludedDNSDomains)
+		if len(cert.ExcludedDNSNames) != 1 || cert.ExcludedDNSNames[0].Data != "bar.example.com" {
+			t.Errorf("%s: failed to parse name constraint exclusions: %#v", test.name, cert.ExcludedDNSNames)
 		}
 
-		if len(cert.PermittedIPRanges) != 2 || cert.PermittedIPRanges[0].String() != "192.168.0.0/16" || cert.PermittedIPRanges[1].String() != "1.0.0.0/8" {
-			t.Errorf("%s: failed to parse IP constraints: %#v", test.name, cert.PermittedIPRanges)
+		if len(cert.PermittedIPAddresses) != 2 || cert.PermittedIPAddresses[0].Data.String() != "192.168.0.0/16" || cert.PermittedIPAddresses[1].Data.String() != "1.0.0.0/8" {
+			t.Errorf("%s: failed to parse IP constraints: %#v", test.name, cert.PermittedIPAddresses)
 		}
 
-		if len(cert.ExcludedIPRanges) != 1 || cert.ExcludedIPRanges[0].String() != "2001:db8::/48" {
-			t.Errorf("%s: failed to parse IP constraint exclusions: %#v", test.name, cert.ExcludedIPRanges)
+		if len(cert.ExcludedIPAddresses) != 1 || cert.ExcludedIPAddresses[0].Data.String() != "2001:db8::/48" {
+			t.Errorf("%s: failed to parse IP constraint exclusions: %#v", test.name, cert.ExcludedIPAddresses)
 		}
 
-		if len(cert.PermittedEmailAddresses) != 1 || cert.PermittedEmailAddresses[0] != "foo@example.com" {
+		if len(cert.PermittedEmailAddresses) != 1 || cert.PermittedEmailAddresses[0].Data != "foo@example.com" {
 			t.Errorf("%s: failed to parse permitted email addresses: %#v", test.name, cert.PermittedEmailAddresses)
 		}
 
-		if len(cert.ExcludedEmailAddresses) != 2 || cert.ExcludedEmailAddresses[0] != ".example.com" || cert.ExcludedEmailAddresses[1] != "example.com" {
+		if len(cert.ExcludedEmailAddresses) != 2 || cert.ExcludedEmailAddresses[0].Data != ".example.com" || cert.ExcludedEmailAddresses[1].Data != "example.com" {
 			t.Errorf("%s: failed to parse excluded email addresses: %#v", test.name, cert.ExcludedEmailAddresses)
 		}
 
-		if len(cert.PermittedURIDomains) != 2 || cert.PermittedURIDomains[0] != ".bar.com" || cert.PermittedURIDomains[1] != "bar.com" {
-			t.Errorf("%s: failed to parse permitted URIs: %#v", test.name, cert.PermittedURIDomains)
+		if len(cert.PermittedURIs) != 2 || cert.PermittedURIs[0].Data != ".bar.com" || cert.PermittedURIs[1].Data != "bar.com" {
+			t.Errorf("%s: failed to parse permitted URIs: %#v", test.name, cert.PermittedURIs)
 		}
 
-		if len(cert.ExcludedURIDomains) != 2 || cert.ExcludedURIDomains[0] != ".bar2.com" || cert.ExcludedURIDomains[1] != "bar2.com" {
-			t.Errorf("%s: failed to parse excluded URIs: %#v", test.name, cert.ExcludedURIDomains)
+		if len(cert.ExcludedURIs) != 2 || cert.ExcludedURIs[0].Data != ".bar2.com" || cert.ExcludedURIs[1].Data != "bar2.com" {
+			t.Errorf("%s: failed to parse excluded URIs: %#v", test.name, cert.ExcludedURIs)
 		}
 
 		if cert.Subject.CommonName != commonName {
@@ -809,7 +811,7 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 			t.Errorf("%s: SAN emails differ from template. Got %v, want %v", test.name, cert.EmailAddresses, template.EmailAddresses)
 		}
 
-		if len(cert.URIs) != 1 || cert.URIs[0].String() != "https://foo.com/wibble#foo" {
+		if len(cert.URIs) != 1 || cert.URIs[0] != "https://foo.com/wibble#foo" {
 			t.Errorf("%s: URIs differ from template. Got %v, want %v", test.name, cert.URIs, template.URIs)
 		}
 
@@ -1808,7 +1810,7 @@ func TestASN1BitLength(t *testing.T) {
 }
 
 func TestVerifyEmptyCertificate(t *testing.T) {
-	if _, err := new(Certificate).Verify(VerifyOptions{}); err != errNotParsed {
+	if _, _, _, err := new(Certificate).Verify(VerifyOptions{}); err != errNotParsed {
 		t.Errorf("Verifying empty certificate resulted in unexpected error: %q (wanted %q)", err, errNotParsed)
 	}
 }
@@ -3002,11 +3004,7 @@ func TestIA5SANEnforcement(t *testing.T) {
 		t.Fatalf("ecdsa.GenerateKey failed: %s", err)
 	}
 
-	testURL, err := url.Parse("https://example.com/")
-	if err != nil {
-		t.Fatalf("url.Parse failed: %s", err)
-	}
-	testURL.RawQuery = "∞"
+	testURL := "https://example.com/?∞"
 
 	marshalTests := []struct {
 		name          string
@@ -3033,7 +3031,7 @@ func TestIA5SANEnforcement(t *testing.T) {
 			name: "marshal: unicode uniformResourceIdentifier",
 			template: &Certificate{
 				SerialNumber: big.NewInt(0),
-				URIs:         []*url.URL{testURL},
+				URIs:         []string{testURL},
 			},
 			expectedError: "x509: \"https://example.com/?∞\" cannot be encoded as an IA5String",
 		},
@@ -3221,19 +3219,13 @@ func certPoolEqual(a, b *CertPool) bool {
 }
 
 func TestCertificateRequestRoundtripFields(t *testing.T) {
-	urlA, err := url.Parse("https://example.com/_")
-	if err != nil {
-		t.Fatal(err)
-	}
-	urlB, err := url.Parse("https://example.org/_")
-	if err != nil {
-		t.Fatal(err)
-	}
+	urlA := "https://example.com/_"
+	urlB := "https://example.org/_"
 	in := &CertificateRequest{
 		DNSNames:       []string{"example.com", "example.org"},
 		EmailAddresses: []string{"a@example.com", "b@example.com"},
 		IPAddresses:    []net.IP{net.IPv4(192, 0, 2, 0), net.IPv6loopback},
-		URIs:           []*url.URL{urlA, urlB},
+		URIs:           []string{urlA, urlB},
 	}
 	out := marshalAndParseCSR(t, in)
 

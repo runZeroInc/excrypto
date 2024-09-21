@@ -6,11 +6,12 @@ package x509
 
 import (
 	"bytes"
-	"crypto/rand"
 	"encoding/base64"
 	"encoding/pem"
 	"strings"
 	"testing"
+
+	"crypto/rand"
 )
 
 func TestDecrypt(t *testing.T) {

@@ -9,7 +9,6 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"math/big"
 	"os/exec"
 	"runtime"
@@ -18,6 +17,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
@@ -484,7 +485,7 @@ func testVerify(t *testing.T, test verifyTest, useSystemRoots bool) {
 		t.Fatalf("failed to parse leaf: %v", err)
 	}
 
-	chains, err := leaf.Verify(opts)
+	chains, _, _, err := leaf.Verify(opts)
 
 	if test.errorCallback == nil && err != nil {
 		if runtime.GOOS == "windows" && strings.HasSuffix(testenv.Builder(), "-2008") && err.Error() == "x509: certificate signed by unknown authority" {
@@ -1785,7 +1786,7 @@ func TestPathologicalChain(t *testing.T) {
 	}
 
 	start := time.Now()
-	_, err = leaf.Verify(VerifyOptions{
+	_, _, _, err = leaf.Verify(VerifyOptions{
 		Roots:         roots,
 		Intermediates: intermediates,
 	})
@@ -1824,7 +1825,7 @@ func TestLongChain(t *testing.T) {
 	}
 
 	start := time.Now()
-	if _, err := leaf.Verify(VerifyOptions{
+	if _, _, _, err := leaf.Verify(VerifyOptions{
 		Roots:         roots,
 		Intermediates: intermediates,
 	}); err != nil {
@@ -1857,7 +1858,7 @@ func TestSystemRootsError(t *testing.T) {
 
 	systemRoots = nil
 
-	_, err = leaf.Verify(opts)
+	_, _, _, err = leaf.Verify(opts)
 	if _, ok := err.(SystemRootsError); !ok {
 		t.Errorf("error was not SystemRootsError: %v", err)
 	}
@@ -2158,7 +2159,7 @@ func TestPathBuilding(t *testing.T) {
 						Subject: "inter b",
 						Type:    intermediateCertificate,
 						MutateTemplate: func(t *Certificate) {
-							t.PermittedDNSDomains = []string{"good"}
+							t.PermittedDNSNames = []GeneralSubtreeString{{Data: "good"}}
 							t.DNSNames = []string{"bad"}
 						},
 					},
@@ -2403,7 +2404,7 @@ func TestPathBuilding(t *testing.T) {
 					{
 						Subject: "root",
 						MutateTemplate: func(t *Certificate) {
-							t.PermittedDNSDomains = []string{"example.com"}
+							t.PermittedDNSNames = []GeneralSubtreeString{{Data: "example.com"}}
 						},
 					},
 				},
@@ -2443,7 +2444,7 @@ func TestPathBuilding(t *testing.T) {
 						Type:    intermediateCertificate,
 						MutateTemplate: func(t *Certificate) {
 							t.DNSNames = []string{"beep.com"}
-							t.PermittedDNSDomains = []string{"example.com"}
+							t.PermittedDNSNames = []GeneralSubtreeString{{Data: "example.com"}}
 						},
 					},
 					{
@@ -2535,7 +2536,7 @@ func TestPathBuilding(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			roots, intermediates, leaf := buildTrustGraph(t, tc.graph)
-			chains, err := leaf.Verify(VerifyOptions{
+			chains, _, _, err := leaf.Verify(VerifyOptions{
 				Roots:         roots,
 				Intermediates: intermediates,
 			})
@@ -2663,7 +2664,7 @@ func TestEKUEnforcement(t *testing.T) {
 				c.UnknownExtKeyUsage = tc.leaf.Unknown
 			}, intermediateCertificate, parent, k)
 
-			_, err := leaf.Verify(VerifyOptions{Roots: rootPool, Intermediates: interPool, KeyUsages: tc.verifyEKUs})
+			_, _, _, err := leaf.Verify(VerifyOptions{Roots: rootPool, Intermediates: interPool, KeyUsages: tc.verifyEKUs})
 			if err == nil && tc.err != "" {
 				t.Errorf("expected error")
 			} else if err != nil && err.Error() != tc.err {
@@ -2733,7 +2734,7 @@ func TestVerifyEKURootAsLeaf(t *testing.T) {
 			roots := NewCertPool()
 			roots.AddCert(root)
 
-			_, err = root.Verify(VerifyOptions{Roots: roots, KeyUsages: tc.verifyEKUs})
+			_, _, _, err = root.Verify(VerifyOptions{Roots: roots, KeyUsages: tc.verifyEKUs})
 			if err == nil && !tc.succeed {
 				t.Error("verification succeed")
 			} else if err != nil && tc.succeed {

@@ -7,11 +7,12 @@ package x509
 import (
 	"errors"
 	"fmt"
+	"math/big"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
-	"math/big"
 )
 
 const ecPrivKeyVersion = 1

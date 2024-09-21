@@ -6,9 +6,10 @@ package x509
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"encoding/pem"
 	"sync"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 )
 
 type sum224 [sha256.Size224]byte
@@ -291,4 +292,54 @@ func (s *CertPool) AddCertWithConstraint(cert *Certificate, constraint func([]*C
 	s.addCertFunc(sha256.Sum224(cert.Raw), string(cert.RawSubject), func() (*Certificate, error) {
 		return cert, nil
 	}, constraint)
+}
+
+// Certificates returns all validate certificates in the pool.
+func (s *CertPool) Certificates() []*Certificate {
+	res := make([]*Certificate, 0, s.len())
+	for i := range s.len() {
+		c, certErr := s.lazyCerts[i].getCert()
+		if certErr != nil {
+			continue
+		}
+		res = append(res, c)
+	}
+	return res
+}
+
+func (s *CertPool) Contains(cert *Certificate) bool {
+	return s.contains(cert)
+}
+
+func (s *CertPool) Size() int {
+	return len(s.Certificates())
+}
+
+// Covers returns true if all certs in pool are in s.
+func (s *CertPool) Covers(pool *CertPool) bool {
+	if pool == nil {
+		return true
+	}
+	for _, c := range pool.Certificates() {
+		if !s.Contains(c) {
+			return false
+		}
+	}
+	return true
+}
+
+// Sum returns the union of two certificate pools as a new certificate pool.
+func (s *CertPool) Sum(other *CertPool) (sum *CertPool) {
+	sum = NewCertPool()
+	if s != nil {
+		for _, c := range s.Certificates() {
+			sum.AddCert(c)
+		}
+	}
+	if other != nil {
+		for _, c := range other.Certificates() {
+			sum.AddCert(c)
+		}
+	}
+	return
 }

@@ -25,6 +25,12 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"io"
+	"math/big"
+	"net"
+	"strconv"
+	"time"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
@@ -32,16 +38,11 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/ct"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
-	"io"
-	"math/big"
-	"net"
-	"net/url"
-	"strconv"
-	"time"
-	"unicode"
+	"github.com/weppos/publicsuffix-go/publicsuffix"
 
 	// Explicitly import these for their crypto.RegisterHash init side-effects.
 	// Keep these as blank imports, even if they're imported above.
@@ -50,6 +51,7 @@ import (
 	_ "github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
 
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
+
 	cryptobyte_asn1 "github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
 )
 
@@ -208,6 +210,8 @@ type publicKeyInfo struct {
 type authKeyId struct {
 	Id []byte `asn1:"optional,tag:0"`
 }
+
+type SignatureAlgorithmOID asn1.ObjectIdentifier
 
 type SignatureAlgorithm int
 
@@ -605,6 +609,7 @@ const (
 //	id-kp-emailProtection        OBJECT IDENTIFIER ::= { id-kp 4 }
 //	id-kp-timeStamping           OBJECT IDENTIFIER ::= { id-kp 8 }
 //	id-kp-OCSPSigning            OBJECT IDENTIFIER ::= { id-kp 9 }
+/*
 var (
 	oidExtKeyUsageAny                            = asn1.ObjectIdentifier{2, 5, 29, 37, 0}
 	oidExtKeyUsageServerAuth                     = asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 1}
@@ -621,11 +626,13 @@ var (
 	oidExtKeyUsageMicrosoftCommercialCodeSigning = asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 311, 2, 1, 22}
 	oidExtKeyUsageMicrosoftKernelCodeSigning     = asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 311, 61, 1, 1}
 )
+*/
 
 // ExtKeyUsage represents an extended set of actions that are valid for a given key.
 // Each of the ExtKeyUsage* constants define a unique action.
 type ExtKeyUsage int
 
+/*
 const (
 	ExtKeyUsageAny ExtKeyUsage = iota
 	ExtKeyUsageServerAuth
@@ -642,6 +649,7 @@ const (
 	ExtKeyUsageMicrosoftCommercialCodeSigning
 	ExtKeyUsageMicrosoftKernelCodeSigning
 )
+*/
 
 // extKeyUsageOIDs contains the mapping between an ExtKeyUsage and its OID.
 var extKeyUsageOIDs = []struct {
@@ -662,6 +670,28 @@ var extKeyUsageOIDs = []struct {
 	{ExtKeyUsageNetscapeServerGatedCrypto, oidExtKeyUsageNetscapeServerGatedCrypto},
 	{ExtKeyUsageMicrosoftCommercialCodeSigning, oidExtKeyUsageMicrosoftCommercialCodeSigning},
 	{ExtKeyUsageMicrosoftKernelCodeSigning, oidExtKeyUsageMicrosoftKernelCodeSigning},
+}
+
+// TODO: slight differences in case in some names. Should be easy to align with stdlib.
+// leaving for now to not break compatibility
+
+// extKeyUsageOIDs contains the mapping between an ExtKeyUsage and its OID.
+var nativeExtKeyUsageOIDs = []struct {
+	extKeyUsage ExtKeyUsage
+	oid         asn1.ObjectIdentifier
+}{
+	{ExtKeyUsageAny, oidExtKeyUsageAny},
+	{ExtKeyUsageServerAuth, oidExtKeyUsageServerAuth},
+	{ExtKeyUsageClientAuth, oidExtKeyUsageClientAuth},
+	{ExtKeyUsageCodeSigning, oidExtKeyUsageCodeSigning},
+	{ExtKeyUsageEmailProtection, oidExtKeyUsageEmailProtection},
+	{ExtKeyUsageIpsecEndSystem, oidExtKeyUsageIpsecEndSystem},
+	{ExtKeyUsageIpsecTunnel, oidExtKeyUsageIpsecTunnel},
+	{ExtKeyUsageIpsecUser, oidExtKeyUsageIpsecUser},
+	{ExtKeyUsageTimeStamping, oidExtKeyUsageTimeStamping},
+	{ExtKeyUsageOcspSigning, oidExtKeyUsageOcspSigning},
+	{ExtKeyUsageMicrosoftServerGatedCrypto, oidExtKeyUsageMicrosoftServerGatedCrypto},
+	{ExtKeyUsageNetscapeServerGatedCrypto, oidExtKeyUsageNetscapeServerGatedCrypto},
 }
 
 func extKeyUsageFromOID(oid asn1.ObjectIdentifier) (eku ExtKeyUsage, ok bool) {
@@ -693,15 +723,25 @@ type Certificate struct {
 	Signature          []byte
 	SignatureAlgorithm SignatureAlgorithm
 
+	SelfSigned bool
+
+	SignatureAlgorithmOID asn1.ObjectIdentifier
+
 	PublicKeyAlgorithm PublicKeyAlgorithm
 	PublicKey          any
+
+	PublicKeyAlgorithmOID asn1.ObjectIdentifier
 
 	Version             int
 	SerialNumber        *big.Int
 	Issuer              pkix.Name
 	Subject             pkix.Name
 	NotBefore, NotAfter time.Time // Validity bounds.
+	ValidityPeriod      int
 	KeyUsage            KeyUsage
+
+	IssuerUniqueId  asn1.BitString
+	SubjectUniqueId asn1.BitString
 
 	// Extensions contains raw X.509 extensions. When parsing certificates,
 	// this can be used to extract non-critical extensions that are not
@@ -765,18 +805,56 @@ type Certificate struct {
 	DNSNames       []string
 	EmailAddresses []string
 	IPAddresses    []net.IP
-	URIs           []*url.URL
+	OtherNames     []pkix.OtherName
+	DirectoryNames []pkix.Name
+	EDIPartyNames  []pkix.EDIPartyName
+	URIs           []string
+	RegisteredIDs  []asn1.ObjectIdentifier
+
+	// Issuer Alternative Name values
+	IANOtherNames     []pkix.OtherName
+	IANDNSNames       []string
+	IANEmailAddresses []string
+	IANDirectoryNames []pkix.Name
+	IANEDIPartyNames  []pkix.EDIPartyName
+	IANURIs           []string
+	IANIPAddresses    []net.IP
+	IANRegisteredIDs  []asn1.ObjectIdentifier
+
+	// Certificate Policies values
+	QualifierId          [][]asn1.ObjectIdentifier
+	CPSuri               [][]string
+	ExplicitTexts        [][]asn1.RawValue
+	NoticeRefOrgnization [][]asn1.RawValue
+	NoticeRefNumbers     [][]NoticeNumber
+
+	ParsedExplicitTexts         [][]string
+	ParsedNoticeRefOrganization [][]string
+
+	UserNotices [][]UserNotice
 
 	// Name constraints
-	PermittedDNSDomainsCritical bool // if true then the name constraints are marked critical.
-	PermittedDNSDomains         []string
-	ExcludedDNSDomains          []string
-	PermittedIPRanges           []*net.IPNet
-	ExcludedIPRanges            []*net.IPNet
-	PermittedEmailAddresses     []string
-	ExcludedEmailAddresses      []string
-	PermittedURIDomains         []string
-	ExcludedURIDomains          []string
+	NameConstraintsCritical bool // if true then the name constraints are marked critical.
+	PermittedDNSNames       []GeneralSubtreeString
+	ExcludedDNSNames        []GeneralSubtreeString
+	PermittedEmailAddresses []GeneralSubtreeString
+	ExcludedEmailAddresses  []GeneralSubtreeString
+	PermittedURIs           []GeneralSubtreeString
+	ExcludedURIs            []GeneralSubtreeString
+	PermittedIPAddresses    []GeneralSubtreeIP
+	ExcludedIPAddresses     []GeneralSubtreeIP
+	PermittedDirectoryNames []GeneralSubtreeName
+	ExcludedDirectoryNames  []GeneralSubtreeName
+	PermittedEdiPartyNames  []GeneralSubtreeEdi
+	ExcludedEdiPartyNames   []GeneralSubtreeEdi
+	PermittedRegisteredIDs  []GeneralSubtreeOid
+	ExcludedRegisteredIDs   []GeneralSubtreeOid
+	PermittedX400Addresses  []GeneralSubtreeRaw
+	ExcludedX400Addresses   []GeneralSubtreeRaw
+
+	// FailedToParseNames contains values that are failed to parse,
+	// without returning an error.
+	FailedToParseNames []asn1.RawValue
 
 	// CRL Distribution Points
 	CRLDistributionPoints []string
@@ -787,10 +865,96 @@ type Certificate struct {
 	// PolicyIdentifiers, but will be present in Policies, which contains all parsed
 	// policy OIDs.
 	PolicyIdentifiers []asn1.ObjectIdentifier
+	ValidationLevel   CertValidationLevel
+
+	// Fingerprints
+	FingerprintMD5    CertificateFingerprint
+	FingerprintSHA1   CertificateFingerprint
+	FingerprintSHA256 CertificateFingerprint
+	FingerprintNoCT   CertificateFingerprint
+
+	// SPKI
+	SPKIFingerprint           CertificateFingerprint
+	SPKISubjectFingerprint    CertificateFingerprint
+	TBSCertificateFingerprint CertificateFingerprint
+
+	IsPrecert bool
+
+	// Internal
+	validSignature bool
+
+	// CT
+	SignedCertificateTimestampList []*ct.SignedCertificateTimestamp
+
+	// QWACS
+	CABFOrganizationIdentifier *CABFOrganizationIdentifier
+	QCStatements               *QCStatements
+
+	// Used to speed up the zlint checks. Populated by the GetParsedDNSNames method.
+	parsedDNSNames []ParsedDomainName
+	// Used to speed up the zlint checks. Populated by the GetParsedCommonName method
+	parsedCommonName *ParsedDomainName
+
+	// CAB Forum Tor Service Descriptor Hash Extensions (see EV Guidelines
+	// Appendix F)
+	TorServiceDescriptors []*TorServiceDescriptorHash
 
 	// Policies contains all policy identifiers included in the certificate.
 	// In Go 1.22, encoding/gob cannot handle and ignores this field.
 	Policies []OID
+}
+
+// ParsedDomainName is a structure holding a parsed domain name (CommonName or
+// DNS SAN) and a parsing error.
+type ParsedDomainName struct {
+	DomainString string
+	ParsedDomain *publicsuffix.DomainName
+	ParseError   error
+}
+
+// GetParsedDNSNames returns a list of parsed SAN DNS names. It is used to cache the parsing result and
+// speed up zlint linters. If invalidateCache is true, then the cache is repopulated with current list of string from
+// Certificate.DNSNames. This parameter should always be false, unless the Certificate.DNSNames have been modified
+// after calling GetParsedDNSNames the previous time.
+func (c *Certificate) GetParsedDNSNames(invalidateCache bool) []ParsedDomainName {
+	if c.parsedDNSNames != nil && !invalidateCache {
+		return c.parsedDNSNames
+	}
+	c.parsedDNSNames = make([]ParsedDomainName, len(c.DNSNames))
+
+	for i := range c.DNSNames {
+		parsedDomain, parseError := publicsuffix.ParseFromListWithOptions(publicsuffix.DefaultList,
+			c.DNSNames[i],
+			&publicsuffix.FindOptions{IgnorePrivate: true, DefaultRule: publicsuffix.DefaultRule})
+
+		c.parsedDNSNames[i].DomainString = c.DNSNames[i]
+		c.parsedDNSNames[i].ParsedDomain = parsedDomain
+		c.parsedDNSNames[i].ParseError = parseError
+	}
+
+	return c.parsedDNSNames
+}
+
+// GetParsedCommonName returns parsed subject CommonName. It is used to cache the parsing result and
+// speed up zlint linters. If invalidateCache is true, then the cache is repopulated with current subject CommonName.
+// This parameter should always be false, unless the Certificate.Subject.CommonName have been modified
+// after calling GetParsedSubjectCommonName the previous time.
+func (c *Certificate) GetParsedSubjectCommonName(invalidateCache bool) ParsedDomainName {
+	if c.parsedCommonName != nil && !invalidateCache {
+		return *c.parsedCommonName
+	}
+
+	parsedDomain, parseError := publicsuffix.ParseFromListWithOptions(publicsuffix.DefaultList,
+		c.Subject.CommonName,
+		&publicsuffix.FindOptions{IgnorePrivate: true, DefaultRule: publicsuffix.DefaultRule})
+
+	c.parsedCommonName = &ParsedDomainName{
+		DomainString: c.Subject.CommonName,
+		ParsedDomain: parsedDomain,
+		ParseError:   parseError,
+	}
+
+	return *c.parsedCommonName
 }
 
 // ErrUnsupportedAlgorithm results from attempting to perform an operation that
@@ -983,6 +1147,76 @@ type policyInformation struct {
 	// policyQualifiers omitted
 }
 
+type policyQualifierInfo struct {
+	PolicyQualifierId asn1.ObjectIdentifier
+	Qualifier         asn1.RawValue
+}
+
+type userNotice struct {
+	NoticeRef    noticeReference `asn1:"optional"`
+	ExplicitText asn1.RawValue   `asn1:"optional"`
+}
+
+type UserNotice struct {
+	ExplicitText    *string
+	NoticeReference *NoticeReference
+}
+
+type noticeReference struct {
+	Organization  asn1.RawValue
+	NoticeNumbers []int
+}
+
+type NoticeNumber []int
+
+type generalSubtree struct {
+	Value asn1.RawValue `asn1:"optional"`
+	Min   int           `asn1:"tag:0,default:0,optional"`
+	Max   int           `asn1:"tag:1,optional"`
+}
+
+type GeneralSubtreeString struct {
+	Data string
+	Max  int
+	Min  int
+}
+
+type GeneralSubtreeIP struct {
+	Data net.IPNet
+	Max  int
+	Min  int
+}
+
+type GeneralSubtreeName struct {
+	Data pkix.Name
+	Max  int
+	Min  int
+}
+
+type GeneralSubtreeEdi struct {
+	Data pkix.EDIPartyName
+	Max  int
+	Min  int
+}
+
+type GeneralSubtreeOid struct {
+	Data asn1.ObjectIdentifier
+	Max  int
+	Min  int
+}
+
+type GeneralSubtreeRaw struct {
+	Data asn1.RawValue
+	Max  int
+	Min  int
+}
+
+// RFC 5280, 4.2.1.10
+type nameConstraints struct {
+	Permitted []generalSubtree `asn1:"optional,tag:0"`
+	Excluded  []generalSubtree `asn1:"optional,tag:1"`
+}
+
 const (
 	nameTypeEmail = 1
 	nameTypeDNS   = 2
@@ -1006,6 +1240,102 @@ type distributionPoint struct {
 type distributionPointName struct {
 	FullName     []asn1.RawValue  `asn1:"optional,tag:0"`
 	RelativeName pkix.RDNSequence `asn1:"optional,tag:1"`
+}
+
+func maxValidationLevel(a, b CertValidationLevel) CertValidationLevel {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func hash(hashFunc crypto.Hash, raw []byte) []byte {
+	digest := raw
+	if hashFunc != 0 {
+		h := hashFunc.New()
+		h.Write(raw)
+		digest = h.Sum(nil)
+	}
+	return digest
+}
+
+func getMaxCertValidationLevel(oids []asn1.ObjectIdentifier) CertValidationLevel {
+	maxOID := UnknownValidationLevel
+	for _, oid := range oids {
+		if _, ok := ExtendedValidationOIDs[oid.String()]; ok {
+			return EV
+		} else if _, ok := OrganizationValidationOIDs[oid.String()]; ok {
+			maxOID = maxValidationLevel(maxOID, OV)
+		} else if _, ok := DomainValidationOIDs[oid.String()]; ok {
+			maxOID = maxValidationLevel(maxOID, DV)
+		}
+	}
+	return maxOID
+}
+
+func parseSignedCertificateTimestampList(out *Certificate, ext pkix.Extension) error {
+	var scts []byte
+	if _, err := asn1.Unmarshal(ext.Value, &scts); err != nil {
+		return err
+	}
+	// ignore length of
+	if len(scts) < 2 {
+		return errors.New("malformed SCT extension: incomplete length field")
+	}
+	scts = scts[2:]
+	headerLength := 2
+	for {
+		switch len(scts) {
+		case 0:
+			return nil
+		case 1:
+			return errors.New("malformed SCT extension: trailing data")
+		default:
+			sctLength := int(scts[1]) + (int(scts[0]) << 8) + headerLength
+			if !(sctLength <= len(scts)) {
+				return errors.New("malformed SCT extension: incomplete SCT")
+			}
+			sct, err := ct.DeserializeSCT(bytes.NewReader(scts[headerLength:sctLength]))
+			if err != nil {
+				return fmt.Errorf("malformed SCT extension: SCT parse err: %w", err)
+			}
+			out.SignedCertificateTimestampList = append(out.SignedCertificateTimestampList, sct)
+			scts = scts[sctLength:]
+		}
+	}
+}
+
+func ParseTBSCertificate(asn1Data []byte) (*Certificate, error) {
+	var tbsCert tbsCertificate
+	rest, err := asn1.Unmarshal(asn1Data, &tbsCert)
+	if err != nil {
+		// log.Print("Err unmarshalling asn1Data", asn1Data, rest)
+		return nil, err
+	}
+	if len(rest) > 0 {
+		return nil, asn1.SyntaxError{Msg: "trailing data"}
+	}
+	return parseCertificate(rest)
+}
+
+// SubjectAndKey represents a (subjecty, subject public key info) tuple.
+type SubjectAndKey struct {
+	RawSubject              []byte
+	RawSubjectPublicKeyInfo []byte
+	Fingerprint             CertificateFingerprint
+	PublicKey               interface{}
+	PublicKeyAlgorithm      PublicKeyAlgorithm
+}
+
+// SubjectAndKey returns a SubjectAndKey for this certificate.
+func (c *Certificate) SubjectAndKey() *SubjectAndKey {
+	return &SubjectAndKey{
+		RawSubject:              c.RawSubject,
+		RawSubjectPublicKeyInfo: c.RawSubjectPublicKeyInfo,
+		Fingerprint:             c.SPKISubjectFingerprint,
+		PublicKey:               c.PublicKey,
+		PublicKeyAlgorithm:      c.PublicKeyAlgorithm,
+	}
 }
 
 func reverseBitsInAByte(in byte) byte {
@@ -1036,18 +1366,20 @@ func asn1BitLength(bitString []byte) int {
 }
 
 var (
-	oidExtensionSubjectKeyId          = []int{2, 5, 29, 14}
-	oidExtensionKeyUsage              = []int{2, 5, 29, 15}
-	oidExtensionExtendedKeyUsage      = []int{2, 5, 29, 37}
-	oidExtensionAuthorityKeyId        = []int{2, 5, 29, 35}
-	oidExtensionBasicConstraints      = []int{2, 5, 29, 19}
-	oidExtensionSubjectAltName        = []int{2, 5, 29, 17}
-	oidExtensionCertificatePolicies   = []int{2, 5, 29, 32}
-	oidExtensionNameConstraints       = []int{2, 5, 29, 30}
-	oidExtensionCRLDistributionPoints = []int{2, 5, 29, 31}
-	oidExtensionAuthorityInfoAccess   = []int{1, 3, 6, 1, 5, 5, 7, 1, 1}
-	oidExtensionCRLNumber             = []int{2, 5, 29, 20}
-	oidExtensionReasonCode            = []int{2, 5, 29, 21}
+	oidExtensionSubjectKeyId                   = []int{2, 5, 29, 14}
+	oidExtensionKeyUsage                       = []int{2, 5, 29, 15}
+	oidExtensionSubjectAltName                 = []int{2, 5, 29, 17}
+	oidExtensionIssuerAltName                  = []int{2, 5, 29, 18}
+	oidExtensionBasicConstraints               = []int{2, 5, 29, 19}
+	oidExtensionCRLNumber                      = []int{2, 5, 29, 20}
+	oidExtensionReasonCode                     = []int{2, 5, 29, 21}
+	oidExtensionNameConstraints                = []int{2, 5, 29, 30}
+	oidExtensionCRLDistributionPoints          = []int{2, 5, 29, 31}
+	oidExtensionCertificatePolicies            = []int{2, 5, 29, 32}
+	oidExtensionAuthorityKeyId                 = []int{2, 5, 29, 35}
+	oidExtensionExtendedKeyUsage               = []int{2, 5, 29, 37}
+	oidExtensionAuthorityInfoAccess            = []int{1, 3, 6, 1, 5, 5, 7, 1, 1}
+	oidExtensionSignedCertificateTimestampList = []int{1, 3, 6, 1, 4, 1, 11129, 2, 4, 2}
 )
 
 var (
@@ -1068,7 +1400,7 @@ func oidInExtensions(oid asn1.ObjectIdentifier, extensions []pkix.Extension) boo
 
 // marshalSANs marshals a list of addresses into a the contents of an X.509
 // SubjectAlternativeName extension.
-func marshalSANs(dnsNames, emailAddresses []string, ipAddresses []net.IP, uris []*url.URL) (derBytes []byte, err error) {
+func marshalSANs(dnsNames, emailAddresses []string, ipAddresses []net.IP, uris []string) (derBytes []byte, err error) {
 	var rawValues []asn1.RawValue
 	for _, name := range dnsNames {
 		if err := isIA5String(name); err != nil {
@@ -1091,15 +1423,12 @@ func marshalSANs(dnsNames, emailAddresses []string, ipAddresses []net.IP, uris [
 		rawValues = append(rawValues, asn1.RawValue{Tag: nameTypeIP, Class: 2, Bytes: ip})
 	}
 	for _, uri := range uris {
-		uriStr := uri.String()
-		if err := isIA5String(uriStr); err != nil {
-			return nil, err
-		}
-		rawValues = append(rawValues, asn1.RawValue{Tag: nameTypeURI, Class: 2, Bytes: []byte(uriStr)})
+		rawValues = append(rawValues, asn1.RawValue{Tag: nameTypeURI, Class: 2, Bytes: []byte(uri)})
 	}
 	return asn1.Marshal(rawValues)
 }
 
+/*
 func isIA5String(s string) error {
 	for _, r := range s {
 		// Per RFC5280 "IA5String is limited to the set of ASCII characters"
@@ -1108,6 +1437,12 @@ func isIA5String(s string) error {
 		}
 	}
 
+	return nil
+}
+*/
+
+// isIA5String is disabled to allow lax parsing
+func isIA5String(s string) error {
 	return nil
 }
 
@@ -1208,13 +1543,15 @@ func buildCertExtensions(template *Certificate, subjectIsEmpty bool, authorityKe
 		n++
 	}
 
-	if (len(template.PermittedDNSDomains) > 0 || len(template.ExcludedDNSDomains) > 0 ||
-		len(template.PermittedIPRanges) > 0 || len(template.ExcludedIPRanges) > 0 ||
-		len(template.PermittedEmailAddresses) > 0 || len(template.ExcludedEmailAddresses) > 0 ||
-		len(template.PermittedURIDomains) > 0 || len(template.ExcludedURIDomains) > 0) &&
+	// TODO: this can be cleaned up in go1.10
+	if (len(template.PermittedEmailAddresses) > 0 || len(template.PermittedDNSNames) > 0 || len(template.PermittedDirectoryNames) > 0 ||
+		len(template.PermittedIPAddresses) > 0 || len(template.ExcludedEmailAddresses) > 0 || len(template.ExcludedDNSNames) > 0 ||
+		len(template.ExcludedDirectoryNames) > 0 || len(template.ExcludedIPAddresses) > 0) &&
 		!oidInExtensions(oidExtensionNameConstraints, template.ExtraExtensions) {
 		ret[n].Id = oidExtensionNameConstraints
-		ret[n].Critical = template.PermittedDNSDomainsCritical
+		if template.NameConstraintsCritical {
+			ret[n].Critical = true
+		}
 
 		ipAndMask := func(ipNet *net.IPNet) []byte {
 			maskedIP := ipNet.IP.Mask(ipNet.Mask)
@@ -1224,17 +1561,17 @@ func buildCertExtensions(template *Certificate, subjectIsEmpty bool, authorityKe
 			return ipAndMask
 		}
 
-		serialiseConstraints := func(dns []string, ips []*net.IPNet, emails []string, uriDomains []string) (der []byte, err error) {
+		serialiseConstraints := func(dns []GeneralSubtreeString, ips []GeneralSubtreeIP, emails []GeneralSubtreeString, uriDomains []GeneralSubtreeString) (der []byte, err error) {
 			var b cryptobyte.Builder
 
 			for _, name := range dns {
-				if err = isIA5String(name); err != nil {
+				if err = isIA5String(name.Data); err != nil {
 					return nil, err
 				}
 
 				b.AddASN1(cryptobyte_asn1.SEQUENCE, func(b *cryptobyte.Builder) {
 					b.AddASN1(cryptobyte_asn1.Tag(2).ContextSpecific(), func(b *cryptobyte.Builder) {
-						b.AddBytes([]byte(name))
+						b.AddBytes([]byte(name.Data))
 					})
 				})
 			}
@@ -1242,31 +1579,31 @@ func buildCertExtensions(template *Certificate, subjectIsEmpty bool, authorityKe
 			for _, ipNet := range ips {
 				b.AddASN1(cryptobyte_asn1.SEQUENCE, func(b *cryptobyte.Builder) {
 					b.AddASN1(cryptobyte_asn1.Tag(7).ContextSpecific(), func(b *cryptobyte.Builder) {
-						b.AddBytes(ipAndMask(ipNet))
+						b.AddBytes(ipAndMask(&ipNet.Data))
 					})
 				})
 			}
 
 			for _, email := range emails {
-				if err = isIA5String(email); err != nil {
+				if err = isIA5String(email.Data); err != nil {
 					return nil, err
 				}
 
 				b.AddASN1(cryptobyte_asn1.SEQUENCE, func(b *cryptobyte.Builder) {
 					b.AddASN1(cryptobyte_asn1.Tag(1).ContextSpecific(), func(b *cryptobyte.Builder) {
-						b.AddBytes([]byte(email))
+						b.AddBytes([]byte(email.Data))
 					})
 				})
 			}
 
 			for _, uriDomain := range uriDomains {
-				if err = isIA5String(uriDomain); err != nil {
+				if err = isIA5String(uriDomain.Data); err != nil {
 					return nil, err
 				}
 
 				b.AddASN1(cryptobyte_asn1.SEQUENCE, func(b *cryptobyte.Builder) {
 					b.AddASN1(cryptobyte_asn1.Tag(6).ContextSpecific(), func(b *cryptobyte.Builder) {
-						b.AddBytes([]byte(uriDomain))
+						b.AddBytes([]byte(uriDomain.Data))
 					})
 				})
 			}
@@ -1274,12 +1611,12 @@ func buildCertExtensions(template *Certificate, subjectIsEmpty bool, authorityKe
 			return b.Bytes()
 		}
 
-		permitted, err := serialiseConstraints(template.PermittedDNSDomains, template.PermittedIPRanges, template.PermittedEmailAddresses, template.PermittedURIDomains)
+		permitted, err := serialiseConstraints(template.PermittedDNSNames, template.PermittedIPAddresses, template.PermittedEmailAddresses, template.PermittedURIs)
 		if err != nil {
 			return nil, err
 		}
 
-		excluded, err := serialiseConstraints(template.ExcludedDNSDomains, template.ExcludedIPRanges, template.ExcludedEmailAddresses, template.ExcludedURIDomains)
+		excluded, err := serialiseConstraints(template.ExcludedDNSNames, template.ExcludedIPAddresses, template.ExcludedEmailAddresses, template.ExcludedURIs)
 		if err != nil {
 			return nil, err
 		}
@@ -1840,7 +2177,7 @@ type CertificateRequest struct {
 	DNSNames       []string
 	EmailAddresses []string
 	IPAddresses    []net.IP
-	URIs           []*url.URL
+	URIs           []string
 }
 
 // These structures reflect the ASN.1 structure of X.509 certificate
@@ -2469,4 +2806,117 @@ func (rl *RevocationList) CheckSignatureFrom(parent *Certificate) error {
 	}
 
 	return parent.CheckSignature(rl.SignatureAlgorithm, rl.RawTBSRevocationList, rl.Signature)
+}
+
+// GetSignatureAlgorithmFromAI is an exported wrapper of getSignatureAlgorithmFromAI
+func GetSignatureAlgorithmFromAI(ai pkix.AlgorithmIdentifier) SignatureAlgorithm {
+	return getSignatureAlgorithmFromAI(ai)
+}
+
+func parseGeneralNames(value []byte) (otherNames []pkix.OtherName, dnsNames, emailAddresses, URIs []string, directoryNames []pkix.Name, ediPartyNames []pkix.EDIPartyName, ipAddresses []net.IP, registeredIDs []asn1.ObjectIdentifier, failedToParse []asn1.RawValue, err error) {
+	// RFC 5280, 4.2.1.6
+
+	// SubjectAltName ::= GeneralNames
+	//
+	// GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
+	//
+	// GeneralName ::= CHOICE {
+	//      otherName                       [0]     OtherName,
+	//      rfc822Name                      [1]     IA5String,
+	//      dNSName                         [2]     IA5String,
+	//      x400Address                     [3]     ORAddress,
+	//      directoryName                   [4]     Name,
+	//      ediPartyName                    [5]     EDIPartyName,
+	//      uniformResourceIdentifier       [6]     IA5String,
+	//      iPAddress                       [7]     OCTET STRING,
+	//      registeredID                    [8]     OBJECT IDENTIFIER }
+	var seq asn1.RawValue
+	if _, err = asn1.Unmarshal(value, &seq); err != nil {
+		return
+	}
+	if !seq.IsCompound || seq.Tag != 16 || seq.Class != 0 {
+		err = asn1.StructuralError{Msg: "bad SAN sequence"}
+		return
+	}
+
+	rest := seq.Bytes
+	for len(rest) > 0 {
+		var v asn1.RawValue
+		rest, err = asn1.Unmarshal(rest, &v)
+		if err != nil {
+			return
+		}
+		switch v.Tag {
+		case 0:
+			var oName pkix.OtherName
+			_, perr := asn1.UnmarshalWithParams(v.FullBytes, &oName, "tag:0")
+			if perr != nil {
+				if asn1.AllowPermissiveParsing {
+					failedToParse = append(failedToParse, v)
+					continue
+				}
+				err = perr
+				return
+			}
+			otherNames = append(otherNames, oName)
+		case 1:
+			emailAddresses = append(emailAddresses, string(v.Bytes))
+		case 2:
+			dnsNames = append(dnsNames, string(v.Bytes))
+		case 4:
+			var rdn pkix.RDNSequence
+			_, perr := asn1.Unmarshal(v.Bytes, &rdn)
+			if perr != nil {
+				if asn1.AllowPermissiveParsing {
+					failedToParse = append(failedToParse, v)
+					continue
+				}
+				err = perr
+				return
+			}
+			var dir pkix.Name
+			dir.FillFromRDNSequence(&rdn)
+			directoryNames = append(directoryNames, dir)
+		case 5:
+			var ediName pkix.EDIPartyName
+			_, perr := asn1.UnmarshalWithParams(v.FullBytes, &ediName, "tag:5")
+			if perr != nil {
+				if asn1.AllowPermissiveParsing {
+					failedToParse = append(failedToParse, v)
+					continue
+				}
+				err = perr
+				return
+			}
+			ediPartyNames = append(ediPartyNames, ediName)
+		case 6:
+			URIs = append(URIs, string(v.Bytes))
+		case 7:
+			switch len(v.Bytes) {
+			case net.IPv4len, net.IPv6len:
+				ipAddresses = append(ipAddresses, v.Bytes)
+			default:
+				if asn1.AllowPermissiveParsing {
+					failedToParse = append(failedToParse, v)
+				} else {
+					err = errors.New("x509: certificate contained IP address of length " + strconv.Itoa(len(v.Bytes)))
+					return
+				}
+			}
+		case 8:
+			var id asn1.ObjectIdentifier
+			_, perr := asn1.UnmarshalWithParams(v.FullBytes, &id, "tag:8")
+			if perr != nil {
+				if asn1.AllowPermissiveParsing {
+					failedToParse = append(failedToParse, v)
+					continue
+				}
+				err = perr
+				return
+			}
+			registeredIDs = append(registeredIDs, id)
+		}
+	}
+
+	return
 }

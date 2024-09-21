@@ -9,15 +9,16 @@ package x509
 // implementation.
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/des"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/md5"
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
 	"io"
 	"strings"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/des"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/md5"
 )
 
 type PEMCipher int

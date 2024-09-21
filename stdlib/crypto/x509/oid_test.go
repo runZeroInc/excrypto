@@ -5,10 +5,11 @@
 package x509
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/encoding"
-	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
+	"encoding"
 	"math"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 )
 
 var oidTests = []struct {
