@@ -264,35 +264,32 @@ func (n Name) appendRDNs(in RDNSequence, values []string, oid asn1.ObjectIdentif
 //
 // Each ExtraNames entry is encoded as an individual RDN.
 func (n Name) ToRDNSequence() (ret RDNSequence) {
-	ret = n.appendRDNs(ret, n.Country, oidCountry)
-	ret = n.appendRDNs(ret, n.Province, oidProvince)
-	ret = n.appendRDNs(ret, n.Locality, oidLocality)
-	ret = n.appendRDNs(ret, n.StreetAddress, oidStreetAddress)
-	ret = n.appendRDNs(ret, n.PostalCode, oidPostalCode)
-	ret = n.appendRDNs(ret, n.Organization, oidOrganization)
+	if n.OriginalRDNS != nil {
+		return n.OriginalRDNS
+	}
+	if len(n.CommonName) > 0 {
+		ret = n.appendRDNs(ret, []string{n.CommonName}, oidCommonName)
+	}
 	ret = n.appendRDNs(ret, n.OrganizationalUnit, oidOrganizationalUnit)
+	ret = n.appendRDNs(ret, n.Organization, oidOrganization)
+	ret = n.appendRDNs(ret, n.StreetAddress, oidStreetAddress)
+	ret = n.appendRDNs(ret, n.Locality, oidLocality)
+	ret = n.appendRDNs(ret, n.Province, oidProvince)
+	ret = n.appendRDNs(ret, n.PostalCode, oidPostalCode)
+	ret = n.appendRDNs(ret, n.Country, oidCountry)
 	ret = n.appendRDNs(ret, n.DomainComponent, oidDomainComponent)
 	// EV Components
 	ret = n.appendRDNs(ret, n.JurisdictionLocality, oidJurisdictionLocality)
 	ret = n.appendRDNs(ret, n.JurisdictionProvince, oidJurisdictionProvince)
 	ret = n.appendRDNs(ret, n.JurisdictionCountry, oidJurisdictionCountry)
-
 	// QWACS
 	ret = n.appendRDNs(ret, n.OrganizationIDs, oidOrganizationID)
-	if len(n.SerialNumber) > 0 {
-		ret = n.appendRDNs(ret, []string{n.SerialNumber}, oidSerialNumber)
-	}
-
-	if len(n.CommonName) > 0 {
-		ret = n.appendRDNs(ret, []string{n.CommonName}, oidCommonName)
-	}
 	if len(n.SerialNumber) > 0 {
 		ret = n.appendRDNs(ret, []string{n.SerialNumber}, oidSerialNumber)
 	}
 	for _, atv := range n.ExtraNames {
 		ret = append(ret, []AttributeTypeAndValue{atv})
 	}
-
 	return ret
 }
 
