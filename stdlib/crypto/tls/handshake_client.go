@@ -7,6 +7,16 @@ package tls
 import (
 	"bytes"
 	"context"
+	"encoding/binary"
+	"errors"
+	"fmt"
+	"hash"
+	"io"
+	"net"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
@@ -15,16 +25,8 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
-	"errors"
-	"fmt"
-	"hash"
 	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
-	"io"
-	"net"
-	"strconv"
-	"strings"
-	"time"
 )
 
 type clientHandshakeState struct {
@@ -37,6 +39,194 @@ type clientHandshakeState struct {
 	masterSecret []byte
 	session      *SessionState // the session being resumed
 	ticket       []byte        // a fresh ticket received during this handshake
+}
+
+type CacheKeyGenerator interface {
+	Key(net.Addr) string
+}
+
+type ClientFingerprintConfiguration struct {
+	// Version in the handshake header
+	HandshakeVersion uint16
+
+	// if len == 32, it will specify the client random.
+	// Otherwise, the field will be random
+	// except the top 4 bytes if InsertTimestamp is true
+	ClientRandom    []byte
+	InsertTimestamp bool
+
+	// if RandomSessionID > 0, will overwrite SessionID w/ that many
+	// random bytes when a session resumption occurs
+	RandomSessionID int
+	SessionID       []byte
+
+	// These fields will appear exactly in order in the ClientHello
+	CipherSuites       []uint16
+	CompressionMethods []uint8
+	Extensions         []ClientExtension
+
+	// Optional, both must be non-nil, or neither.
+	// Custom Session cache implementations allowed
+	SessionCache ClientSessionCache
+	CacheKey     CacheKeyGenerator
+}
+
+type ClientExtension interface {
+	// Produce the bytes on the wire for this extension, type and length included
+	Marshal() []byte
+
+	// Function will return an error if zTLS does not implement the necessary features for this extension
+	CheckImplemented() error
+
+	// Modifies the config to reflect the state of the extension
+	WriteToConfig(*Config) error
+}
+
+func (c *ClientFingerprintConfiguration) CheckImplementedExtensions() error {
+	for _, ext := range c.Extensions {
+		if err := ext.CheckImplemented(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *clientHelloMsg) WriteToConfig(config *Config) error {
+	config.NextProtos = c.alpnProtocols
+	config.CipherSuites = c.cipherSuites
+	config.MaxVersion = c.vers
+	config.ClientRandom = c.random
+	config.CurvePreferences = c.supportedCurves
+	config.HeartbeatEnabled = c.heartbeatEnabled
+	config.ExtendedRandom = c.extendedRandomEnabled
+	config.ForceSessionTicketExt = c.ticketSupported
+	config.ExtendedMasterSecret = c.extendedMasterSecret
+	config.SignedCertificateTimestampExt = c.sctEnabled
+	return nil
+}
+
+func (c *ClientFingerprintConfiguration) WriteToConfig(config *Config) error {
+	config.NextProtos = []string{}
+	config.CipherSuites = c.CipherSuites
+	config.MaxVersion = c.HandshakeVersion
+	config.ClientRandom = c.ClientRandom
+	config.CurvePreferences = []CurveID{}
+	config.HeartbeatEnabled = false
+	config.ExtendedRandom = false
+	config.ForceSessionTicketExt = false
+	config.ExtendedMasterSecret = false
+	config.SignedCertificateTimestampExt = false
+	for _, ext := range c.Extensions {
+		if err := ext.WriteToConfig(config); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func currentTimestamp() ([]byte, error) {
+	t := time.Now().Unix()
+	buf := new(bytes.Buffer)
+	err := binary.Write(buf, binary.BigEndian, t)
+	return buf.Bytes(), err
+}
+
+func (c *ClientFingerprintConfiguration) marshal(config *Config) ([]byte, error) {
+	if err := c.CheckImplementedExtensions(); err != nil {
+		return nil, err
+	}
+	head := make([]byte, 38)
+	head[0] = 1
+	head[4] = uint8(c.HandshakeVersion >> 8)
+	head[5] = uint8(c.HandshakeVersion)
+	if len(c.ClientRandom) == 32 {
+		copy(head[6:38], c.ClientRandom[0:32])
+	} else {
+		start := 6
+		if c.InsertTimestamp {
+			t, err := currentTimestamp()
+			if err != nil {
+				return nil, err
+			}
+			copy(head[start:start+4], t)
+			start = start + 4
+		}
+		_, err := io.ReadFull(config.rand(), head[start:38])
+		if err != nil {
+			return nil, errors.New("tls: short read from Rand: " + err.Error())
+		}
+	}
+
+	if len(c.SessionID) >= 256 {
+		return nil, errors.New("tls: SessionID too long")
+	}
+	sessionID := make([]byte, len(c.SessionID)+1)
+	sessionID[0] = uint8(len(c.SessionID))
+	if len(c.SessionID) > 0 {
+		copy(sessionID[1:], c.SessionID)
+	}
+
+	ciphers := make([]byte, 2+2*len(c.CipherSuites))
+	ciphers[0] = uint8(len(c.CipherSuites) >> 7)
+	ciphers[1] = uint8(len(c.CipherSuites) << 1)
+	for i, suite := range c.CipherSuites {
+		if !config.ForceSuites {
+			found := false
+			for _, impl := range cipherSuites {
+				if impl.id == suite {
+					found = true
+				}
+			}
+			if !found {
+				return nil, errors.New(fmt.Sprintf("tls: unimplemented cipher suite %d", suite))
+			}
+		}
+
+		ciphers[2+i*2] = uint8(suite >> 8)
+		ciphers[3+i*2] = uint8(suite)
+	}
+
+	if len(c.CompressionMethods) >= 256 {
+		return nil, errors.New("tls: Too many compression methods")
+	}
+	compressions := make([]byte, len(c.CompressionMethods)+1)
+	compressions[0] = uint8(len(c.CompressionMethods))
+	if len(c.CompressionMethods) > 0 {
+		copy(compressions[1:], c.CompressionMethods)
+		if c.CompressionMethods[0] != 0 {
+			return nil, errors.New(fmt.Sprintf("tls: unimplemented compression method %d", c.CompressionMethods[0]))
+		}
+		if len(c.CompressionMethods) > 1 {
+			return nil, errors.New(fmt.Sprintf("tls: unimplemented compression method %d", c.CompressionMethods[1]))
+		}
+	} else {
+		return nil, errors.New("tls: no compression method")
+	}
+
+	var extensions []byte
+	for _, ext := range c.Extensions {
+		extensions = append(extensions, ext.Marshal()...)
+	}
+	if len(extensions) > 0 {
+		length := make([]byte, 2)
+		length[0] = uint8(len(extensions) >> 8)
+		length[1] = uint8(len(extensions))
+		extensions = append(length, extensions...)
+	}
+	helloArray := [][]byte{head, sessionID, ciphers, compressions, extensions}
+	hello := []byte{}
+	for _, b := range helloArray {
+		hello = append(hello, b...)
+	}
+	lengthOnTheWire := len(hello) - 4
+	if lengthOnTheWire >= 1<<24 {
+		return nil, errors.New("ClientHello message too long")
+	}
+	hello[1] = uint8(lengthOnTheWire >> 16)
+	hello[2] = uint8(lengthOnTheWire >> 8)
+	hello[3] = uint8(lengthOnTheWire)
+
+	return hello, nil
 }
 
 var testingOnlyForceClientHelloSignatureAlgorithms []SignatureScheme
@@ -1112,7 +1302,7 @@ func (c *Conn) verifyServerCertificate(certificates [][]byte) error {
 				opts.Intermediates.AddCert(cert)
 			}
 			var err error
-			c.verifiedChains, err = certs[0].Verify(opts)
+			c.verifiedChains, _, _, err = certs[0].Verify(opts)
 			if err != nil {
 				c.sendAlert(alertBadCertificate)
 				return &CertificateVerificationError{UnverifiedCertificates: certs, Err: err}
@@ -1130,7 +1320,7 @@ func (c *Conn) verifyServerCertificate(certificates [][]byte) error {
 			opts.Intermediates.AddCert(cert)
 		}
 		var err error
-		c.verifiedChains, err = certs[0].Verify(opts)
+		c.verifiedChains, _, _, err = certs[0].Verify(opts)
 		if err != nil {
 			c.sendAlert(alertBadCertificate)
 			return &CertificateVerificationError{UnverifiedCertificates: certs, Err: err}

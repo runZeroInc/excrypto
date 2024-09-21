@@ -609,6 +609,9 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 		t.Fatalf("Failed to generate ECDSA key: %s", err)
 	}
 
+	byt := make([]byte, 0)
+	null := asn1.BitString{Bytes: byt, BitLength: 0}
+
 	ed25519Pub, ed25519Priv, err := ed25519.GenerateKey(random)
 	if err != nil {
 		t.Fatalf("Failed to generate Ed25519 key: %s", err)
@@ -628,8 +631,8 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 		{"ECDSA/RSAPSS", &ecdsaPriv.PublicKey, testPrivateKey, false, SHA256WithRSAPSS},
 		{"RSAPSS/ECDSA", &testPrivateKey.PublicKey, ecdsaPriv, false, ECDSAWithSHA384},
 		{"Ed25519", ed25519Pub, ed25519Priv, true, PureEd25519},
-		{"ECDSAA-Aug/RSA", &AugmentedECDSA{Pub: &ecdsaPriv.PublicKey}, testPrivateKey, false, SHA256WithRSA},
-		{"ECDSA/ECDSA-Aug", &AugmentedECDSA{Pub: &ecdsaPriv.PublicKey}, ecdsaPriv, true, ECDSAWithSHA1},
+		{"ECDSAA-Aug/RSA", &AugmentedECDSA{Pub: &ecdsaPriv.PublicKey, Raw: null}, testPrivateKey, false, SHA256WithRSA},
+		{"ECDSA/ECDSA-Aug", &AugmentedECDSA{Pub: &ecdsaPriv.PublicKey, Raw: null}, ecdsaPriv, true, ECDSAWithSHA1},
 	}
 
 	testExtKeyUsage := []ExtKeyUsage{ExtKeyUsageClientAuth, ExtKeyUsageServerAuth}

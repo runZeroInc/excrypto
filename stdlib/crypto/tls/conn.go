@@ -9,18 +9,19 @@ package tls
 import (
 	"bytes"
 	"context"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"errors"
 	"fmt"
 	"hash"
-	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"io"
 	"net"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 )
 
 // A Conn represents a secured connection.
@@ -123,6 +124,25 @@ type Conn struct {
 	activeCall atomic.Int32
 
 	tmp [16]byte
+
+	// zcrypto
+	handshakeComplete      bool
+	extendedMasterSecret   bool // whether this session used an extended master secret
+	clientProtocolFallback bool
+
+	// tls
+	heartbeat     bool
+	handshakeLog  *ServerHandshake
+	heartbleedLog *Heartbleed
+
+	// Missing cipher
+	cipherError error
+
+	// Client ciphers
+	clientCiphers []uint16
+
+	// Raw client hello
+	clientHelloRaw []byte
 }
 
 // Access to net.Conn methods.
