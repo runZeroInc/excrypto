@@ -17,11 +17,11 @@ import (
 	"unicode/utf8"
 
 	"github.com/runZeroInc/excrypto/stdlib/crypto/dsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
@@ -215,34 +215,37 @@ func parseExtension(der cryptobyte.String) (pkix.Extension, error) {
 	return ext, nil
 }
 
-func parsePublicKey(keyData *publicKeyInfo) (any, error) {
+func parsePublicKey(algo PublicKeyAlgorithm, keyData *publicKeyInfo) (interface{}, error) {
+	asn1Data := keyData.PublicKey.RightAlign()
 	oid := keyData.Algorithm.Algorithm
-	params := keyData.Algorithm.Parameters
-	der := cryptobyte.String(keyData.PublicKey.RightAlign())
 	switch {
 	case oid.Equal(oidPublicKeyRSA):
-		// RSA public keys must have a NULL in the parameters.
-		// See RFC 3279, Section 2.3.1.
-		if !bytes.Equal(params.FullBytes, asn1.NullBytes) {
-			return nil, errors.New("x509: RSA key missing NULL parameters")
+
+		// TODO: disabled since current behaviour does not expect it. Should be enabled though
+		// RSA public keys must have a NULL in the parameters
+		// (https://tools.ietf.org/html/rfc3279#section-2.3.1).
+		//if !bytes.Equal(keyData.Algorithm.Parameters.FullBytes, asn1.NullBytes) {
+		//	return nil, errors.New("x509: RSA key missing NULL parameters")
+		//}
+
+		p := new(pkcs1PublicKey)
+		rest, err := asn1.Unmarshal(asn1Data, p)
+		if err != nil {
+			return nil, err
+		}
+		if len(rest) != 0 {
+			return nil, errors.New("x509: trailing data after RSA public key")
 		}
 
-		p := &pkcs1PublicKey{N: new(big.Int)}
-		if !der.ReadASN1(&der, cryptobyte_asn1.SEQUENCE) {
-			return nil, errors.New("x509: invalid RSA public key")
-		}
-		if !der.ReadASN1Integer(p.N) {
-			return nil, errors.New("x509: invalid RSA modulus")
-		}
-		if !der.ReadASN1Integer(&p.E) {
-			return nil, errors.New("x509: invalid RSA public exponent")
-		}
+		// ZCrypto: Allow to parse
+		if !asn1.AllowPermissiveParsing {
 
-		if p.N.Sign() <= 0 {
-			return nil, errors.New("x509: RSA modulus is not a positive number")
-		}
-		if p.E <= 0 {
-			return nil, errors.New("x509: RSA public exponent is not a positive number")
+			if p.N.Sign() <= 0 {
+				return nil, errors.New("x509: RSA modulus is not a positive number")
+			}
+			if p.E <= 0 {
+				return nil, errors.New("x509: RSA public exponent is not a positive number")
+			}
 		}
 
 		pub := &rsa.PublicKey{
@@ -250,70 +253,81 @@ func parsePublicKey(keyData *publicKeyInfo) (any, error) {
 			N: p.N,
 		}
 		return pub, nil
+
 	case oid.Equal(oidPublicKeyECDSA):
-		paramsDer := cryptobyte.String(params.FullBytes)
+		paramsData := keyData.Algorithm.Parameters.FullBytes
 		namedCurveOID := new(asn1.ObjectIdentifier)
-		if !paramsDer.ReadASN1ObjectIdentifier(namedCurveOID) {
-			return nil, errors.New("x509: invalid ECDSA parameters")
+		rest, err := asn1.Unmarshal(paramsData, namedCurveOID)
+		if err != nil {
+			return nil, err
+		}
+		if len(rest) != 0 {
+			return nil, errors.New("x509: trailing data after ECDSA parameters")
 		}
 		namedCurve := namedCurveFromOID(*namedCurveOID)
-		if namedCurve == nil {
-			return nil, errors.New("x509: unsupported elliptic curve")
-		}
-		x, y := elliptic.Unmarshal(namedCurve, der)
+		x, y := elliptic.Unmarshal(namedCurve, asn1Data)
 		if x == nil {
 			return nil, errors.New("x509: failed to unmarshal elliptic curve point")
 		}
-		pub := &ecdsa.PublicKey{
+		key := &ecdsa.PublicKey{
 			Curve: namedCurve,
 			X:     x,
 			Y:     y,
 		}
+
+		pub := &AugmentedECDSA{
+			Pub: key,
+			Raw: keyData.PublicKey,
+		}
 		return pub, nil
+
 	case oid.Equal(oidPublicKeyEd25519):
-		// RFC 8410, Section 3
-		// > For all of the OIDs, the parameters MUST be absent.
-		if len(params.FullBytes) != 0 {
-			return nil, errors.New("x509: Ed25519 key encoded with illegal parameters")
+		p := ed25519.PublicKey(asn1Data)
+		if len(p) > ed25519.PublicKeySize {
+			return nil, errors.New("x509: trailing data after Ed25519 data")
 		}
-		if len(der) != ed25519.PublicKeySize {
-			return nil, errors.New("x509: wrong Ed25519 public key size")
-		}
-		return ed25519.PublicKey(der), nil
+		return p, nil
+
 	case oid.Equal(oidPublicKeyX25519):
-		// RFC 8410, Section 3
-		// > For all of the OIDs, the parameters MUST be absent.
-		if len(params.FullBytes) != 0 {
-			return nil, errors.New("x509: X25519 key encoded with illegal parameters")
+		p := X25519PublicKey(asn1Data)
+		if len(p) > 32 {
+			return nil, errors.New("x509: trailing data after X25519 public key")
 		}
-		return ecdh.X25519().NewPublicKey(der)
+		return p, nil
+
 	case oid.Equal(oidPublicKeyDSA):
-		y := new(big.Int)
-		if !der.ReadASN1Integer(y) {
-			return nil, errors.New("x509: invalid DSA public key")
+		var p *big.Int
+		rest, err := asn1.Unmarshal(asn1Data, &p)
+		if err != nil {
+			return nil, err
 		}
-		pub := &dsa.PublicKey{
-			Y: y,
-			Parameters: dsa.Parameters{
-				P: new(big.Int),
-				Q: new(big.Int),
-				G: new(big.Int),
-			},
+		if len(rest) != 0 {
+			return nil, errors.New("x509: trailing data after DSA public key")
 		}
-		paramsDer := cryptobyte.String(params.FullBytes)
-		if !paramsDer.ReadASN1(&paramsDer, cryptobyte_asn1.SEQUENCE) ||
-			!paramsDer.ReadASN1Integer(pub.Parameters.P) ||
-			!paramsDer.ReadASN1Integer(pub.Parameters.Q) ||
-			!paramsDer.ReadASN1Integer(pub.Parameters.G) {
-			return nil, errors.New("x509: invalid DSA parameters")
+		paramsData := keyData.Algorithm.Parameters.FullBytes
+		params := new(dsaAlgorithmParameters)
+		rest, err = asn1.Unmarshal(paramsData, params)
+		if err != nil {
+			return nil, err
 		}
-		if pub.Y.Sign() <= 0 || pub.Parameters.P.Sign() <= 0 ||
-			pub.Parameters.Q.Sign() <= 0 || pub.Parameters.G.Sign() <= 0 {
+		if len(rest) != 0 {
+			return nil, errors.New("x509: trailing data after DSA parameters")
+		}
+		if p.Sign() <= 0 || params.P.Sign() <= 0 || params.Q.Sign() <= 0 || params.G.Sign() <= 0 {
 			return nil, errors.New("x509: zero or negative DSA parameter")
 		}
+		pub := &dsa.PublicKey{
+			Parameters: dsa.Parameters{
+				P: params.P,
+				Q: params.Q,
+				G: params.G,
+			},
+			Y: p,
+		}
 		return pub, nil
+
 	default:
-		return nil, errors.New("x509: unknown public key algorithm")
+		return nil, nil
 	}
 }
 
@@ -813,220 +827,568 @@ func processExtensions(out *Certificate) error {
 
 var x509negativeserial = godebug.New("x509negativeserial")
 
-func parseCertificate(der []byte) (*Certificate, error) {
-	cert := &Certificate{}
+// TODO
+func parseCertificate(in *certificate) (*Certificate, error) {
+	out := new(Certificate)
+	out.Raw = in.Raw
+	out.RawTBSCertificate = in.TBSCertificate.Raw
+	out.RawSubjectPublicKeyInfo = in.TBSCertificate.PublicKey.Raw
+	out.RawSubject = in.TBSCertificate.Subject.FullBytes
+	out.RawIssuer = in.TBSCertificate.Issuer.FullBytes
 
-	input := cryptobyte.String(der)
-	// we read the SEQUENCE including length and tag bytes so that
-	// we can populate Certificate.Raw, before unwrapping the
-	// SEQUENCE so it can be operated on
-	if !input.ReadASN1Element(&input, cryptobyte_asn1.SEQUENCE) {
-		return nil, errors.New("x509: malformed certificate")
-	}
-	cert.Raw = input
-	if !input.ReadASN1(&input, cryptobyte_asn1.SEQUENCE) {
-		return nil, errors.New("x509: malformed certificate")
-	}
+	// Fingerprints
+	out.FingerprintMD5 = MD5Fingerprint(in.Raw)
+	out.FingerprintSHA1 = SHA1Fingerprint(in.Raw)
+	out.FingerprintSHA256 = SHA256Fingerprint(in.Raw)
+	out.SPKIFingerprint = SHA256Fingerprint(in.TBSCertificate.PublicKey.Raw)
+	out.TBSCertificateFingerprint = SHA256Fingerprint(in.TBSCertificate.Raw)
 
-	var tbs cryptobyte.String
-	// do the same trick again as above to extract the raw
-	// bytes for Certificate.RawTBSCertificate
-	if !input.ReadASN1Element(&tbs, cryptobyte_asn1.SEQUENCE) {
-		return nil, errors.New("x509: malformed tbs certificate")
-	}
-	cert.RawTBSCertificate = tbs
-	if !tbs.ReadASN1(&tbs, cryptobyte_asn1.SEQUENCE) {
-		return nil, errors.New("x509: malformed tbs certificate")
-	}
+	tbs := in.TBSCertificate
+	originalExtensions := in.TBSCertificate.Extensions
 
-	if !tbs.ReadOptionalASN1Integer(&cert.Version, cryptobyte_asn1.Tag(0).Constructed().ContextSpecific(), 0) {
-		return nil, errors.New("x509: malformed version")
-	}
-	if cert.Version < 0 {
-		return nil, errors.New("x509: malformed version")
-	}
-	// for backwards compat reasons Version is one-indexed,
-	// rather than zero-indexed as defined in 5280
-	cert.Version++
-	if cert.Version > 3 {
-		return nil, errors.New("x509: invalid version")
-	}
+	// Blow away the raw data since it also includes CT data
+	tbs.Raw = nil
 
-	serial := new(big.Int)
-	if !tbs.ReadASN1Integer(serial) {
-		return nil, errors.New("x509: malformed serial number")
-	}
-	if serial.Sign() == -1 {
-		if x509negativeserial.Value() != "1" {
-			return nil, errors.New("x509: negative serial number")
-		} else {
-			x509negativeserial.IncNonDefault()
+	// remove the CT extensions
+	extensions := make([]pkix.Extension, 0, len(originalExtensions))
+	for _, extension := range originalExtensions {
+		if extension.Id.Equal(oidExtensionCTPrecertificatePoison) {
+			continue
 		}
+		if extension.Id.Equal(oidExtensionSignedCertificateTimestampList) {
+			continue
+		}
+		extensions = append(extensions, extension)
 	}
-	cert.SerialNumber = serial
 
-	var sigAISeq cryptobyte.String
-	if !tbs.ReadASN1(&sigAISeq, cryptobyte_asn1.SEQUENCE) {
-		return nil, errors.New("x509: malformed signature algorithm identifier")
-	}
-	// Before parsing the inner algorithm identifier, extract
-	// the outer algorithm identifier and make sure that they
-	// match.
-	var outerSigAISeq cryptobyte.String
-	if !input.ReadASN1(&outerSigAISeq, cryptobyte_asn1.SEQUENCE) {
-		return nil, errors.New("x509: malformed algorithm identifier")
-	}
-	if !bytes.Equal(outerSigAISeq, sigAISeq) {
-		return nil, errors.New("x509: inner and outer signature algorithm identifiers don't match")
-	}
-	sigAI, err := parseAI(sigAISeq)
+	tbs.Extensions = extensions
+
+	tbsbytes, err := asn1.Marshal(tbs)
 	if err != nil {
 		return nil, err
 	}
-	cert.SignatureAlgorithm = getSignatureAlgorithmFromAI(sigAI)
+	if tbsbytes == nil {
+		return nil, asn1.SyntaxError{Msg: "trailing data"}
+	}
+	out.FingerprintNoCT = SHA256Fingerprint(tbsbytes[:])
 
-	var issuerSeq cryptobyte.String
-	if !tbs.ReadASN1Element(&issuerSeq, cryptobyte_asn1.SEQUENCE) {
-		return nil, errors.New("x509: malformed issuer")
-	}
-	cert.RawIssuer = issuerSeq
-	issuerRDNs, err := parseName(issuerSeq)
-	if err != nil {
-		return nil, err
-	}
-	cert.Issuer.FillFromRDNSequence(issuerRDNs)
+	// Hash both SPKI and Subject to create a fingerprint that we can use to describe a CA
+	hasher := sha256.New()
+	hasher.Write(in.TBSCertificate.PublicKey.Raw)
+	hasher.Write(in.TBSCertificate.Subject.FullBytes)
+	out.SPKISubjectFingerprint = hasher.Sum(nil)
 
-	var validity cryptobyte.String
-	if !tbs.ReadASN1(&validity, cryptobyte_asn1.SEQUENCE) {
-		return nil, errors.New("x509: malformed validity")
-	}
-	cert.NotBefore, cert.NotAfter, err = parseValidity(validity)
+	out.Signature = in.SignatureValue.RightAlign()
+	out.SignatureAlgorithm = GetSignatureAlgorithmFromAI(in.TBSCertificate.SignatureAlgorithm)
+
+	out.SignatureAlgorithmOID = in.TBSCertificate.SignatureAlgorithm.Algorithm
+
+	out.PublicKeyAlgorithm = getPublicKeyAlgorithmFromOID(in.TBSCertificate.PublicKey.Algorithm.Algorithm)
+	out.PublicKey, err = parsePublicKey(out.PublicKeyAlgorithm, &in.TBSCertificate.PublicKey)
 	if err != nil {
 		return nil, err
 	}
 
-	var subjectSeq cryptobyte.String
-	if !tbs.ReadASN1Element(&subjectSeq, cryptobyte_asn1.SEQUENCE) {
-		return nil, errors.New("x509: malformed issuer")
-	}
-	cert.RawSubject = subjectSeq
-	subjectRDNs, err := parseName(subjectSeq)
-	if err != nil {
-		return nil, err
-	}
-	cert.Subject.FillFromRDNSequence(subjectRDNs)
+	out.PublicKeyAlgorithmOID = in.TBSCertificate.PublicKey.Algorithm.Algorithm
+	out.Version = in.TBSCertificate.Version + 1
+	out.SerialNumber = in.TBSCertificate.SerialNumber
 
-	var spki cryptobyte.String
-	if !tbs.ReadASN1Element(&spki, cryptobyte_asn1.SEQUENCE) {
-		return nil, errors.New("x509: malformed spki")
-	}
-	cert.RawSubjectPublicKeyInfo = spki
-	if !spki.ReadASN1(&spki, cryptobyte_asn1.SEQUENCE) {
-		return nil, errors.New("x509: malformed spki")
-	}
-	var pkAISeq cryptobyte.String
-	if !spki.ReadASN1(&pkAISeq, cryptobyte_asn1.SEQUENCE) {
-		return nil, errors.New("x509: malformed public key algorithm identifier")
-	}
-	pkAI, err := parseAI(pkAISeq)
-	if err != nil {
+	var issuer, subject pkix.RDNSequence
+	if _, err := asn1.Unmarshal(in.TBSCertificate.Subject.FullBytes, &subject); err != nil {
 		return nil, err
 	}
-	cert.PublicKeyAlgorithm = getPublicKeyAlgorithmFromOID(pkAI.Algorithm)
-	var spk asn1.BitString
-	if !spki.ReadASN1BitString(&spk) {
-		return nil, errors.New("x509: malformed subjectPublicKey")
+	if _, err := asn1.Unmarshal(in.TBSCertificate.Issuer.FullBytes, &issuer); err != nil {
+		return nil, err
 	}
-	if cert.PublicKeyAlgorithm != UnknownPublicKeyAlgorithm {
-		cert.PublicKey, err = parsePublicKey(&publicKeyInfo{
-			Algorithm: pkAI,
-			PublicKey: spk,
-		})
-		if err != nil {
-			return nil, err
+
+	out.Issuer.FillFromRDNSequence(&issuer)
+	out.Subject.FillFromRDNSequence(&subject)
+
+	// Check if self-signed
+	if bytes.Equal(out.RawSubject, out.RawIssuer) {
+		// Possibly self-signed, check the signature against itself.
+		if err := out.CheckSignature(out.SignatureAlgorithm, out.RawTBSCertificate, out.Signature); err == nil {
+			out.SelfSigned = true
 		}
 	}
 
-	if cert.Version > 1 {
-		if !tbs.SkipOptionalASN1(cryptobyte_asn1.Tag(1).ContextSpecific()) {
-			return nil, errors.New("x509: malformed issuerUniqueID")
-		}
-		if !tbs.SkipOptionalASN1(cryptobyte_asn1.Tag(2).ContextSpecific()) {
-			return nil, errors.New("x509: malformed subjectUniqueID")
-		}
-		if cert.Version == 3 {
-			var extensions cryptobyte.String
-			var present bool
-			if !tbs.ReadOptionalASN1(&extensions, &present, cryptobyte_asn1.Tag(3).Constructed().ContextSpecific()) {
-				return nil, errors.New("x509: malformed extensions")
-			}
-			if present {
-				seenExts := make(map[string]bool)
-				if !extensions.ReadASN1(&extensions, cryptobyte_asn1.SEQUENCE) {
-					return nil, errors.New("x509: malformed extensions")
+	out.NotBefore = in.TBSCertificate.Validity.NotBefore
+	out.NotAfter = in.TBSCertificate.Validity.NotAfter
+
+	out.ValidityPeriod = int(out.NotAfter.Sub(out.NotBefore).Seconds())
+
+	out.IssuerUniqueId = in.TBSCertificate.UniqueId
+	out.SubjectUniqueId = in.TBSCertificate.SubjectUniqueId
+
+	out.ExtensionsMap = make(map[string]pkix.Extension, len(in.TBSCertificate.Extensions))
+	for extIdx, e := range in.TBSCertificate.Extensions {
+		oidStr := e.Id.String()
+		out.Extensions = append(out.Extensions, e)
+		out.ExtensionsMap[oidStr] = e
+
+		if len(e.Id) == 4 && e.Id[0] == 2 && e.Id[1] == 5 && e.Id[2] == 29 {
+			switch e.Id[3] {
+			case 15:
+				// RFC 5280, 4.2.1.3
+				var usageBits asn1.BitString
+				_, err := asn1.Unmarshal(e.Value, &usageBits)
+
+				if err == nil {
+					var usage int
+					for i := 0; i < 9; i++ {
+						if usageBits.At(i) != 0 {
+							usage |= 1 << uint(i)
+						}
+					}
+					out.KeyUsage = KeyUsage(usage)
+					continue
 				}
-				for !extensions.Empty() {
-					var extension cryptobyte.String
-					if !extensions.ReadASN1(&extension, cryptobyte_asn1.SEQUENCE) {
-						return nil, errors.New("x509: malformed extension")
-					}
-					ext, err := parseExtension(extension)
-					if err != nil {
-						return nil, err
-					}
-					oidStr := ext.Id.String()
-					if seenExts[oidStr] {
-						return nil, fmt.Errorf("x509: certificate contains duplicate extension with OID %q", oidStr)
-					}
-					seenExts[oidStr] = true
-					cert.Extensions = append(cert.Extensions, ext)
+			case 19:
+				// RFC 5280, 4.2.1.9
+				var constraints basicConstraints
+				_, err := asn1.Unmarshal(e.Value, &constraints)
+
+				if err == nil {
+					out.BasicConstraintsValid = true
+					out.IsCA = constraints.IsCA
+					out.MaxPathLen = constraints.MaxPathLen
+					out.MaxPathLenZero = out.MaxPathLen == 0
+					continue
 				}
-				err = processExtensions(cert)
+			case 17:
+				out.OtherNames, out.DNSNames, out.EmailAddresses,
+					out.URIs, out.DirectoryNames, out.EDIPartyNames,
+					out.IPAddresses, out.RegisteredIDs, out.FailedToParseNames, err = parseGeneralNames(e.Value)
 				if err != nil {
 					return nil, err
 				}
+
+				if len(out.DNSNames) > 0 || len(out.EmailAddresses) > 0 || len(out.IPAddresses) > 0 {
+					continue
+				}
+				// If we didn't parse any of the names then we
+				// fall through to the critical check below.
+			case 18:
+				out.IANOtherNames, out.IANDNSNames, out.IANEmailAddresses,
+					out.IANURIs, out.IANDirectoryNames, out.IANEDIPartyNames,
+					out.IANIPAddresses, out.IANRegisteredIDs, out.FailedToParseNames, err = parseGeneralNames(e.Value)
+				if err != nil {
+					return nil, err
+				}
+
+				if len(out.IANDNSNames) > 0 || len(out.IANEmailAddresses) > 0 || len(out.IANIPAddresses) > 0 {
+					continue
+				}
+			case 30:
+				// RFC 5280, 4.2.1.10
+
+				// NameConstraints ::= SEQUENCE {
+				//      permittedSubtrees       [0]     GeneralSubtrees OPTIONAL,
+				//      excludedSubtrees        [1]     GeneralSubtrees OPTIONAL }
+				//
+				// GeneralSubtrees ::= SEQUENCE SIZE (1..MAX) OF GeneralSubtree
+				//
+				// GeneralSubtree ::= SEQUENCE {
+				//      base                    GeneralName,
+				//      Min         [0]     BaseDistance DEFAULT 0,
+				//      Max         [1]     BaseDistance OPTIONAL }
+				//
+				// BaseDistance ::= INTEGER (0..MAX)
+
+				var constraints nameConstraints
+				_, err := asn1.Unmarshal(e.Value, &constraints)
+				if err != nil {
+					return nil, err
+				}
+
+				if e.Critical {
+					out.NameConstraintsCritical = true
+				}
+
+				for _, subtree := range constraints.Permitted {
+					switch subtree.Value.Tag {
+					case 1:
+						out.PermittedEmailAddresses = append(out.PermittedEmailAddresses, GeneralSubtreeString{Data: string(subtree.Value.Bytes), Max: subtree.Max, Min: subtree.Min})
+					case 2:
+						out.PermittedDNSNames = append(out.PermittedDNSNames, GeneralSubtreeString{Data: string(subtree.Value.Bytes), Max: subtree.Max, Min: subtree.Min})
+					case 3:
+						out.PermittedX400Addresses = append(out.PermittedX400Addresses, GeneralSubtreeRaw{Data: subtree.Value, Max: subtree.Max, Min: subtree.Min})
+					case 4:
+						var rawdn pkix.RDNSequence
+						if _, err := asn1.Unmarshal(subtree.Value.Bytes, &rawdn); err != nil {
+							return out, err
+						}
+						var dn pkix.Name
+						dn.FillFromRDNSequence(&rawdn)
+						out.PermittedDirectoryNames = append(out.PermittedDirectoryNames, GeneralSubtreeName{Data: dn, Max: subtree.Max, Min: subtree.Min})
+					case 5:
+						var ediName pkix.EDIPartyName
+						_, err = asn1.UnmarshalWithParams(subtree.Value.FullBytes, &ediName, "tag:5")
+						if err != nil {
+							return out, err
+						}
+						out.PermittedEdiPartyNames = append(out.PermittedEdiPartyNames, GeneralSubtreeEdi{Data: ediName, Max: subtree.Max, Min: subtree.Min})
+					case 6:
+						out.PermittedURIs = append(out.PermittedURIs, GeneralSubtreeString{Data: string(subtree.Value.Bytes), Max: subtree.Max, Min: subtree.Min})
+					case 7:
+						switch len(subtree.Value.Bytes) {
+						case net.IPv4len * 2:
+							ip := net.IPNet{IP: subtree.Value.Bytes[:net.IPv4len], Mask: subtree.Value.Bytes[net.IPv4len:]}
+							out.PermittedIPAddresses = append(out.PermittedIPAddresses, GeneralSubtreeIP{Data: ip, Max: subtree.Max, Min: subtree.Min})
+						case net.IPv6len * 2:
+							ip := net.IPNet{IP: subtree.Value.Bytes[:net.IPv6len], Mask: subtree.Value.Bytes[net.IPv6len:]}
+							out.PermittedIPAddresses = append(out.PermittedIPAddresses, GeneralSubtreeIP{Data: ip, Max: subtree.Max, Min: subtree.Min})
+						default:
+							if !asn1.AllowPermissiveParsing {
+								return out, errors.New("x509: certificate name constraint contained IP address range of length " + strconv.Itoa(len(subtree.Value.Bytes)))
+							}
+						}
+					case 8:
+						var id asn1.ObjectIdentifier
+						_, err = asn1.UnmarshalWithParams(subtree.Value.FullBytes, &id, "tag:8")
+						if err != nil {
+							return out, err
+						}
+						out.PermittedRegisteredIDs = append(out.PermittedRegisteredIDs, GeneralSubtreeOid{Data: id, Max: subtree.Max, Min: subtree.Min})
+					}
+				}
+				for _, subtree := range constraints.Excluded {
+					switch subtree.Value.Tag {
+					case 1:
+						out.ExcludedEmailAddresses = append(out.ExcludedEmailAddresses, GeneralSubtreeString{Data: string(subtree.Value.Bytes), Max: subtree.Max, Min: subtree.Min})
+					case 2:
+						out.ExcludedDNSNames = append(out.ExcludedDNSNames, GeneralSubtreeString{Data: string(subtree.Value.Bytes), Max: subtree.Max, Min: subtree.Min})
+					case 3:
+						out.ExcludedX400Addresses = append(out.ExcludedX400Addresses, GeneralSubtreeRaw{Data: subtree.Value, Max: subtree.Max, Min: subtree.Min})
+					case 4:
+						var rawdn pkix.RDNSequence
+						if _, err := asn1.Unmarshal(subtree.Value.Bytes, &rawdn); err != nil {
+							return out, err
+						}
+						var dn pkix.Name
+						dn.FillFromRDNSequence(&rawdn)
+						out.ExcludedDirectoryNames = append(out.ExcludedDirectoryNames, GeneralSubtreeName{Data: dn, Max: subtree.Max, Min: subtree.Min})
+					case 5:
+						var ediName pkix.EDIPartyName
+						_, err = asn1.Unmarshal(subtree.Value.Bytes, &ediName)
+						if err != nil {
+							return out, err
+						}
+						out.ExcludedEdiPartyNames = append(out.ExcludedEdiPartyNames, GeneralSubtreeEdi{Data: ediName, Max: subtree.Max, Min: subtree.Min})
+					case 6:
+						out.ExcludedURIs = append(out.ExcludedURIs, GeneralSubtreeString{Data: string(subtree.Value.Bytes), Max: subtree.Max, Min: subtree.Min})
+					case 7:
+						switch len(subtree.Value.Bytes) {
+						case net.IPv4len * 2:
+							ip := net.IPNet{IP: subtree.Value.Bytes[:net.IPv4len], Mask: subtree.Value.Bytes[net.IPv4len:]}
+							out.ExcludedIPAddresses = append(out.ExcludedIPAddresses, GeneralSubtreeIP{Data: ip, Max: subtree.Max, Min: subtree.Min})
+						case net.IPv6len * 2:
+							ip := net.IPNet{IP: subtree.Value.Bytes[:net.IPv6len], Mask: subtree.Value.Bytes[net.IPv6len:]}
+							out.ExcludedIPAddresses = append(out.ExcludedIPAddresses, GeneralSubtreeIP{Data: ip, Max: subtree.Max, Min: subtree.Min})
+						default:
+							if !asn1.AllowPermissiveParsing {
+								return out, errors.New("x509: certificate name constraint contained IP address range of length " + strconv.Itoa(len(subtree.Value.Bytes)))
+							}
+						}
+					case 8:
+						var id asn1.ObjectIdentifier
+						_, err = asn1.Unmarshal(subtree.Value.Bytes, &id)
+						if err != nil {
+							return out, err
+						}
+						out.ExcludedRegisteredIDs = append(out.ExcludedRegisteredIDs, GeneralSubtreeOid{Data: id, Max: subtree.Max, Min: subtree.Min})
+					}
+				}
+				continue
+
+			case 31:
+				// RFC 5280, 4.2.1.14
+
+				// CRLDistributionPoints ::= SEQUENCE SIZE (1..MAX) OF DistributionPoint
+				//
+				// DistributionPoint ::= SEQUENCE {
+				//     distributionPoint       [0]     DistributionPointName OPTIONAL,
+				//     reasons                 [1]     ReasonFlags OPTIONAL,
+				//     cRLIssuer               [2]     GeneralNames OPTIONAL }
+				//
+				// DistributionPointName ::= CHOICE {
+				//     fullName                [0]     GeneralNames,
+				//     nameRelativeToCRLIssuer [1]     RelativeDistinguishedName }
+
+				var cdp []distributionPoint
+				_, err := asn1.Unmarshal(e.Value, &cdp)
+				if err != nil {
+					return nil, fmt.Errorf("%d/%s dp asn: %w", extIdx, oidStr, err)
+				}
+
+				for _, dp := range cdp {
+					// Per RFC 5280, 4.2.1.13, one of distributionPoint or cRLIssuer may be empty.
+					if len(dp.DistributionPoint.FullName) == 0 {
+						continue
+					}
+
+					for _, dpFullName := range dp.DistributionPoint.FullName {
+						dpName := dpFullName.FullBytes
+						var n asn1.RawValue
+						// FullName is a GeneralNames, which is a SEQUENCE OF
+						// GeneralName, which in turn is a CHOICE.
+						// Per https://www.ietf.org/rfc/rfc5280.txt, multiple names
+						// for a single DistributionPoint give different pointers to
+						// the same CRL.
+						for len(dpName) > 0 {
+							dpName, err = asn1.Unmarshal(dpName, &n)
+							if err != nil {
+								return nil, fmt.Errorf("%d/%s dpname: %w", extIdx, oidStr, err)
+							}
+							if n.Tag == 6 {
+								out.CRLDistributionPoints = append(out.CRLDistributionPoints, string(n.Bytes))
+							}
+						}
+					}
+				}
+				continue
+
+			case 35:
+				// RFC 5280, 4.2.1.1
+				var a authKeyId
+				_, err = asn1.Unmarshal(e.Value, &a)
+				if err != nil {
+					return nil, fmt.Errorf("%d/%s auth key id asn: %w", extIdx, oidStr, err)
+				}
+				out.AuthorityKeyId = a.Id
+				continue
+
+			case 37:
+				// RFC 5280, 4.2.1.12.  Extended Key Usage
+
+				// id-ce-extKeyUsage OBJECT IDENTIFIER ::= { id-ce 37 }
+				//
+				// ExtKeyUsageSyntax ::= SEQUENCE SIZE (1..MAX) OF KeyPurposeId
+				//
+				// KeyPurposeId ::= OBJECT IDENTIFIER
+
+				var keyUsage []asn1.ObjectIdentifier
+				_, err = asn1.Unmarshal(e.Value, &keyUsage)
+				if err != nil {
+					if !asn1.AllowPermissiveParsing {
+						return nil, fmt.Errorf("%d/%s ext key usage: %w", extIdx, oidStr, err)
+					}
+					continue
+				}
+
+				for _, u := range keyUsage {
+					if extKeyUsage, ok := extKeyUsageFromOID(u); ok {
+						out.ExtKeyUsage = append(out.ExtKeyUsage, extKeyUsage)
+					} else {
+						out.UnknownExtKeyUsage = append(out.UnknownExtKeyUsage, u)
+					}
+				}
+
+				continue
+
+			case 14:
+				// RFC 5280, 4.2.1.2
+				var keyid []byte
+				_, err = asn1.Unmarshal(e.Value, &keyid)
+				if err != nil {
+					return nil, fmt.Errorf("%d/%s skid: %w", extIdx, oidStr, err)
+				}
+				out.SubjectKeyId = keyid
+				continue
+
+			case 32:
+				// RFC 5280 4.2.1.4: Certificate Policies
+				var policies []policyInformation
+				if _, err = asn1.Unmarshal(e.Value, &policies); err != nil {
+					return nil, fmt.Errorf("%d/%s cert policies: %w", extIdx, oidStr, err)
+				}
+				out.PolicyIdentifiers = make([]asn1.ObjectIdentifier, len(policies))
+				out.QualifierId = make([][]asn1.ObjectIdentifier, len(policies))
+				out.ExplicitTexts = make([][]asn1.RawValue, len(policies))
+				out.NoticeRefOrgnization = make([][]asn1.RawValue, len(policies))
+				out.NoticeRefNumbers = make([][]NoticeNumber, len(policies))
+				out.ParsedExplicitTexts = make([][]string, len(policies))
+				out.ParsedNoticeRefOrganization = make([][]string, len(policies))
+				out.CPSuri = make([][]string, len(policies))
+				out.UserNotices = make([][]UserNotice, len(policies))
+
+				for i, policy := range policies {
+					out.PolicyIdentifiers[i] = policy.Policy
+					// parse optional Qualifier for zlint
+					for _, qualifier := range policy.Qualifiers {
+						out.QualifierId[i] = append(out.QualifierId[i], qualifier.PolicyQualifierId)
+						userNoticeOID := asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 2, 2}
+						cpsURIOID := asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 2, 1}
+
+						if qualifier.PolicyQualifierId.Equal(userNoticeOID) {
+							var un userNotice
+							_, err := asn1.Unmarshal(qualifier.Qualifier.FullBytes, &un)
+							if err != nil && !asn1.AllowPermissiveParsing {
+								return nil, fmt.Errorf("%d/%s policy qualifier id asn: %w", extIdx, oidStr, err)
+							}
+							if err == nil {
+								groupUserNotice := UserNotice{}
+								if len(un.ExplicitText.Bytes) != 0 {
+									out.ExplicitTexts[i] = append(out.ExplicitTexts[i], un.ExplicitText)
+									parsed := string(un.ExplicitText.Bytes)
+									out.ParsedExplicitTexts[i] = append(out.ParsedExplicitTexts[i], parsed)
+
+									groupUserNotice.ExplicitText = &parsed
+								}
+
+								if un.NoticeRef.Organization.Bytes != nil || un.NoticeRef.NoticeNumbers != nil {
+									out.NoticeRefOrgnization[i] = append(out.NoticeRefOrgnization[i], un.NoticeRef.Organization)
+									out.NoticeRefNumbers[i] = append(out.NoticeRefNumbers[i], un.NoticeRef.NoticeNumbers)
+									out.ParsedNoticeRefOrganization[i] = append(out.ParsedNoticeRefOrganization[i], string(un.NoticeRef.Organization.Bytes))
+
+									groupUserNotice.NoticeReference = &NoticeReference{
+										Organization:  string(un.NoticeRef.Organization.Bytes),
+										NoticeNumbers: un.NoticeRef.NoticeNumbers,
+									}
+								}
+
+								out.UserNotices[i] = append(out.UserNotices[i], groupUserNotice)
+							}
+						}
+						if qualifier.PolicyQualifierId.Equal(cpsURIOID) {
+							var cpsURIRaw asn1.RawValue
+							_, err = asn1.Unmarshal(qualifier.Qualifier.FullBytes, &cpsURIRaw)
+							if err != nil && !asn1.AllowPermissiveParsing {
+								return nil, fmt.Errorf("%d/%s policy qualifier id: %w", extIdx, oidStr, err)
+							}
+							if err == nil {
+								out.CPSuri[i] = append(out.CPSuri[i], string(cpsURIRaw.Bytes))
+							}
+						}
+					}
+				}
+				if out.SelfSigned {
+					out.ValidationLevel = UnknownValidationLevel
+				} else {
+					// See http://unmitigatedrisk.com/?p=203
+					validationLevel := getMaxCertValidationLevel(out.PolicyIdentifiers)
+					if validationLevel == UnknownValidationLevel {
+						if (len(out.Subject.Organization) > 0 && out.Subject.Organization[0] == out.Subject.CommonName) || (len(out.Subject.OrganizationalUnit) > 0 && strings.Contains(out.Subject.OrganizationalUnit[0], "Domain Control Validated")) {
+							if len(out.Subject.Locality) == 0 && len(out.Subject.Province) == 0 && len(out.Subject.PostalCode) == 0 {
+								validationLevel = DV
+							}
+						} else if len(out.Subject.Organization) > 0 && out.Subject.Organization[0] == "Persona Not Validated" && strings.Contains(out.Issuer.CommonName, "StartCom") {
+							validationLevel = DV
+						}
+					}
+					out.ValidationLevel = validationLevel
+				}
 			}
+		} else if e.Id.Equal(oidExtensionAuthorityInfoAccess) {
+			// RFC 5280 4.2.2.1: Authority Information Access
+			var aia []authorityInfoAccess
+			if _, err = asn1.Unmarshal(e.Value, &aia); err != nil {
+				return nil, fmt.Errorf("%d/%s auth info access: %w", extIdx, oidStr, err)
+			}
+
+			for _, v := range aia {
+				// GeneralName: uniformResourceIdentifier [6] IA5String
+				if v.Location.Tag != 6 {
+					continue
+				}
+				if v.Method.Equal(oidAuthorityInfoAccessOcsp) {
+					out.OCSPServer = append(out.OCSPServer, string(v.Location.Bytes))
+				} else if v.Method.Equal(oidAuthorityInfoAccessIssuers) {
+					out.IssuingCertificateURL = append(out.IssuingCertificateURL, string(v.Location.Bytes))
+				}
+			}
+		} else if e.Id.Equal(oidExtensionSignedCertificateTimestampList) {
+			err := parseSignedCertificateTimestampList(out, e)
+			if err != nil {
+				return nil, fmt.Errorf("%d/%s sct list: %w", extIdx, oidStr, err)
+			}
+		} else if e.Id.Equal(oidExtensionCTPrecertificatePoison) {
+			if e.Value[0] == 5 && e.Value[1] == 0 {
+				out.IsPrecert = true
+				continue
+			} else {
+				if !asn1.AllowPermissiveParsing {
+					return nil, UnhandledCriticalExtension{e.Id, "malformed precert poison"}
+				}
+			}
+		} else if e.Id.Equal(oidBRTorServiceDescriptor) {
+			descs, err := parseTorServiceDescriptorSyntax(e)
+			if err != nil {
+				return nil, fmt.Errorf("%d/%s tor sd: %w", extIdx, oidStr, err)
+			}
+			out.TorServiceDescriptors = descs
+		} else if e.Id.Equal(oidExtCABFOrganizationID) {
+			cabf := CABFOrganizationIDASN{}
+			_, err := asn1.Unmarshal(e.Value, &cabf)
+			if err != nil {
+				return nil, fmt.Errorf("%d/%s cabf oid: %w", extIdx, oidStr, err)
+			}
+			out.CABFOrganizationIdentifier = &CABFOrganizationIdentifier{
+				Scheme:    cabf.RegistrationSchemeIdentifier,
+				Country:   cabf.RegistrationCountry,
+				Reference: cabf.RegistrationReference,
+				State:     cabf.RegistrationStateOrProvince,
+			}
+		} else if e.Id.Equal(oidExtQCStatements) {
+			rawStatements := QCStatementsASN{}
+			_, err := asn1.Unmarshal(e.Value, &rawStatements.QCStatements)
+			if err != nil {
+				return nil, fmt.Errorf("%d/%s qcstatements asn: %w", extIdx, oidStr, err)
+			}
+			qcStatements := QCStatements{}
+			if err := qcStatements.Parse(&rawStatements); err != nil {
+				return nil, fmt.Errorf("%d/%s qcstatements: %w", extIdx, oidStr, err)
+			}
+			out.QCStatements = &qcStatements
 		}
+
+		//if e.Critical {
+		//	return out, UnhandledCriticalExtension{e.Id}
+		//}
 	}
 
-	var signature asn1.BitString
-	if !input.ReadASN1BitString(&signature) {
-		return nil, errors.New("x509: malformed signature")
-	}
-	cert.Signature = signature.RightAlign()
-
-	return cert, nil
+	return out, nil
 }
 
 // ParseCertificate parses a single certificate from the given ASN.1 DER data.
-//
-// Before Go 1.23, ParseCertificate accepted certificates with negative serial
-// numbers. This behavior can be restored by including "x509negativeserial=1" in
-// the GODEBUG environment variable.
-func ParseCertificate(der []byte) (*Certificate, error) {
-	cert, err := parseCertificate(der)
+func ParseCertificate(asn1Data []byte) (*Certificate, error) {
+	var cert certificate
+	rest, err := asn1.Unmarshal(asn1Data, &cert)
 	if err != nil {
 		return nil, err
 	}
-	if len(der) != len(cert.Raw) {
-		return nil, errors.New("x509: trailing data")
+	if len(rest) > 0 {
+		return nil, asn1.SyntaxError{Msg: "trailing data"}
 	}
-	return cert, err
+
+	return parseCertificate(&cert)
 }
 
 // ParseCertificates parses one or more certificates from the given ASN.1 DER
 // data. The certificates must be concatenated with no intermediate padding.
-func ParseCertificates(der []byte) ([]*Certificate, error) {
-	var certs []*Certificate
-	for len(der) > 0 {
-		cert, err := parseCertificate(der)
+func ParseCertificates(asn1Data []byte) ([]*Certificate, error) {
+	var v []*certificate
+
+	for len(asn1Data) > 0 {
+		cert := new(certificate)
+		var err error
+		asn1Data, err = asn1.Unmarshal(asn1Data, cert)
 		if err != nil {
 			return nil, err
 		}
-		certs = append(certs, cert)
-		der = der[len(cert.Raw):]
+		v = append(v, cert)
 	}
-	return certs, nil
+
+	ret := make([]*Certificate, len(v))
+	for i, ci := range v {
+		cert, err := parseCertificate(ci)
+		if err != nil {
+			return nil, err
+		}
+		ret[i] = cert
+	}
+
+	return ret, nil
 }
 
 // The X.509 standards confusingly 1-indexed the version names, but 0-indexed

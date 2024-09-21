@@ -70,17 +70,18 @@ type pkixPublicKey struct {
 // More types might be supported in the future.
 //
 // This kind of key is commonly encoded in PEM blocks of type "PUBLIC KEY".
-func ParsePKIXPublicKey(derBytes []byte) (pub any, err error) {
+func ParsePKIXPublicKey(derBytes []byte) (pub interface{}, err error) {
 	var pki publicKeyInfo
 	if rest, err := asn1.Unmarshal(derBytes, &pki); err != nil {
-		if _, err := asn1.Unmarshal(derBytes, &pkcs1PublicKey{}); err == nil {
-			return nil, errors.New("x509: failed to parse public key (use ParsePKCS1PublicKey instead for this key format)")
-		}
 		return nil, err
 	} else if len(rest) != 0 {
 		return nil, errors.New("x509: trailing data after ASN.1 of public-key")
 	}
-	return parsePublicKey(&pki)
+	algo := getPublicKeyAlgorithmFromOID(pki.Algorithm.Algorithm)
+	if algo == UnknownPublicKeyAlgorithm {
+		return nil, errors.New("x509: unknown public key algorithm")
+	}
+	return parsePublicKey(algo, &pki)
 }
 
 func marshalPublicKey(pub any) (publicKeyBytes []byte, publicKeyAlgorithm pkix.AlgorithmIdentifier, err error) {
@@ -178,9 +179,11 @@ func MarshalPKIXPublicKey(pub any) ([]byte, error) {
 // These structures reflect the ASN.1 structure of X.509 certificates.:
 
 type certificate struct {
+	Raw                asn1.RawContent
 	TBSCertificate     tbsCertificate
 	SignatureAlgorithm pkix.AlgorithmIdentifier
 	SignatureValue     asn1.BitString
+	Extensions         []pkix.Extension `asn1:"omitempty,optional,explicit,tag:3"`
 }
 
 type tbsCertificate struct {
@@ -386,6 +389,7 @@ func (algo PublicKeyAlgorithm) String() string {
 //
 //	id-Ed25519   OBJECT IDENTIFIER ::= { 1 3 101 112 }
 var (
+	oidSignatureMD2WithRSA      = asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 1, 2}
 	oidSignatureMD5WithRSA      = asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 1, 4}
 	oidSignatureSHA1WithRSA     = asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 1, 5}
 	oidSignatureSHA256WithRSA   = asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 1, 11}
@@ -412,6 +416,13 @@ var (
 	oidISOSignatureSHA1WithRSA = asn1.ObjectIdentifier{1, 3, 14, 3, 2, 29}
 )
 
+// cryptoNoDigest means that the signature algorithm does not require a hash
+// digest. The distinction between cryptoNoDigest and crypto.Hash(0)
+// is purely superficial. crypto.Hash(0) is used in place of a null value
+// when hashing is not supported for the given algorithm (as in the case of
+// MD2WithRSA below).
+var cryptoNoDigest = crypto.Hash(0)
+
 var signatureAlgorithmDetails = []struct {
 	algo       SignatureAlgorithm
 	name       string
@@ -421,6 +432,7 @@ var signatureAlgorithmDetails = []struct {
 	hash       crypto.Hash
 	isRSAPSS   bool
 }{
+	{MD2WithRSA, "MD2-RSA", oidSignatureMD2WithRSA, asn1.NullRawValue, RSA, crypto.Hash(0), false /* no value for MD2 */},
 	{MD5WithRSA, "MD5-RSA", oidSignatureMD5WithRSA, asn1.NullRawValue, RSA, crypto.MD5, false},
 	{SHA1WithRSA, "SHA1-RSA", oidSignatureSHA1WithRSA, asn1.NullRawValue, RSA, crypto.SHA1, false},
 	{SHA1WithRSA, "SHA1-RSA", oidISOSignatureSHA1WithRSA, asn1.NullRawValue, RSA, crypto.SHA1, false},
@@ -809,6 +821,14 @@ type Certificate struct {
 	// field is ignored, see ExtraExtensions.
 	Extensions []pkix.Extension
 
+	// ExtensionsMap contains raw x.509 extensions keyed by OID (in string
+	// representation). It allows fast membership testing of specific OIDs. Like
+	// the Extensions field this field is ignored when marshaling certificates. If
+	// multiple extensions with the same OID are present only the last
+	// pkix.Extension will be in this map. Consult the `Extensions` slice when it
+	// is required to process all extensions including duplicates.
+	ExtensionsMap map[string]pkix.Extension
+
 	// ExtraExtensions contains extensions to be copied, raw, into any
 	// marshaled certificates. Values override any extensions that would
 	// otherwise be produced based on the other fields. The ExtraExtensions
@@ -1190,11 +1210,21 @@ func (c *Certificate) CheckCRLSignature(crl *pkix.CertificateList) error {
 	return c.CheckSignature(algo, crl.TBSCertList.Raw, crl.SignatureValue.RightAlign())
 }
 
-type UnhandledCriticalExtension struct{}
+// START CT CHANGES
+type UnhandledCriticalExtension struct {
+	ID      asn1.ObjectIdentifier
+	Message string
+}
 
 func (h UnhandledCriticalExtension) Error() string {
-	return "x509: unhandled critical extension"
+	if h.Message != "" {
+		return fmt.Sprintf("x509: unhandled critical extension (%v): %s", h.ID, h.Message)
+
+	}
+	return fmt.Sprintf("x509: unhandled critical extension (%v)", h.ID)
 }
+
+// END CT CHANGES
 
 type basicConstraints struct {
 	IsCA       bool `asn1:"optional"`
@@ -1203,8 +1233,8 @@ type basicConstraints struct {
 
 // RFC 5280 4.2.1.4
 type policyInformation struct {
-	Policy asn1.ObjectIdentifier
-	// policyQualifiers omitted
+	Policy     asn1.ObjectIdentifier
+	Qualifiers []policyQualifierInfo `asn1:"optional"`
 }
 
 type policyQualifierInfo struct {
@@ -1365,18 +1395,26 @@ func parseSignedCertificateTimestampList(out *Certificate, ext pkix.Extension) e
 	}
 }
 
+// START CT CHANGES
+
+// ParseTBSCertificate parses a single TBSCertificate from the given ASN.1 DER data.
+// The parsed data is returned in a Certificate struct for ease of access.
 func ParseTBSCertificate(asn1Data []byte) (*Certificate, error) {
 	var tbsCert tbsCertificate
 	rest, err := asn1.Unmarshal(asn1Data, &tbsCert)
 	if err != nil {
-		// log.Print("Err unmarshalling asn1Data", asn1Data, rest)
 		return nil, err
 	}
 	if len(rest) > 0 {
 		return nil, asn1.SyntaxError{Msg: "trailing data"}
 	}
-	return parseCertificate(rest)
+	return parseCertificate(&certificate{
+		Raw:            tbsCert.Raw,
+		TBSCertificate: tbsCert,
+	})
 }
+
+// END CT CHANGES
 
 // SubjectAndKey represents a (subjecty, subject public key info) tuple.
 type SubjectAndKey struct {
@@ -2530,7 +2568,7 @@ func parseCertificateRequest(in *certificateRequest) (*CertificateRequest, error
 
 	var err error
 	if out.PublicKeyAlgorithm != UnknownPublicKeyAlgorithm {
-		out.PublicKey, err = parsePublicKey(&in.TBSCSR.PublicKey)
+		out.PublicKey, err = parsePublicKey(out.PublicKeyAlgorithm, &in.TBSCSR.PublicKey)
 		if err != nil {
 			return nil, err
 		}
