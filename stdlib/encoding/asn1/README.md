@@ -1,0 +1,1 @@
+Forked from standard "github.com/runZeroInc/excrypto/stdlib/encoding/asn1" to allow more permissive decoding
