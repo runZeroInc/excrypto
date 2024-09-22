@@ -95,9 +95,10 @@ type SessionState struct {
 	alpnProtocol      string // only set if EarlyData is true
 
 	// Client-side TLS 1.3-only fields.
-	useBy  uint64 // seconds since UNIX epoch
-	ageAdd uint32
-	ticket []byte
+	useBy    uint64 // seconds since UNIX epoch
+	ageAdd   uint32
+	ticket   []byte
+	lifetime uint32
 }
 
 // Bytes encodes the session, including any private fields, so that it can be

@@ -37,9 +37,9 @@ type clientHandshakeState struct {
 	suite           *cipherSuite
 	finishedHash    finishedHash
 	masterSecret    []byte
+	preMasterSecret []byte
 	session         *SessionState // the session being resumed
 	ticket          []byte        // a fresh ticket received during this handshake
-	preMasterSecret []byte
 }
 
 type CacheKeyGenerator interface {
@@ -505,6 +505,10 @@ func (c *Conn) clientHandshake(ctx context.Context) (err error) {
 
 	c.serverName = hello.serverName
 
+	c.handshakeLog = new(ServerHandshake)
+	c.heartbleedLog = new(Heartbleed)
+	c.handshakeLog.ClientHello = hello.MakeLog()
+
 	if _, err := c.writeHandshakeRecord(hello, nil); err != nil {
 		return err
 	}
@@ -529,6 +533,13 @@ func (c *Conn) clientHandshake(ctx context.Context) (err error) {
 	if !ok {
 		c.sendAlert(alertUnexpectedMessage)
 		return unexpectedMessageError(serverHello, msg)
+	}
+
+	c.handshakeLog.ServerHello = serverHello.MakeLog()
+
+	if serverHello.heartbeatEnabled {
+		c.heartbeat = true
+		c.heartbleedLog.HeartbeatEnabled = true
 	}
 
 	if err := c.pickTLSVersion(serverHello); err != nil {
@@ -559,6 +570,7 @@ func (c *Conn) clientHandshake(ctx context.Context) (err error) {
 			binderKey:    binderKey,
 			echContext:   ech,
 		}
+		/// Continue handshakelog
 		return hs.handshake()
 	}
 
@@ -569,6 +581,7 @@ func (c *Conn) clientHandshake(ctx context.Context) (err error) {
 		hello:       hello,
 		session:     session,
 	}
+	/// Continue handshakelog
 	return hs.handshake()
 }
 
@@ -810,6 +823,13 @@ func (hs *clientHandshakeState) handshake() error {
 		return err
 	}
 
+	if hs.session.ticket == nil {
+		c.handshakeLog.SessionTicket = nil
+	} else {
+		c.handshakeLog.SessionTicket = hs.session.MakeLog()
+	}
+	c.handshakeLog.KeyMaterial = hs.MakeLog()
+
 	c.ekm = ekmFromMasterSecret(c.vers, hs.suite, hs.masterSecret, hs.hello.random, hs.serverHello.random)
 	c.isHandshakeComplete.Store(true)
 
@@ -846,6 +866,14 @@ func (hs *clientHandshakeState) doFullHandshake() error {
 	if !ok || len(certMsg.certificates) == 0 {
 		c.sendAlert(alertUnexpectedMessage)
 		return unexpectedMessageError(certMsg, msg)
+	}
+
+	c.handshakeLog.ServerCertificates = certMsg.MakeLog()
+
+	if c.config.CertsOnly {
+		// short circuit!
+		err = ErrCertsOnly
+		return err
 	}
 
 	msg, err = c.readHandshake(&hs.finishedHash)
@@ -899,6 +927,7 @@ func (hs *clientHandshakeState) doFullHandshake() error {
 	skx, ok := msg.(*serverKeyExchangeMsg)
 	if ok {
 		err = keyAgreement.processServerKeyExchange(c.config, hs.hello, hs.serverHello, c.peerCertificates[0], skx)
+		c.handshakeLog.ServerKeyExchange = skx.MakeLog(keyAgreement)
 		if err != nil {
 			c.sendAlert(alertUnexpectedMessage)
 			return err
@@ -953,19 +982,42 @@ func (hs *clientHandshakeState) doFullHandshake() error {
 		c.sendAlert(alertInternalError)
 		return err
 	}
+
+	c.handshakeLog.ClientKeyExchange = ckx.MakeLog(keyAgreement)
+
 	if ckx != nil {
 		if _, err := hs.c.writeHandshakeRecord(ckx, &hs.finishedHash); err != nil {
 			return err
 		}
 	}
 
+	var cr, sr []byte
+	if hs.hello.extendedRandomEnabled {
+		helloRandomLen := len(hs.hello.random)
+		helloExtendedRandomLen := len(hs.hello.extendedRandom)
+
+		cr = make([]byte, helloRandomLen+helloExtendedRandomLen)
+		copy(cr, hs.hello.random)
+		copy(cr[helloRandomLen:], hs.hello.extendedRandom)
+	}
+
+	if hs.serverHello.extendedRandomEnabled {
+		serverRandomLen := len(hs.serverHello.random)
+		serverExtendedRandomLen := len(hs.serverHello.extendedRandom)
+
+		sr = make([]byte, serverRandomLen+serverExtendedRandomLen)
+		copy(sr, hs.serverHello.random)
+		copy(sr[serverRandomLen:], hs.serverHello.extendedRandom)
+	}
+
+	hs.preMasterSecret = make([]byte, len(preMasterSecret))
+	copy(hs.preMasterSecret, preMasterSecret)
+
 	if hs.serverHello.extendedMasterSecret {
 		c.extMasterSecret = true
-		hs.masterSecret = extMasterFromPreMasterSecret(c.vers, hs.suite, preMasterSecret,
-			hs.finishedHash.Sum())
+		hs.masterSecret = extMasterFromPreMasterSecret(c.vers, hs.suite, preMasterSecret, hs.finishedHash.Sum())
 	} else {
-		hs.masterSecret = masterFromPreMasterSecret(c.vers, hs.suite, preMasterSecret,
-			hs.hello.random, hs.serverHello.random)
+		hs.masterSecret = masterFromPreMasterSecret(c.vers, hs.suite, preMasterSecret, hs.hello.random, hs.serverHello.random)
 	}
 	if err := c.config.writeKeyLog(keyLogLabelTLS12, hs.hello.random, hs.masterSecret); err != nil {
 		c.sendAlert(alertInternalError)
@@ -1168,6 +1220,8 @@ func (hs *clientHandshakeState) readFinished(out []byte) error {
 		return unexpectedMessageError(serverFinished, msg)
 	}
 
+	c.handshakeLog.ServerFinished = serverFinished.MakeLog()
+
 	verify := hs.finishedHash.serverSum(hs.masterSecret)
 	if len(verify) != len(serverFinished.verifyData) ||
 		subtle.ConstantTimeCompare(verify, serverFinished.verifyData) != 1 {
@@ -1241,6 +1295,9 @@ func (hs *clientHandshakeState) sendFinished(out []byte) error {
 		return err
 	}
 	copy(out, finished.verifyData)
+
+	c.handshakeLog.ClientFinished = finished.MakeLog()
+
 	return nil
 }
 
@@ -1302,11 +1359,20 @@ func (c *Conn) verifyServerCertificate(certificates [][]byte) error {
 			for _, cert := range certs[1:] {
 				opts.Intermediates.AddCert(cert)
 			}
+
+			var res []x509.CertificateChain
 			var err error
-			c.verifiedChains, _, _, err = certs[0].Verify(opts)
+			var validation *x509.Validation
+			res, validation, err = certs[0].ValidateWithStupidDetail(opts)
+			c.handshakeLog.ServerCertificates.addParsed(certs, validation)
 			if err != nil {
 				c.sendAlert(alertBadCertificate)
 				return &CertificateVerificationError{UnverifiedCertificates: certs, Err: err}
+			}
+
+			c.verifiedChains = make([][]*x509.Certificate, len(res))
+			for i, cert := range res {
+				c.verifiedChains[i] = []*x509.Certificate(cert)
 			}
 		}
 	} else if !c.config.InsecureSkipVerify {
@@ -1320,11 +1386,19 @@ func (c *Conn) verifyServerCertificate(certificates [][]byte) error {
 		for _, cert := range certs[1:] {
 			opts.Intermediates.AddCert(cert)
 		}
+		var res []x509.CertificateChain
 		var err error
-		c.verifiedChains, _, _, err = certs[0].Verify(opts)
+		var validation *x509.Validation
+		res, validation, err = certs[0].ValidateWithStupidDetail(opts)
+		c.handshakeLog.ServerCertificates.addParsed(certs, validation)
 		if err != nil {
 			c.sendAlert(alertBadCertificate)
 			return &CertificateVerificationError{UnverifiedCertificates: certs, Err: err}
+		}
+
+		c.verifiedChains = make([][]*x509.Certificate, len(res))
+		for i, cert := range res {
+			c.verifiedChains[i] = []*x509.Certificate(cert)
 		}
 	}
 

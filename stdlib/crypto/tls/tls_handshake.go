@@ -393,6 +393,24 @@ func (m *certificateMsg) MakeLog() *Certificates {
 	return sc
 }
 
+func (m *certificateMsgTLS13) MakeLog() *Certificates {
+	sc := new(Certificates)
+	if len(m.certificate.Certificate) >= 1 {
+		cert := m.certificate.Certificate[0]
+		sc.Certificate.Raw = make([]byte, len(cert))
+		copy(sc.Certificate.Raw, cert)
+	}
+	if len(m.certificate.Certificate) >= 2 {
+		chain := m.certificate.Certificate[1:]
+		sc.Chain = make([]SimpleCertificate, len(chain))
+		for idx, cert := range chain {
+			sc.Chain[idx].Raw = make([]byte, len(cert))
+			copy(sc.Chain[idx].Raw, cert)
+		}
+	}
+	return sc
+}
+
 // addParsed sets the parsed certificates and the validation. It assumes the
 // chain slice has already been allocated.
 func (c *Certificates) addParsed(certs []*x509.Certificate, validation *x509.Validation) {
@@ -462,6 +480,15 @@ func (m *ClientSessionState) MakeLog() *SessionTicket {
 	return st
 }
 
+func (m *SessionState) MakeLog() *SessionTicket {
+	st := new(SessionTicket)
+	st.Length = len(m.ticket)
+	st.Value = make([]uint8, st.Length)
+	copy(st.Value, m.ticket)
+	st.LifetimeHint = m.lifetime
+	return st
+}
+
 func (m *clientHandshakeState) MakeLog() *KeyMaterial {
 	keymat := new(KeyMaterial)
 
@@ -474,6 +501,17 @@ func (m *clientHandshakeState) MakeLog() *KeyMaterial {
 	keymat.PreMasterSecret.Length = len(m.preMasterSecret)
 	keymat.PreMasterSecret.Value = make([]byte, len(m.preMasterSecret))
 	copy(keymat.PreMasterSecret.Value, m.preMasterSecret)
+
+	return keymat
+}
+
+func (m *clientHandshakeStateTLS13) MakeLog() *KeyMaterial {
+	keymat := new(KeyMaterial)
+
+	keymat.MasterSecret = new(MasterSecret)
+	keymat.MasterSecret.Length = len(m.masterSecret)
+	keymat.MasterSecret.Value = make([]byte, len(m.masterSecret))
+	copy(keymat.MasterSecret.Value, m.masterSecret)
 
 	return keymat
 }
