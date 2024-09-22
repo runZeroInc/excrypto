@@ -5,15 +5,16 @@
 package tls
 
 import (
+	"errors"
+	"fmt"
+	"hash"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/md5"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
-	"errors"
-	"fmt"
-	"hash"
 )
 
 // Split a premaster secret in two as specified in RFC 4346, Section 5.
@@ -256,14 +257,14 @@ func (h *finishedHash) discardHandshakeBuffer() {
 // ConnectionState.ekm when renegotiation is enabled and thus
 // we wish to fail all key-material export requests.
 func noEKMBecauseRenegotiation(label string, context []byte, length int) ([]byte, error) {
-	return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/tls: ExportKeyingMaterial is unavailable when renegotiation is enabled")
+	return nil, errors.New("crypto/tls: ExportKeyingMaterial is unavailable when renegotiation is enabled")
 }
 
 // noEKMBecauseNoEMS is used as a value of ConnectionState.ekm when Extended
 // Master Secret is not negotiated and thus we wish to fail all key-material
 // export requests.
 func noEKMBecauseNoEMS(label string, context []byte, length int) ([]byte, error) {
-	return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/tls: ExportKeyingMaterial is unavailable when neither TLS 1.3 nor Extended Master Secret are negotiated; override with GODEBUG=tlsunsafeekm=1")
+	return nil, errors.New("crypto/tls: ExportKeyingMaterial is unavailable when neither TLS 1.3 nor Extended Master Secret are negotiated; override with GODEBUG=tlsunsafeekm=1")
 }
 
 // ekmFromMasterSecret generates exported keying material as defined in RFC 5705.
@@ -272,7 +273,7 @@ func ekmFromMasterSecret(version uint16, suite *cipherSuite, masterSecret, clien
 		switch label {
 		case "client finished", "server finished", "master secret", "key expansion":
 			// These values are reserved and may not be used.
-			return nil, fmt.Errorf("github.com/runZeroInc/excrypto/stdlib/crypto/tls: reserved ExportKeyingMaterial label: %s", label)
+			return nil, fmt.Errorf("crypto/tls: reserved ExportKeyingMaterial label: %s", label)
 		}
 
 		seedLen := len(serverRandom) + len(clientRandom)
@@ -286,7 +287,7 @@ func ekmFromMasterSecret(version uint16, suite *cipherSuite, masterSecret, clien
 
 		if context != nil {
 			if len(context) >= 1<<16 {
-				return nil, fmt.Errorf("github.com/runZeroInc/excrypto/stdlib/crypto/tls: ExportKeyingMaterial context too long")
+				return nil, fmt.Errorf("crypto/tls: ExportKeyingMaterial context too long")
 			}
 			seed = append(seed, byte(len(context)>>8), byte(len(context)))
 			seed = append(seed, context...)
