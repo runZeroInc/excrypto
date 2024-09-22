@@ -139,9 +139,9 @@ func TestTLS12OnlyCipherSuites(t *testing.T) {
 		reply, clientErr = cli.readHandshake()
 		c.Close()
 	}()
-	config := *testConfig
+	config := testConfig.Clone()
 	config.CipherSuites = clientHello.cipherSuites
-	Server(s, &config).Handshake()
+	Server(s, config).Handshake()
 	s.Close()
 	if clientErr != nil {
 		t.Fatal(clientErr)
@@ -567,12 +567,12 @@ func TestResumptionDisabled(t *testing.T) {
 	sessionFilePath := tempFile("")
 	defer os.Remove(sessionFilePath)
 
-	config := *testConfig
+	config := testConfig.Clone()
 
 	test := &serverTest{
 		name:    "IssueTicketPreDisable",
 		command: []string{"openssl", "s_client", "-cipher", "RC4-SHA", "-sess_out", sessionFilePath},
-		config:  &config,
+		config:  config,
 	}
 	runServerTestTLS12(t, test)
 
@@ -581,7 +581,7 @@ func TestResumptionDisabled(t *testing.T) {
 	test = &serverTest{
 		name:    "ResumeDisabled",
 		command: []string{"openssl", "s_client", "-cipher", "RC4-SHA", "-sess_in", sessionFilePath},
-		config:  &config,
+		config:  config,
 	}
 	runServerTestTLS12(t, test)
 
@@ -666,20 +666,20 @@ func TestClientAuth(t *testing.T) {
 		defer os.Remove(ecdsaKeyPath)
 	}
 
-	config := *testConfig
+	config := testConfig.Clone()
 	config.ClientAuth = RequestClientCert
 
 	test := &serverTest{
 		name:    "ClientAuthRequestedNotGiven",
 		command: []string{"openssl", "s_client", "-no_ticket", "-cipher", "RC4-SHA"},
-		config:  &config,
+		config:  config,
 	}
 	runServerTestTLS12(t, test)
 
 	test = &serverTest{
 		name:              "ClientAuthRequestedAndGiven",
 		command:           []string{"openssl", "s_client", "-no_ticket", "-cipher", "RC4-SHA", "-cert", certPath, "-key", keyPath},
-		config:            &config,
+		config:            config,
 		expectedPeerCerts: []string{clientCertificatePEM},
 	}
 	runServerTestTLS12(t, test)
@@ -687,7 +687,7 @@ func TestClientAuth(t *testing.T) {
 	test = &serverTest{
 		name:              "ClientAuthRequestedAndECDSAGiven",
 		command:           []string{"openssl", "s_client", "-no_ticket", "-cipher", "RC4-SHA", "-cert", ecdsaCertPath, "-key", ecdsaKeyPath},
-		config:            &config,
+		config:            config,
 		expectedPeerCerts: []string{clientECDSACertificatePEM},
 	}
 	runServerTestTLS12(t, test)

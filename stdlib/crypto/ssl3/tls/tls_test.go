@@ -193,8 +193,8 @@ func testConnReadNonzeroAndEOF(t *testing.T, delay time.Duration) error {
 			srvCh <- nil
 			return
 		}
-		serverConfig := *testConfig
-		srv := Server(sconn, &serverConfig)
+		serverConfig := testConfig.Clone()
+		srv := Server(sconn, serverConfig)
 		if err := srv.Handshake(); err != nil {
 			serr = fmt.Errorf("handshake: %v", err)
 			srvCh <- nil
@@ -203,8 +203,8 @@ func testConnReadNonzeroAndEOF(t *testing.T, delay time.Duration) error {
 		srvCh <- srv
 	}()
 
-	clientConfig := *testConfig
-	conn, err := Dial("tcp", ln.Addr().String(), &clientConfig)
+	clientConfig := testConfig.Clone()
+	conn, err := Dial("tcp", ln.Addr().String(), clientConfig)
 	if err != nil {
 		t.Fatal(err)
 	}

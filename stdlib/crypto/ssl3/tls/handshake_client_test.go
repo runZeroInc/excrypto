@@ -494,12 +494,12 @@ func TestHandshakeClientCustomHello(t *testing.T) {
 		&StatusRequestExtension{},
 		&sigs,
 	}
-	config := *testConfig
+	config := testConfig.Clone()
 	config.ClientFingerprintConfiguration = &hello
 	test := &clientTest{
 		name:    "ClientFingerprint",
 		command: []string{"openssl", "s_server"},
-		config:  &config,
+		config:  config,
 	}
 	runClientTestTLS12(t, test)
 }
