@@ -1459,14 +1459,11 @@ func (c *Config) Clone() *Config {
 		ExplicitCurvePreferences:            c.ExplicitCurvePreferences,
 		ClientFingerprintConfiguration:      c.ClientFingerprintConfiguration,
 		CertsOnly:                           c.CertsOnly,
-		// originalConfig is deliberately not duplicated.
-
-		// Not merged from upstream:
-		// GetCertificate:                      c.GetCertificate,
-		// DynamicRecordSizingDisabled:         c.DynamicRecordSizingDisabled,
-		// VerifyPeerCertificate:    c.VerifyPeerCertificate,
-		// KeyLogWriter:             c.KeyLogWriter,
-		// Renegotiation:            c.Renegotiation,
+		GetCertificate:                      c.GetCertificate,
+		DynamicRecordSizingDisabled:         c.DynamicRecordSizingDisabled,
+		VerifyPeerCertificate:               c.VerifyPeerCertificate,
+		KeyLogWriter:                        c.KeyLogWriter,
+		Renegotiation:                       c.Renegotiation,
 	}
 }
 
