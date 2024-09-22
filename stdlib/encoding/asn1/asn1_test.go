@@ -102,7 +102,7 @@ func TestParseInt32(t *testing.T) {
 		if (err == nil) != test.ok {
 			t.Errorf("#%d: Incorrect error result (did fail? %v, expected: %v)", i, err == nil, test.ok)
 		}
-		if test.ok && int32(ret) != test.out {
+		if test.ok && ret != test.out {
 			t.Errorf("#%d: Bad result: %v (expected %v)", i, ret, test.out)
 		}
 	}
@@ -265,11 +265,11 @@ type timeTest struct {
 }
 
 var utcTestData = []timeTest{
-	{"910506164540-0700", true, time.Date(1991, 0o5, 0o6, 16, 45, 40, 0, time.FixedZone("", -7*60*60))},
-	{"910506164540+0730", true, time.Date(1991, 0o5, 0o6, 16, 45, 40, 0, time.FixedZone("", 7*60*60+30*60))},
-	{"910506234540Z", true, time.Date(1991, 0o5, 0o6, 23, 45, 40, 0, time.UTC)},
-	{"9105062345Z", true, time.Date(1991, 0o5, 0o6, 23, 45, 0, 0, time.UTC)},
-	{"5105062345Z", true, time.Date(1951, 0o5, 0o6, 23, 45, 0, 0, time.UTC)},
+	{"910506164540-0700", true, time.Date(1991, 05, 06, 16, 45, 40, 0, time.FixedZone("", -7*60*60))},
+	{"910506164540+0730", true, time.Date(1991, 05, 06, 16, 45, 40, 0, time.FixedZone("", 7*60*60+30*60))},
+	{"910506234540Z", true, time.Date(1991, 05, 06, 23, 45, 40, 0, time.UTC)},
+	{"9105062345Z", true, time.Date(1991, 05, 06, 23, 45, 0, 0, time.UTC)},
+	{"5105062345Z", true, time.Date(1951, 05, 06, 23, 45, 0, 0, time.UTC)},
 	{"a10506234540Z", false, time.Time{}},
 	{"91a506234540Z", false, time.Time{}},
 	{"9105a6234540Z", false, time.Time{}},
@@ -321,10 +321,14 @@ func TestUTCTime(t *testing.T) {
 }
 
 var generalizedTimeTestData = []timeTest{
-	{"20100102030405Z", true, time.Date(2010, 0o1, 0o2, 0o3, 0o4, 0o5, 0, time.UTC)},
+	{"20100102030405Z", true, time.Date(2010, 01, 02, 03, 04, 05, 0, time.UTC)},
 	{"20100102030405", false, time.Time{}},
-	{"20100102030405+0607", true, time.Date(2010, 0o1, 0o2, 0o3, 0o4, 0o5, 0, time.FixedZone("", 6*60*60+7*60))},
-	{"20100102030405-0607", true, time.Date(2010, 0o1, 0o2, 0o3, 0o4, 0o5, 0, time.FixedZone("", -6*60*60-7*60))},
+	{"20100102030405.123456Z", true, time.Date(2010, 01, 02, 03, 04, 05, 123456e3, time.UTC)},
+	{"20100102030405.123456", false, time.Time{}},
+	{"20100102030405.Z", false, time.Time{}},
+	{"20100102030405.", false, time.Time{}},
+	{"20100102030405+0607", true, time.Date(2010, 01, 02, 03, 04, 05, 0, time.FixedZone("", 6*60*60+7*60))},
+	{"20100102030405-0607", true, time.Date(2010, 01, 02, 03, 04, 05, 0, time.FixedZone("", -6*60*60-7*60))},
 	/* These are invalid times. However, the time package normalises times
 	 * and they were accepted in some versions. See #11134. */
 	{"00000100000000Z", false, time.Time{}},
@@ -479,7 +483,7 @@ type TestSet struct {
 
 var unmarshalTestData = []struct {
 	in  []byte
-	out interface{}
+	out any
 }{
 	{[]byte{0x02, 0x01, 0x42}, newInt(0x42)},
 	{[]byte{0x05, 0x00}, &RawValue{0, 5, false, []byte{}, []byte{0x05, 0x00}}},
@@ -521,7 +525,7 @@ func TestUnmarshal(t *testing.T) {
 func TestUnmarshalWithNilOrNonPointer(t *testing.T) {
 	tests := []struct {
 		b    []byte
-		v    interface{}
+		v    any
 		want string
 	}{
 		{b: []byte{0x05, 0x00}, v: nil, want: "asn1: Unmarshal recipient value is nil"},
@@ -567,7 +571,7 @@ type RelativeDistinguishedNameSET []AttributeTypeAndValue
 
 type AttributeTypeAndValue struct {
 	Type  ObjectIdentifier
-	Value interface{}
+	Value any
 }
 
 type Validity struct {
@@ -596,8 +600,7 @@ func TestCertificateWithNUL(t *testing.T) {
 
 	var cert Certificate
 	if _, err := Unmarshal(derEncodedPaypalNULCertBytes, &cert); err == nil {
-		// allow for permissive parsing
-		// t.Error("Unmarshal succeeded, should not have")
+		t.Error("Unmarshal succeeded, should not have")
 	}
 }
 
@@ -673,8 +676,8 @@ var derEncodedSelfSignedCert = Certificate{
 			RelativeDistinguishedNameSET{AttributeTypeAndValue{Type: ObjectIdentifier{1, 2, 840, 113549, 1, 9, 1}, Value: "false@example.com"}},
 		},
 		Validity: Validity{
-			NotBefore: time.Date(2009, 10, 8, 0o0, 25, 53, 0, time.UTC),
-			NotAfter:  time.Date(2010, 10, 8, 0o0, 25, 53, 0, time.UTC),
+			NotBefore: time.Date(2009, 10, 8, 00, 25, 53, 0, time.UTC),
+			NotAfter:  time.Date(2010, 10, 8, 00, 25, 53, 0, time.UTC),
 		},
 		Subject: RDNSequence{
 			RelativeDistinguishedNameSET{AttributeTypeAndValue{Type: ObjectIdentifier{2, 5, 4, 6}, Value: "XX"}},
@@ -922,14 +925,10 @@ var explicitTaggedTimeTestData = []struct {
 	in  []byte
 	out explicitTaggedTimeTest
 }{
-	{
-		[]byte{0x30, 0x11, 0xa0, 0xf, 0x17, 0xd, '9', '1', '0', '5', '0', '6', '1', '6', '4', '5', '4', '0', 'Z'},
-		explicitTaggedTimeTest{time.Date(1991, 0o5, 0o6, 16, 45, 40, 0, time.UTC)},
-	},
-	{
-		[]byte{0x30, 0x17, 0xa0, 0xf, 0x18, 0x13, '2', '0', '1', '0', '0', '1', '0', '2', '0', '3', '0', '4', '0', '5', '+', '0', '6', '0', '7'},
-		explicitTaggedTimeTest{time.Date(2010, 0o1, 0o2, 0o3, 0o4, 0o5, 0, time.FixedZone("", 6*60*60+7*60))},
-	},
+	{[]byte{0x30, 0x11, 0xa0, 0xf, 0x17, 0xd, '9', '1', '0', '5', '0', '6', '1', '6', '4', '5', '4', '0', 'Z'},
+		explicitTaggedTimeTest{time.Date(1991, 05, 06, 16, 45, 40, 0, time.UTC)}},
+	{[]byte{0x30, 0x17, 0xa0, 0xf, 0x18, 0x13, '2', '0', '1', '0', '0', '1', '0', '2', '0', '3', '0', '4', '0', '5', '+', '0', '6', '0', '7'},
+		explicitTaggedTimeTest{time.Date(2010, 01, 02, 03, 04, 05, 0, time.FixedZone("", 6*60*60+7*60))}},
 }
 
 func TestExplicitTaggedTime(t *testing.T) {
@@ -961,7 +960,7 @@ func TestImplicitTaggedTime(t *testing.T) {
 	if _, err := Unmarshal(der, &result); err != nil {
 		t.Fatalf("Error while parsing: %s", err)
 	}
-	if expected := time.Date(1991, 0o5, 0o6, 16, 45, 40, 0, time.UTC); !result.Time.Equal(expected) {
+	if expected := time.Date(1991, 05, 06, 16, 45, 40, 0, time.UTC); !result.Time.Equal(expected) {
 		t.Errorf("Wrong result. Got %v, want %v", result.Time, expected)
 	}
 }
@@ -1003,9 +1002,9 @@ func TestUnmarshalInvalidUTF8(t *testing.T) {
 }
 
 func TestMarshalNilValue(t *testing.T) {
-	nilValueTestData := []interface{}{
+	nilValueTestData := []any{
 		nil,
-		struct{ V interface{} }{},
+		struct{ V any }{},
 	}
 	for i, test := range nilValueTestData {
 		if _, err := Marshal(test); err == nil {
@@ -1145,6 +1144,7 @@ func TestBMPString(t *testing.T) {
 		}
 
 		decoded, err := parseBMPString(encoded)
+
 		if err != nil {
 			t.Errorf("#%d: decoding output gave an error: %s", i, err)
 			continue
@@ -1166,5 +1166,12 @@ func TestNonMinimalEncodedOID(t *testing.T) {
 	_, err = Unmarshal(h, &oid)
 	if err == nil {
 		t.Fatalf("accepted non-minimally encoded oid")
+	}
+}
+
+func BenchmarkObjectIdentifierString(b *testing.B) {
+	oidPublicKeyRSA := ObjectIdentifier{1, 2, 840, 113549, 1, 1, 1}
+	for i := 0; i < b.N; i++ {
+		_ = oidPublicKeyRSA.String()
 	}
 }

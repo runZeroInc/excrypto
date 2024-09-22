@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"math/big"
 	"reflect"
-	"sort"
+	"slices"
 	"time"
 	"unicode/utf8"
 )
@@ -105,15 +105,13 @@ func (s setEncoder) Encode(dst []byte) {
 		e.Encode(l[i])
 	}
 
-	sort.Slice(l, func(i, j int) bool {
-		// Since we are using bytes.Compare to compare TLV encodings we
-		// don't need to right pad s[i] and s[j] to the same length as
-		// suggested in X690. If len(s[i]) < len(s[j]) the length octet of
-		// s[i], which is the first determining byte, will inherently be
-		// smaller than the length octet of s[j]. This lets us skip the
-		// padding step.
-		return bytes.Compare(l[i], l[j]) < 0
-	})
+	// Since we are using bytes.Compare to compare TLV encodings we
+	// don't need to right pad s[i] and s[j] to the same length as
+	// suggested in X690. If len(s[i]) < len(s[j]) the length octet of
+	// s[i], which is the first determining byte, will inherently be
+	// smaller than the length octet of s[j]. This lets us skip the
+	// padding step.
+	slices.SortFunc(l, bytes.Compare)
 
 	var off int
 	for _, b := range l {
@@ -355,12 +353,11 @@ func appendTwoDigits(dst []byte, v int) []byte {
 }
 
 func appendFourDigits(dst []byte, v int) []byte {
-	var bytes [4]byte
-	for i := range bytes {
-		bytes[3-i] = '0' + byte(v%10)
-		v /= 10
-	}
-	return append(dst, bytes[:]...)
+	return append(dst,
+		byte('0'+(v/1000)%10),
+		byte('0'+(v/100)%10),
+		byte('0'+(v/10)%10),
+		byte('0'+v%10))
 }
 
 func outsideUTCRange(t time.Time) bool {
@@ -488,7 +485,7 @@ func makeBody(value reflect.Value, params fieldParameters) (e encoder, err error
 		t := v.Type()
 
 		for i := 0; i < t.NumField(); i++ {
-			if t.Field(i).PkgPath != "" {
+			if !t.Field(i).IsExported() {
 				return nil, StructuralError{"struct contains unexported fields"}
 			}
 		}
@@ -721,7 +718,7 @@ func makeField(v reflect.Value, params fieldParameters) (e encoder, err error) {
 
 // Marshal returns the ASN.1 encoding of val.
 //
-// In addition to the struct tags recognised by Unmarshal, the following can be
+// In addition to the struct tags recognized by Unmarshal, the following can be
 // used:
 //
 //	ia5:         causes strings to be marshaled as ASN.1, IA5String values
@@ -730,13 +727,13 @@ func makeField(v reflect.Value, params fieldParameters) (e encoder, err error) {
 //	utf8:        causes strings to be marshaled as ASN.1, UTF8String values
 //	utc:         causes time.Time to be marshaled as ASN.1, UTCTime values
 //	generalized: causes time.Time to be marshaled as ASN.1, GeneralizedTime values
-func Marshal(val interface{}) ([]byte, error) {
+func Marshal(val any) ([]byte, error) {
 	return MarshalWithParams(val, "")
 }
 
 // MarshalWithParams allows field parameters to be specified for the
 // top-level element. The form of the params is the same as the field tags.
-func MarshalWithParams(val interface{}, params string) ([]byte, error) {
+func MarshalWithParams(val any, params string) ([]byte, error) {
 	e, err := makeField(reflect.ValueOf(val), parseFieldParameters(params))
 	if err != nil {
 		return nil, err

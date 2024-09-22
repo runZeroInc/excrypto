@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"math/big"
 	"reflect"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -97,7 +98,7 @@ type testSET []int
 var PST = time.FixedZone("PST", -8*60*60)
 
 type marshalTest struct {
-	in  interface{}
+	in  any
 	out string // hex encoded
 }
 
@@ -190,12 +191,13 @@ func TestMarshal(t *testing.T) {
 		out, _ := hex.DecodeString(test.out)
 		if !bytes.Equal(out, data) {
 			t.Errorf("#%d got: %x want %x\n\t%q\n\t%q", i, data, out, data, out)
+
 		}
 	}
 }
 
 type marshalWithParamsTest struct {
-	in     interface{}
+	in     any
 	params string
 	out    string // hex encoded
 }
@@ -215,12 +217,13 @@ func TestMarshalWithParams(t *testing.T) {
 		out, _ := hex.DecodeString(test.out)
 		if !bytes.Equal(out, data) {
 			t.Errorf("#%d got: %x want %x\n\t%q\n\t%q", i, data, out, data, out)
+
 		}
 	}
 }
 
 type marshalErrTest struct {
-	in  interface{}
+	in  any
 	err string
 }
 
@@ -253,7 +256,7 @@ func TestInvalidUTF8(t *testing.T) {
 }
 
 func TestMarshalOID(t *testing.T) {
-	marshalTestsOID := []marshalTest{
+	var marshalTestsOID = []marshalTest{
 		{[]byte("\x06\x01\x30"), "0403060130"}, // bytes format returns a byte sequence \x04
 		// {ObjectIdentifier([]int{0}), "060100"}, // returns an error as OID 0.0 has the same encoding
 		{[]byte("\x06\x010"), "0403060130"},                // same as above "\x06\x010" = "\x06\x01" + "0"
@@ -274,7 +277,7 @@ func TestMarshalOID(t *testing.T) {
 
 func TestIssue11130(t *testing.T) {
 	data := []byte("\x06\x010") // == \x06\x01\x30 == OID = 0 (the figure)
-	var v interface{}
+	var v any
 	// v has Zero value here and Elem() would panic
 	_, err := Unmarshal(data, &v)
 	if err != nil {
@@ -297,14 +300,14 @@ func TestIssue11130(t *testing.T) {
 		return
 	}
 
-	var v1 interface{}
+	var v1 any
 	_, err = Unmarshal(data1, &v1)
 	if err != nil {
 		t.Errorf("%v", err)
 		return
 	}
 	if !reflect.DeepEqual(v, v1) {
-		t.Errorf("got: %#v data=%q , want : %#v data=%q\n ", v1, data1, v, data)
+		t.Errorf("got: %#v data=%q, want : %#v data=%q\n ", v1, data1, v, data)
 	}
 }
 
@@ -344,7 +347,7 @@ func TestSetEncoder(t *testing.T) {
 	if len(rest) != 0 {
 		t.Error("Unmarshal returned extra garbage")
 	}
-	if !reflect.DeepEqual(expectedOrder, resultStruct.Strings) {
+	if !slices.Equal(expectedOrder, resultStruct.Strings) {
 		t.Errorf("Unexpected SET content. got: %s, want: %s", resultStruct.Strings, expectedOrder)
 	}
 }
@@ -380,7 +383,7 @@ func BenchmarkUnmarshal(b *testing.B) {
 
 	type testCase struct {
 		in  []byte
-		out interface{}
+		out any
 	}
 	var testData []testCase
 	for _, test := range unmarshalTestData {
