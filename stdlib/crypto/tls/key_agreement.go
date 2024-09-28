@@ -250,11 +250,7 @@ func (ka *ecdheKeyAgreement) generateServerKeyExchange(config *Config, cert *Cer
 	var sigType uint8
 	var sigHash crypto.Hash
 	if ka.version >= VersionTLS12 {
-		clientHelloSchemes := make([]SignatureScheme, len(clientHello.supportedSignatureAlgorithms))
-		for i, v := range clientHello.supportedSignatureAlgorithms {
-			clientHelloSchemes[i] = SignatureScheme(v.Signature)<<8 | SignatureScheme(v.Hash)
-		}
-		signatureAlgorithm, err = selectSignatureScheme(ka.version, cert, clientHelloSchemes)
+		signatureAlgorithm, err = selectSignatureScheme(ka.version, cert, clientHello.supportedSignatureAlgorithms)
 		if err != nil {
 			return nil, err
 		}
@@ -374,12 +370,7 @@ func (ka *ecdheKeyAgreement) processServerKeyExchange(config *Config, clientHell
 		if len(sig) < 2 {
 			return errServerKeyExchange
 		}
-
-		clientHelloSchemes := make([]SignatureScheme, len(clientHello.supportedSignatureAlgorithms))
-		for i, v := range clientHello.supportedSignatureAlgorithms {
-			clientHelloSchemes[i] = SignatureScheme(v.Signature)<<8 | SignatureScheme(v.Hash)
-		}
-		if !isSupportedSignatureAlgorithm(signatureAlgorithm, clientHelloSchemes) {
+		if !isSupportedSignatureAlgorithm(signatureAlgorithm, clientHello.supportedSignatureAlgorithms) {
 			return errors.New("tls: certificate used with invalid signature algorithm")
 		}
 		sigType, sigHash, err = typeAndHashFromSignatureScheme(signatureAlgorithm)

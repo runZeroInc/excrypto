@@ -81,8 +81,8 @@ type clientHelloMsg struct {
 	supportedPoints                  []uint8
 	ticketSupported                  bool
 	sessionTicket                    []uint8
-	supportedSignatureAlgorithms     []SignatureAndHash
-	supportedSignatureAlgorithmsCert []SignatureAndHash
+	supportedSignatureAlgorithms     []SignatureScheme
+	supportedSignatureAlgorithmsCert []SignatureScheme
 	secureRenegotiationSupported     bool
 	secureRenegotiation              []byte
 	extendedMasterSecret             bool
@@ -218,7 +218,7 @@ func (m *clientHelloMsg) marshalMsg(echInner bool) ([]byte, error) {
 			exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
 				exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
 					for _, sigAlgo := range m.supportedSignatureAlgorithms {
-						exts.AddUint16(uint16(sigAlgo.Signature)<<8 | uint16(sigAlgo.Hash))
+						exts.AddUint16(uint16(sigAlgo))
 					}
 				})
 			})
@@ -233,7 +233,7 @@ func (m *clientHelloMsg) marshalMsg(echInner bool) ([]byte, error) {
 			exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
 				exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
 					for _, sigAlgo := range m.supportedSignatureAlgorithmsCert {
-						exts.AddUint16(uint16(sigAlgo.Signature)<<8 | uint16(sigAlgo.Hash))
+						exts.AddUint16(uint16(sigAlgo))
 					}
 				})
 			})
@@ -256,6 +256,7 @@ func (m *clientHelloMsg) marshalMsg(echInner bool) ([]byte, error) {
 			})
 		}
 	}
+
 	if m.heartbeatEnabled {
 		if echInner {
 			echOuterExts = append(echOuterExts, extensionHeartbeat)
@@ -584,15 +585,12 @@ func (m *clientHelloMsg) unmarshal(data []byte) bool {
 				return false
 			}
 			for !sigAndAlgs.Empty() {
-				var ssig, shash uint8
-				if !sigAndAlgs.ReadUint8(&ssig) {
-					return false
-				}
-				if !sigAndAlgs.ReadUint8(&shash) {
+				var sigAndAlg uint16
+				if !sigAndAlgs.ReadUint16(&sigAndAlg) {
 					return false
 				}
 				m.supportedSignatureAlgorithms = append(
-					m.supportedSignatureAlgorithms, SignatureAndHash(SigAndHash{Signature: ssig, Hash: shash}))
+					m.supportedSignatureAlgorithms, SignatureScheme(sigAndAlg))
 			}
 		case extensionSignatureAlgorithmsCert:
 			// RFC 8446, Section 4.2.3
@@ -601,15 +599,12 @@ func (m *clientHelloMsg) unmarshal(data []byte) bool {
 				return false
 			}
 			for !sigAndAlgs.Empty() {
-				var ssig, shash uint8
-				if !sigAndAlgs.ReadUint8(&ssig) {
+				var sigAndAlg uint16
+				if !sigAndAlgs.ReadUint16(&sigAndAlg) {
 					return false
 				}
-				if !sigAndAlgs.ReadUint8(&shash) {
-					return false
-				}
-				m.supportedSignatureAlgorithms = append(
-					m.supportedSignatureAlgorithms, SignatureAndHash(SigAndHash{Signature: ssig, Hash: shash}))
+				m.supportedSignatureAlgorithmsCert = append(
+					m.supportedSignatureAlgorithmsCert, SignatureScheme(sigAndAlg))
 			}
 		case extensionRenegotiationInfo:
 			// RFC 5746, Section 3.2
@@ -1099,9 +1094,8 @@ func (m *serverHelloMsg) unmarshal(data []byte) bool {
 			}
 			m.serverNameAck = true
 		default:
-			buff := make([]byte, len(extData))
-			extData.CopyBytes(buff)
-			m.unknownExtensions = append(m.unknownExtensions, buff)
+			// Ignore unknown extensions.
+			continue
 		}
 
 		if !extData.Empty() {
@@ -1206,7 +1200,8 @@ func (m *encryptedExtensionsMsg) unmarshal(data []byte) bool {
 				return false
 			}
 		default:
-			// Ignore unknown extensions
+			// Ignore unknown extensions.
+			continue
 		}
 
 		if !extData.Empty() {
@@ -1329,7 +1324,8 @@ func (m *newSessionTicketMsgTLS13) unmarshal(data []byte) bool {
 				return false
 			}
 		default:
-			// Ignore unknown extensions
+			// Ignore unknown extensions.
+			continue
 		}
 
 		if !extData.Empty() {
@@ -1478,9 +1474,8 @@ func (m *certificateRequestMsgTLS13) unmarshal(data []byte) bool {
 				m.certificateAuthorities = append(m.certificateAuthorities, ca)
 			}
 		default:
-			buff := make([]byte, len(extData))
-			extData.CopyBytes(buff)
-			m.unknownExtensions = append(m.unknownExtensions, buff)
+			// Ignore unknown extensions.
+			continue
 		}
 
 		if !extData.Empty() {
@@ -1689,7 +1684,8 @@ func unmarshalCertificate(s *cryptobyte.String, certificate *Certificate) bool {
 						certificate.SignedCertificateTimestamps, sct)
 				}
 			default:
-				// Ignore unknown extensions
+				// Ignore unknown extensions.
+				continue
 			}
 
 			if !extData.Empty() {

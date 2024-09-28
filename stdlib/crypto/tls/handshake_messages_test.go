@@ -186,10 +186,10 @@ func (*clientHelloMsg) Generate(rand *rand.Rand, size int) reflect.Value {
 		}
 	}
 	if rand.Intn(10) > 5 {
-		m.supportedSignatureAlgorithms = SignatureAndHashesFromSignatureSchemes(supportedSignatureAlgorithms())
+		m.supportedSignatureAlgorithms = supportedSignatureAlgorithms()
 	}
 	if rand.Intn(10) > 5 {
-		m.supportedSignatureAlgorithmsCert = SignatureAndHashesFromSignatureSchemes(supportedSignatureAlgorithms())
+		m.supportedSignatureAlgorithmsCert = supportedSignatureAlgorithms()
 	}
 	for i := 0; i < rand.Intn(5); i++ {
 		m.alpnProtocols = append(m.alpnProtocols, randomString(rand.Intn(20)+1, rand))

@@ -481,7 +481,7 @@ func (hs *serverHandshakeStateTLS13) pickCertificate() error {
 		}
 		return err
 	}
-	hs.sigAlg, err = selectSignatureScheme(c.vers, certificate, SignatureAndHashesToSignatureSchemes(hs.clientHello.supportedSignatureAlgorithms))
+	hs.sigAlg, err = selectSignatureScheme(c.vers, certificate, hs.clientHello.supportedSignatureAlgorithms)
 	if err != nil {
 		// getCertificate returned a certificate that is unsupported or
 		// incompatible with the client's signature algorithms.

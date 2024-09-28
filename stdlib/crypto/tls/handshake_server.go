@@ -962,7 +962,7 @@ func clientHelloInfo(ctx context.Context, c *Conn, clientHello *clientHelloMsg) 
 		ServerName:        clientHello.serverName,
 		SupportedCurves:   clientHello.supportedCurves,
 		SupportedPoints:   clientHello.supportedPoints,
-		SignatureSchemes:  SignatureAndHashesToSignatureSchemes(clientHello.supportedSignatureAlgorithms),
+		SignatureSchemes:  clientHello.supportedSignatureAlgorithms,
 		SupportedProtos:   clientHello.alpnProtocols,
 		SupportedVersions: supportedVersions,
 		Extensions:        clientHello.extensions,

@@ -317,7 +317,7 @@ func (m *clientHelloMsg) MakeLog() *ClientHello {
 		ch.SessionTicket.LifetimeHint = 0 // Clients don't send
 	}
 
-	ch.SignatureScheme = SignatureAndHashesToSignatureSchemes(m.supportedSignatureAlgorithms)
+	ch.SignatureScheme = m.supportedSignatureAlgorithms
 
 	ch.SctEnabled = m.scts
 
