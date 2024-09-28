@@ -263,18 +263,14 @@ func TestValidityJSON(t *testing.T) {
 }
 
 func TestGeneralSubTreeIPJSON(t *testing.T) {
-	tests := []GeneralSubtreeIP{
+	tests := []*net.IPNet{
 		{
-			Data: net.IPNet{
-				IP:   net.IPv4(192, 168, 1, 1),
-				Mask: net.CIDRMask(16, 32),
-			},
+			IP:   net.IPv4(192, 168, 1, 1),
+			Mask: net.CIDRMask(16, 32),
 		},
 		{
-			Data: net.IPNet{
-				IP:   net.IPv4(127, 1, 1, 1),
-				Mask: net.CIDRMask(24, 32),
-			},
+			IP:   net.IPv4(127, 1, 1, 1),
+			Mask: net.CIDRMask(24, 32),
 		},
 	}
 	for i, tree := range tests {
@@ -282,12 +278,12 @@ func TestGeneralSubTreeIPJSON(t *testing.T) {
 		if err != nil {
 			t.Errorf("%d: %s", i, err.Error())
 		}
-		var backToGeneralSubtreeIP GeneralSubtreeIP
-		err = json.Unmarshal(j, &backToGeneralSubtreeIP)
+		var backToIPNet *net.IPNet
+		err = json.Unmarshal(j, &backToIPNet)
 		if err != nil {
 			t.Errorf("%d: %s", i, err.Error())
 		}
-		if strings.Compare(backToGeneralSubtreeIP.Data.String(), tree.Data.String()) != 0 {
+		if strings.Compare(backToIPNet.String(), tree.String()) != 0 {
 			t.Errorf("%d: Unmarshal did not preserve value", i)
 		}
 	}

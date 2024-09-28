@@ -910,23 +910,23 @@ type Certificate struct {
 	UserNotices [][]UserNotice
 
 	// Name constraints
-	NameConstraintsCritical bool // if true then the name constraints are marked critical.
-	PermittedDNSDomains     []GeneralSubtreeString
-	ExcludedDNSNames        []GeneralSubtreeString
-	PermittedEmailAddresses []GeneralSubtreeString
-	ExcludedEmailAddresses  []GeneralSubtreeString
-	PermittedURIs           []GeneralSubtreeString
-	ExcludedURIs            []GeneralSubtreeString
-	PermittedIPAddresses    []GeneralSubtreeIP
-	ExcludedIPAddresses     []GeneralSubtreeIP
-	PermittedDirectoryNames []GeneralSubtreeName
-	ExcludedDirectoryNames  []GeneralSubtreeName
-	PermittedEdiPartyNames  []GeneralSubtreeEdi
-	ExcludedEdiPartyNames   []GeneralSubtreeEdi
-	PermittedRegisteredIDs  []GeneralSubtreeOid
-	ExcludedRegisteredIDs   []GeneralSubtreeOid
-	PermittedX400Addresses  []GeneralSubtreeRaw
-	ExcludedX400Addresses   []GeneralSubtreeRaw
+	PermittedDNSDomainsCritical bool // if true then the name constraints are marked critical.
+	PermittedDNSDomains         []string
+	ExcludedDNSDomains          []string
+	PermittedEmailAddresses     []string
+	ExcludedEmailAddresses      []string
+	PermittedURIDomains         []string
+	ExcludedURIDomains          []string
+	PermittedIPRanges           []*net.IPNet
+	ExcludedIPRanges            []*net.IPNet
+	PermittedDirectoryNames     []pkix.Name
+	ExcludedDirectoryNames      []pkix.Name
+	PermittedEdiPartyNames      []pkix.EDIPartyName
+	ExcludedEdiPartyNames       []pkix.EDIPartyName
+	PermittedRegisteredIDs      []asn1.ObjectIdentifier
+	ExcludedRegisteredIDs       []asn1.ObjectIdentifier
+	PermittedX400Addresses      []string
+	ExcludedX400Addresses       []string
 
 	// FailedToParseNames contains values that are failed to parse,
 	// without returning an error.
@@ -1272,36 +1272,6 @@ type generalSubtree struct {
 	Value asn1.RawValue `asn1:"optional"`
 	Min   int           `asn1:"tag:0,default:0,optional"`
 	Max   int           `asn1:"tag:1,optional"`
-}
-
-type GeneralSubtreeString struct {
-	Data string
-	Max  int
-	Min  int
-}
-
-type GeneralSubtreeIP struct {
-	Data net.IPNet
-	Max  int
-	Min  int
-}
-
-type GeneralSubtreeName struct {
-	Data pkix.Name
-	Max  int
-	Min  int
-}
-
-type GeneralSubtreeEdi struct {
-	Data pkix.EDIPartyName
-	Max  int
-	Min  int
-}
-
-type GeneralSubtreeOid struct {
-	Data asn1.ObjectIdentifier
-	Max  int
-	Min  int
 }
 
 type GeneralSubtreeRaw struct {
@@ -1652,11 +1622,11 @@ func buildCertExtensions(template *Certificate, subjectIsEmpty bool, authorityKe
 
 	// TODO: this can be cleaned up in go1.10
 	if (len(template.PermittedEmailAddresses) > 0 || len(template.PermittedDNSDomains) > 0 || len(template.PermittedDirectoryNames) > 0 ||
-		len(template.PermittedIPAddresses) > 0 || len(template.ExcludedEmailAddresses) > 0 || len(template.ExcludedDNSNames) > 0 ||
-		len(template.ExcludedDirectoryNames) > 0 || len(template.ExcludedIPAddresses) > 0) &&
+		len(template.PermittedIPRanges) > 0 || len(template.ExcludedEmailAddresses) > 0 || len(template.ExcludedDNSDomains) > 0 ||
+		len(template.ExcludedDirectoryNames) > 0 || len(template.ExcludedIPRanges) > 0) &&
 		!oidInExtensions(oidExtensionNameConstraints, template.ExtraExtensions) {
 		ret[n].Id = oidExtensionNameConstraints
-		if template.NameConstraintsCritical {
+		if template.PermittedDNSDomainsCritical {
 			ret[n].Critical = true
 		}
 
@@ -1668,17 +1638,17 @@ func buildCertExtensions(template *Certificate, subjectIsEmpty bool, authorityKe
 			return ipAndMask
 		}
 
-		serialiseConstraints := func(dns []GeneralSubtreeString, ips []GeneralSubtreeIP, emails []GeneralSubtreeString, uriDomains []GeneralSubtreeString) (der []byte, err error) {
+		serialiseConstraints := func(dns []string, ips []*net.IPNet, emails []string, uriDomains []string) (der []byte, err error) {
 			var b cryptobyte.Builder
 
 			for _, name := range dns {
-				if err = isIA5String(name.Data); err != nil {
+				if err = isIA5String(name); err != nil {
 					return nil, err
 				}
 
 				b.AddASN1(cryptobyte_asn1.SEQUENCE, func(b *cryptobyte.Builder) {
 					b.AddASN1(cryptobyte_asn1.Tag(2).ContextSpecific(), func(b *cryptobyte.Builder) {
-						b.AddBytes([]byte(name.Data))
+						b.AddBytes([]byte(name))
 					})
 				})
 			}
@@ -1686,31 +1656,31 @@ func buildCertExtensions(template *Certificate, subjectIsEmpty bool, authorityKe
 			for _, ipNet := range ips {
 				b.AddASN1(cryptobyte_asn1.SEQUENCE, func(b *cryptobyte.Builder) {
 					b.AddASN1(cryptobyte_asn1.Tag(7).ContextSpecific(), func(b *cryptobyte.Builder) {
-						b.AddBytes(ipAndMask(&ipNet.Data))
+						b.AddBytes(ipAndMask(ipNet))
 					})
 				})
 			}
 
 			for _, email := range emails {
-				if err = isIA5String(email.Data); err != nil {
+				if err = isIA5String(email); err != nil {
 					return nil, err
 				}
 
 				b.AddASN1(cryptobyte_asn1.SEQUENCE, func(b *cryptobyte.Builder) {
 					b.AddASN1(cryptobyte_asn1.Tag(1).ContextSpecific(), func(b *cryptobyte.Builder) {
-						b.AddBytes([]byte(email.Data))
+						b.AddBytes([]byte(email))
 					})
 				})
 			}
 
 			for _, uriDomain := range uriDomains {
-				if err = isIA5String(uriDomain.Data); err != nil {
+				if err = isIA5String(uriDomain); err != nil {
 					return nil, err
 				}
 
 				b.AddASN1(cryptobyte_asn1.SEQUENCE, func(b *cryptobyte.Builder) {
 					b.AddASN1(cryptobyte_asn1.Tag(6).ContextSpecific(), func(b *cryptobyte.Builder) {
-						b.AddBytes([]byte(uriDomain.Data))
+						b.AddBytes([]byte(uriDomain))
 					})
 				})
 			}
@@ -1718,12 +1688,12 @@ func buildCertExtensions(template *Certificate, subjectIsEmpty bool, authorityKe
 			return b.Bytes()
 		}
 
-		permitted, err := serialiseConstraints(template.PermittedDNSDomains, template.PermittedIPAddresses, template.PermittedEmailAddresses, template.PermittedURIs)
+		permitted, err := serialiseConstraints(template.PermittedDNSDomains, template.PermittedIPRanges, template.PermittedEmailAddresses, template.PermittedURIDomains)
 		if err != nil {
 			return nil, err
 		}
 
-		excluded, err := serialiseConstraints(template.ExcludedDNSNames, template.ExcludedIPAddresses, template.ExcludedEmailAddresses, template.ExcludedURIs)
+		excluded, err := serialiseConstraints(template.ExcludedDNSDomains, template.ExcludedIPRanges, template.ExcludedEmailAddresses, template.ExcludedURIDomains)
 		if err != nil {
 			return nil, err
 		}

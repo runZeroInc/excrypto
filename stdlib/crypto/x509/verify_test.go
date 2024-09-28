@@ -2218,7 +2218,7 @@ func TestPathBuilding(t *testing.T) {
 						Subject: "inter b",
 						Type:    intermediateCertificate,
 						MutateTemplate: func(t *Certificate) {
-							t.PermittedDNSDomains = []GeneralSubtreeString{{Data: "good"}}
+							t.PermittedDNSDomains = []string{"good"}
 							t.DNSNames = []string{"bad"}
 						},
 					},
@@ -2463,7 +2463,7 @@ func TestPathBuilding(t *testing.T) {
 					{
 						Subject: "root",
 						MutateTemplate: func(t *Certificate) {
-							t.PermittedDNSDomains = []GeneralSubtreeString{{Data: "example.com"}}
+							t.PermittedDNSDomains = []string{"example.com"}
 						},
 					},
 				},
@@ -2503,7 +2503,7 @@ func TestPathBuilding(t *testing.T) {
 						Type:    intermediateCertificate,
 						MutateTemplate: func(t *Certificate) {
 							t.DNSNames = []string{"beep.com"}
-							t.PermittedDNSDomains = []GeneralSubtreeString{{Data: "example.com"}}
+							t.PermittedDNSDomains = []string{"example.com"}
 						},
 					},
 					{

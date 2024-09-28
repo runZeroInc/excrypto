@@ -682,16 +682,16 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 			URIs:                []string{"https://foo.com/wibble#foo"},
 			PolicyIdentifiers:   []asn1.ObjectIdentifier{[]int{1, 2, 3}},
 			Policies:            []OID{mustNewOIDFromInts(t, []uint64{1, 2, 3, math.MaxUint32, math.MaxUint64})},
-			PermittedDNSDomains: []GeneralSubtreeString{{Data: ".example.com"}, {Data: "example.com"}},
-			ExcludedDNSNames:    []GeneralSubtreeString{{Data: "bar.example.com"}},
+			PermittedDNSDomains: []string{".example.com", "example.com"},
+			ExcludedDNSDomains:  []string{"bar.example.com"},
 
-			PermittedIPAddresses: []GeneralSubtreeIP{{Data: *parseCIDR("192.168.1.1/16")}, {Data: *parseCIDR("1.2.3.4/8")}},
-			ExcludedIPAddresses:  []GeneralSubtreeIP{{Data: *parseCIDR("2001:db8::/48")}},
+			PermittedIPRanges: []*net.IPNet{parseCIDR("192.168.1.1/16"), parseCIDR("1.2.3.4/8")},
+			ExcludedIPRanges:  []*net.IPNet{parseCIDR("2001:db8::/48")},
 
-			PermittedEmailAddresses: []GeneralSubtreeString{{Data: "foo@example.com"}},
-			ExcludedEmailAddresses:  []GeneralSubtreeString{{Data: ".example.com"}, {Data: "example.com"}},
-			PermittedURIs:           []GeneralSubtreeString{{Data: ".bar.com"}, {Data: "bar.com"}},
-			ExcludedURIs:            []GeneralSubtreeString{{Data: ".bar2.com"}, {Data: "bar2.com"}},
+			PermittedEmailAddresses: []string{"foo@example.com"},
+			ExcludedEmailAddresses:  []string{".example.com", "example.com"},
+			PermittedURIDomains:     []string{".bar.com", "bar.com"},
+			ExcludedURIDomains:      []string{".bar2.com", "bar2.com"},
 
 			CRLDistributionPoints: []string{"http://crl1.example.com/ca1.crl", "http://crl2.example.com/ca1.crl"},
 
@@ -725,36 +725,36 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 			t.Errorf("%s: failed to parse policy identifiers: got:%#v want:%#v", test.name, cert.PolicyIdentifiers, template.PolicyIdentifiers)
 		}
 
-		if len(cert.PermittedDNSDomains) != 2 || cert.PermittedDNSDomains[0].Data != ".example.com" || cert.PermittedDNSDomains[1].Data != "example.com" {
-			t.Errorf("%s: failed to parse name constraints: %#v", test.name, cert.PermittedDNSDomains)
+		if len(cert.PermittedDNSDomains) != 2 || cert.PermittedDNSDomains[0] != ".example.com" || cert.PermittedDNSDomains[1] != "example.com" {
+			t.Errorf("%s: failed to parse name constraints: %#v (cert:%#v)", test.name, cert.PermittedDNSDomains, cert)
 		}
 
-		if len(cert.ExcludedDNSNames) != 1 || cert.ExcludedDNSNames[0].Data != "bar.example.com" {
-			t.Errorf("%s: failed to parse name constraint exclusions: %#v", test.name, cert.ExcludedDNSNames)
+		if len(cert.ExcludedDNSDomains) != 1 || cert.ExcludedDNSDomains[0] != "bar.example.com" {
+			t.Errorf("%s: failed to parse name constraint exclusions: %#v", test.name, cert.ExcludedDNSDomains)
 		}
 
-		if len(cert.PermittedIPAddresses) != 2 || cert.PermittedIPAddresses[0].Data.String() != "192.168.0.0/16" || cert.PermittedIPAddresses[1].Data.String() != "1.0.0.0/8" {
-			t.Errorf("%s: failed to parse IP constraints: %#v", test.name, cert.PermittedIPAddresses)
+		if len(cert.PermittedIPRanges) != 2 || cert.PermittedIPRanges[0].String() != "192.168.0.0/16" || cert.PermittedIPRanges[1].String() != "1.0.0.0/8" {
+			t.Errorf("%s: failed to parse IP constraints: %#v", test.name, cert.PermittedIPRanges)
 		}
 
-		if len(cert.ExcludedIPAddresses) != 1 || cert.ExcludedIPAddresses[0].Data.String() != "2001:db8::/48" {
-			t.Errorf("%s: failed to parse IP constraint exclusions: %#v", test.name, cert.ExcludedIPAddresses)
+		if len(cert.ExcludedIPRanges) != 1 || cert.ExcludedIPRanges[0].String() != "2001:db8::/48" {
+			t.Errorf("%s: failed to parse IP constraint exclusions: %#v", test.name, cert.ExcludedIPRanges)
 		}
 
-		if len(cert.PermittedEmailAddresses) != 1 || cert.PermittedEmailAddresses[0].Data != "foo@example.com" {
+		if len(cert.PermittedEmailAddresses) != 1 || cert.PermittedEmailAddresses[0] != "foo@example.com" {
 			t.Errorf("%s: failed to parse permitted email addresses: %#v", test.name, cert.PermittedEmailAddresses)
 		}
 
-		if len(cert.ExcludedEmailAddresses) != 2 || cert.ExcludedEmailAddresses[0].Data != ".example.com" || cert.ExcludedEmailAddresses[1].Data != "example.com" {
+		if len(cert.ExcludedEmailAddresses) != 2 || cert.ExcludedEmailAddresses[0] != ".example.com" || cert.ExcludedEmailAddresses[1] != "example.com" {
 			t.Errorf("%s: failed to parse excluded email addresses: %#v", test.name, cert.ExcludedEmailAddresses)
 		}
 
-		if len(cert.PermittedURIs) != 2 || cert.PermittedURIs[0].Data != ".bar.com" || cert.PermittedURIs[1].Data != "bar.com" {
-			t.Errorf("%s: failed to parse permitted URIs: %#v", test.name, cert.PermittedURIs)
+		if len(cert.PermittedURIDomains) != 2 || cert.PermittedURIDomains[0] != ".bar.com" || cert.PermittedURIDomains[1] != "bar.com" {
+			t.Errorf("%s: failed to parse permitted URIs: %#v", test.name, cert.PermittedURIDomains)
 		}
 
-		if len(cert.ExcludedURIs) != 2 || cert.ExcludedURIs[0].Data != ".bar2.com" || cert.ExcludedURIs[1].Data != "bar2.com" {
-			t.Errorf("%s: failed to parse excluded URIs: %#v", test.name, cert.ExcludedURIs)
+		if len(cert.ExcludedURIDomains) != 2 || cert.ExcludedURIDomains[0] != ".bar2.com" || cert.ExcludedURIDomains[1] != "bar2.com" {
+			t.Errorf("%s: failed to parse excluded URIs: %#v", test.name, cert.ExcludedURIDomains)
 		}
 
 		if cert.Subject.CommonName != commonName {

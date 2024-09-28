@@ -1758,24 +1758,24 @@ func customConstraintsExtension(typeNum int, constraint []byte, isExcluded bool)
 }
 
 func addConstraintsToTemplate(constraints constraintsSpec, template *Certificate) error {
-	parse := func(constraints []string) (dnsNames []GeneralSubtreeString, ips []GeneralSubtreeIP, emailAddrs []GeneralSubtreeString, URIs []GeneralSubtreeString, err error) {
+	parse := func(constraints []string) (dnsNames []string, ips []*net.IPNet, emailAddrs []string, URIs []string, err error) {
 		for _, constraint := range constraints {
 			switch {
 			case strings.HasPrefix(constraint, "dns:"):
-				dnsNames = append(dnsNames, GeneralSubtreeString{Data: constraint[4:]})
+				dnsNames = append(dnsNames, constraint[4:])
 
 			case strings.HasPrefix(constraint, "ip:"):
 				_, ipNet, err := net.ParseCIDR(constraint[3:])
 				if err != nil {
 					return nil, nil, nil, nil, err
 				}
-				ips = append(ips, GeneralSubtreeIP{Data: *ipNet})
+				ips = append(ips, ipNet)
 
 			case strings.HasPrefix(constraint, "email:"):
-				emailAddrs = append(emailAddrs, GeneralSubtreeString{Data: constraint[6:]})
+				emailAddrs = append(emailAddrs, constraint[6:])
 
 			case strings.HasPrefix(constraint, "uri:"):
-				URIs = append(URIs, GeneralSubtreeString{Data: constraint[4:]})
+				URIs = append(URIs, constraint[4:])
 
 			default:
 				return nil, nil, nil, nil, fmt.Errorf("unknown constraint %q", constraint)
@@ -1810,12 +1810,12 @@ func addConstraintsToTemplate(constraints constraintsSpec, template *Certificate
 	}
 
 	var err error
-	template.PermittedDNSDomains, template.PermittedIPAddresses, template.PermittedEmailAddresses, template.PermittedURIs, err = parse(constraints.ok)
+	template.PermittedDNSDomains, template.PermittedIPRanges, template.PermittedEmailAddresses, template.PermittedURIDomains, err = parse(constraints.ok)
 	if err != nil {
 		return err
 	}
 
-	template.ExcludedDNSNames, template.ExcludedIPAddresses, template.ExcludedEmailAddresses, template.ExcludedURIs, err = parse(constraints.bad)
+	template.ExcludedDNSDomains, template.ExcludedIPRanges, template.ExcludedEmailAddresses, template.ExcludedURIDomains, err = parse(constraints.bad)
 	if err != nil {
 		return err
 	}

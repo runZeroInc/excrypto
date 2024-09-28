@@ -198,126 +198,76 @@ func TestNameConstraintJSON(t *testing.T) {
 	}{
 		{
 			nc: NameConstraints{
-				ExcludedDNSNames: []GeneralSubtreeString{
-					{
-						Data: "censys.singles",
-					},
+				ExcludedDNSDomains: []string{
+					"censys.singles",
 				},
-				PermittedDirectoryNames: []GeneralSubtreeName{
-					{
-						Data: testName,
-					},
+				PermittedDirectoryNames: []pkix.Name{
+					testName,
 				},
 			},
 		},
 		{
 			nc: NameConstraints{
-				PermittedDNSDomains: []GeneralSubtreeString{
-					{
-						Data: "censys.io",
+				PermittedDNSDomains: []string{
+					"censys.io",
+					"censys.singles",
+				},
+				PermittedEmailAddresses: []string{
+					"test1@censys.io",
+					"test2@censys.io",
+				},
+				PermittedURIDomains: []string{
+					"http://www.example.com/foo/bar.html",
+				},
+				PermittedIPRanges: []*net.IPNet{
+					&net.IPNet{IP: net.IPv4(127, 0, 0, 1), Mask: net.IPv4Mask(0, 0, 0, 0)},
+					&net.IPNet{IP: net.IPv4(127, 0, 0, 2), Mask: net.IPv4Mask(0, 0, 0, 0)},
+				},
+				PermittedDirectoryNames: []pkix.Name{
+					testName,
+				},
+				PermittedEdiPartyNames: []pkix.EDIPartyName{
+					pkix.EDIPartyName{
+						NameAssigner: "test1",
+						PartyName:    "test2",
 					},
-					{
-						Data: "censys.singles",
+					pkix.EDIPartyName{
+						NameAssigner: "test3",
+						PartyName:    "test4",
 					},
 				},
-				PermittedEmailAddresses: []GeneralSubtreeString{
-					{
-						Data: "test1@censys.io",
+				PermittedRegisteredIDs: []asn1.ObjectIdentifier{
+					asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 1466, 115, 121, 1, 28},
+					asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 1466, 115, 121, 1, 29},
+				},
+				ExcludedEmailAddresses: []string{
+					"test1@censys.io",
+					"test2@censys.io",
+				},
+				ExcludedDNSDomains: []string{
+					"censys.io",
+					"censys.singles",
+				},
+				ExcludedIPRanges: []*net.IPNet{
+					&net.IPNet{IP: net.IPv4(127, 0, 0, 1), Mask: net.IPv4Mask(0, 0, 0, 0)},
+					&net.IPNet{IP: net.IPv4(127, 0, 0, 2), Mask: net.IPv4Mask(0, 0, 0, 0)},
+				},
+				ExcludedDirectoryNames: []pkix.Name{
+					testName,
+				},
+				ExcludedEdiPartyNames: []pkix.EDIPartyName{
+					pkix.EDIPartyName{
+						NameAssigner: "test1",
+						PartyName:    "test2",
 					},
-					{
-						Data: "test2@censys.io",
+					pkix.EDIPartyName{
+						NameAssigner: "test3",
+						PartyName:    "test4",
 					},
 				},
-				PermittedURIs: []GeneralSubtreeString{
-					{
-						Data: "http://www.example.com/foo/bar.html",
-					},
-				},
-				PermittedIPAddresses: []GeneralSubtreeIP{
-					{
-						Data: net.IPNet{IP: net.IPv4(127, 0, 0, 1), Mask: net.IPv4Mask(0, 0, 0, 0)},
-					},
-					{
-						Data: net.IPNet{IP: net.IPv4(127, 0, 0, 2), Mask: net.IPv4Mask(0, 0, 0, 0)},
-					},
-				},
-				PermittedDirectoryNames: []GeneralSubtreeName{
-					{
-						Data: testName,
-					},
-				},
-				PermittedEdiPartyNames: []GeneralSubtreeEdi{
-					{
-						Data: pkix.EDIPartyName{
-							NameAssigner: "test1",
-							PartyName:    "test2",
-						},
-					},
-					{
-						Data: pkix.EDIPartyName{
-							NameAssigner: "test3",
-							PartyName:    "test4",
-						},
-					},
-				},
-				PermittedRegisteredIDs: []GeneralSubtreeOid{
-					{
-						Data: asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 1466, 115, 121, 1, 28},
-					},
-					{
-						Data: asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 1466, 115, 121, 1, 29},
-					},
-				},
-				ExcludedEmailAddresses: []GeneralSubtreeString{
-					{
-						Data: "test1@censys.io",
-					},
-					{
-						Data: "test2@censys.io",
-					},
-				},
-				ExcludedDNSNames: []GeneralSubtreeString{
-					{
-						Data: "censys.io",
-					},
-					{
-						Data: "censys.singles",
-					},
-				},
-				ExcludedIPAddresses: []GeneralSubtreeIP{
-					{
-						Data: net.IPNet{IP: net.IPv4(127, 0, 0, 1), Mask: net.IPv4Mask(0, 0, 0, 0)},
-					},
-					{
-						Data: net.IPNet{IP: net.IPv4(127, 0, 0, 2), Mask: net.IPv4Mask(0, 0, 0, 0)},
-					},
-				},
-				ExcludedDirectoryNames: []GeneralSubtreeName{
-					{
-						Data: testName,
-					},
-				},
-				ExcludedEdiPartyNames: []GeneralSubtreeEdi{
-					{
-						Data: pkix.EDIPartyName{
-							NameAssigner: "test1",
-							PartyName:    "test2",
-						},
-					},
-					{
-						Data: pkix.EDIPartyName{
-							NameAssigner: "test3",
-							PartyName:    "test4",
-						},
-					},
-				},
-				ExcludedRegisteredIDs: []GeneralSubtreeOid{
-					{
-						Data: asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 1466, 115, 121, 1, 28},
-					},
-					{
-						Data: asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 1466, 115, 121, 1, 29},
-					},
+				ExcludedRegisteredIDs: []asn1.ObjectIdentifier{
+					asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 1466, 115, 121, 1, 28},
+					asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 1466, 115, 121, 1, 29},
 				},
 			},
 		},
@@ -336,27 +286,27 @@ func TestNameConstraintJSON(t *testing.T) {
 		}
 
 		for _, e := range backToNC.PermittedDNSDomains {
-			if !containsGeneralSubtreeString(test.nc.PermittedDNSDomains, e) {
+			if !containsString(test.nc.PermittedDNSDomains, e) {
 				t.Errorf("%d: JSON Unmarshal did not preserve all values", i)
 			}
 		}
 		for _, e := range backToNC.PermittedEmailAddresses {
-			if !containsGeneralSubtreeString(test.nc.PermittedEmailAddresses, e) {
+			if !containsString(test.nc.PermittedEmailAddresses, e) {
 				t.Errorf("%d: JSON Unmarshal did not preserve all values", i)
 			}
 		}
-		for _, e := range backToNC.PermittedURIs {
-			if !containsGeneralSubtreeString(test.nc.PermittedURIs, e) {
+		for _, e := range backToNC.PermittedURIDomains {
+			if !containsString(test.nc.PermittedURIDomains, e) {
 				t.Errorf("%d: JSON Unmarshal did not preserve all values", i)
 			}
 		}
-		for _, e := range backToNC.PermittedIPAddresses {
-			if !containsGeneralSubtreeIP(test.nc.PermittedIPAddresses, e) {
+		for _, e := range backToNC.PermittedIPRanges {
+			if !containsNetIP(test.nc.PermittedIPRanges, e) {
 				t.Errorf("%d: JSON Unmarshal did not preserve all values", i)
 			}
 		}
 		for _, e := range backToNC.PermittedDirectoryNames {
-			if !containsGeneralSubtreeName(test.nc.PermittedDirectoryNames, e) {
+			if !containspkixName(test.nc.PermittedDirectoryNames, e) {
 				t.Errorf("%d: JSON Unmarshal did not preserve all values", i)
 			}
 		}
@@ -370,28 +320,28 @@ func TestNameConstraintJSON(t *testing.T) {
 				t.Errorf("%d: JSON Unmarshal did not preserve all values", i)
 			}
 		}
-		for _, e := range backToNC.ExcludedDNSNames {
-			if !containsGeneralSubtreeString(test.nc.ExcludedDNSNames, e) {
+		for _, e := range backToNC.ExcludedDNSDomains {
+			if !containsString(test.nc.ExcludedDNSDomains, e) {
 				t.Errorf("%d: JSON Unmarshal did not preserve all values", i)
 			}
 		}
 		for _, e := range backToNC.ExcludedEmailAddresses {
-			if !containsGeneralSubtreeString(test.nc.ExcludedEmailAddresses, e) {
+			if !containsString(test.nc.ExcludedEmailAddresses, e) {
 				t.Errorf("%d: JSON Unmarshal did not preserve all values", i)
 			}
 		}
-		for _, e := range backToNC.ExcludedURIs {
-			if !containsGeneralSubtreeString(test.nc.ExcludedURIs, e) {
+		for _, e := range backToNC.ExcludedURIDomains {
+			if !containsString(test.nc.ExcludedURIDomains, e) {
 				t.Errorf("%d: JSON Unmarshal did not preserve all values", i)
 			}
 		}
-		for _, e := range backToNC.ExcludedIPAddresses {
-			if !containsGeneralSubtreeIP(test.nc.ExcludedIPAddresses, e) {
+		for _, e := range backToNC.ExcludedIPRanges {
+			if !containsNetIP(test.nc.ExcludedIPRanges, e) {
 				t.Errorf("%d: JSON Unmarshal did not preserve all values", i)
 			}
 		}
 		for _, e := range backToNC.ExcludedDirectoryNames {
-			if !containsGeneralSubtreeName(test.nc.ExcludedDirectoryNames, e) {
+			if !containspkixName(test.nc.ExcludedDirectoryNames, e) {
 				t.Errorf("%d: JSON Unmarshal did not preserve all values", i)
 			}
 		}
@@ -408,47 +358,37 @@ func TestNameConstraintJSON(t *testing.T) {
 	}
 }
 
-func containsGeneralSubtreeString(s []GeneralSubtreeString, e GeneralSubtreeString) bool {
+func containsNetIP(s []*net.IPNet, e *net.IPNet) bool {
 	for _, a := range s {
-		if strings.Compare(a.Data, e.Data) == 0 {
+		if a.Contains(e.IP) {
 			return true
 		}
 	}
 	return false
 }
 
-func containsGeneralSubtreeIP(s []GeneralSubtreeIP, e GeneralSubtreeIP) bool {
+func containsGeneralSubtreeEDI(s []pkix.EDIPartyName, e pkix.EDIPartyName) bool {
 	for _, a := range s {
-		if a.Data.IP.Equal(e.Data.IP) &&
-			strings.Compare(a.Data.Mask.String(), e.Data.Mask.String()) == 0 {
+		if strings.Compare(a.NameAssigner, e.NameAssigner) == 0 &&
+			strings.Compare(a.PartyName, e.PartyName) == 0 {
 			return true
 		}
 	}
 	return false
 }
 
-func containsGeneralSubtreeName(s []GeneralSubtreeName, e GeneralSubtreeName) bool {
+func containspkixName(s []pkix.Name, e pkix.Name) bool {
 	for _, a := range s {
-		if strings.Compare(a.Data.String(), e.Data.String()) == 0 {
+		if strings.Compare(a.String(), e.String()) == 0 {
 			return true
 		}
 	}
 	return false
 }
 
-func containsGeneralSubtreeEDI(s []GeneralSubtreeEdi, e GeneralSubtreeEdi) bool {
+func containsGeneralSubtreeOID(s []asn1.ObjectIdentifier, e asn1.ObjectIdentifier) bool {
 	for _, a := range s {
-		if strings.Compare(a.Data.NameAssigner, e.Data.NameAssigner) == 0 &&
-			strings.Compare(a.Data.PartyName, e.Data.PartyName) == 0 {
-			return true
-		}
-	}
-	return false
-}
-
-func containsGeneralSubtreeOID(s []GeneralSubtreeOid, e GeneralSubtreeOid) bool {
-	for _, a := range s {
-		if a.Data.Equal(e.Data) {
+		if a.Equal(e) {
 			return true
 		}
 	}

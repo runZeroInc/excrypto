@@ -668,8 +668,6 @@ func (c *Certificate) isValid(certType int, currentChain []*Certificate, opts *V
 							switch tv := constraint.(type) {
 							case string:
 								constraintString = tv
-							case GeneralSubtreeString:
-								constraintString = tv.Data
 							}
 							return matchEmailConstraint(parsedName.(rfc2821Mailbox), constraintString)
 						}, c.PermittedEmailAddresses, c.ExcludedEmailAddresses); err != nil {
@@ -688,11 +686,9 @@ func (c *Certificate) isValid(certType int, currentChain []*Certificate, opts *V
 							switch tv := constraint.(type) {
 							case string:
 								constraintString = tv
-							case GeneralSubtreeString:
-								constraintString = tv.Data
 							}
 							return matchDomainConstraint(parsedName.(string), constraintString)
-						}, c.PermittedDNSDomains, c.ExcludedDNSNames); err != nil {
+						}, c.PermittedDNSDomains, c.ExcludedDNSDomains); err != nil {
 						return err
 					}
 
@@ -709,11 +705,9 @@ func (c *Certificate) isValid(certType int, currentChain []*Certificate, opts *V
 							switch tv := constraint.(type) {
 							case string:
 								constraintString = tv
-							case GeneralSubtreeString:
-								constraintString = tv.Data
 							}
 							return matchURIConstraint(parsedName.(*url.URL), constraintString)
-						}, c.PermittedURIs, c.ExcludedURIs); err != nil {
+						}, c.PermittedURIDomains, c.ExcludedURIDomains); err != nil {
 						return err
 					}
 
@@ -726,7 +720,7 @@ func (c *Certificate) isValid(certType int, currentChain []*Certificate, opts *V
 					if err := c.checkNameConstraints(&comparisonCount, maxConstraintComparisons, "IP address", ip.String(), ip,
 						func(parsedName, constraint any) (bool, error) {
 							return matchIPConstraint(parsedName.(net.IP), constraint.(*net.IPNet))
-						}, c.PermittedIPAddresses, c.ExcludedIPAddresses); err != nil {
+						}, c.PermittedIPRanges, c.ExcludedIPRanges); err != nil {
 						return err
 					}
 
