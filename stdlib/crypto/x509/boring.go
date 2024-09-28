@@ -30,7 +30,7 @@ func boringAllowCert(c *Certificate) bool {
 		if size := k.N.BitLen(); size != 2048 && size != 3072 && size != 4096 {
 			return false
 		}
-	case *ecdsa.PublicKey:
+	case *ecdsa.PublicKey, *AugmentedECDSA:
 		if k.Curve != elliptic.P256() && k.Curve != elliptic.P384() && k.Curve != elliptic.P521() {
 			return false
 		}

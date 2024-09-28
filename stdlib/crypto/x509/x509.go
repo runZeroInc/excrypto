@@ -1906,9 +1906,17 @@ func signingParamsForKey(key crypto.Signer, sigAlgo SignatureAlgorithm) (Signatu
 		pubType = RSA
 		defaultAlgo = SHA256WithRSA
 
-	case *ecdsa.PublicKey:
+	case *ecdsa.PublicKey, *AugmentedECDSA:
 		pubType = ECDSA
-		switch pub.Curve {
+		var curve elliptic.Curve
+		switch pubt := pub.(type) {
+		case *ecdsa.PublicKey:
+			curve = pubt.Curve
+		case *AugmentedECDSA:
+			curve = pubt.Pub.Curve
+		}
+
+		switch curve {
 		case elliptic.P224(), elliptic.P256():
 			defaultAlgo = ECDSAWithSHA256
 		case elliptic.P384():

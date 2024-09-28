@@ -35,7 +35,7 @@ func SignatureAndHashesFromSignatureSchemes(inp []SignatureScheme) []SignatureAn
 func SignatureAndHashesToSignatureSchemes(inp []SignatureAndHash) []SignatureScheme {
 	res := make([]SignatureScheme, len(inp))
 	for i, s := range inp {
-		res[i] = SignatureScheme((uint16(s.Signature) << 8) + uint16(s.Hash))
+		res[i] = SignatureScheme(s.Signature)<<8 | SignatureScheme(s.Hash)
 	}
 	return res
 }

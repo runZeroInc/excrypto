@@ -1932,21 +1932,29 @@ func (chi *ClientHelloInfo) SupportsCertificate(c *Certificate) error {
 	var ecdsaCipherSuite bool
 	if priv, ok := c.PrivateKey.(crypto.Signer); ok {
 		switch pub := priv.Public().(type) {
-		case *ecdsa.PublicKey:
-			var curve CurveID
-			switch pub.Curve {
+		case *ecdsa.PublicKey, *x509.AugmentedECDSA:
+			var curve elliptic.Curve
+			switch pubt := pub.(type) {
+			case *ecdsa.PublicKey:
+				curve = pubt.Curve
+			case *x509.AugmentedECDSA:
+				curve = pubt.Pub.Curve
+			}
+
+			var cid CurveID
+			switch curve {
 			case elliptic.P256():
-				curve = CurveP256
+				cid = CurveP256
 			case elliptic.P384():
-				curve = CurveP384
+				cid = CurveP384
 			case elliptic.P521():
-				curve = CurveP521
+				cid = CurveP521
 			default:
 				return supportsRSAFallback(unsupportedCertificateError(c))
 			}
 			var curveOk bool
 			for _, c := range chi.SupportedCurves {
-				if c == curve && config.supportsCurve(vers, c) {
+				if c == cid && config.supportsCurve(vers, c) {
 					curveOk = true
 					break
 				}

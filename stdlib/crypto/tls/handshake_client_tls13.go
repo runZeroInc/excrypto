@@ -157,10 +157,12 @@ func (hs *clientHandshakeStateTLS13) handshake() error {
 		return &ECHRejectionError{echRetryConfigList}
 	}
 
-	if hs.session.ticket == nil {
-		c.handshakeLog.SessionTicket = nil
-	} else {
-		c.handshakeLog.SessionTicket = hs.session.MakeLog()
+	if hs.session != nil {
+		if hs.session.ticket == nil {
+			c.handshakeLog.SessionTicket = nil
+		} else {
+			c.handshakeLog.SessionTicket = hs.session.MakeLog()
+		}
 	}
 	c.handshakeLog.KeyMaterial = hs.MakeLog()
 

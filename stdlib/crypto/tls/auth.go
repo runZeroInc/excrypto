@@ -6,15 +6,17 @@ package tls
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
+	"hash"
+	"io"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
-	"errors"
-	"fmt"
-	"hash"
-	"io"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 )
 
 // verifyHandshakeSignature verifies a signature against pre-hashed
@@ -24,7 +26,11 @@ func verifyHandshakeSignature(sigType uint8, pubkey crypto.PublicKey, hashFunc c
 	case signatureECDSA:
 		pubKey, ok := pubkey.(*ecdsa.PublicKey)
 		if !ok {
-			return fmt.Errorf("expected an ECDSA public key, got %T", pubkey)
+			ak, ok := pubkey.(*x509.AugmentedECDSA)
+			if !ok {
+				return fmt.Errorf("expected an ECDSA public key, got %T", pubkey)
+			}
+			pubKey = ak.Pub
 		}
 		if !ecdsa.VerifyASN1(pubKey, signed, sig) {
 			return errors.New("ECDSA verification failure")
@@ -132,7 +138,7 @@ func legacyTypeAndHashFromPublicKey(pub crypto.PublicKey) (sigType uint8, hash c
 	switch pub.(type) {
 	case *rsa.PublicKey:
 		return signaturePKCS1v15, crypto.MD5SHA1, nil
-	case *ecdsa.PublicKey:
+	case *ecdsa.PublicKey, *x509.AugmentedECDSA:
 		return signatureECDSA, crypto.SHA1, nil
 	case ed25519.PublicKey:
 		// RFC 8422 specifies support for Ed25519 in TLS 1.0 and 1.1,
@@ -178,7 +184,7 @@ func signatureSchemesForCertificate(version uint16, cert *Certificate) []Signatu
 
 	var sigAlgs []SignatureScheme
 	switch pub := priv.Public().(type) {
-	case *ecdsa.PublicKey:
+	case *ecdsa.PublicKey, *x509.AugmentedECDSA:
 		if version != VersionTLS13 {
 			// In TLS 1.2 and earlier, ECDSA algorithms are not
 			// constrained to a single curve.
@@ -190,7 +196,16 @@ func signatureSchemesForCertificate(version uint16, cert *Certificate) []Signatu
 			}
 			break
 		}
-		switch pub.Curve {
+
+		var curve elliptic.Curve
+		switch pubt := pub.(type) {
+		case *ecdsa.PublicKey:
+			curve = pubt.Curve
+		case *x509.AugmentedECDSA:
+			curve = pubt.Pub.Curve
+		}
+
+		switch curve {
 		case elliptic.P256():
 			sigAlgs = []SignatureScheme{ECDSAWithP256AndSHA256}
 		case elliptic.P384():
@@ -270,13 +285,20 @@ func unsupportedCertificateError(cert *Certificate) error {
 	}
 
 	switch pub := signer.Public().(type) {
-	case *ecdsa.PublicKey:
-		switch pub.Curve {
+	case *ecdsa.PublicKey, *x509.AugmentedECDSA:
+		var curve elliptic.Curve
+		switch pubt := pub.(type) {
+		case *ecdsa.PublicKey:
+			curve = pubt.Curve
+		case *x509.AugmentedECDSA:
+			curve = pubt.Pub.Curve
+		}
+		switch curve {
 		case elliptic.P256():
 		case elliptic.P384():
 		case elliptic.P521():
 		default:
-			return fmt.Errorf("tls: unsupported certificate curve (%s)", pub.Curve.Params().Name)
+			return fmt.Errorf("tls: unsupported certificate curve (%s)", curve.Params().Name)
 		}
 	case *rsa.PublicKey:
 		return fmt.Errorf("tls: certificate RSA key size too small for supported signature algorithms")

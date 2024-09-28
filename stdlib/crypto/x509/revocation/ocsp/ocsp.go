@@ -199,10 +199,16 @@ func signingParamsForPublicKey(pub interface{}, requestedSigAlgo x509.SignatureA
 			Tag: 5,
 		}
 
-	case *ecdsa.PublicKey:
+	case *ecdsa.PublicKey, *x509.AugmentedECDSA:
 		pubType = x509.ECDSA
-
-		switch pub.Curve {
+		var curve elliptic.Curve
+		switch pubt := pub.(type) {
+		case *ecdsa.PublicKey:
+			curve = pubt.Curve
+		case *x509.AugmentedECDSA:
+			curve = pubt.Pub.Curve
+		}
+		switch curve {
 		case elliptic.P224(), elliptic.P256():
 			hashFunc = crypto.SHA256
 			sigAlgo.Algorithm = oidSignatureECDSAWithSHA256
@@ -215,7 +221,6 @@ func signingParamsForPublicKey(pub interface{}, requestedSigAlgo x509.SignatureA
 		default:
 			err = errors.New("x509: unknown elliptic curve")
 		}
-
 	default:
 		err = errors.New("x509: only RSA and ECDSA keys supported")
 	}

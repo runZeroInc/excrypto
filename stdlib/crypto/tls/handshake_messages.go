@@ -218,7 +218,7 @@ func (m *clientHelloMsg) marshalMsg(echInner bool) ([]byte, error) {
 			exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
 				exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
 					for _, sigAlgo := range m.supportedSignatureAlgorithms {
-						exts.AddUint16(uint16(sigAlgo.Signature))
+						exts.AddUint16(uint16(sigAlgo.Signature)<<8 | uint16(sigAlgo.Hash))
 					}
 				})
 			})
@@ -233,7 +233,7 @@ func (m *clientHelloMsg) marshalMsg(echInner bool) ([]byte, error) {
 			exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
 				exts.AddUint16LengthPrefixed(func(exts *cryptobyte.Builder) {
 					for _, sigAlgo := range m.supportedSignatureAlgorithmsCert {
-						exts.AddUint16(uint16(sigAlgo.Signature))
+						exts.AddUint16(uint16(sigAlgo.Signature)<<8 | uint16(sigAlgo.Hash))
 					}
 				})
 			})

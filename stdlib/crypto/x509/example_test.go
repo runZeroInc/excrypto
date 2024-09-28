@@ -128,7 +128,7 @@ AIU+2GKjyT3iMuzZxxFxPFMCAwEAAQ==
 		fmt.Println("pub is of type RSA:", pub)
 	case *dsa.PublicKey:
 		fmt.Println("pub is of type DSA:", pub)
-	case *ecdsa.PublicKey:
+	case *ecdsa.PublicKey, *x509.AugmentedECDSA:
 		fmt.Println("pub is of type ECDSA:", pub)
 	case ed25519.PublicKey:
 		fmt.Println("pub is of type Ed25519:", pub)

@@ -495,7 +495,7 @@ func (hs *serverHandshakeState) doFullHandshake() error {
 			// from the key type, and only one hash per signature
 			// algorithm was possible. Leave the hash as zero.
 			switch pub.(type) {
-			case *ecdsa.PublicKey:
+			case *ecdsa.PublicKey, *x509.AugmentedECDSA:
 				signatureAndHash.Signature = signatureECDSA
 			case *rsa.PublicKey:
 				signatureAndHash.Signature = signatureRSA
