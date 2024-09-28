@@ -6,6 +6,7 @@ package x509
 
 import (
 	"bytes"
+
 	"errors"
 	"fmt"
 	"net"
@@ -15,7 +16,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	crypto "github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 )
 
@@ -154,7 +155,7 @@ func (h HostnameError) Error() string {
 			valid += san.String()
 		}
 	} else {
-		valid = c.Subject.CommonName
+		valid = strings.Join(c.DNSNames, ", ")
 	}
 
 	if len(valid) == 0 {
@@ -835,6 +836,7 @@ func (c *Certificate) Verify(opts VerifyOptions) (current, expired, never [][]*C
 		opts.Roots = systemRootsPool()
 		if opts.Roots == nil {
 			err = SystemRootsError{systemRootsErr}
+			return
 		}
 	}
 
@@ -1272,6 +1274,10 @@ func later(a, b time.Time) time.Time {
 // current chains valid now, expired chains that were valid at some point, and
 // the set of chains that were never valid.
 func FilterByDate(chains [][]*Certificate, now time.Time) (current, expired, never [][]*Certificate) {
+	if now.IsZero() {
+		now = time.Now()
+	}
+
 	for _, chain := range chains {
 		if len(chain) == 0 {
 			continue

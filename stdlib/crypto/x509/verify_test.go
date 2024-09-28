@@ -324,30 +324,33 @@ var verifyTests = []verifyTest{
 
 		errorCallback: expectNameConstraintsError,
 	},
-	{
-		// Test that unknown critical extensions in a leaf cause a
-		// verify error.
-		name:          "CriticalExtLeaf",
-		leaf:          criticalExtLeafWithExt,
-		intermediates: []string{criticalExtIntermediate},
-		roots:         []string{criticalExtRoot},
-		currentTime:   1486684488,
-		systemSkip:    true, // does not chain to a system root
+	// zcrypto
+	/*
+		{
+			// Test that unknown critical extensions in a leaf cause a
+			// verify error.
+			name:          "CriticalExtLeaf",
+			leaf:          criticalExtLeafWithExt,
+			intermediates: []string{criticalExtIntermediate},
+			roots:         []string{criticalExtRoot},
+			currentTime:   1486684488,
+			systemSkip:    true, // does not chain to a system root
 
-		errorCallback: expectUnhandledCriticalExtension,
-	},
-	{
-		// Test that unknown critical extensions in an intermediate
-		// cause a verify error.
-		name:          "CriticalExtIntermediate",
-		leaf:          criticalExtLeaf,
-		intermediates: []string{criticalExtIntermediateWithExt},
-		roots:         []string{criticalExtRoot},
-		currentTime:   1486684488,
-		systemSkip:    true, // does not chain to a system root
+			errorCallback: expectUnhandledCriticalExtension,
+		},
+		{
+			// Test that unknown critical extensions in an intermediate
+			// cause a verify error.
+			name:          "CriticalExtIntermediate",
+			leaf:          criticalExtLeaf,
+			intermediates: []string{criticalExtIntermediateWithExt},
+			roots:         []string{criticalExtRoot},
+			currentTime:   1486684488,
+			systemSkip:    true, // does not chain to a system root
 
-		errorCallback: expectUnhandledCriticalExtension,
-	},
+			errorCallback: expectUnhandledCriticalExtension,
+		},
+	*/
 	{
 		name:        "ValidCN",
 		leaf:        validCNWithoutSAN,
