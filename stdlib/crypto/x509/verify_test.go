@@ -262,6 +262,7 @@ var verifyTests = []verifyTest{
 				"DigiCert Global Root CA",
 			},
 		},
+		errorCallback: expectExpired,
 	},
 	{
 		// Putting a certificate as a root directly should work as a
