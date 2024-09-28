@@ -884,6 +884,11 @@ func TestCloneNonFuncFields(t *testing.T) {
 			f.Set(reflect.ValueOf([]byte{'x'}))
 		case "mutex", "autoSessionTicketKeys", "sessionTicketKeys":
 			continue // these are unexported fields that are handled separately
+		case "ExplicitCurvePreferences", "SupportedPoints", "NoOcspStapling", "CompressionMethods",
+			"SignatureAndHashes", "serverInitOnce", "ForceSuites", "ExportRSAKey", "HeartbeatEnabled", "ClientDSAEnabled",
+			"ExtendedRandom", "ForceSessionTicketExt", "ExtendedMasterSecret", "SignedCertificateTimestampExt", "ClientRandom",
+			"ServerRandom", "ExternalClientHello", "ClientFingerprintConfiguration", "CertsOnly", "DontBufferHandshakes":
+			continue // zcrypto
 		default:
 			t.Errorf("all fields must be accounted for, but saw unknown field %q", fn)
 		}

@@ -2225,7 +2225,7 @@ type dsaSignature struct {
 
 type ecdsaSignature dsaSignature
 
-var emptyConfig Config = Config{InsecureSkipVerify: true}
+var emptyConfig Config = Config{}
 
 func defaultConfig() *Config {
 	return &emptyConfig
