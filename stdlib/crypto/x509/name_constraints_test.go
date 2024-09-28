@@ -2098,6 +2098,8 @@ func TestRFC2821Parsing(t *testing.T) {
 	}
 }
 
+// zcrypto: allow invalid name constraints
+/*
 func TestBadNamesInConstraints(t *testing.T) {
 	constraintParseError := func(err error) bool {
 		str := err.Error()
@@ -2173,3 +2175,4 @@ func TestBadNamesInSANs(t *testing.T) {
 		}
 	}
 }
+*/
