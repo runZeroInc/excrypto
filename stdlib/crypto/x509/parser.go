@@ -651,7 +651,7 @@ func parseNameConstraintsExtension(out *Certificate, e pkix.Extension) (unhandle
 		return dnsNames, ips, emails, uriDomains, nil
 	}
 
-	if out.PermittedDNSNames, out.PermittedIPAddresses, out.PermittedEmailAddresses, out.PermittedURIs, err = getValues(permitted); err != nil {
+	if out.PermittedDNSDomains, out.PermittedIPAddresses, out.PermittedEmailAddresses, out.PermittedURIs, err = getValues(permitted); err != nil {
 		return false, err
 	}
 	if out.ExcludedDNSNames, out.ExcludedIPAddresses, out.ExcludedEmailAddresses, out.ExcludedURIs, err = getValues(excluded); err != nil {
@@ -1010,7 +1010,7 @@ func parseCertificate(in *certificate) (*Certificate, error) {
 					case 1:
 						out.PermittedEmailAddresses = append(out.PermittedEmailAddresses, GeneralSubtreeString{Data: string(subtree.Value.Bytes), Max: subtree.Max, Min: subtree.Min})
 					case 2:
-						out.PermittedDNSNames = append(out.PermittedDNSNames, GeneralSubtreeString{Data: string(subtree.Value.Bytes), Max: subtree.Max, Min: subtree.Min})
+						out.PermittedDNSDomains = append(out.PermittedDNSDomains, GeneralSubtreeString{Data: string(subtree.Value.Bytes), Max: subtree.Max, Min: subtree.Min})
 					case 3:
 						out.PermittedX400Addresses = append(out.PermittedX400Addresses, GeneralSubtreeRaw{Data: subtree.Value, Max: subtree.Max, Min: subtree.Min})
 					case 4:

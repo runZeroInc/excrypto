@@ -1810,7 +1810,7 @@ func addConstraintsToTemplate(constraints constraintsSpec, template *Certificate
 	}
 
 	var err error
-	template.PermittedDNSNames, template.PermittedIPAddresses, template.PermittedEmailAddresses, template.PermittedURIs, err = parse(constraints.ok)
+	template.PermittedDNSDomains, template.PermittedIPAddresses, template.PermittedEmailAddresses, template.PermittedURIs, err = parse(constraints.ok)
 	if err != nil {
 		return err
 	}

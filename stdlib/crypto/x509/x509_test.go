@@ -676,14 +676,14 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 			OCSPServer:            []string{"http://ocsp.example.com"},
 			IssuingCertificateURL: []string{"http://crt.example.com/ca1.crt"},
 
-			DNSNames:          []string{"test.example.com"},
-			EmailAddresses:    []string{"gopher@golang.org"},
-			IPAddresses:       []net.IP{net.IPv4(127, 0, 0, 1).To4(), net.ParseIP("2001:4860:0:2001::68")},
-			URIs:              []string{"https://foo.com/wibble#foo"},
-			PolicyIdentifiers: []asn1.ObjectIdentifier{[]int{1, 2, 3}},
-			Policies:          []OID{mustNewOIDFromInts(t, []uint64{1, 2, 3, math.MaxUint32, math.MaxUint64})},
-			PermittedDNSNames: []GeneralSubtreeString{{Data: ".example.com"}, {Data: "example.com"}},
-			ExcludedDNSNames:  []GeneralSubtreeString{{Data: "bar.example.com"}},
+			DNSNames:            []string{"test.example.com"},
+			EmailAddresses:      []string{"gopher@golang.org"},
+			IPAddresses:         []net.IP{net.IPv4(127, 0, 0, 1).To4(), net.ParseIP("2001:4860:0:2001::68")},
+			URIs:                []string{"https://foo.com/wibble#foo"},
+			PolicyIdentifiers:   []asn1.ObjectIdentifier{[]int{1, 2, 3}},
+			Policies:            []OID{mustNewOIDFromInts(t, []uint64{1, 2, 3, math.MaxUint32, math.MaxUint64})},
+			PermittedDNSDomains: []GeneralSubtreeString{{Data: ".example.com"}, {Data: "example.com"}},
+			ExcludedDNSNames:    []GeneralSubtreeString{{Data: "bar.example.com"}},
 
 			PermittedIPAddresses: []GeneralSubtreeIP{{Data: *parseCIDR("192.168.1.1/16")}, {Data: *parseCIDR("1.2.3.4/8")}},
 			ExcludedIPAddresses:  []GeneralSubtreeIP{{Data: *parseCIDR("2001:db8::/48")}},
@@ -725,8 +725,8 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 			t.Errorf("%s: failed to parse policy identifiers: got:%#v want:%#v", test.name, cert.PolicyIdentifiers, template.PolicyIdentifiers)
 		}
 
-		if len(cert.PermittedDNSNames) != 2 || cert.PermittedDNSNames[0].Data != ".example.com" || cert.PermittedDNSNames[1].Data != "example.com" {
-			t.Errorf("%s: failed to parse name constraints: %#v", test.name, cert.PermittedDNSNames)
+		if len(cert.PermittedDNSDomains) != 2 || cert.PermittedDNSDomains[0].Data != ".example.com" || cert.PermittedDNSDomains[1].Data != "example.com" {
+			t.Errorf("%s: failed to parse name constraints: %#v", test.name, cert.PermittedDNSDomains)
 		}
 
 		if len(cert.ExcludedDNSNames) != 1 || cert.ExcludedDNSNames[0].Data != "bar.example.com" {

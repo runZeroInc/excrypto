@@ -691,7 +691,7 @@ func (c *Certificate) isValid(certType int, currentChain []*Certificate, opts *V
 								constraintString = tv.Data
 							}
 							return matchDomainConstraint(parsedName.(string), constraintString)
-						}, c.PermittedDNSNames, c.ExcludedDNSNames); err != nil {
+						}, c.PermittedDNSDomains, c.ExcludedDNSNames); err != nil {
 						return err
 					}
 

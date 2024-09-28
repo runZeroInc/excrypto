@@ -532,7 +532,7 @@ func testVerify(t *testing.T, test verifyTest, useSystemRoots bool) {
 		}
 
 		if !match {
-			t.Errorf("No match found for %v (chains: %#v)", expectedChain, chains)
+			t.Errorf("No match found for %v", expectedChain)
 		}
 	}
 
@@ -1892,6 +1892,59 @@ func macosMajorVersion(t *testing.T) (int, error) {
 	return major, nil
 }
 
+/*
+func TestIssue51759(t *testing.T) {
+	if runtime.GOOS != "darwin" {
+		t.Skip("only affects darwin")
+	}
+
+	testenv.MustHaveExecPath(t, "sw_vers")
+	if vers, err := macosMajorVersion(t); err != nil {
+		if builder := testenv.Builder(); builder != "" {
+			t.Fatalf("unable to determine macOS version: %s", err)
+		} else {
+			t.Skip("unable to determine macOS version")
+		}
+	} else if vers < 11 {
+		t.Skip("behavior only enforced in macOS 11 and after")
+	}
+
+	// badCertData contains a cert that we parse as valid
+	// but that macOS SecCertificateCreateWithData rejects.
+	const badCertData = "0\x82\x01U0\x82\x01\a\xa0\x03\x02\x01\x02\x02\x01\x020\x05\x06\x03+ep0R1P0N\x06\x03U\x04\x03\x13Gderpkey8dc58100b2493614ee1692831a461f3f4dd3f9b3b088e244f887f81b4906ac260\x1e\x17\r220112235755Z\x17\r220313235755Z0R1P0N\x06\x03U\x04\x03\x13Gderpkey8dc58100b2493614ee1692831a461f3f4dd3f9b3b088e244f887f81b4906ac260*0\x05\x06\x03+ep\x03!\x00bA\xd8e\xadW\xcb\xefZ\x89\xb5\"\x1eR\x9d\xba\x0e:\x1042Q@\u007f\xbd\xfb{ks\x04\xd1£\x020\x000\x05\x06\x03+ep\x03A\x00[\xa7\x06y\x86(\x94\x97\x9eLwA\x00\x01x\xaa\xbc\xbd Ê]\n(΅!ف0\xf5\x9a%I\x19<\xffo\xf1\xeaaf@\xb1\xa7\xaf\xfd\xe9R\xc7\x0f\x8d&\xd5\xfc\x0f;Ϙ\x82\x84a\xbc\r"
+	badCert, err := ParseCertificate([]byte(badCertData))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Run("leaf", func(t *testing.T) {
+		opts := VerifyOptions{}
+		expectedErr := "invalid leaf certificate"
+		_, err = badCert.Verify(opts)
+		if err == nil || err.Error() != expectedErr {
+			t.Fatalf("unexpected error: want %q, got %q", expectedErr, err)
+		}
+	})
+
+	goodCert, err := certificateFromPEM(googleLeaf)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Run("intermediate", func(t *testing.T) {
+		opts := VerifyOptions{
+			Intermediates: NewCertPool(),
+		}
+		opts.Intermediates.AddCert(badCert)
+		expectedErr := "SecCertificateCreateWithData: invalid certificate"
+		_, err = goodCert.Verify(opts)
+		if err == nil || err.Error() != expectedErr {
+			t.Fatalf("unexpected error: want %q, got %q", expectedErr, err)
+		}
+	})
+}
+*/
+
 type trustGraphEdge struct {
 	Issuer         string
 	Subject        string
@@ -2161,7 +2214,7 @@ func TestPathBuilding(t *testing.T) {
 						Subject: "inter b",
 						Type:    intermediateCertificate,
 						MutateTemplate: func(t *Certificate) {
-							t.PermittedDNSNames = []GeneralSubtreeString{{Data: "good"}}
+							t.PermittedDNSDomains = []GeneralSubtreeString{{Data: "good"}}
 							t.DNSNames = []string{"bad"}
 						},
 					},
@@ -2406,7 +2459,7 @@ func TestPathBuilding(t *testing.T) {
 					{
 						Subject: "root",
 						MutateTemplate: func(t *Certificate) {
-							t.PermittedDNSNames = []GeneralSubtreeString{{Data: "example.com"}}
+							t.PermittedDNSDomains = []GeneralSubtreeString{{Data: "example.com"}}
 						},
 					},
 				},
@@ -2446,7 +2499,7 @@ func TestPathBuilding(t *testing.T) {
 						Type:    intermediateCertificate,
 						MutateTemplate: func(t *Certificate) {
 							t.DNSNames = []string{"beep.com"}
-							t.PermittedDNSNames = []GeneralSubtreeString{{Data: "example.com"}}
+							t.PermittedDNSDomains = []GeneralSubtreeString{{Data: "example.com"}}
 						},
 					},
 					{

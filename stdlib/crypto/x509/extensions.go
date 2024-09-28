@@ -208,7 +208,7 @@ func (gn *GeneralNames) UnmarshalJSON(b []byte) error {
 type NameConstraints struct {
 	Critical bool `json:"critical"`
 
-	PermittedDNSNames       []GeneralSubtreeString
+	PermittedDNSDomains     []GeneralSubtreeString
 	PermittedEmailAddresses []GeneralSubtreeString
 	PermittedURIs           []GeneralSubtreeString
 	PermittedIPAddresses    []GeneralSubtreeIP
@@ -228,7 +228,7 @@ type NameConstraints struct {
 type NameConstraintsJSON struct {
 	Critical bool `json:"critical"`
 
-	PermittedDNSNames       []string            `json:"permitted_names,omitempty"`
+	PermittedDNSDomains     []string            `json:"permitted_names,omitempty"`
 	PermittedEmailAddresses []string            `json:"permitted_email_addresses,omitempty"`
 	PermittedURIs           []string            `json:"permitted_uris,omitempty"`
 	PermittedIPAddresses    []GeneralSubtreeIP  `json:"permitted_ip_addresses,omitempty"`
@@ -251,8 +251,8 @@ func (nc *NameConstraints) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-	for _, dns := range ncJson.PermittedDNSNames {
-		nc.PermittedDNSNames = append(nc.PermittedDNSNames, GeneralSubtreeString{Data: dns})
+	for _, dns := range ncJson.PermittedDNSDomains {
+		nc.PermittedDNSDomains = append(nc.PermittedDNSDomains, GeneralSubtreeString{Data: dns})
 	}
 	for _, email := range ncJson.PermittedEmailAddresses {
 		nc.PermittedEmailAddresses = append(nc.PermittedEmailAddresses, GeneralSubtreeString{Data: email})
@@ -319,8 +319,8 @@ func (nc *NameConstraints) UnmarshalJSON(b []byte) error {
 
 func (nc NameConstraints) MarshalJSON() ([]byte, error) {
 	var out NameConstraintsJSON
-	for _, dns := range nc.PermittedDNSNames {
-		out.PermittedDNSNames = append(out.PermittedDNSNames, dns.Data)
+	for _, dns := range nc.PermittedDNSDomains {
+		out.PermittedDNSDomains = append(out.PermittedDNSDomains, dns.Data)
 	}
 	for _, email := range nc.PermittedEmailAddresses {
 		out.PermittedEmailAddresses = append(out.PermittedEmailAddresses, email.Data)
@@ -763,7 +763,7 @@ func (c *Certificate) JsonifyExtensions() (*CertificateExtensions, UnknownCertif
 			exts.NameConstraints = new(NameConstraints)
 			exts.NameConstraints.Critical = c.NameConstraintsCritical
 
-			exts.NameConstraints.PermittedDNSNames = c.PermittedDNSNames
+			exts.NameConstraints.PermittedDNSDomains = c.PermittedDNSDomains
 			exts.NameConstraints.PermittedEmailAddresses = c.PermittedEmailAddresses
 			exts.NameConstraints.PermittedURIs = c.PermittedURIs
 			exts.NameConstraints.PermittedIPAddresses = c.PermittedIPAddresses

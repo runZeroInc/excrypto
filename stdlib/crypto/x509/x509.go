@@ -915,7 +915,7 @@ type Certificate struct {
 
 	// Name constraints
 	NameConstraintsCritical bool // if true then the name constraints are marked critical.
-	PermittedDNSNames       []GeneralSubtreeString
+	PermittedDNSDomains     []GeneralSubtreeString
 	ExcludedDNSNames        []GeneralSubtreeString
 	PermittedEmailAddresses []GeneralSubtreeString
 	ExcludedEmailAddresses  []GeneralSubtreeString
@@ -1655,7 +1655,7 @@ func buildCertExtensions(template *Certificate, subjectIsEmpty bool, authorityKe
 	}
 
 	// TODO: this can be cleaned up in go1.10
-	if (len(template.PermittedEmailAddresses) > 0 || len(template.PermittedDNSNames) > 0 || len(template.PermittedDirectoryNames) > 0 ||
+	if (len(template.PermittedEmailAddresses) > 0 || len(template.PermittedDNSDomains) > 0 || len(template.PermittedDirectoryNames) > 0 ||
 		len(template.PermittedIPAddresses) > 0 || len(template.ExcludedEmailAddresses) > 0 || len(template.ExcludedDNSNames) > 0 ||
 		len(template.ExcludedDirectoryNames) > 0 || len(template.ExcludedIPAddresses) > 0) &&
 		!oidInExtensions(oidExtensionNameConstraints, template.ExtraExtensions) {
@@ -1722,7 +1722,7 @@ func buildCertExtensions(template *Certificate, subjectIsEmpty bool, authorityKe
 			return b.Bytes()
 		}
 
-		permitted, err := serialiseConstraints(template.PermittedDNSNames, template.PermittedIPAddresses, template.PermittedEmailAddresses, template.PermittedURIs)
+		permitted, err := serialiseConstraints(template.PermittedDNSDomains, template.PermittedIPAddresses, template.PermittedEmailAddresses, template.PermittedURIs)
 		if err != nil {
 			return nil, err
 		}

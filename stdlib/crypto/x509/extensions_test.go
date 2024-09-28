@@ -212,7 +212,7 @@ func TestNameConstraintJSON(t *testing.T) {
 		},
 		{
 			nc: NameConstraints{
-				PermittedDNSNames: []GeneralSubtreeString{
+				PermittedDNSDomains: []GeneralSubtreeString{
 					{
 						Data: "censys.io",
 					},
@@ -335,8 +335,8 @@ func TestNameConstraintJSON(t *testing.T) {
 			continue
 		}
 
-		for _, e := range backToNC.PermittedDNSNames {
-			if !containsGeneralSubtreeString(test.nc.PermittedDNSNames, e) {
+		for _, e := range backToNC.PermittedDNSDomains {
+			if !containsGeneralSubtreeString(test.nc.PermittedDNSDomains, e) {
 				t.Errorf("%d: JSON Unmarshal did not preserve all values", i)
 			}
 		}
