@@ -17,6 +17,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/runZeroInc/excrypto/stdlib/crypto/dsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
@@ -215,31 +216,34 @@ func parseExtension(der cryptobyte.String) (pkix.Extension, error) {
 	return ext, nil
 }
 
-func parsePublicKey(algo PublicKeyAlgorithm, keyData *publicKeyInfo) (interface{}, error) {
-	asn1Data := keyData.PublicKey.RightAlign()
+func parsePublicKey(keyData *publicKeyInfo) (any, error) {
 	oid := keyData.Algorithm.Algorithm
+	params := keyData.Algorithm.Parameters
+	der := cryptobyte.String(keyData.PublicKey.RightAlign())
 	switch {
 	case oid.Equal(oidPublicKeyRSA):
+		// zcrypto
+		/*
+			// RSA public keys must have a NULL in the parameters.
+			// See RFC 3279, Section 2.3.1.
+			if !bytes.Equal(params.FullBytes, asn1.NullBytes) {
+				return nil, errors.New("x509: RSA key missing NULL parameters")
+			}
+		*/
 
-		// TODO: disabled since current behaviour does not expect it. Should be enabled though
-		// RSA public keys must have a NULL in the parameters
-		// (https://tools.ietf.org/html/rfc3279#section-2.3.1).
-		//if !bytes.Equal(keyData.Algorithm.Parameters.FullBytes, asn1.NullBytes) {
-		//	return nil, errors.New("x509: RSA key missing NULL parameters")
-		//}
-
-		p := new(pkcs1PublicKey)
-		rest, err := asn1.Unmarshal(asn1Data, p)
-		if err != nil {
-			return nil, err
+		p := &pkcs1PublicKey{N: new(big.Int)}
+		if !der.ReadASN1(&der, cryptobyte_asn1.SEQUENCE) {
+			return nil, errors.New("x509: invalid RSA public key")
 		}
-		if len(rest) != 0 {
-			return nil, errors.New("x509: trailing data after RSA public key")
+		if !der.ReadASN1Integer(p.N) {
+			return nil, errors.New("x509: invalid RSA modulus")
+		}
+		if !der.ReadASN1Integer(&p.E) {
+			return nil, errors.New("x509: invalid RSA public exponent")
 		}
 
-		// ZCrypto: Allow to parse
+		// zcrypto
 		if !asn1.AllowPermissiveParsing {
-
 			if p.N.Sign() <= 0 {
 				return nil, errors.New("x509: RSA modulus is not a positive number")
 			}
@@ -253,81 +257,70 @@ func parsePublicKey(algo PublicKeyAlgorithm, keyData *publicKeyInfo) (interface{
 			N: p.N,
 		}
 		return pub, nil
-
 	case oid.Equal(oidPublicKeyECDSA):
-		paramsData := keyData.Algorithm.Parameters.FullBytes
+		paramsDer := cryptobyte.String(params.FullBytes)
 		namedCurveOID := new(asn1.ObjectIdentifier)
-		rest, err := asn1.Unmarshal(paramsData, namedCurveOID)
-		if err != nil {
-			return nil, err
-		}
-		if len(rest) != 0 {
-			return nil, errors.New("x509: trailing data after ECDSA parameters")
+		if !paramsDer.ReadASN1ObjectIdentifier(namedCurveOID) {
+			return nil, errors.New("x509: invalid ECDSA parameters")
 		}
 		namedCurve := namedCurveFromOID(*namedCurveOID)
-		x, y := elliptic.Unmarshal(namedCurve, asn1Data)
+		if namedCurve == nil {
+			return nil, errors.New("x509: unsupported elliptic curve")
+		}
+		x, y := elliptic.Unmarshal(namedCurve, der)
 		if x == nil {
 			return nil, errors.New("x509: failed to unmarshal elliptic curve point")
 		}
-		key := &ecdsa.PublicKey{
+		pub := &ecdsa.PublicKey{
 			Curve: namedCurve,
 			X:     x,
 			Y:     y,
 		}
-
-		pub := &AugmentedECDSA{
-			Pub: key,
-			Raw: keyData.PublicKey,
-		}
 		return pub, nil
-
 	case oid.Equal(oidPublicKeyEd25519):
-		p := ed25519.PublicKey(asn1Data)
-		if len(p) > ed25519.PublicKeySize {
-			return nil, errors.New("x509: trailing data after Ed25519 data")
+		// RFC 8410, Section 3
+		// > For all of the OIDs, the parameters MUST be absent.
+		if len(params.FullBytes) != 0 {
+			return nil, errors.New("x509: Ed25519 key encoded with illegal parameters")
 		}
-		return p, nil
-
+		if len(der) != ed25519.PublicKeySize {
+			return nil, errors.New("x509: wrong Ed25519 public key size")
+		}
+		return ed25519.PublicKey(der), nil
 	case oid.Equal(oidPublicKeyX25519):
-		p := X25519PublicKey(asn1Data)
-		if len(p) > 32 {
-			return nil, errors.New("x509: trailing data after X25519 public key")
+		// RFC 8410, Section 3
+		// > For all of the OIDs, the parameters MUST be absent.
+		if len(params.FullBytes) != 0 {
+			return nil, errors.New("x509: X25519 key encoded with illegal parameters")
 		}
-		return p, nil
-
+		return ecdh.X25519().NewPublicKey(der)
 	case oid.Equal(oidPublicKeyDSA):
-		var p *big.Int
-		rest, err := asn1.Unmarshal(asn1Data, &p)
-		if err != nil {
-			return nil, err
-		}
-		if len(rest) != 0 {
-			return nil, errors.New("x509: trailing data after DSA public key")
-		}
-		paramsData := keyData.Algorithm.Parameters.FullBytes
-		params := new(dsaAlgorithmParameters)
-		rest, err = asn1.Unmarshal(paramsData, params)
-		if err != nil {
-			return nil, err
-		}
-		if len(rest) != 0 {
-			return nil, errors.New("x509: trailing data after DSA parameters")
-		}
-		if p.Sign() <= 0 || params.P.Sign() <= 0 || params.Q.Sign() <= 0 || params.G.Sign() <= 0 {
-			return nil, errors.New("x509: zero or negative DSA parameter")
+		y := new(big.Int)
+		if !der.ReadASN1Integer(y) {
+			return nil, errors.New("x509: invalid DSA public key")
 		}
 		pub := &dsa.PublicKey{
+			Y: y,
 			Parameters: dsa.Parameters{
-				P: params.P,
-				Q: params.Q,
-				G: params.G,
+				P: new(big.Int),
+				Q: new(big.Int),
+				G: new(big.Int),
 			},
-			Y: p,
+		}
+		paramsDer := cryptobyte.String(params.FullBytes)
+		if !paramsDer.ReadASN1(&paramsDer, cryptobyte_asn1.SEQUENCE) ||
+			!paramsDer.ReadASN1Integer(pub.Parameters.P) ||
+			!paramsDer.ReadASN1Integer(pub.Parameters.Q) ||
+			!paramsDer.ReadASN1Integer(pub.Parameters.G) {
+			return nil, errors.New("x509: invalid DSA parameters")
+		}
+		if pub.Y.Sign() <= 0 || pub.Parameters.P.Sign() <= 0 ||
+			pub.Parameters.Q.Sign() <= 0 || pub.Parameters.G.Sign() <= 0 {
+			return nil, errors.New("x509: zero or negative DSA parameter")
 		}
 		return pub, nil
-
 	default:
-		return nil, nil
+		return nil, errors.New("x509: unknown public key algorithm")
 	}
 }
 
@@ -884,7 +877,7 @@ func parseCertificate(in *certificate) (*Certificate, error) {
 	out.SignatureAlgorithmOID = in.TBSCertificate.SignatureAlgorithm.Algorithm
 
 	out.PublicKeyAlgorithm = getPublicKeyAlgorithmFromOID(in.TBSCertificate.PublicKey.Algorithm.Algorithm)
-	out.PublicKey, err = parsePublicKey(out.PublicKeyAlgorithm, &in.TBSCertificate.PublicKey)
+	out.PublicKey, err = parsePublicKey(&in.TBSCertificate.PublicKey)
 	if err != nil {
 		return nil, err
 	}

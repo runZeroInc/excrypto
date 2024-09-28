@@ -77,11 +77,7 @@ func ParsePKIXPublicKey(derBytes []byte) (pub interface{}, err error) {
 	} else if len(rest) != 0 {
 		return nil, errors.New("x509: trailing data after ASN.1 of public-key")
 	}
-	algo := getPublicKeyAlgorithmFromOID(pki.Algorithm.Algorithm)
-	if algo == UnknownPublicKeyAlgorithm {
-		return nil, errors.New("x509: unknown public key algorithm")
-	}
-	return parsePublicKey(algo, &pki)
+	return parsePublicKey(&pki)
 }
 
 func marshalPublicKey(pub any) (publicKeyBytes []byte, publicKeyAlgorithm pkix.AlgorithmIdentifier, err error) {
@@ -2589,7 +2585,7 @@ func parseCertificateRequest(in *certificateRequest) (*CertificateRequest, error
 
 	var err error
 	if out.PublicKeyAlgorithm != UnknownPublicKeyAlgorithm {
-		out.PublicKey, err = parsePublicKey(out.PublicKeyAlgorithm, &in.TBSCSR.PublicKey)
+		out.PublicKey, err = parsePublicKey(&in.TBSCSR.PublicKey)
 		if err != nil {
 			return nil, err
 		}
