@@ -725,7 +725,8 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 			t.Errorf("%s: failed to parse policy identifiers: got:%#v want:%#v", test.name, cert.PolicyIdentifiers, template.PolicyIdentifiers)
 		}
 
-		if len(cert.PermittedDNSDomains) != 2 || cert.PermittedDNSDomains[0] != ".example.com" || cert.PermittedDNSDomains[1] != "example.com" {
+		// The leading dot is trimmed
+		if len(cert.PermittedDNSDomains) != 2 || cert.PermittedDNSDomains[0] != "example.com" || cert.PermittedDNSDomains[1] != "example.com" {
 			t.Errorf("%s: failed to parse name constraints: %#v (cert:%#v)", test.name, cert.PermittedDNSDomains, cert)
 		}
 

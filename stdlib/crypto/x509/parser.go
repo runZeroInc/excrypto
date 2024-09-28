@@ -550,23 +550,23 @@ func parseNameConstraintsExtension(out *Certificate, e pkix.Extension) (unhandle
 			}
 
 			var (
-				dnsTag   = cryptobyte_asn1.Tag(2).ContextSpecific()
-				emailTag = cryptobyte_asn1.Tag(1).ContextSpecific()
-				ipTag    = cryptobyte_asn1.Tag(7).ContextSpecific()
-				uriTag   = cryptobyte_asn1.Tag(6).ContextSpecific()
-				/*
-					x400Tag      = cryptobyte_asn1.Tag(3).ContextSpecific()
-					dirNameTag   = cryptobyte_asn1.Tag(4).ContextSpecific()
-					partyNameTag = cryptobyte_asn1.Tag(5).ContextSpecific()
-					permitOidTag = cryptobyte_asn1.Tag(8).ContextSpecific()
-				*/
+				dnsTag       = cryptobyte_asn1.Tag(2).ContextSpecific()
+				emailTag     = cryptobyte_asn1.Tag(1).ContextSpecific()
+				ipTag        = cryptobyte_asn1.Tag(7).ContextSpecific()
+				uriTag       = cryptobyte_asn1.Tag(6).ContextSpecific()
+				x400Tag      = cryptobyte_asn1.Tag(3).ContextSpecific()
+				dirNameTag   = cryptobyte_asn1.Tag(4).ContextSpecific()
+				partyNameTag = cryptobyte_asn1.Tag(5).ContextSpecific()
+				permitOidTag = cryptobyte_asn1.Tag(8).ContextSpecific()
 			)
 
 			switch tag {
 			case dnsTag:
 				domain := string(value)
-				if err := isIA5String(domain); err != nil {
-					return nil, nil, nil, nil, nil, nil, nil, nil, errors.New("x509: invalid constraint value: " + err.Error())
+				if err = isIA5String(domain); err != nil {
+					// TODO: zcrypto allow skipping over invalid names
+					err = fmt.Errorf("x509: invalid constraint value: %v", err)
+					return
 				}
 
 				trimmedDomain := domain
@@ -578,7 +578,8 @@ func parseNameConstraintsExtension(out *Certificate, e pkix.Extension) (unhandle
 					trimmedDomain = trimmedDomain[1:]
 				}
 				if _, ok := domainToReverseLabels(trimmedDomain); !ok {
-					return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("x509: failed to parse dnsName constraint %q", domain)
+					err = fmt.Errorf("x509: failed to parse dnsName constraint %q", domain)
+					return
 				}
 				dnsNames = append(dnsNames, trimmedDomain)
 
@@ -596,7 +597,8 @@ func parseNameConstraintsExtension(out *Certificate, e pkix.Extension) (unhandle
 					mask = value[16:]
 
 				default:
-					return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("x509: IP constraint contained value of length %d", l)
+					err = fmt.Errorf("x509: IP constraint contained value of length %d", l)
+					return
 				}
 
 				if !isValidIPMask(mask) {
@@ -607,15 +609,17 @@ func parseNameConstraintsExtension(out *Certificate, e pkix.Extension) (unhandle
 
 			case emailTag:
 				constraint := string(value)
-				if err := isIA5String(constraint); err != nil {
-					return nil, nil, nil, nil, nil, nil, nil, nil, errors.New("x509: invalid constraint value: " + err.Error())
+				if err = isIA5String(constraint); err != nil {
+					err = fmt.Errorf("x509: invalid constraint value: %v", err)
+					return
 				}
 
 				// If the constraint contains an @ then
 				// it specifies an exact mailbox name.
 				if strings.Contains(constraint, "@") {
 					if _, ok := parseRFC2821Mailbox(constraint); !ok {
-						return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("x509: failed to parse rfc822Name constraint %q", constraint)
+						err = fmt.Errorf("x509: failed to parse rfc822Name constraint %q", constraint)
+						return
 					}
 				} else {
 					// Otherwise it's a domain name.
@@ -624,19 +628,22 @@ func parseNameConstraintsExtension(out *Certificate, e pkix.Extension) (unhandle
 						domain = domain[1:]
 					}
 					if _, ok := domainToReverseLabels(domain); !ok {
-						return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("x509: failed to parse rfc822Name constraint %q", constraint)
+						err = fmt.Errorf("x509: failed to parse rfc822Name constraint %q", constraint)
+						return
 					}
 				}
 				emails = append(emails, constraint)
 
 			case uriTag:
 				domain := string(value)
-				if err := isIA5String(domain); err != nil {
-					return nil, nil, nil, nil, nil, nil, nil, nil, errors.New("x509: invalid constraint value: " + err.Error())
+				if err = isIA5String(domain); err != nil {
+					err = fmt.Errorf("x509: invalid constraint value: %v", err)
+					return
 				}
 
 				if net.ParseIP(domain) != nil {
-					return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("x509: failed to parse URI constraint %q: cannot be IP address", domain)
+					err = fmt.Errorf("x509: failed to parse URI constraint %q: cannot be IP address", domain)
+					return
 				}
 
 				trimmedDomain := domain
@@ -648,17 +655,52 @@ func parseNameConstraintsExtension(out *Certificate, e pkix.Extension) (unhandle
 					trimmedDomain = trimmedDomain[1:]
 				}
 				if _, ok := domainToReverseLabels(trimmedDomain); !ok {
-					return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("x509: failed to parse URI constraint %q", domain)
+					err = fmt.Errorf("x509: failed to parse URI constraint %q", domain)
+					return
 				}
 				uriDomains = append(uriDomains, domain)
 
-				/*
-					case x400Tag:
-						x400Addrs = append(x400Addrs, GeneralSubtreeRaw{Data: string(value)})
+			case x400Tag:
+				x400Addrs = append(x400Addrs, string(value))
 
-					case dirNameTag:
-						dirNames = append(dirNames, pkix.Name{Data: string(value)})
-				*/
+			case dirNameTag:
+				var rdn pkix.RDNSequence
+				_, perr := asn1.Unmarshal(value, &rdn)
+				if perr != nil {
+					if asn1.AllowPermissiveParsing {
+						continue
+					}
+					err = perr
+					return
+				}
+				var dir pkix.Name
+				dir.FillFromRDNSequence(&rdn)
+				dirNames = append(dirNames, dir)
+
+			case partyNameTag:
+				var ediName pkix.EDIPartyName
+				_, perr := asn1.UnmarshalWithParams(value, &ediName, "tag:5")
+				if perr != nil {
+					if asn1.AllowPermissiveParsing {
+						continue
+					}
+					err = perr
+					return
+				}
+				partyNames = append(partyNames, ediName)
+
+			case permitOidTag:
+				var id asn1.ObjectIdentifier
+				_, perr := asn1.UnmarshalWithParams(value, &id, "tag:8")
+				if perr != nil {
+					if asn1.AllowPermissiveParsing {
+						continue
+					}
+					err = perr
+					return
+				}
+				permitOids = append(permitOids, id)
+
 			default:
 				unhandled = true
 			}
