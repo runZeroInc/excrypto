@@ -1135,6 +1135,7 @@ var x509sha1 = godebug.New("x509sha1")
 
 // checkSignature verifies that signature is a valid signature over signed from
 // a crypto.PublicKey.
+// This has been modified to accept insecure signature algorithms (MD5, SHA1)
 func checkSignature(algo SignatureAlgorithm, signed, signature []byte, publicKey crypto.PublicKey, allowSHA1 bool) (err error) {
 	var hashType crypto.Hash
 	var pubKeyAlgo PublicKeyAlgorithm
@@ -1152,17 +1153,20 @@ func checkSignature(algo SignatureAlgorithm, signed, signature []byte, publicKey
 		if pubKeyAlgo != Ed25519 {
 			return ErrUnsupportedAlgorithm
 		}
-	case crypto.MD5:
-		return InsecureAlgorithmError(algo)
-	case crypto.SHA1:
-		// SHA-1 signatures are mostly disabled. See go.dev/issue/41682.
-		if !allowSHA1 {
-			if x509sha1.Value() != "1" {
-				return InsecureAlgorithmError(algo)
+	// zcrypto
+	/*
+		case crypto.MD5:
+			return InsecureAlgorithmError(algo)
+		case crypto.SHA1:
+			// SHA-1 signatures are mostly disabled. See go.dev/issue/41682.
+			if !allowSHA1 {
+				if x509sha1.Value() != "1" {
+					return InsecureAlgorithmError(algo)
+				}
+				x509sha1.IncNonDefault()
 			}
-			x509sha1.IncNonDefault()
-		}
-		fallthrough
+			fallthrough
+	*/
 	default:
 		if !hashType.Available() {
 			return ErrUnsupportedAlgorithm
