@@ -40,7 +40,7 @@ func TestTLSVersionEncodeDecode(t *testing.T) {
 }
 
 func TestCipherSuiteEncodeDecode(t *testing.T) {
-	v := CipherSuite{ID: TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256}
+	v := CipherSuite{ID: TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256, Name: "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256"}
 	var dec CipherSuite
 	marshalAndUnmarshalAndCheckEquality(&v, &dec, t)
 	expectedName := nameForSuite(TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256)

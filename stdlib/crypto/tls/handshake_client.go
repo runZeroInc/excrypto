@@ -1368,7 +1368,8 @@ func (c *Conn) verifyServerCertificate(certificates [][]byte) error {
 			var validation *x509.Validation
 			res, validation, err = certs[0].ValidateWithStupidDetail(opts)
 			c.handshakeLog.ServerCertificates.addParsed(certs, validation)
-			if err != nil {
+
+			if !c.config.InsecureSkipVerify && err != nil {
 				c.sendAlert(alertBadCertificate)
 				return &CertificateVerificationError{UnverifiedCertificates: certs, Err: err}
 			}
@@ -1378,7 +1379,7 @@ func (c *Conn) verifyServerCertificate(certificates [][]byte) error {
 				c.verifiedChains[i] = []*x509.Certificate(cert)
 			}
 		}
-	} else if !c.config.InsecureSkipVerify {
+	} else {
 		opts := x509.VerifyOptions{
 			Roots:         c.config.RootCAs,
 			CurrentTime:   c.config.time(),
@@ -1394,7 +1395,8 @@ func (c *Conn) verifyServerCertificate(certificates [][]byte) error {
 		var validation *x509.Validation
 		res, validation, err = certs[0].ValidateWithStupidDetail(opts)
 		c.handshakeLog.ServerCertificates.addParsed(certs, validation)
-		if err != nil {
+
+		if !c.config.InsecureSkipVerify && err != nil {
 			c.sendAlert(alertBadCertificate)
 			return &CertificateVerificationError{UnverifiedCertificates: certs, Err: err}
 		}

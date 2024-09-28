@@ -887,9 +887,9 @@ func (c *Certificate) Verify(opts VerifyOptions) (current, expired, never [][]*C
 	current, expired, never = FilterByDate(chains, opts.CurrentTime)
 	if len(current) == 0 {
 		if len(expired) > 0 {
-			err = CertificateInvalidError{Cert: c, Reason: Expired, Detail: fmt.Sprintf("%d certs are expired", len(expired))}
+			err = CertificateInvalidError{Cert: c, Reason: Expired, Detail: fmt.Sprintf("%d expired", len(expired))}
 		} else if len(never) > 0 {
-			err = CertificateInvalidError{Cert: c, Reason: NeverValid, Detail: fmt.Sprintf("%d certs are invalid", len(never))}
+			err = CertificateInvalidError{Cert: c, Reason: NeverValid, Detail: fmt.Sprintf("%d invalid", len(never))}
 		}
 		return
 	}
