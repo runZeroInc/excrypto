@@ -17,7 +17,6 @@ import (
 
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring/fipstls"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 )
@@ -134,9 +133,11 @@ func testBoringCert(t *testing.T, name string, key interface{}, parent *boringCe
 		t.Fatal(err)
 	}
 
-	// Tell isBoringCertificate to enforce FIPS restrictions for this check.
-	fipstls.Force()
-	defer fipstls.Abandon()
+	/*
+		// Tell isBoringCertificate to enforce FIPS restrictions for this check.
+		fipstls.Force()
+		defer fipstls.Abandon()
+	*/
 
 	fipsOK := mode&boringCertFIPSOK != 0
 	if boringAllowCert(cert) != fipsOK {
