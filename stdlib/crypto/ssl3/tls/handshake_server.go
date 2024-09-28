@@ -817,7 +817,7 @@ func (hs *serverHandshakeState) clientHelloInfo() *ClientHelloInfo {
 
 	signatureSchemes := make([]SignatureScheme, 0, len(hs.clientHello.signatureAndHashes))
 	for _, sah := range hs.clientHello.signatureAndHashes {
-		signatureSchemes = append(signatureSchemes, SignatureScheme(sah.Hash)<<8+SignatureScheme(sah.Signature))
+		signatureSchemes = append(signatureSchemes, SignatureScheme(sah.Signature)<<8+SignatureScheme(sah.Hash))
 	}
 
 	hs.cachedClientHelloInfo = &ClientHelloInfo{
