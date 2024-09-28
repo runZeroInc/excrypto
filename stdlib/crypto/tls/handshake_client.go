@@ -823,11 +823,14 @@ func (hs *clientHandshakeState) handshake() error {
 		return err
 	}
 
-	if hs.session.ticket == nil {
-		c.handshakeLog.SessionTicket = nil
-	} else {
-		c.handshakeLog.SessionTicket = hs.session.MakeLog()
+	if hs.session != nil {
+		if hs.session.ticket == nil {
+			c.handshakeLog.SessionTicket = nil
+		} else {
+			c.handshakeLog.SessionTicket = hs.session.MakeLog()
+		}
 	}
+
 	c.handshakeLog.KeyMaterial = hs.MakeLog()
 
 	c.ekm = ekmFromMasterSecret(c.vers, hs.suite, hs.masterSecret, hs.hello.random, hs.serverHello.random)

@@ -106,3 +106,12 @@ func (c *TLSCurveID) UnmarshalJSON(b []byte) error {
 	*c = TLSCurveID(aux.ID)
 	return nil
 }
+
+// ECDHPKeys stores the public and private keys of a connection
+type ECDHKeys struct {
+	TLSCurveID       TLSCurveID `json:"curve_id,omitempty"`
+	ServerPublicKey  []byte     `json:"server_public_key,omitempty"`
+	ServerPrivateKey []byte     `json:"server_private_key,omitempty"`
+	ClientPublicKey  []byte     `json:"client_public_key,omitempty"`
+	ClientPrivateKey []byte     `json:"client_private_key,omitempty"`
+}

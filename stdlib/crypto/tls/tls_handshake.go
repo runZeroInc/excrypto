@@ -90,9 +90,8 @@ type ServerKeyExchange struct {
 	Raw            []byte                 `json:"-"`
 	RSAParams      *jsonKeys.RSAPublicKey `json:"rsa_params,omitempty"`
 	DHParams       *jsonKeys.DHParams     `json:"dh_params,omitempty"`
-	ECDHParams     *jsonKeys.ECDHParams   `json:"ecdh_params,omitempty"`
+	ECDHParams     *jsonKeys.ECDHKeys     `json:"ecdh_params,omitempty"`
 	Digest         []byte                 `json:"digest,omitempty"`
-	Signature      *DigitalSignature      `json:"signature,omitempty"`
 	SignatureError string                 `json:"signature_error,omitempty"`
 }
 
@@ -101,7 +100,7 @@ type ClientKeyExchange struct {
 	Raw        []byte                    `json:"-"`
 	RSAParams  *jsonKeys.RSAClientParams `json:"rsa_params,omitempty"`
 	DHParams   *jsonKeys.DHParams        `json:"dh_params,omitempty"`
-	ECDHParams *jsonKeys.ECDHParams      `json:"ecdh_params,omitempty"`
+	ECDHParams *jsonKeys.ECDHKeys        `json:"ecdh_params,omitempty"`
 }
 
 // Finished represents a TLS Finished message
@@ -429,7 +428,6 @@ func (c *Certificates) addParsed(certs []*x509.Certificate, validation *x509.Val
 func (m *serverKeyExchangeMsg) MakeLog(ka keyAgreement) *ServerKeyExchange {
 	skx := new(ServerKeyExchange)
 	skx.Raw = make([]byte, len(m.key))
-	var auth keyAgreementAuthentication
 	var errAuth error
 	copy(skx.Raw, m.key)
 	skx.Digest = append(make([]byte, 0), m.digest...)
@@ -438,20 +436,10 @@ func (m *serverKeyExchangeMsg) MakeLog(ka keyAgreement) *ServerKeyExchange {
 	switch ka := ka.(type) {
 	case *rsaKeyAgreement:
 		skx.RSAParams = ka.RSAParams()
-	//	auth = ka.auth
-	//	errAuth = ka.verifyError
+		errAuth = ka.verifyError
 	case *ecdheKeyAgreement:
 		skx.ECDHParams = ka.ECDHParams()
-		auth = ka.auth
 		errAuth = ka.verifyError
-	default:
-		break
-	}
-
-	// Write out signature
-	switch auth := auth.(type) {
-	case *signedKeyAgreement:
-		skx.Signature = auth.Signature()
 	default:
 		break
 	}
