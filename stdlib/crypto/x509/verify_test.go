@@ -485,7 +485,9 @@ func testVerify(t *testing.T, test verifyTest, useSystemRoots bool) {
 		t.Fatalf("failed to parse leaf: %v", err)
 	}
 
-	chains, _, _, err := leaf.Verify(opts)
+	current, expired, never, err := leaf.Verify(opts)
+	chains := append(current, expired...)
+	chains = append(chains, never...)
 
 	if test.errorCallback == nil && err != nil {
 		if runtime.GOOS == "windows" && strings.HasSuffix(testenv.Builder(), "-2008") && err.Error() == "x509: certificate signed by unknown authority" {
@@ -530,7 +532,7 @@ func testVerify(t *testing.T, test verifyTest, useSystemRoots bool) {
 		}
 
 		if !match {
-			t.Errorf("No match found for %v", expectedChain)
+			t.Errorf("No match found for %v (chains: %#v)", expectedChain, chains)
 		}
 	}
 

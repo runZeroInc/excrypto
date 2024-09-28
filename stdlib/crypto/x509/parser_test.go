@@ -69,10 +69,10 @@ func TestParseASN1String(t *testing.T) {
 			expected: string("PQ"),
 		},
 		{
-			name:        "IA5String (invalid)",
-			tag:         cryptobyte_asn1.IA5String,
-			value:       []byte{255},
-			expectedErr: "invalid IA5String",
+			name:     "IA5String (invalid)",
+			tag:      cryptobyte_asn1.IA5String,
+			value:    []byte{255},
+			expected: string("\xff"), // zcrypto: allow invalid strings
 		},
 		{
 			name:     "NumericString",

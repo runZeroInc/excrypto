@@ -663,7 +663,14 @@ func (c *Certificate) isValid(certType int, currentChain []*Certificate, opts *V
 
 					if err := c.checkNameConstraints(&comparisonCount, maxConstraintComparisons, "email address", name, mailbox,
 						func(parsedName, constraint any) (bool, error) {
-							return matchEmailConstraint(parsedName.(rfc2821Mailbox), constraint.(string))
+							var constraintString string
+							switch tv := constraint.(type) {
+							case string:
+								constraintString = tv
+							case GeneralSubtreeString:
+								constraintString = tv.Data
+							}
+							return matchEmailConstraint(parsedName.(rfc2821Mailbox), constraintString)
 						}, c.PermittedEmailAddresses, c.ExcludedEmailAddresses); err != nil {
 						return err
 					}
@@ -676,7 +683,14 @@ func (c *Certificate) isValid(certType int, currentChain []*Certificate, opts *V
 
 					if err := c.checkNameConstraints(&comparisonCount, maxConstraintComparisons, "DNS name", name, name,
 						func(parsedName, constraint any) (bool, error) {
-							return matchDomainConstraint(parsedName.(string), constraint.(string))
+							var constraintString string
+							switch tv := constraint.(type) {
+							case string:
+								constraintString = tv
+							case GeneralSubtreeString:
+								constraintString = tv.Data
+							}
+							return matchDomainConstraint(parsedName.(string), constraintString)
 						}, c.PermittedDNSNames, c.ExcludedDNSNames); err != nil {
 						return err
 					}
@@ -690,7 +704,14 @@ func (c *Certificate) isValid(certType int, currentChain []*Certificate, opts *V
 
 					if err := c.checkNameConstraints(&comparisonCount, maxConstraintComparisons, "URI", name, uri,
 						func(parsedName, constraint any) (bool, error) {
-							return matchURIConstraint(parsedName.(*url.URL), constraint.(string))
+							var constraintString string
+							switch tv := constraint.(type) {
+							case string:
+								constraintString = tv
+							case GeneralSubtreeString:
+								constraintString = tv.Data
+							}
+							return matchURIConstraint(parsedName.(*url.URL), constraintString)
 						}, c.PermittedURIs, c.ExcludedURIs); err != nil {
 						return err
 					}
@@ -859,16 +880,16 @@ func (c *Certificate) Verify(opts VerifyOptions) (current, expired, never [][]*C
 	}
 
 	if len(chains) == 0 {
-		err = CertificateInvalidError{c, IncompatibleUsage, ""}
+		err = CertificateInvalidError{c, IncompatibleUsage, "no valid chains"}
 		return
 	}
 
 	current, expired, never = FilterByDate(chains, opts.CurrentTime)
 	if len(current) == 0 {
 		if len(expired) > 0 {
-			err = CertificateInvalidError{Cert: c, Reason: Expired}
+			err = CertificateInvalidError{Cert: c, Reason: Expired, Detail: fmt.Sprintf("%d certs are expired", len(expired))}
 		} else if len(never) > 0 {
-			err = CertificateInvalidError{Cert: c, Reason: NeverValid}
+			err = CertificateInvalidError{Cert: c, Reason: NeverValid, Detail: fmt.Sprintf("%d certs are invalid", len(never))}
 		}
 		return
 	}

@@ -1097,7 +1097,7 @@ func (c *Certificate) CheckSignatureFrom(parent *Certificate) error {
 	}
 
 	if parent.PublicKeyAlgorithm == UnknownPublicKeyAlgorithm {
-		return ErrUnsupportedAlgorithm
+		return fmt.Errorf("pubkey alg is %d: %w", parent.PublicKeyAlgorithm, ErrUnsupportedAlgorithm)
 	}
 
 	return checkSignature(c.SignatureAlgorithm, c.RawTBSCertificate, c.Signature, parent.PublicKey, false)
@@ -1151,7 +1151,7 @@ func checkSignature(algo SignatureAlgorithm, signed, signature []byte, publicKey
 	switch hashType {
 	case crypto.Hash(0):
 		if pubKeyAlgo != Ed25519 {
-			return ErrUnsupportedAlgorithm
+			return fmt.Errorf("pubkey is not Ed25519 and has zero hash: %d: %w", pubKeyAlgo, ErrUnsupportedAlgorithm)
 		}
 	// zcrypto
 	/*
@@ -1169,7 +1169,7 @@ func checkSignature(algo SignatureAlgorithm, signed, signature []byte, publicKey
 	*/
 	default:
 		if !hashType.Available() {
-			return ErrUnsupportedAlgorithm
+			return fmt.Errorf("hashtype is not available: %s: %w", hashType.String(), ErrUnsupportedAlgorithm)
 		}
 		h := hashType.New()
 		h.Write(signed)
@@ -1194,6 +1194,14 @@ func checkSignature(algo SignatureAlgorithm, signed, signature []byte, publicKey
 			return errors.New("x509: ECDSA verification failure")
 		}
 		return
+	case *AugmentedECDSA:
+		if pubKeyAlgo != ECDSA {
+			return signaturePublicKeyAlgoMismatchError(pubKeyAlgo, pub)
+		}
+		if !ecdsa.VerifyASN1(pub.Pub, signed, signature) {
+			return errors.New("x509: ECDSA verification failure")
+		}
+		return
 	case ed25519.PublicKey:
 		if pubKeyAlgo != Ed25519 {
 			return signaturePublicKeyAlgoMismatchError(pubKeyAlgo, pub)
@@ -1202,8 +1210,9 @@ func checkSignature(algo SignatureAlgorithm, signed, signature []byte, publicKey
 			return errors.New("x509: Ed25519 verification failure")
 		}
 		return
+	default:
+		return fmt.Errorf("pubkey type %T not supported: %w", pub, ErrUnsupportedAlgorithm)
 	}
-	return ErrUnsupportedAlgorithm
 }
 
 // CheckCRLSignature checks that the signature in crl is from c.
@@ -2904,7 +2913,7 @@ func (rl *RevocationList) CheckSignatureFrom(parent *Certificate) error {
 	}
 
 	if parent.PublicKeyAlgorithm == UnknownPublicKeyAlgorithm {
-		return ErrUnsupportedAlgorithm
+		return fmt.Errorf("pubkey alg is %d: %w", parent.PublicKeyAlgorithm, ErrUnsupportedAlgorithm)
 	}
 
 	return parent.CheckSignature(rl.SignatureAlgorithm, rl.RawTBSRevocationList, rl.Signature)
