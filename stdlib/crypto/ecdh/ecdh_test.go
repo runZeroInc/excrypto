@@ -459,7 +459,7 @@ func TestMismatchedCurves(t *testing.T) {
 				if err != nil {
 					t.Fatalf("failed to generate test key: %s", err)
 				}
-				expected := "github.com/runZeroInc/excrypto/stdlib/crypto/ecdh: private key and public key curves do not match"
+				expected := "crypto/ecdh: private key and public key curves do not match"
 				_, err = priv.ECDH(pub.PublicKey())
 				if err.Error() != expected {
 					t.Fatalf("unexpected error: want %q, got %q", expected, err)

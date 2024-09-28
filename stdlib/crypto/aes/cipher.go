@@ -5,10 +5,11 @@
 package aes
 
 import (
+	"strconv"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/alias"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
-	"strconv"
 )
 
 // The AES block size in bytes.
@@ -24,7 +25,7 @@ type aesCipher struct {
 type KeySizeError int
 
 func (k KeySizeError) Error() string {
-	return "github.com/runZeroInc/excrypto/stdlib/crypto/aes: invalid key size " + strconv.Itoa(int(k))
+	return "crypto/aes: invalid key size " + strconv.Itoa(int(k))
 }
 
 // NewCipher creates and returns a new [cipher.Block].
@@ -57,26 +58,26 @@ func (c *aesCipher) BlockSize() int { return BlockSize }
 
 func (c *aesCipher) Encrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: input not full block")
+		panic("crypto/aes: input not full block")
 	}
 	if len(dst) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: output not full block")
+		panic("crypto/aes: output not full block")
 	}
 	if alias.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: invalid buffer overlap")
+		panic("crypto/aes: invalid buffer overlap")
 	}
 	encryptBlockGo(c.enc[:c.l], dst, src)
 }
 
 func (c *aesCipher) Decrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: input not full block")
+		panic("crypto/aes: input not full block")
 	}
 	if len(dst) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: output not full block")
+		panic("crypto/aes: output not full block")
 	}
 	if alias.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: invalid buffer overlap")
+		panic("crypto/aes: invalid buffer overlap")
 	}
 	decryptBlockGo(c.dec[:c.l], dst, src)
 }

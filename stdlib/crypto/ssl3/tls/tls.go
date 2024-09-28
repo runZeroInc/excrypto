@@ -197,7 +197,7 @@ func X509KeyPair(certPEMBlock, keyPEMBlock []byte) (cert Certificate, err error)
 	}
 
 	if len(cert.Certificate) == 0 {
-		err = errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/tls: failed to parse certificate PEM data")
+		err = errors.New("crypto/tls: failed to parse certificate PEM data")
 		return
 	}
 
@@ -205,7 +205,7 @@ func X509KeyPair(certPEMBlock, keyPEMBlock []byte) (cert Certificate, err error)
 	for {
 		keyDERBlock, keyPEMBlock = pem.Decode(keyPEMBlock)
 		if keyDERBlock == nil {
-			err = errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/tls: failed to parse key PEM data")
+			err = errors.New("crypto/tls: failed to parse key PEM data")
 			return
 		}
 		if keyDERBlock.Type == "PRIVATE KEY" || strings.HasSuffix(keyDERBlock.Type, " PRIVATE KEY") {
@@ -229,37 +229,37 @@ func X509KeyPair(certPEMBlock, keyPEMBlock []byte) (cert Certificate, err error)
 	case *rsa.PublicKey:
 		priv, ok := cert.PrivateKey.(*rsa.PrivateKey)
 		if !ok {
-			err = errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/tls: private key type does not match public key type")
+			err = errors.New("crypto/tls: private key type does not match public key type")
 			return
 		}
 		if pub.N.Cmp(priv.N) != 0 {
-			err = errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/tls: private key does not match public key")
+			err = errors.New("crypto/tls: private key does not match public key")
 			return
 		}
 	case *x509.AugmentedECDSA:
 		priv, ok := cert.PrivateKey.(*ecdsa.PrivateKey)
 		if !ok {
-			err = errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/tls: private key type does not match pub.Public key type")
+			err = errors.New("crypto/tls: private key type does not match pub.Public key type")
 			return
 
 		}
 		if pub.Pub.X.Cmp(priv.X) != 0 || pub.Pub.Y.Cmp(priv.Y) != 0 {
-			err = errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/tls: private key does not match pub.Public key")
+			err = errors.New("crypto/tls: private key does not match pub.Public key")
 			return
 		}
 	case *ecdsa.PublicKey:
 		priv, ok := cert.PrivateKey.(*ecdsa.PrivateKey)
 		if !ok {
-			err = errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/tls: private key type does not match public key type")
+			err = errors.New("crypto/tls: private key type does not match public key type")
 			return
 
 		}
 		if pub.X.Cmp(priv.X) != 0 || pub.Y.Cmp(priv.Y) != 0 {
-			err = errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/tls: private key does not match public key")
+			err = errors.New("crypto/tls: private key does not match public key")
 			return
 		}
 	default:
-		err = errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/tls: unknown public key algorithm")
+		err = errors.New("crypto/tls: unknown public key algorithm")
 		return
 	}
 
@@ -278,12 +278,12 @@ func parsePrivateKey(der []byte) (crypto.PrivateKey, error) {
 		case *rsa.PrivateKey, *ecdsa.PrivateKey:
 			return key, nil
 		default:
-			return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/tls: found unknown private key type in PKCS#8 wrapping")
+			return nil, errors.New("crypto/tls: found unknown private key type in PKCS#8 wrapping")
 		}
 	}
 	if key, err := x509.ParseECPrivateKey(der); err == nil {
 		return key, nil
 	}
 
-	return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/tls: failed to parse private key")
+	return nil, errors.New("crypto/tls: failed to parse private key")
 }

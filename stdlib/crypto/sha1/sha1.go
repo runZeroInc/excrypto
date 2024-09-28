@@ -9,10 +9,11 @@
 package sha1
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
 	"errors"
 	"hash"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 )
 
@@ -67,10 +68,10 @@ func (d *digest) AppendBinary(b []byte) ([]byte, error) {
 
 func (d *digest) UnmarshalBinary(b []byte) error {
 	if len(b) < len(magic) || string(b[:len(magic)]) != magic {
-		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha1: invalid hash state identifier")
+		return errors.New("crypto/sha1: invalid hash state identifier")
 	}
 	if len(b) != marshaledSize {
-		return errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/sha1: invalid hash state size")
+		return errors.New("crypto/sha1: invalid hash state size")
 	}
 	b = b[len(magic):]
 	b, d.h[0] = consumeUint32(b)

@@ -7,10 +7,11 @@
 package aes
 
 import (
+	"errors"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/alias"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
-	"errors"
 )
 
 // The following functions are defined in gcm_*.s.
@@ -90,10 +91,10 @@ func sliceForAppend(in []byte, n int) (head, tail []byte) {
 // details.
 func (g *gcmAsm) Seal(dst, nonce, plaintext, data []byte) []byte {
 	if len(nonce) != g.nonceSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: incorrect nonce length given to GCM")
+		panic("crypto/cipher: incorrect nonce length given to GCM")
 	}
 	if uint64(len(plaintext)) > ((1<<32)-2)*BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: message too large for GCM")
+		panic("crypto/cipher: message too large for GCM")
 	}
 
 	var counter, tagMask [gcmBlockSize]byte
@@ -115,7 +116,7 @@ func (g *gcmAsm) Seal(dst, nonce, plaintext, data []byte) []byte {
 
 	ret, out := sliceForAppend(dst, len(plaintext)+g.tagSize)
 	if alias.InexactOverlap(out[:len(plaintext)], plaintext) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: invalid buffer overlap")
+		panic("crypto/cipher: invalid buffer overlap")
 	}
 	if len(plaintext) > 0 {
 		gcmAesEnc(&g.productTable, out, plaintext, &counter, &tagOut, g.ks)
@@ -130,12 +131,12 @@ func (g *gcmAsm) Seal(dst, nonce, plaintext, data []byte) []byte {
 // for details.
 func (g *gcmAsm) Open(dst, nonce, ciphertext, data []byte) ([]byte, error) {
 	if len(nonce) != g.nonceSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: incorrect nonce length given to GCM")
+		panic("crypto/cipher: incorrect nonce length given to GCM")
 	}
 	// Sanity check to prevent the authentication from always succeeding if an implementation
 	// leaves tagSize uninitialized, for example.
 	if g.tagSize < gcmMinimumTagSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: incorrect GCM tag size")
+		panic("crypto/cipher: incorrect GCM tag size")
 	}
 
 	if len(ciphertext) < g.tagSize {
@@ -168,7 +169,7 @@ func (g *gcmAsm) Open(dst, nonce, ciphertext, data []byte) ([]byte, error) {
 
 	ret, out := sliceForAppend(dst, len(ciphertext))
 	if alias.InexactOverlap(out, ciphertext) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: invalid buffer overlap")
+		panic("crypto/cipher: invalid buffer overlap")
 	}
 	if len(ciphertext) > 0 {
 		gcmAesDec(&g.productTable, out, ciphertext, &counter, &expectedTag, g.ks)

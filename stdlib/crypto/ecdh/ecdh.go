@@ -126,7 +126,7 @@ type PrivateKey struct {
 // the result is the all-zero value, ECDH returns an error.
 func (k *PrivateKey) ECDH(remote *PublicKey) ([]byte, error) {
 	if k.curve != remote.curve {
-		return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/ecdh: private key and public key curves do not match")
+		return nil, errors.New("crypto/ecdh: private key and public key curves do not match")
 	}
 	return k.curve.ecdh(k, remote)
 }

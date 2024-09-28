@@ -66,26 +66,26 @@ func (c *aesCipherAsm) BlockSize() int { return BlockSize }
 
 func (c *aesCipherAsm) Encrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: input not full block")
+		panic("crypto/aes: input not full block")
 	}
 	if len(dst) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: output not full block")
+		panic("crypto/aes: output not full block")
 	}
 	if alias.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: invalid buffer overlap")
+		panic("crypto/aes: invalid buffer overlap")
 	}
 	cryptBlocks(c.function, &c.key[0], &dst[0], &src[0], BlockSize)
 }
 
 func (c *aesCipherAsm) Decrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: input not full block")
+		panic("crypto/aes: input not full block")
 	}
 	if len(dst) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: output not full block")
+		panic("crypto/aes: output not full block")
 	}
 	if alias.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: invalid buffer overlap")
+		panic("crypto/aes: invalid buffer overlap")
 	}
 	// The decrypt function code is equal to the function code + 128.
 	cryptBlocks(c.function+128, &c.key[0], &dst[0], &src[0], BlockSize)

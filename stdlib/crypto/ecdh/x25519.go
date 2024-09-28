@@ -5,10 +5,11 @@
 package ecdh
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/edwards25519/field"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/randutil"
 	"errors"
 	"io"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/edwards25519/field"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/randutil"
 )
 
 var (
@@ -43,7 +44,7 @@ func (c *x25519Curve) GenerateKey(rand io.Reader) (*PrivateKey, error) {
 
 func (c *x25519Curve) NewPrivateKey(key []byte) (*PrivateKey, error) {
 	if len(key) != x25519PrivateKeySize {
-		return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/ecdh: invalid private key size")
+		return nil, errors.New("crypto/ecdh: invalid private key size")
 	}
 	return &PrivateKey{
 		curve:      c,
@@ -53,7 +54,7 @@ func (c *x25519Curve) NewPrivateKey(key []byte) (*PrivateKey, error) {
 
 func (c *x25519Curve) privateKeyToPublicKey(key *PrivateKey) *PublicKey {
 	if key.curve != c {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/ecdh: internal error: converting the wrong key type")
+		panic("crypto/ecdh: internal error: converting the wrong key type")
 	}
 	k := &PublicKey{
 		curve:     key.curve,
@@ -66,7 +67,7 @@ func (c *x25519Curve) privateKeyToPublicKey(key *PrivateKey) *PublicKey {
 
 func (c *x25519Curve) NewPublicKey(key []byte) (*PublicKey, error) {
 	if len(key) != x25519PublicKeySize {
-		return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/ecdh: invalid public key")
+		return nil, errors.New("crypto/ecdh: invalid public key")
 	}
 	return &PublicKey{
 		curve:     c,
@@ -78,7 +79,7 @@ func (c *x25519Curve) ecdh(local *PrivateKey, remote *PublicKey) ([]byte, error)
 	out := make([]byte, x25519SharedSecretSize)
 	x25519ScalarMult(out, local.privateKey, remote.publicKey)
 	if isZero(out) {
-		return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/ecdh: bad X25519 remote ECDH input: low order point")
+		return nil, errors.New("crypto/ecdh: bad X25519 remote ECDH input: low order point")
 	}
 	return out, nil
 }
