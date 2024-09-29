@@ -10,7 +10,6 @@ package test
 
 import (
 	"bytes"
-	"crypto/rand"
 	"encoding/base64"
 	"fmt"
 	"log"
@@ -22,9 +21,11 @@ import (
 	"testing"
 	"text/template"
 
-	"golang.org/x/crypto/internal/testenv"
-	"golang.org/x/crypto/ssh"
-	"golang.org/x/crypto/ssh/testdata"
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/x/crypto/internal/testenv"
+	"github.com/runZeroInc/excrypto/x/crypto/ssh"
+	"github.com/runZeroInc/excrypto/x/crypto/ssh/testdata"
 )
 
 const (

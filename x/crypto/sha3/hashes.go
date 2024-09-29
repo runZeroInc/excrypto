@@ -9,8 +9,9 @@ package sha3
 // bytes.
 
 import (
-	"crypto"
 	"hash"
+
+	"github.com/runZeroInc/excrypto/crypto"
 )
 
 // New224 creates a new SHA3-224 hash.

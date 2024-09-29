@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 )
@@ -332,19 +333,26 @@ func exchangeVersions(rw io.ReadWriter, versionLine []byte) (them []byte, err er
 // maxVersionStringBytes is the maximum number of bytes that we'll
 // accept as a version string. RFC 4253 section 4.2 limits this at 255
 // chars
-const maxVersionStringBytes = 255
+// Research: https://github.com/golang/go/issues/66716
+const maxVersionStringBytes = 1024
 
 // Read version string as specified by RFC 4253, section 4.2.
 func readVersion(r io.Reader) ([]byte, error) {
 	versionString := make([]byte, 0, 64)
 	var ok bool
 	var buf [1]byte
+	var raw []byte
 
 	for length := 0; length < maxVersionStringBytes; length++ {
 		_, err := io.ReadFull(r, buf[:])
 		if err != nil {
+			if err == io.EOF && len(raw) > 0 {
+				// Return the received banner in the error
+				return nil, fmt.Errorf("invalid version: %s", string(raw))
+			}
 			return nil, err
 		}
+		raw = append(raw, buf[0])
 		// The RFC says that the version should be terminated with \r\n
 		// but several SSH servers actually only send a \n.
 		if buf[0] == '\n' {

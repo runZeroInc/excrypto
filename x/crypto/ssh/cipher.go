@@ -5,19 +5,20 @@
 package ssh
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/des"
-	"crypto/rc4"
-	"crypto/subtle"
 	"encoding/binary"
 	"errors"
 	"fmt"
 	"hash"
 	"io"
 
-	"golang.org/x/crypto/chacha20"
-	"golang.org/x/crypto/internal/poly1305"
+	"github.com/runZeroInc/excrypto/crypto/aes"
+	"github.com/runZeroInc/excrypto/crypto/cipher"
+	"github.com/runZeroInc/excrypto/crypto/des"
+	"github.com/runZeroInc/excrypto/crypto/rc4"
+	"github.com/runZeroInc/excrypto/crypto/subtle"
+
+	"github.com/runZeroInc/excrypto/x/crypto/chacha20"
+	"github.com/runZeroInc/excrypto/x/crypto/internal/poly1305"
 )
 
 const (

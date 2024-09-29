@@ -19,8 +19,9 @@ pbkdf2.Key.
 package pbkdf2
 
 import (
-	"crypto/hmac"
 	"hash"
+
+	"github.com/runZeroInc/excrypto/crypto/hmac"
 )
 
 // Key derives a key from the password, salt and iteration count, returning a

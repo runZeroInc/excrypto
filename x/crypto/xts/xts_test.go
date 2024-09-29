@@ -6,9 +6,10 @@ package xts
 
 import (
 	"bytes"
-	"crypto/aes"
 	"encoding/hex"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto/aes"
 )
 
 // These test vectors have been taken from IEEE P1619/D16, Annex B.

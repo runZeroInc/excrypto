@@ -6,13 +6,15 @@ package pkcs12
 
 import (
 	"bytes"
-	"crypto/cipher"
-	"crypto/des"
-	"crypto/x509/pkix"
-	"encoding/asn1"
 	"errors"
 
-	"golang.org/x/crypto/pkcs12/internal/rc2"
+	"github.com/runZeroInc/excrypto/encoding/asn1"
+
+	"github.com/runZeroInc/excrypto/crypto/cipher"
+	"github.com/runZeroInc/excrypto/crypto/des"
+	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
+
+	"github.com/runZeroInc/excrypto/x/crypto/pkcs12/internal/rc2"
 )
 
 var (

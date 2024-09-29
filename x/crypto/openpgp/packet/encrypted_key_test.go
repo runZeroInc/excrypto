@@ -6,13 +6,15 @@ package packet
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/rsa"
 	"encoding/hex"
 	"fmt"
 	"io"
 	"math/big"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"github.com/runZeroInc/excrypto/crypto/rsa"
 )
 
 func bigFromBase10(s string) *big.Int {

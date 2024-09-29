@@ -11,10 +11,11 @@ package otr
 
 import (
 	"bytes"
-	"crypto/sha256"
 	"errors"
 	"hash"
 	"math/big"
+
+	"github.com/runZeroInc/excrypto/crypto/sha256"
 )
 
 type smpFailure string

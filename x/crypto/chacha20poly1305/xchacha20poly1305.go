@@ -5,10 +5,11 @@
 package chacha20poly1305
 
 import (
-	"crypto/cipher"
 	"errors"
 
-	"golang.org/x/crypto/chacha20"
+	"github.com/runZeroInc/excrypto/crypto/cipher"
+
+	"github.com/runZeroInc/excrypto/x/crypto/chacha20"
 )
 
 type xchacha20poly1305 struct {

@@ -6,13 +6,6 @@ package ssh
 
 import (
 	"bytes"
-	"crypto/dsa"
-	"crypto/ecdsa"
-	"crypto/ed25519"
-	"crypto/elliptic"
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/x509"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
@@ -23,7 +16,16 @@ import (
 	"strings"
 	"testing"
 
-	"golang.org/x/crypto/ssh/testdata"
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/crypto/dsa"
+	"github.com/runZeroInc/excrypto/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/crypto/ed25519"
+	"github.com/runZeroInc/excrypto/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/crypto/rsa"
+	"github.com/runZeroInc/excrypto/crypto/x509"
+
+	"github.com/runZeroInc/excrypto/x/crypto/ssh/testdata"
 )
 
 func rawKey(pub PublicKey) interface{} {
@@ -150,44 +152,6 @@ func TestKeySignWithAlgorithmVerify(t *testing.T) {
 					signWithAlgTestCase(algorithm, algorithm)
 				}
 			}
-		}
-	}
-}
-
-func TestKeySignWithShortSignature(t *testing.T) {
-	signer := testSigners["rsa"].(AlgorithmSigner)
-	pub := signer.PublicKey()
-	// Note: data obtained by empirically trying until a result
-	// starting with 0 appeared
-	tests := []struct {
-		algorithm string
-		data      []byte
-	}{
-		{
-			algorithm: KeyAlgoRSA,
-			data:      []byte("sign me92"),
-		},
-		{
-			algorithm: KeyAlgoRSASHA256,
-			data:      []byte("sign me294"),
-		},
-		{
-			algorithm: KeyAlgoRSASHA512,
-			data:      []byte("sign me60"),
-		},
-	}
-
-	for _, tt := range tests {
-		sig, err := signer.SignWithAlgorithm(rand.Reader, tt.data, tt.algorithm)
-		if err != nil {
-			t.Fatalf("Sign(%T): %v", signer, err)
-		}
-		if sig.Blob[0] != 0 {
-			t.Errorf("%s: Expected signature with a leading 0", tt.algorithm)
-		}
-		sig.Blob = sig.Blob[1:]
-		if err := pub.Verify(tt.data, sig); err != nil {
-			t.Errorf("publicKey.Verify(%s): %v", tt.algorithm, err)
 		}
 	}
 }

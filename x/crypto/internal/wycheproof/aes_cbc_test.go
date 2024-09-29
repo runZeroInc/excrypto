@@ -5,11 +5,12 @@
 package wycheproof
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
 	"encoding/hex"
 	"fmt"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto/aes"
+	"github.com/runZeroInc/excrypto/crypto/cipher"
 )
 
 func TestAesCbc(t *testing.T) {

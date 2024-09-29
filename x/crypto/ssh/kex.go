@@ -5,18 +5,21 @@
 package ssh
 
 import (
-	"crypto"
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
-	"crypto/subtle"
 	"encoding/binary"
 	"errors"
 	"fmt"
 	"io"
 	"math/big"
 
-	"golang.org/x/crypto/curve25519"
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/crypto/subtle"
+
+	"github.com/runZeroInc/excrypto/x/crypto/curve25519"
 )
 
 const (

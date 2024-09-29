@@ -5,15 +5,16 @@
 package packet
 
 import (
-	"crypto"
 	"encoding/binary"
 	"fmt"
 	"io"
 	"strconv"
 	"time"
 
-	"golang.org/x/crypto/openpgp/errors"
-	"golang.org/x/crypto/openpgp/s2k"
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/s2k"
 )
 
 // SignatureV3 represents older version 3 signatures. These signatures are less secure

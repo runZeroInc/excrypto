@@ -10,8 +10,8 @@ import (
 	"bytes"
 	"testing"
 
-	"golang.org/x/crypto/ssh"
-	"golang.org/x/crypto/ssh/agent"
+	"github.com/runZeroInc/excrypto/x/crypto/ssh"
+	"github.com/runZeroInc/excrypto/x/crypto/ssh/agent"
 )
 
 func TestAgentForward(t *testing.T) {
@@ -20,17 +20,17 @@ func TestAgentForward(t *testing.T) {
 	defer conn.Close()
 
 	keyring := agent.NewKeyring()
-	if err := keyring.Add(agent.AddedKey{PrivateKey: testPrivateKeys["ecdsa"]}); err != nil {
+	if err := keyring.Add(agent.AddedKey{PrivateKey: testPrivateKeys["dsa"]}); err != nil {
 		t.Fatalf("Error adding key: %s", err)
 	}
 	if err := keyring.Add(agent.AddedKey{
-		PrivateKey:       testPrivateKeys["ecdsa"],
+		PrivateKey:       testPrivateKeys["dsa"],
 		ConfirmBeforeUse: true,
 		LifetimeSecs:     3600,
 	}); err != nil {
 		t.Fatalf("Error adding key with constraints: %s", err)
 	}
-	pub := testPublicKeys["ecdsa"]
+	pub := testPublicKeys["dsa"]
 
 	sess, err := conn.NewSession()
 	if err != nil {

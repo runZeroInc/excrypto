@@ -5,11 +5,6 @@
 package agent
 
 import (
-	"crypto/dsa"
-	"crypto/ecdsa"
-	"crypto/ed25519"
-	"crypto/elliptic"
-	"crypto/rsa"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -17,7 +12,13 @@ import (
 	"log"
 	"math/big"
 
-	"golang.org/x/crypto/ssh"
+	"github.com/runZeroInc/excrypto/crypto/dsa"
+	"github.com/runZeroInc/excrypto/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/crypto/ed25519"
+	"github.com/runZeroInc/excrypto/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/crypto/rsa"
+
+	"github.com/runZeroInc/excrypto/x/crypto/ssh"
 )
 
 // server wraps an Agent and uses it to implement the agent side of

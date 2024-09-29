@@ -6,11 +6,13 @@ package packet
 
 import (
 	"bytes"
-	"crypto/sha1"
 	"encoding/hex"
-	"golang.org/x/crypto/openpgp/errors"
 	"io"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto/sha1"
+
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 )
 
 // TestReader wraps a []byte and returns reads of a specific length.

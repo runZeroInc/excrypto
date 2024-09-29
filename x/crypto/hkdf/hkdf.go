@@ -11,10 +11,11 @@
 package hkdf
 
 import (
-	"crypto/hmac"
 	"errors"
 	"hash"
 	"io"
+
+	"github.com/runZeroInc/excrypto/crypto/hmac"
 )
 
 // Extract generates a pseudorandom key for use with Expand from an input secret

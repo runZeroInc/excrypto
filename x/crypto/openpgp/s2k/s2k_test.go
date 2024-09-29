@@ -6,16 +6,19 @@ package s2k
 
 import (
 	"bytes"
-	"crypto"
-	_ "crypto/md5"
-	"crypto/rand"
-	"crypto/sha1"
-	_ "crypto/sha256"
-	_ "crypto/sha512"
 	"encoding/hex"
 	"testing"
 
-	_ "golang.org/x/crypto/ripemd160"
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"crypto/rand"
+
+	_ "github.com/runZeroInc/excrypto/crypto/md5"
+	"github.com/runZeroInc/excrypto/crypto/sha1"
+	_ "github.com/runZeroInc/excrypto/crypto/sha256"
+	_ "github.com/runZeroInc/excrypto/crypto/sha512"
+
+	_ "github.com/runZeroInc/excrypto/x/crypto/ripemd160"
 )
 
 var saltedTests = []struct {

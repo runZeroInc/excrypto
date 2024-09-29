@@ -6,19 +6,6 @@ package ssh
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/dsa"
-	"crypto/ecdsa"
-	"crypto/ed25519"
-	"crypto/elliptic"
-	"crypto/md5"
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/sha256"
-	"crypto/x509"
-	"encoding/asn1"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/hex"
@@ -29,7 +16,24 @@ import (
 	"math/big"
 	"strings"
 
-	"golang.org/x/crypto/ssh/internal/bcrypt_pbkdf"
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"github.com/runZeroInc/excrypto/encoding/asn1"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/crypto/aes"
+	"github.com/runZeroInc/excrypto/crypto/cipher"
+	"github.com/runZeroInc/excrypto/crypto/dsa"
+	"github.com/runZeroInc/excrypto/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/crypto/ed25519"
+	"github.com/runZeroInc/excrypto/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/crypto/md5"
+	"github.com/runZeroInc/excrypto/crypto/rsa"
+	"github.com/runZeroInc/excrypto/crypto/sha256"
+	"github.com/runZeroInc/excrypto/crypto/x509"
+
+	"github.com/runZeroInc/excrypto/x/crypto/ssh/internal/bcrypt_pbkdf"
 )
 
 // Public key algorithms names. These values can appear in PublicKey.Type,
@@ -488,49 +492,7 @@ func (r *rsaPublicKey) Verify(data []byte, sig *Signature) error {
 	h := hash.New()
 	h.Write(data)
 	digest := h.Sum(nil)
-
-	// Signatures in PKCS1v15 must match the key's modulus in
-	// length. However with SSH, some signers provide RSA
-	// signatures which are missing the MSB 0's of the bignum
-	// represented. With ssh-rsa signatures, this is encouraged by
-	// the spec (even though e.g. OpenSSH will give the full
-	// length unconditionally). With rsa-sha2-* signatures, the
-	// verifier is allowed to support these, even though they are
-	// out of spec. See RFC 4253 Section 6.6 for ssh-rsa and RFC
-	// 8332 Section 3 for rsa-sha2-* details.
-	//
-	// In practice:
-	// * OpenSSH always allows "short" signatures:
-	//   https://github.com/openssh/openssh-portable/blob/V_9_8_P1/ssh-rsa.c#L526
-	//   but always generates padded signatures:
-	//   https://github.com/openssh/openssh-portable/blob/V_9_8_P1/ssh-rsa.c#L439
-	//
-	// * PuTTY versions 0.81 and earlier will generate short
-	//   signatures for all RSA signature variants. Note that
-	//   PuTTY is embedded in other software, such as WinSCP and
-	//   FileZilla. At the time of writing, a patch has been
-	//   applied to PuTTY to generate padded signatures for
-	//   rsa-sha2-*, but not yet released:
-	//   https://git.tartarus.org/?p=simon/putty.git;a=commitdiff;h=a5bcf3d384e1bf15a51a6923c3724cbbee022d8e
-	//
-	// * SSH.NET versions 2024.0.0 and earlier will generate short
-	//   signatures for all RSA signature variants, fixed in 2024.1.0:
-	//   https://github.com/sshnet/SSH.NET/releases/tag/2024.1.0
-	//
-	// As a result, we pad these up to the key size by inserting
-	// leading 0's.
-	//
-	// Note that support for short signatures with rsa-sha2-* may
-	// be removed in the future due to such signatures not being
-	// allowed by the spec.
-	blob := sig.Blob
-	keySize := (*rsa.PublicKey)(r).Size()
-	if len(blob) < keySize {
-		padded := make([]byte, keySize)
-		copy(padded[keySize-len(blob):], blob)
-		blob = padded
-	}
-	return rsa.VerifyPKCS1v15((*rsa.PublicKey)(r), hash, digest, blob)
+	return rsa.VerifyPKCS1v15((*rsa.PublicKey)(r), hash, digest, sig.Blob)
 }
 
 func (r *rsaPublicKey) CryptoPublicKey() crypto.PublicKey {
@@ -544,14 +506,19 @@ func (k *dsaPublicKey) Type() string {
 }
 
 func checkDSAParams(param *dsa.Parameters) error {
-	// SSH specifies FIPS 186-2, which only provided a single size
-	// (1024 bits) DSA key. FIPS 186-3 allows for larger key
-	// sizes, which would confuse SSH.
-	if l := param.P.BitLen(); l != 1024 {
-		return fmt.Errorf("ssh: unsupported DSA key size %d", l)
-	}
-
+	// Allow any DSA key size for testing
 	return nil
+
+	/*
+		// SSH specifies FIPS 186-2, which only provided a single size
+		// (1024 bits) DSA key. FIPS 186-3 allows for larger key
+		// sizes, which would confuse SSH.
+		if l := param.P.BitLen(); l != 1024 {
+			return fmt.Errorf("ssh: unsupported DSA key size %d", l)
+		}
+
+		return nil
+	*/
 }
 
 // parseDSA parses an DSA key according to RFC 4253, section 6.6.

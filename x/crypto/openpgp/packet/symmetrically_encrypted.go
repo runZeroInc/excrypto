@@ -5,13 +5,15 @@
 package packet
 
 import (
-	"crypto/cipher"
-	"crypto/sha1"
-	"crypto/subtle"
-	"golang.org/x/crypto/openpgp/errors"
 	"hash"
 	"io"
 	"strconv"
+
+	"github.com/runZeroInc/excrypto/crypto/cipher"
+	"github.com/runZeroInc/excrypto/crypto/sha1"
+	"github.com/runZeroInc/excrypto/crypto/subtle"
+
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 )
 
 // SymmetricallyEncrypted represents a symmetrically encrypted byte string. The

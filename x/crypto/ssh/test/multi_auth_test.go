@@ -23,7 +23,7 @@ import (
 	"strings"
 	"testing"
 
-	"golang.org/x/crypto/ssh"
+	"github.com/runZeroInc/excrypto/x/crypto/ssh"
 )
 
 // test cases

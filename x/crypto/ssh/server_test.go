@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"reflect"
+	"slices"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -294,7 +294,7 @@ func TestBannerError(t *testing.T) {
 		"banner from PublicKeyCallback",
 		"banner from KeyboardInteractiveCallback",
 	}
-	if !reflect.DeepEqual(banners, wantBanners) {
+	if !slices.Equal(banners, wantBanners) {
 		t.Errorf("got banners:\n%q\nwant banners:\n%q", banners, wantBanners)
 	}
 }

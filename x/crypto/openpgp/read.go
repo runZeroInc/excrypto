@@ -12,15 +12,17 @@
 package openpgp
 
 import (
-	"crypto"
-	_ "crypto/sha256"
 	"hash"
 	"io"
 	"strconv"
 
-	"golang.org/x/crypto/openpgp/armor"
-	"golang.org/x/crypto/openpgp/errors"
-	"golang.org/x/crypto/openpgp/packet"
+	"github.com/runZeroInc/excrypto/crypto"
+
+	_ "github.com/runZeroInc/excrypto/crypto/sha256"
+
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/armor"
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/packet"
 )
 
 // SignatureType is the armor type for a PGP signature.

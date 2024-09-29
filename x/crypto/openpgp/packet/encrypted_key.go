@@ -5,15 +5,17 @@
 package packet
 
 import (
-	"crypto"
-	"crypto/rsa"
 	"encoding/binary"
 	"io"
 	"math/big"
 	"strconv"
 
-	"golang.org/x/crypto/openpgp/elgamal"
-	"golang.org/x/crypto/openpgp/errors"
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"github.com/runZeroInc/excrypto/crypto/rsa"
+
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/elgamal"
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 )
 
 const encryptedKeyVersion = 3

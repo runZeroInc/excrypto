@@ -7,11 +7,12 @@
 package dsa
 
 import (
-	"crypto/dsa"
 	"math/big"
 
-	"golang.org/x/crypto/cryptobyte"
-	"golang.org/x/crypto/cryptobyte/asn1"
+	"github.com/runZeroInc/excrypto/crypto/dsa"
+
+	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
+	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
 )
 
 // VerifyASN1 verifies the ASN1 encoded signature, sig, of hash using the

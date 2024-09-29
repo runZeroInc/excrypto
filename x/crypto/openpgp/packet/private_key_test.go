@@ -6,16 +6,19 @@ package packet
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/x509"
 	"encoding/hex"
 	"hash"
 	"testing"
 	"time"
+
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/crypto/rsa"
+	"github.com/runZeroInc/excrypto/crypto/x509"
 )
 
 var privateKeyTests = []struct {

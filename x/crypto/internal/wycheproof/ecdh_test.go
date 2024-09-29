@@ -6,16 +6,18 @@ package wycheproof
 
 import (
 	"bytes"
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/x509"
-	"encoding/asn1"
 	"errors"
 	"fmt"
 	"testing"
 
-	"golang.org/x/crypto/cryptobyte"
-	casn1 "golang.org/x/crypto/cryptobyte/asn1"
+	"github.com/runZeroInc/excrypto/encoding/asn1"
+
+	"github.com/runZeroInc/excrypto/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/crypto/x509"
+
+	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
+	casn1 "github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
 )
 
 func TestECDH(t *testing.T) {

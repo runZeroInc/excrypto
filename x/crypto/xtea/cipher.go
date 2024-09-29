@@ -11,7 +11,7 @@
 //
 // Deprecated: any new system should use AES (from crypto/aes, if necessary in
 // an AEAD mode like crypto/cipher.NewGCM) or XChaCha20-Poly1305 (from
-// golang.org/x/crypto/chacha20poly1305).
+// github.com/runZeroInc/sshamble/crypto/chacha20poly1305).
 package xtea
 
 // For details, see http://www.cix.co.uk/~klockstone/xtea.pdf
@@ -53,7 +53,7 @@ func NewCipher(key []byte) (*Cipher, error) {
 
 // BlockSize returns the XTEA block size, 8 bytes.
 // It is necessary to satisfy the Block interface in the
-// package "crypto/cipher".
+// package "github.com/runZeroInc/excrypto/crypto/cipher".
 func (c *Cipher) BlockSize() int { return BlockSize }
 
 // Encrypt encrypts the 8 byte buffer src using the key and stores the result in dst.

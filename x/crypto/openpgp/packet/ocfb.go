@@ -7,7 +7,7 @@
 package packet
 
 import (
-	"crypto/cipher"
+	"github.com/runZeroInc/excrypto/crypto/cipher"
 )
 
 type ocfbEncrypter struct {

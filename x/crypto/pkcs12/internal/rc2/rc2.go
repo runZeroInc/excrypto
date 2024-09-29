@@ -12,9 +12,10 @@ This code is licensed under the MIT license.
 package rc2
 
 import (
-	"crypto/cipher"
 	"encoding/binary"
 	"math/bits"
+
+	"github.com/runZeroInc/excrypto/crypto/cipher"
 )
 
 // The rc2 block size in bytes

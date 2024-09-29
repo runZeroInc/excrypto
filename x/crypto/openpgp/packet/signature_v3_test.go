@@ -6,12 +6,13 @@ package packet
 
 import (
 	"bytes"
-	"crypto"
 	"encoding/hex"
 	"io"
 	"testing"
 
-	"golang.org/x/crypto/openpgp/armor"
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/armor"
 )
 
 func TestSignatureV3Read(t *testing.T) {

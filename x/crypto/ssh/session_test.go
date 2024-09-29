@@ -8,7 +8,6 @@ package ssh
 
 import (
 	"bytes"
-	crypto_rand "crypto/rand"
 	"errors"
 	"io"
 	"math/rand"
@@ -16,7 +15,9 @@ import (
 	"sync"
 	"testing"
 
-	"golang.org/x/crypto/ssh/terminal"
+	crypto_rand "crypto/rand"
+
+	"github.com/runZeroInc/excrypto/x/crypto/ssh/terminal"
 )
 
 type serverType func(Channel, <-chan *Request, *testing.T)

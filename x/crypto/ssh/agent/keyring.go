@@ -6,14 +6,16 @@ package agent
 
 import (
 	"bytes"
-	"crypto/rand"
-	"crypto/subtle"
 	"errors"
 	"fmt"
 	"sync"
 	"time"
 
-	"golang.org/x/crypto/ssh"
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/crypto/subtle"
+
+	"github.com/runZeroInc/excrypto/x/crypto/ssh"
 )
 
 type privKey struct {
@@ -173,15 +175,6 @@ func (r *keyring) Add(key AddedKey) error {
 	if key.LifetimeSecs > 0 {
 		t := time.Now().Add(time.Duration(key.LifetimeSecs) * time.Second)
 		p.expire = &t
-	}
-
-	// If we already have a Signer with the same public key, replace it with the
-	// new one.
-	for idx, k := range r.keys {
-		if bytes.Equal(k.signer.PublicKey().Marshal(), p.signer.PublicKey().Marshal()) {
-			r.keys[idx] = p
-			return nil
-		}
 	}
 
 	r.keys = append(r.keys, p)

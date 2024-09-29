@@ -8,8 +8,9 @@
 package chacha20poly1305
 
 import (
-	"crypto/cipher"
 	"errors"
+
+	"github.com/runZeroInc/excrypto/crypto/cipher"
 )
 
 const (

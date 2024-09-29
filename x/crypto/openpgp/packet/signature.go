@@ -6,10 +6,6 @@ package packet
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/dsa"
-	"crypto/ecdsa"
-	"encoding/asn1"
 	"encoding/binary"
 	"hash"
 	"io"
@@ -17,8 +13,15 @@ import (
 	"strconv"
 	"time"
 
-	"golang.org/x/crypto/openpgp/errors"
-	"golang.org/x/crypto/openpgp/s2k"
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"github.com/runZeroInc/excrypto/encoding/asn1"
+
+	"github.com/runZeroInc/excrypto/crypto/dsa"
+	"github.com/runZeroInc/excrypto/crypto/ecdsa"
+
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/s2k"
 )
 
 const (

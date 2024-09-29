@@ -5,16 +5,17 @@
 package openpgp
 
 import (
-	"crypto"
 	"hash"
 	"io"
 	"strconv"
 	"time"
 
-	"golang.org/x/crypto/openpgp/armor"
-	"golang.org/x/crypto/openpgp/errors"
-	"golang.org/x/crypto/openpgp/packet"
-	"golang.org/x/crypto/openpgp/s2k"
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/armor"
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/packet"
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/s2k"
 )
 
 // DetachSign signs message with the private key from signer (which must

@@ -5,12 +5,13 @@
 package secretbox_test
 
 import (
-	"crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"io"
 
-	"golang.org/x/crypto/nacl/secretbox"
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/x/crypto/nacl/secretbox"
 )
 
 func Example() {

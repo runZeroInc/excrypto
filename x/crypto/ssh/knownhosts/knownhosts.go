@@ -10,9 +10,6 @@ package knownhosts
 import (
 	"bufio"
 	"bytes"
-	"crypto/hmac"
-	"crypto/rand"
-	"crypto/sha1"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -21,7 +18,12 @@ import (
 	"os"
 	"strings"
 
-	"golang.org/x/crypto/ssh"
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/crypto/hmac"
+	"github.com/runZeroInc/excrypto/crypto/sha1"
+
+	"github.com/runZeroInc/excrypto/x/crypto/ssh"
 )
 
 // See the sshd manpage

@@ -5,12 +5,14 @@
 package packet
 
 import (
-	"crypto"
 	"encoding/binary"
-	"golang.org/x/crypto/openpgp/errors"
-	"golang.org/x/crypto/openpgp/s2k"
 	"io"
 	"strconv"
+
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/s2k"
 )
 
 // OnePassSignature represents a one-pass signature packet. See RFC 4880,

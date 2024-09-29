@@ -14,16 +14,17 @@ package packet
 
 import (
 	"bufio"
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/des"
-	"crypto/rsa"
 	"io"
 	"math/big"
 	"math/bits"
 
-	"golang.org/x/crypto/cast5"
-	"golang.org/x/crypto/openpgp/errors"
+	"github.com/runZeroInc/excrypto/crypto/aes"
+	"github.com/runZeroInc/excrypto/crypto/cipher"
+	"github.com/runZeroInc/excrypto/crypto/des"
+	"github.com/runZeroInc/excrypto/crypto/rsa"
+
+	"github.com/runZeroInc/excrypto/x/crypto/cast5"
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 )
 
 // readFull is the same as io.ReadFull except that reading zero bytes returns

@@ -6,13 +6,14 @@ package cryptobyte
 
 import (
 	"bytes"
-	encoding_asn1 "encoding/asn1"
 	"math/big"
 	"reflect"
 	"testing"
 	"time"
 
-	"golang.org/x/crypto/cryptobyte/asn1"
+	encoding_asn1 "github.com/runZeroInc/excrypto/encoding/asn1"
+
+	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
 )
 
 type readASN1Test struct {

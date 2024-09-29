@@ -5,15 +5,17 @@
 package agent
 
 import (
-	"crypto"
-	"crypto/rand"
 	"fmt"
 	pseudorand "math/rand"
 	"reflect"
 	"strings"
 	"testing"
 
-	"golang.org/x/crypto/ssh"
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/x/crypto/ssh"
 )
 
 func TestServer(t *testing.T) {

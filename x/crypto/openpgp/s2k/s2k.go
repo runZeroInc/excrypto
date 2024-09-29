@@ -13,12 +13,13 @@
 package s2k
 
 import (
-	"crypto"
 	"hash"
 	"io"
 	"strconv"
 
-	"golang.org/x/crypto/openpgp/errors"
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 )
 
 // Config collects configuration parameters for s2k key-stretching

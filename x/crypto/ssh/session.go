@@ -144,6 +144,8 @@ type Session struct {
 	stdinPipeWriter io.WriteCloser
 
 	exitStatus chan error
+
+	closed bool
 }
 
 // SendRequest sends an out-of-band channel request on the SSH channel
@@ -153,6 +155,7 @@ func (s *Session) SendRequest(name string, wantReply bool, payload []byte) (bool
 }
 
 func (s *Session) Close() error {
+	s.closed = true
 	return s.ch.Close()
 }
 

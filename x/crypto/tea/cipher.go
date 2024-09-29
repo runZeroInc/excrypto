@@ -12,13 +12,14 @@
 //
 // Deprecated: any new system should use AES (from crypto/aes, if necessary in
 // an AEAD mode like crypto/cipher.NewGCM) or XChaCha20-Poly1305 (from
-// golang.org/x/crypto/chacha20poly1305).
+// github.com/runZeroInc/sshamble/crypto/chacha20poly1305).
 package tea
 
 import (
-	"crypto/cipher"
 	"encoding/binary"
 	"errors"
+
+	"github.com/runZeroInc/excrypto/crypto/cipher"
 )
 
 const (
@@ -68,7 +69,7 @@ func NewCipherWithRounds(key []byte, rounds int) (cipher.Block, error) {
 }
 
 // BlockSize returns the TEA block size, which is eight bytes. It is necessary
-// to satisfy the Block interface in the package "crypto/cipher".
+// to satisfy the Block interface in the package "github.com/runZeroInc/excrypto/crypto/cipher".
 func (*tea) BlockSize() int {
 	return BlockSize
 }

@@ -5,8 +5,9 @@
 package pkcs12
 
 import (
-	"encoding/asn1"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/encoding/asn1"
 )
 
 func TestVerifyMac(t *testing.T) {

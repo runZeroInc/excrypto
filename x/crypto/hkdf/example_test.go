@@ -6,12 +6,14 @@ package hkdf_test
 
 import (
 	"bytes"
-	"crypto/rand"
-	"crypto/sha256"
 	"fmt"
 	"io"
 
-	"golang.org/x/crypto/hkdf"
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/crypto/sha256"
+
+	"github.com/runZeroInc/excrypto/x/crypto/hkdf"
 )
 
 // Usage example that expands one master secret into three other

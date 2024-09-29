@@ -10,8 +10,9 @@
 package md4
 
 import (
-	"crypto"
 	"hash"
+
+	"github.com/runZeroInc/excrypto/crypto"
 )
 
 func init() {

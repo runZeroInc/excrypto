@@ -6,12 +6,13 @@ package packet
 
 import (
 	"bytes"
-	"crypto/ecdsa"
-	"crypto/elliptic"
 	"encoding/hex"
 	"math/big"
 	"testing"
 	"time"
+
+	"github.com/runZeroInc/excrypto/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/crypto/elliptic"
 )
 
 var pubKeyTests = []struct {

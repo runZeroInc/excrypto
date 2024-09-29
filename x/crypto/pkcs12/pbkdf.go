@@ -6,8 +6,9 @@ package pkcs12
 
 import (
 	"bytes"
-	"crypto/sha1"
 	"math/big"
+
+	"github.com/runZeroInc/excrypto/crypto/sha1"
 )
 
 var (

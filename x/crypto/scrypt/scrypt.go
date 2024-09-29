@@ -8,12 +8,13 @@
 package scrypt
 
 import (
-	"crypto/sha256"
 	"encoding/binary"
 	"errors"
 	"math/bits"
 
-	"golang.org/x/crypto/pbkdf2"
+	"github.com/runZeroInc/excrypto/crypto/sha256"
+
+	"github.com/runZeroInc/excrypto/x/crypto/pbkdf2"
 )
 
 const maxInt = int(^uint(0) >> 1)

@@ -5,7 +5,6 @@
 package ssh
 
 import (
-	"crypto/rand"
 	"errors"
 	"fmt"
 	"io"
@@ -13,6 +12,8 @@ import (
 	"net"
 	"strings"
 	"sync"
+
+	"crypto/rand"
 )
 
 // debugHandshake, if set, prints messages sent and received.  Key
@@ -73,10 +74,15 @@ type handshakeTransport struct {
 	incoming  chan []byte
 	readError error
 
-	mu               sync.Mutex
-	writeError       error
-	sentInitPacket   []byte
-	sentInitMsg      *kexInitMsg
+	mu             sync.Mutex
+	writeError     error
+	sentInitPacket []byte
+	sentInitMsg    *kexInitMsg
+
+	// Research: Store the peer Kex Init for future use
+	otherInitPacket []byte
+	otherInitMsg    *kexInitMsg
+
 	pendingPackets   [][]byte // Used when a key exchange is in progress.
 	writePacketsLeft uint32
 	writeBytesLeft   int64
@@ -282,7 +288,6 @@ func (t *handshakeTransport) resetWriteThresholds() {
 }
 
 func (t *handshakeTransport) kexLoop() {
-
 write:
 	for t.getWriteError() == nil {
 		var request *pendingKex
@@ -611,10 +616,16 @@ func (t *handshakeTransport) enterKeyExchange(otherInitPacket []byte) error {
 		log.Printf("%s entered key exchange", t.id())
 	}
 
+	// Research: Store the peer Kex Init packet
+	t.otherInitPacket = dup(otherInitPacket)
+
 	otherInit := &kexInitMsg{}
 	if err := Unmarshal(otherInitPacket, otherInit); err != nil {
 		return err
 	}
+
+	// Research: Store the peer Kex Init message
+	t.otherInitMsg = otherInit
 
 	magics := handshakeMagics{
 		clientVersion: t.clientVersion,

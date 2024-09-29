@@ -6,10 +6,11 @@ package pbkdf2
 
 import (
 	"bytes"
-	"crypto/sha1"
-	"crypto/sha256"
 	"hash"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto/sha1"
+	"github.com/runZeroInc/excrypto/crypto/sha256"
 )
 
 type testVector struct {

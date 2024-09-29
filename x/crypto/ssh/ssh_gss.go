@@ -5,8 +5,9 @@
 package ssh
 
 import (
-	"encoding/asn1"
 	"errors"
+
+	"github.com/runZeroInc/excrypto/encoding/asn1"
 )
 
 var krb5OID []byte

@@ -5,13 +5,14 @@
 package cryptobyte
 
 import (
-	encoding_asn1 "encoding/asn1"
 	"fmt"
 	"math/big"
 	"reflect"
 	"time"
 
-	"golang.org/x/crypto/cryptobyte/asn1"
+	encoding_asn1 "github.com/runZeroInc/excrypto/encoding/asn1"
+
+	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
 )
 
 // This file contains ASN.1-related methods for String and Builder.

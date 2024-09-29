@@ -5,8 +5,9 @@
 package wycheproof
 
 import (
-	"crypto/ed25519"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto/ed25519"
 )
 
 func TestEddsa(t *testing.T) {

@@ -15,8 +15,9 @@
 package ed25519
 
 import (
-	"crypto/ed25519"
 	"io"
+
+	"github.com/runZeroInc/excrypto/crypto/ed25519"
 )
 
 const (

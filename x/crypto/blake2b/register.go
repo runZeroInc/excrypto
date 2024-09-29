@@ -5,8 +5,9 @@
 package blake2b
 
 import (
-	"crypto"
 	"hash"
+
+	"github.com/runZeroInc/excrypto/crypto"
 )
 
 func init() {

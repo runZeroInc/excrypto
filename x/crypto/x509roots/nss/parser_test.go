@@ -5,13 +5,14 @@
 package nss
 
 import (
-	"crypto/x509"
 	"encoding/pem"
 	"reflect"
 	"sort"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/runZeroInc/excrypto/crypto/x509"
 )
 
 func mustParse(b []byte) *x509.Certificate {

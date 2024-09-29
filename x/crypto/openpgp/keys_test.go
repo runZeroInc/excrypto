@@ -2,13 +2,14 @@ package openpgp
 
 import (
 	"bytes"
-	"crypto"
 	"strings"
 	"testing"
 	"time"
 
-	"golang.org/x/crypto/openpgp/errors"
-	"golang.org/x/crypto/openpgp/packet"
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/packet"
 )
 
 func TestKeyExpiry(t *testing.T) {

@@ -5,8 +5,9 @@
 package wycheproof
 
 import (
-	"crypto/rsa"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto/rsa"
 )
 
 func TestRsaPss(t *testing.T) {

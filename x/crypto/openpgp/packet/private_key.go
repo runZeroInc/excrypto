@@ -6,20 +6,22 @@ package packet
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/cipher"
-	"crypto/dsa"
-	"crypto/ecdsa"
-	"crypto/rsa"
-	"crypto/sha1"
 	"io"
 	"math/big"
 	"strconv"
 	"time"
 
-	"golang.org/x/crypto/openpgp/elgamal"
-	"golang.org/x/crypto/openpgp/errors"
-	"golang.org/x/crypto/openpgp/s2k"
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"github.com/runZeroInc/excrypto/crypto/cipher"
+	"github.com/runZeroInc/excrypto/crypto/dsa"
+	"github.com/runZeroInc/excrypto/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/crypto/rsa"
+	"github.com/runZeroInc/excrypto/crypto/sha1"
+
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/elgamal"
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/s2k"
 )
 
 // PrivateKey represents a possibly encrypted private key. See RFC 4880,

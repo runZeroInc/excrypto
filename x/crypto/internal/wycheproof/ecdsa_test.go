@@ -5,12 +5,13 @@
 package wycheproof
 
 import (
-	"crypto/ecdsa"
 	"math/big"
 	"testing"
 
-	"golang.org/x/crypto/cryptobyte"
-	"golang.org/x/crypto/cryptobyte/asn1"
+	"github.com/runZeroInc/excrypto/crypto/ecdsa"
+
+	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
+	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
 )
 
 func TestECDSA(t *testing.T) {

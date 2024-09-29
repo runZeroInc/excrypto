@@ -14,8 +14,9 @@ package ripemd160
 // http://homes.esat.kuleuven.be/~cosicart/pdf/AB-9601/AB-9601.pdf.
 
 import (
-	"crypto"
 	"hash"
+
+	"github.com/runZeroInc/excrypto/crypto"
 )
 
 func init() {

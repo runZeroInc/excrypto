@@ -6,14 +6,6 @@ package packet
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/dsa"
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rsa"
-	"crypto/sha1"
-	_ "crypto/sha256"
-	_ "crypto/sha512"
 	"encoding/binary"
 	"fmt"
 	"hash"
@@ -22,8 +14,18 @@ import (
 	"strconv"
 	"time"
 
-	"golang.org/x/crypto/openpgp/elgamal"
-	"golang.org/x/crypto/openpgp/errors"
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"github.com/runZeroInc/excrypto/crypto/dsa"
+	"github.com/runZeroInc/excrypto/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/crypto/rsa"
+	"github.com/runZeroInc/excrypto/crypto/sha1"
+	_ "github.com/runZeroInc/excrypto/crypto/sha256"
+	_ "github.com/runZeroInc/excrypto/crypto/sha512"
+
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/elgamal"
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 )
 
 var (

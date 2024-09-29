@@ -6,9 +6,10 @@ package packet
 
 import (
 	"bytes"
-	"crypto"
 	"encoding/hex"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto"
 )
 
 func TestSignatureRead(t *testing.T) {

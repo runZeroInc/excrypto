@@ -5,21 +5,22 @@
 // Package nss provides functionality for parsing NSS certdata.txt
 // formatted certificate lists and extracting serverAuth roots. Most
 // users should not use this package themselves, and should instead
-// rely on the golang.org/x/crypto/x509roots/fallback package which
+// rely on the github.com/runZeroInc/sshamble/crypto/x509roots/fallback package which
 // calls x509.SetFallbackRoots on a pre-parsed set of roots.
 package nss
 
 import (
 	"bufio"
 	"bytes"
-	"crypto/sha1"
-	"crypto/x509"
 	"errors"
 	"fmt"
 	"io"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/runZeroInc/excrypto/crypto/sha1"
+	"github.com/runZeroInc/excrypto/crypto/x509"
 )
 
 // Constraint is a constraint to be applied to a certificate or

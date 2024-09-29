@@ -19,10 +19,11 @@
 package blake2s
 
 import (
-	"crypto"
 	"encoding/binary"
 	"errors"
 	"hash"
+
+	"github.com/runZeroInc/excrypto/crypto"
 )
 
 const (
@@ -139,7 +140,7 @@ const (
 
 func (d *digest) MarshalBinary() ([]byte, error) {
 	if d.keyLen != 0 {
-		return nil, errors.New("crypto/blake2s: cannot marshal MACs")
+		return nil, errors.New("github.com/runZeroInc/excrypto/crypto/blake2s: cannot marshal MACs")
 	}
 	b := make([]byte, 0, marshaledSize)
 	b = append(b, magic...)
@@ -157,10 +158,10 @@ func (d *digest) MarshalBinary() ([]byte, error) {
 
 func (d *digest) UnmarshalBinary(b []byte) error {
 	if len(b) < len(magic) || string(b[:len(magic)]) != magic {
-		return errors.New("crypto/blake2s: invalid hash state identifier")
+		return errors.New("github.com/runZeroInc/excrypto/crypto/blake2s: invalid hash state identifier")
 	}
 	if len(b) != marshaledSize {
-		return errors.New("crypto/blake2s: invalid hash state size")
+		return errors.New("github.com/runZeroInc/excrypto/crypto/blake2s: invalid hash state size")
 	}
 	b = b[len(magic):]
 	for i := 0; i < 8; i++ {

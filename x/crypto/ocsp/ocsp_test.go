@@ -6,19 +6,23 @@ package ocsp
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/sha1"
-	"crypto/x509"
-	"crypto/x509/pkix"
-	"encoding/asn1"
 	"encoding/hex"
 	"encoding/pem"
 	"math/big"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"github.com/runZeroInc/excrypto/encoding/asn1"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/crypto/rsa"
+	"github.com/runZeroInc/excrypto/crypto/sha1"
+	"github.com/runZeroInc/excrypto/crypto/x509"
+	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
 )
 
 func TestOCSPDecode(t *testing.T) {

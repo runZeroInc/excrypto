@@ -6,10 +6,11 @@ package ssh
 
 import (
 	"bytes"
-	"crypto/rand"
 	"encoding/binary"
 	"strings"
 	"testing"
+
+	"crypto/rand"
 )
 
 func TestReadVersion(t *testing.T) {
@@ -35,8 +36,8 @@ func TestReadVersion(t *testing.T) {
 }
 
 func TestReadVersionError(t *testing.T) {
-	longVersion := strings.Repeat("SSH-2.0-bla", 50)[:253]
-	multiLineVersion := strings.Repeat("ignored\r\n", 50) + "SSH-2.0-bla\r\n"
+	longVersion := strings.Repeat("SSH-2.0-bla", 500)[:1023]
+	multiLineVersion := strings.Repeat("ignored\r\n", 1024) + "SSH-2.0-bla\r\n"
 	cases := []string{
 		longVersion + "too-long\r\n",
 		multiLineVersion,

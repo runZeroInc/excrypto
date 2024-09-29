@@ -6,10 +6,11 @@ package wycheproof
 
 import (
 	"bytes"
-	"crypto/rsa"
-	"crypto/x509"
 	"fmt"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto/rsa"
+	"github.com/runZeroInc/excrypto/crypto/x509"
 )
 
 func TestRSAOAEPDecrypt(t *testing.T) {

@@ -6,14 +6,16 @@ package ssh
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/rand"
 	"encoding/binary"
 	"io"
 	"testing"
 
-	"golang.org/x/crypto/chacha20"
-	"golang.org/x/crypto/internal/poly1305"
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/x/crypto/chacha20"
+	"github.com/runZeroInc/excrypto/x/crypto/internal/poly1305"
 )
 
 func TestDefaultCiphersExist(t *testing.T) {

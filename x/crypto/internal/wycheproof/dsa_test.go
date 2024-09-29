@@ -5,10 +5,11 @@
 package wycheproof
 
 import (
-	"crypto/dsa"
 	"testing"
 
-	wdsa "golang.org/x/crypto/internal/wycheproof/internal/dsa"
+	"github.com/runZeroInc/excrypto/crypto/dsa"
+
+	wdsa "github.com/runZeroInc/excrypto/x/crypto/internal/wycheproof/internal/dsa"
 )
 
 func TestDsa(t *testing.T) {

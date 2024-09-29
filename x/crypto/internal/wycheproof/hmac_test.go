@@ -5,8 +5,9 @@
 package wycheproof
 
 import (
-	"crypto/hmac"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto/hmac"
 )
 
 func TestHMAC(t *testing.T) {

@@ -12,14 +12,6 @@ package otr
 
 import (
 	"bytes"
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/dsa"
-	"crypto/hmac"
-	"crypto/rand"
-	"crypto/sha1"
-	"crypto/sha256"
-	"crypto/subtle"
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
@@ -27,6 +19,16 @@ import (
 	"io"
 	"math/big"
 	"strconv"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/crypto/aes"
+	"github.com/runZeroInc/excrypto/crypto/cipher"
+	"github.com/runZeroInc/excrypto/crypto/dsa"
+	"github.com/runZeroInc/excrypto/crypto/hmac"
+	"github.com/runZeroInc/excrypto/crypto/sha1"
+	"github.com/runZeroInc/excrypto/crypto/sha256"
+	"github.com/runZeroInc/excrypto/crypto/subtle"
 )
 
 // SecurityChange describes a change in the security state of a Conversation.

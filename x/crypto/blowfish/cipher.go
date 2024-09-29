@@ -10,7 +10,7 @@
 //
 // Deprecated: any new system should use AES (from crypto/aes, if necessary in
 // an AEAD mode like crypto/cipher.NewGCM) or XChaCha20-Poly1305 (from
-// golang.org/x/crypto/chacha20poly1305).
+// github.com/runZeroInc/sshamble/crypto/chacha20poly1305).
 package blowfish
 
 // The code is a port of Bruce Schneier's C implementation.
@@ -30,7 +30,7 @@ type Cipher struct {
 type KeySizeError int
 
 func (k KeySizeError) Error() string {
-	return "crypto/blowfish: invalid key size " + strconv.Itoa(int(k))
+	return "github.com/runZeroInc/excrypto/crypto/blowfish: invalid key size " + strconv.Itoa(int(k))
 }
 
 // NewCipher creates and returns a Cipher.
@@ -64,7 +64,7 @@ func NewSaltedCipher(key, salt []byte) (*Cipher, error) {
 
 // BlockSize returns the Blowfish block size, 8 bytes.
 // It is necessary to satisfy the Block interface in the
-// package "crypto/cipher".
+// package "github.com/runZeroInc/excrypto/crypto/cipher".
 func (c *Cipher) BlockSize() int { return BlockSize }
 
 // Encrypt encrypts the 8-byte buffer src using the key k

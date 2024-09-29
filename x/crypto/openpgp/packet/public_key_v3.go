@@ -5,9 +5,6 @@
 package packet
 
 import (
-	"crypto"
-	"crypto/md5"
-	"crypto/rsa"
 	"encoding/binary"
 	"fmt"
 	"hash"
@@ -16,7 +13,12 @@ import (
 	"strconv"
 	"time"
 
-	"golang.org/x/crypto/openpgp/errors"
+	"github.com/runZeroInc/excrypto/crypto"
+
+	"github.com/runZeroInc/excrypto/crypto/md5"
+	"github.com/runZeroInc/excrypto/crypto/rsa"
+
+	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 )
 
 // PublicKeyV3 represents older, version 3 public keys. These keys are less secure and

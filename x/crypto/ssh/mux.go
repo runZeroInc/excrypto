@@ -11,6 +11,7 @@ import (
 	"log"
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 // debugMux, if set, causes messages in the connection protocol to be
@@ -97,6 +98,7 @@ type mux struct {
 
 	errCond *sync.Cond
 	err     error
+	timeout time.Duration
 }
 
 // When debugging, each new chanList instantiation has a different
@@ -324,14 +326,25 @@ func (m *mux) openChannel(chanType string, extra []byte) (*channel, error) {
 	if err := m.sendMessage(open); err != nil {
 		return nil, err
 	}
+	if m.timeout == 0 {
+		m.timeout = time.Hour * 4
+	}
 
-	switch msg := (<-ch.msg).(type) {
-	case *channelOpenConfirmMsg:
-		return ch, nil
-	case *channelOpenFailureMsg:
-		return nil, &OpenChannelError{msg.Reason, msg.Message}
-	default:
-		return nil, fmt.Errorf("ssh: unexpected packet in response to channel open: %T", msg)
+	t := time.NewTimer(m.timeout)
+	defer t.Stop()
+
+	select {
+	case <-t.C:
+		return nil, fmt.Errorf("ssh: timeout in response to channel open")
+	case raw := (<-ch.msg):
+		switch msg := raw.(type) {
+		case *channelOpenConfirmMsg:
+			return ch, nil
+		case *channelOpenFailureMsg:
+			return nil, &OpenChannelError{msg.Reason, msg.Message}
+		default:
+			return nil, fmt.Errorf("ssh: unexpected packet in response to channel open: %T", msg)
+		}
 	}
 }
 
