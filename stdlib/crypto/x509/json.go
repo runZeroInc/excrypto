@@ -7,6 +7,7 @@ package x509
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net"
 	"sort"
 	"strings"
@@ -111,9 +112,8 @@ func (s *SignatureAlgorithm) MarshalJSON() ([]byte, error) {
 	for _, val := range signatureAlgorithmDetails {
 		if val.algo == *s {
 			aux.OID = make([]int, len(val.oid))
-			for idx := range val.oid {
-				aux.OID[idx] = val.oid[idx]
-			}
+			copy(aux.OID, val.oid)
+			break
 		}
 	}
 	return json.Marshal(&aux)
@@ -143,6 +143,9 @@ func (s *SignatureAlgorithm) UnmarshalJSON(b []byte) error {
 			}
 		}
 	}
+	if *s == UnknownSignatureAlgorithm {
+		return fmt.Errorf("unknown signature algorithm")
+	}
 	return nil
 }
 
@@ -163,9 +166,7 @@ func (c *Certificate) jsonifySignatureAlgorithm() JSONSignatureAlgorithm {
 		aux.Name = c.SignatureAlgorithm.String()
 	}
 	aux.OID = make([]int, len(c.SignatureAlgorithmOID))
-	for idx := range c.SignatureAlgorithmOID {
-		aux.OID[idx] = c.SignatureAlgorithmOID[idx]
-	}
+	copy(aux.OID, pkix.AuxOID(c.SignatureAlgorithmOID))
 	return aux
 }
 

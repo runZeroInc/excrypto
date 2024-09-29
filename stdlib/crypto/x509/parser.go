@@ -450,24 +450,92 @@ func parseExtKeyUsageExtension(der cryptobyte.String) ([]ExtKeyUsage, []asn1.Obj
 	return extKeyUsages, unknownUsages, nil
 }
 
-func parseCertificatePoliciesExtension(der cryptobyte.String) ([]OID, error) {
-	var oids []OID
-	if !der.ReadASN1(&der, cryptobyte_asn1.SEQUENCE) {
-		return nil, errors.New("x509: invalid certificate policies")
+func parseCertificatePoliciesExtension(out *Certificate, der cryptobyte.String) error {
+	var err error
+	// RFC 5280 4.2.1.4: Certificate Policies
+	var policies []policyInformation
+	if _, err = asn1.Unmarshal(der, &policies); err != nil {
+		return err
 	}
-	for !der.Empty() {
-		var cp cryptobyte.String
-		var OIDBytes cryptobyte.String
-		if !der.ReadASN1(&cp, cryptobyte_asn1.SEQUENCE) || !cp.ReadASN1(&OIDBytes, cryptobyte_asn1.OBJECT_IDENTIFIER) {
-			return nil, errors.New("x509: invalid certificate policies")
+
+	out.PolicyIdentifiers = make([]asn1.ObjectIdentifier, len(policies))
+	out.QualifierId = make([][]asn1.ObjectIdentifier, len(policies))
+	out.ExplicitTexts = make([][]asn1.RawValue, len(policies))
+	out.NoticeRefOrgnization = make([][]asn1.RawValue, len(policies))
+	out.NoticeRefNumbers = make([][]NoticeNumber, len(policies))
+	out.ParsedExplicitTexts = make([][]string, len(policies))
+	out.ParsedNoticeRefOrganization = make([][]string, len(policies))
+	out.CPSuri = make([][]string, len(policies))
+	out.UserNotices = make([][]UserNotice, len(policies))
+
+	for i, policy := range policies {
+		out.PolicyIdentifiers[i] = policy.Policy
+		// parse optional Qualifier for zlint
+		for _, qualifier := range policy.Qualifiers {
+			out.QualifierId[i] = append(out.QualifierId[i], qualifier.PolicyQualifierId)
+			userNoticeOID := asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 2, 2}
+			cpsURIOID := asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 2, 1}
+
+			if qualifier.PolicyQualifierId.Equal(userNoticeOID) {
+				var un userNotice
+				_, err := asn1.Unmarshal(qualifier.Qualifier.FullBytes, &un)
+				if err != nil && !asn1.AllowPermissiveParsing {
+					return err
+				}
+				if err == nil {
+					groupUserNotice := UserNotice{}
+					if len(un.ExplicitText.Bytes) != 0 {
+						out.ExplicitTexts[i] = append(out.ExplicitTexts[i], un.ExplicitText)
+						parsed := string(un.ExplicitText.Bytes)
+						out.ParsedExplicitTexts[i] = append(out.ParsedExplicitTexts[i], parsed)
+
+						groupUserNotice.ExplicitText = &parsed
+					}
+
+					if un.NoticeRef.Organization.Bytes != nil || un.NoticeRef.NoticeNumbers != nil {
+						out.NoticeRefOrgnization[i] = append(out.NoticeRefOrgnization[i], un.NoticeRef.Organization)
+						out.NoticeRefNumbers[i] = append(out.NoticeRefNumbers[i], un.NoticeRef.NoticeNumbers)
+						out.ParsedNoticeRefOrganization[i] = append(out.ParsedNoticeRefOrganization[i], string(un.NoticeRef.Organization.Bytes))
+
+						groupUserNotice.NoticeReference = &NoticeReference{
+							Organization:  string(un.NoticeRef.Organization.Bytes),
+							NoticeNumbers: un.NoticeRef.NoticeNumbers,
+						}
+					}
+
+					out.UserNotices[i] = append(out.UserNotices[i], groupUserNotice)
+				}
+			}
+			if qualifier.PolicyQualifierId.Equal(cpsURIOID) {
+				var cpsURIRaw asn1.RawValue
+				_, err = asn1.Unmarshal(qualifier.Qualifier.FullBytes, &cpsURIRaw)
+				if err != nil && !asn1.AllowPermissiveParsing {
+					return err
+				}
+				if err == nil {
+					out.CPSuri[i] = append(out.CPSuri[i], string(cpsURIRaw.Bytes))
+				}
+			}
 		}
-		oid, ok := newOIDFromDER(OIDBytes)
-		if !ok {
-			return nil, errors.New("x509: invalid certificate policies")
-		}
-		oids = append(oids, oid)
 	}
-	return oids, nil
+	if out.SelfSigned {
+		out.ValidationLevel = UnknownValidationLevel
+	} else {
+		// See http://unmitigatedrisk.com/?p=203
+		validationLevel := getMaxCertValidationLevel(out.PolicyIdentifiers)
+		if validationLevel == UnknownValidationLevel {
+			if (len(out.Subject.Organization) > 0 && out.Subject.Organization[0] == out.Subject.CommonName) || (len(out.Subject.OrganizationalUnit) > 0 && strings.Contains(out.Subject.OrganizationalUnit[0], "Domain Control Validated")) {
+				if len(out.Subject.Locality) == 0 && len(out.Subject.Province) == 0 && len(out.Subject.PostalCode) == 0 {
+					validationLevel = DV
+				}
+			} else if len(out.Subject.Organization) > 0 && out.Subject.Organization[0] == "Persona Not Validated" && strings.Contains(out.Issuer.CommonName, "StartCom") {
+				validationLevel = DV
+			}
+		}
+		out.ValidationLevel = validationLevel
+	}
+
+	return nil
 }
 
 // isValidIPMask reports whether mask consists of zero or more 1 bits, followed by zero bits.
@@ -839,31 +907,9 @@ func processExtensions(out *Certificate) error {
 				}
 				out.SubjectKeyId = skid
 			case 32:
-				out.Policies, err = parseCertificatePoliciesExtension(e.Value)
+				err = parseCertificatePoliciesExtension(out, e.Value)
 				if err != nil {
 					return err
-				}
-				out.PolicyIdentifiers = make([]asn1.ObjectIdentifier, 0, len(out.Policies))
-				for _, oid := range out.Policies {
-					if oid, ok := oid.toASN1OID(); ok {
-						out.PolicyIdentifiers = append(out.PolicyIdentifiers, oid)
-					}
-				}
-				if out.SelfSigned {
-					out.ValidationLevel = UnknownValidationLevel
-				} else {
-					// See http://unmitigatedrisk.com/?p=203
-					validationLevel := getMaxCertValidationLevel(out.PolicyIdentifiers)
-					if validationLevel == UnknownValidationLevel {
-						if (len(out.Subject.Organization) > 0 && out.Subject.Organization[0] == out.Subject.CommonName) || (len(out.Subject.OrganizationalUnit) > 0 && strings.Contains(out.Subject.OrganizationalUnit[0], "Domain Control Validated")) {
-							if len(out.Subject.Locality) == 0 && len(out.Subject.Province) == 0 && len(out.Subject.PostalCode) == 0 {
-								validationLevel = DV
-							}
-						} else if len(out.Subject.Organization) > 0 && out.Subject.Organization[0] == "Persona Not Validated" && strings.Contains(out.Issuer.CommonName, "StartCom") {
-							validationLevel = DV
-						}
-					}
-					out.ValidationLevel = validationLevel
 				}
 			default:
 				// Unknown extensions are recorded if critical.
@@ -984,6 +1030,33 @@ func parseCertificate(in *certificate) (*Certificate, error) {
 	cert.SPKIFingerprint = SHA256Fingerprint(in.TBSCertificate.PublicKey.Raw)
 	cert.TBSCertificateFingerprint = SHA256Fingerprint(in.TBSCertificate.Raw)
 
+	// Handle CT extensions and calculate related fields
+	tbsCert := in.TBSCertificate
+	originalExtensions := in.TBSCertificate.Extensions
+	// Blow away the raw data since it also includes CT data
+	tbsCert.Raw = nil
+	// Remove the CT extensions
+	extensions := make([]pkix.Extension, 0, len(originalExtensions))
+	for _, extension := range originalExtensions {
+		if extension.Id.Equal(oidExtensionCTPrecertificatePoison) {
+			continue
+		}
+		if extension.Id.Equal(oidExtensionSignedCertificateTimestampList) {
+			continue
+		}
+		extensions = append(extensions, extension)
+	}
+	tbsCert.Extensions = extensions
+	tbsbytes, err := asn1.Marshal(tbsCert)
+	if err != nil {
+		return nil, err
+	}
+	if tbsbytes == nil {
+		return nil, asn1.SyntaxError{Msg: "Trailing data"}
+	}
+	cert.FingerprintNoCT = SHA256Fingerprint(tbsbytes[:])
+
+	// Process the certificate
 	input := cryptobyte.String(in.Raw)
 	// we read the SEQUENCE including length and tag bytes so that
 	// we can populate Certificate.Raw, before unwrapping the
@@ -1063,6 +1136,7 @@ func parseCertificate(in *certificate) (*Certificate, error) {
 		return nil, err
 	}
 	cert.SignatureAlgorithm = getSignatureAlgorithmFromAI(sigAI)
+	cert.SignatureAlgorithmOID = sigAI.Algorithm
 
 	var issuerSeq cryptobyte.String
 	if !tbs.ReadASN1Element(&issuerSeq, cryptobyte_asn1.SEQUENCE) {
@@ -1083,6 +1157,10 @@ func parseCertificate(in *certificate) (*Certificate, error) {
 	if err != nil {
 		return nil, err
 	}
+	cert.ValidityPeriod = int(cert.NotAfter.Sub(cert.NotBefore).Seconds())
+
+	cert.IssuerUniqueId = in.TBSCertificate.UniqueId
+	cert.SubjectUniqueId = in.TBSCertificate.SubjectUniqueId
 
 	var subjectSeq cryptobyte.String
 	if !tbs.ReadASN1Element(&subjectSeq, cryptobyte_asn1.SEQUENCE) {
