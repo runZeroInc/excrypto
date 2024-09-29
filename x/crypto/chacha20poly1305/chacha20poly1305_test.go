@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/crypto/cipher"
 )
 
 func TestVectors(t *testing.T) {

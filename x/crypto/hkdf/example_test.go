@@ -11,7 +11,7 @@ import (
 
 	"crypto/rand"
 
-	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
+	"github.com/runZeroInc/excrypto/crypto/sha256"
 
 	"github.com/runZeroInc/excrypto/x/crypto/hkdf"
 )

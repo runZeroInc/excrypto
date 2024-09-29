@@ -3,7 +3,7 @@ package tests
 import (
 	"testing"
 
-	"github.com/runZeroInc/excrypto/stdlib/crypto/tls"
+	"github.com/runZeroInc/excrypto/crypto/tls"
 )
 
 func TestBasicTLS(t *testing.T) {

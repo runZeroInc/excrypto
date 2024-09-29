@@ -7,9 +7,9 @@
 package chacha20
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"encoding/binary"
 	"errors"
+	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"math/bits"
 
 	"github.com/runZeroInc/excrypto/x/crypto/internal/alias"

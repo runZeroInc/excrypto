@@ -11,8 +11,8 @@
 package hkdf
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac"
 	"errors"
+	"github.com/runZeroInc/excrypto/crypto/hmac"
 	"hash"
 	"io"
 )
