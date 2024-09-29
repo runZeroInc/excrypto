@@ -20,28 +20,28 @@ excrypto is written in Go and is based on Google's Go [crypto](https://github.co
 
 ### crypto/tls
 
-The `stdlib/crypto/tls` package is a drop-in replacement for the Go standard `crypto/tls` library, with noteable differences:
+The `crypto/tls` package is a drop-in replacement for the Go standard `crypto/tls` library, with noteable differences:
  * This package supports TLS 1.0 through TLS 1.3 and is based on a modern (1.23+) version of Go.
  * This package exposes a handshake log (via ZCrypto) that can be used to inspect the TLS communication.
  * Obsolete signature methods are supported (MD5, SHA-1).
 
-The `stdlib/crypto/ssl3/tls` package is a drop-in replacement for the Go standard `crypto/tls` library, with noteable differences:
+The `crypto/ssl3/tls` package is a drop-in replacement for the Go standard `crypto/tls` library, with noteable differences:
  * This package supports SSL 3.0 through TLS 1.2 and is based on the main branch of ZCrypto.
  * This package exposes a handshake log (via ZCrypto) that can be used to inspect the TLS communication.
 
 ### crypto/tls/x509
 
-The `stdlib/crypto/tls/x509` package is a mostly-compatible replacement for the Go standard `crypto/tls/x509` library, with noteable differences:
+The `crypto/tls/x509` package is a mostly-compatible replacement for the Go standard `crypto/tls/x509` library, with noteable differences:
  * The `Verify()` function is derived from ZCrypto and returns 3 sets of certificates along with an error (current, expired, never).
  * The certificate parser is derived from ZCrypto and returns extensive data in new Certificate struct fields.
 
 ### crypto/tls/x509/ct
 
-The `stdlib/crypto/tls/x509/ct` package is a ZCrypto-based fork of the Google Certificate Transparency library.
+The `crypto/tls/x509/ct` package is a ZCrypto-based fork of the Google Certificate Transparency library.
 
 ### encoding/asn1
 
-The `stdlib/encoding/asn1` package is derived from ZCrypto and allows permissive processing of ASN.1 sequences.
+The `encoding/asn1` package is derived from ZCrypto and allows permissive processing of ASN.1 sequences.
 
 ### x/crypto
 
