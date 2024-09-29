@@ -1,7 +1,7 @@
 package google_test
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -84,7 +84,7 @@ func loadRevokedList(t *testing.T) (crlset *google.CRLSet) {
 	}
 	defer crlSetFile.Close()
 
-	crlSetBytes, err := ioutil.ReadAll(crlSetFile)
+	crlSetBytes, err := io.ReadAll(crlSetFile)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -134,7 +134,10 @@ func TestCheck(t *testing.T) {
 
 	entry := crlset.Check(revoked, PARENT_SPKI_HASH)
 	if entry == nil { // this should provide an entry, since cert is revoked and in the provided sst file
-		t.Fail()
+		t.Fatalf("empty entry")
+	}
+	if entry.SerialNumber == nil {
+		t.Fatalf("empty serial")
 	}
 	if entry.SerialNumber.Cmp(revoked.SerialNumber) != 0 {
 		t.Fail()
@@ -158,9 +161,9 @@ func TestFetch(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 
 		if r.RequestURI == "/APm1SaUzZaPllaSDuZS5yng" {
-			w.Write(bytes)
+			_, _ = w.Write(bytes)
 		} else {
-			w.Write([]byte(versionResponse))
+			_, _ = w.Write([]byte(versionResponse))
 		}
 	})
 	server := httptest.NewServer(h)

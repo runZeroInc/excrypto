@@ -206,7 +206,7 @@ func main() {
 			Type:  "CERTIFICATE",
 			Bytes: c.Raw,
 		}
-		pem.Encode(os.Stdout, &block)
+		_ = pem.Encode(os.Stdout, &block)
 	}
 	log.Infof("complete")
 }

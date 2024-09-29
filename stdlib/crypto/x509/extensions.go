@@ -100,9 +100,8 @@ func (cp *CertificatePoliciesData) MarshalJSON() ([]byte, error) {
 		if idx >= len(cp.CPSUri) {
 			continue
 		}
-		for _, uri := range cp.CPSUri[idx] {
-			cpsJSON.CPSUri = append(cpsJSON.CPSUri, uri)
-		}
+
+		cpsJSON.CPSUri = append(cpsJSON.CPSUri, cp.CPSUri[idx]...)
 
 		for idx2, explicit_text := range cp.ExplicitTexts[idx] {
 			uNoticeData := UserNoticeData{}
@@ -254,24 +253,13 @@ func (nc *NameConstraints) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-	for _, dns := range ncJson.PermittedDNSDomains {
-		nc.PermittedDNSDomains = append(nc.PermittedDNSDomains, dns)
-	}
-	for _, email := range ncJson.PermittedEmailAddresses {
-		nc.PermittedEmailAddresses = append(nc.PermittedEmailAddresses, email)
-	}
-	for _, uri := range ncJson.PermittedURIDomains {
-		nc.PermittedURIDomains = append(nc.PermittedURIDomains, uri)
-	}
-	for _, constraint := range ncJson.PermittedIPRanges {
-		nc.PermittedIPRanges = append(nc.PermittedIPRanges, constraint)
-	}
-	for _, directory := range ncJson.PermittedDirectoryNames {
-		nc.PermittedDirectoryNames = append(nc.PermittedDirectoryNames, directory)
-	}
-	for _, edi := range ncJson.PermittedEdiPartyNames {
-		nc.PermittedEdiPartyNames = append(nc.PermittedEdiPartyNames, edi)
-	}
+	nc.PermittedDNSDomains = append(nc.PermittedDNSDomains, ncJson.PermittedDNSDomains...)
+	nc.PermittedEmailAddresses = append(nc.PermittedEmailAddresses, ncJson.PermittedEmailAddresses...)
+	nc.PermittedURIDomains = append(nc.PermittedURIDomains, ncJson.PermittedURIDomains...)
+	nc.PermittedIPRanges = append(nc.PermittedIPRanges, ncJson.PermittedIPRanges...)
+	nc.PermittedDirectoryNames = append(nc.PermittedDirectoryNames, ncJson.PermittedDirectoryNames...)
+	nc.PermittedEdiPartyNames = append(nc.PermittedEdiPartyNames, ncJson.PermittedEdiPartyNames...)
+
 	for _, id := range ncJson.PermittedRegisteredIDs {
 		arcs := strings.Split(id, ".")
 		oid := make(asn1.ObjectIdentifier, len(arcs))
@@ -286,24 +274,13 @@ func (nc *NameConstraints) UnmarshalJSON(b []byte) error {
 		nc.PermittedRegisteredIDs = append(nc.PermittedRegisteredIDs, oid)
 	}
 
-	for _, dns := range ncJson.ExcludedDNSDomains {
-		nc.ExcludedDNSDomains = append(nc.ExcludedDNSDomains, dns)
-	}
-	for _, email := range ncJson.ExcludedEmailAddresses {
-		nc.ExcludedEmailAddresses = append(nc.ExcludedEmailAddresses, email)
-	}
-	for _, uri := range ncJson.ExcludedURIDomains {
-		nc.ExcludedURIDomains = append(nc.ExcludedURIDomains, uri)
-	}
-	for _, constraint := range ncJson.ExcludedIPRanges {
-		nc.ExcludedIPRanges = append(nc.ExcludedIPRanges, constraint)
-	}
-	for _, directory := range ncJson.ExcludedDirectoryNames {
-		nc.ExcludedDirectoryNames = append(nc.ExcludedDirectoryNames, directory)
-	}
-	for _, edi := range ncJson.ExcludedEdiPartyNames {
-		nc.ExcludedEdiPartyNames = append(nc.ExcludedEdiPartyNames, edi)
-	}
+	nc.ExcludedDNSDomains = append(nc.ExcludedDNSDomains, ncJson.ExcludedDNSDomains...)
+	nc.ExcludedEmailAddresses = append(nc.ExcludedEmailAddresses, ncJson.ExcludedEmailAddresses...)
+	nc.ExcludedURIDomains = append(nc.ExcludedURIDomains, ncJson.ExcludedURIDomains...)
+	nc.ExcludedIPRanges = append(nc.ExcludedIPRanges, ncJson.ExcludedIPRanges...)
+	nc.ExcludedDirectoryNames = append(nc.ExcludedDirectoryNames, ncJson.ExcludedDirectoryNames...)
+	nc.ExcludedEdiPartyNames = append(nc.ExcludedEdiPartyNames, ncJson.ExcludedEdiPartyNames...)
+
 	for _, id := range ncJson.ExcludedRegisteredIDs {
 		arcs := strings.Split(id, ".")
 		oid := make(asn1.ObjectIdentifier, len(arcs))
@@ -322,44 +299,24 @@ func (nc *NameConstraints) UnmarshalJSON(b []byte) error {
 
 func (nc NameConstraints) MarshalJSON() ([]byte, error) {
 	var out NameConstraintsJSON
-	for _, dns := range nc.PermittedDNSDomains {
-		out.PermittedDNSDomains = append(out.PermittedDNSDomains, dns)
-	}
-	for _, email := range nc.PermittedEmailAddresses {
-		out.PermittedEmailAddresses = append(out.PermittedEmailAddresses, email)
-	}
-	for _, uri := range nc.PermittedURIDomains {
-		out.PermittedURIDomains = append(out.PermittedURIDomains, uri)
-	}
+	out.PermittedDNSDomains = append(out.PermittedDNSDomains, nc.PermittedDNSDomains...)
+	out.PermittedEmailAddresses = append(out.PermittedEmailAddresses, nc.PermittedEmailAddresses...)
+	out.PermittedURIDomains = append(out.PermittedURIDomains, nc.PermittedURIDomains...)
+	out.PermittedDirectoryNames = append(out.PermittedDirectoryNames, nc.PermittedDirectoryNames...)
+	out.PermittedEdiPartyNames = append(out.PermittedEdiPartyNames, nc.PermittedEdiPartyNames...)
 	out.PermittedIPRanges = nc.PermittedIPRanges
-	for _, directory := range nc.PermittedDirectoryNames {
-		out.PermittedDirectoryNames = append(out.PermittedDirectoryNames, directory)
-	}
-	for _, edi := range nc.PermittedEdiPartyNames {
-		out.PermittedEdiPartyNames = append(out.PermittedEdiPartyNames, edi)
-	}
+
 	for _, id := range nc.PermittedRegisteredIDs {
 		out.PermittedRegisteredIDs = append(out.PermittedRegisteredIDs, id.String())
 	}
 
-	for _, dns := range nc.ExcludedDNSDomains {
-		out.ExcludedDNSDomains = append(out.ExcludedDNSDomains, dns)
-	}
-	for _, email := range nc.ExcludedEmailAddresses {
-		out.ExcludedEmailAddresses = append(out.ExcludedEmailAddresses, email)
-	}
-	for _, uri := range nc.ExcludedURIDomains {
-		out.ExcludedURIDomains = append(out.ExcludedURIDomains, uri)
-	}
-	for _, ip := range nc.ExcludedIPRanges {
-		out.ExcludedIPRanges = append(out.ExcludedIPRanges, ip)
-	}
-	for _, directory := range nc.ExcludedDirectoryNames {
-		out.ExcludedDirectoryNames = append(out.ExcludedDirectoryNames, directory)
-	}
-	for _, edi := range nc.ExcludedEdiPartyNames {
-		out.ExcludedEdiPartyNames = append(out.ExcludedEdiPartyNames, edi)
-	}
+	out.ExcludedDNSDomains = append(out.ExcludedDNSDomains, nc.ExcludedDNSDomains...)
+	out.ExcludedEmailAddresses = append(out.ExcludedEmailAddresses, nc.ExcludedEmailAddresses...)
+	out.ExcludedURIDomains = append(out.ExcludedURIDomains, nc.ExcludedURIDomains...)
+	out.ExcludedIPRanges = append(out.ExcludedIPRanges, nc.ExcludedIPRanges...)
+	out.ExcludedDirectoryNames = append(out.ExcludedDirectoryNames, nc.ExcludedDirectoryNames...)
+	out.ExcludedEdiPartyNames = append(out.ExcludedEdiPartyNames, nc.ExcludedEdiPartyNames...)
+
 	for _, id := range nc.ExcludedRegisteredIDs {
 		out.ExcludedRegisteredIDs = append(out.ExcludedRegisteredIDs, id.String())
 	}

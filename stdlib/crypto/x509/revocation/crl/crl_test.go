@@ -195,8 +195,7 @@ func TestCRLParseWithCache(t *testing.T) {
 }
 
 func TestReasonCode(t *testing.T) {
-	var status crl.RevocationReasonCode
-	status = 0
+	var status crl.RevocationReasonCode = 0
 	if status.String() != "unspecified" {
 		t.Fail()
 	}

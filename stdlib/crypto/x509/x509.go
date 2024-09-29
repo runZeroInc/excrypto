@@ -1505,8 +1505,9 @@ func isIA5String(s string) error {
 }
 */
 
+// zcrypto
 // isIA5String is disabled to allow lax parsing
-func isIA5String(s string) error {
+func isIA5String(_ string) error {
 	return nil
 }
 

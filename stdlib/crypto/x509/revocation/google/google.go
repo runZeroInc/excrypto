@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"errors"
+	"io"
 	"io/ioutil"
 	"math/big"
 	"net/http"
@@ -155,7 +156,7 @@ func Fetch(url string) ([]byte, string, error) {
 	}
 
 	var reply update
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
 		err = errors.New("Failed to read version reply: " + err.Error())

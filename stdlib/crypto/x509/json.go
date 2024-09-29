@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net"
 	"sort"
 	"strings"
 	"time"
@@ -551,73 +550,4 @@ func isValidName(name string) (ret bool) {
 		ret = util.IsURL(name)
 	}
 	return
-}
-
-func orMask(ip net.IP, mask net.IPMask) net.IP {
-	if len(ip) == 0 || len(mask) == 0 {
-		return nil
-	}
-	if len(ip) != net.IPv4len && len(ip) != net.IPv6len {
-		return nil
-	}
-	if len(ip) != len(mask) {
-		return nil
-	}
-	out := make([]byte, len(ip))
-	for idx := range ip {
-		out[idx] = ip[idx] | mask[idx]
-	}
-	return out
-}
-
-func invertMask(mask net.IPMask) net.IPMask {
-	if mask == nil {
-		return nil
-	}
-	out := make([]byte, len(mask))
-	for idx := range mask {
-		out[idx] = ^mask[idx]
-	}
-	return out
-}
-
-type auxIPNet struct {
-	CIDR  string `json:"cidr,omitempty"`
-	Begin string `json:"begin,omitempty"`
-	End   string `json:"end,omitempty"`
-	Mask  string `json:"mask,omitempty"`
-}
-
-func (g *auxIPNet) MarshalJSON() ([]byte, error) {
-	return json.Marshal(&g.CIDR)
-}
-
-func (g *auxIPNet) UnmarshalJSON(b []byte) error {
-	aux := auxIPNet{}
-	if err := json.Unmarshal(b, &aux); err != nil {
-		return err
-	}
-	ip, ipNet, err := net.ParseCIDR(aux.CIDR)
-	if err != nil {
-		return err
-	}
-
-	// The last IP (inclusive) is `ip & (^mask)`.
-	inverseMask := invertMask(ipNet.Mask)
-	end := orMask(ip, inverseMask)
-	if end != nil {
-		g.End = end.String()
-	}
-
-	g.Begin = ip.String()
-	g.End = ip.String()
-
-	// Output the mask as an IP, but enforce it can be formatted correctly.
-	// net.IP.String() only works on byte arrays of the correct length.
-	maskLen := len(ipNet.Mask)
-	if maskLen == net.IPv4len || maskLen == net.IPv6len {
-		maskAsIP := net.IP(ipNet.Mask)
-		g.Mask = maskAsIP.String()
-	}
-	return nil
 }
