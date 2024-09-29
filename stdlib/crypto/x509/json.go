@@ -285,6 +285,7 @@ func GetRSAPublicKeyJSON(key *rsa.PublicKey) *jsonKeys.RSAPublicKey {
 // GetECDSAPublicKeyJSON - get the GetECDSAPublicKeyJSON for the given standard ECDSA PublicKey.
 func GetECDSAPublicKeyJSON(key *ecdsa.PublicKey) *ECDSAPublicKeyJSON {
 	params := key.Params()
+	pub, _ := key.ECDH()
 	return &ECDSAPublicKeyJSON{
 		P:      params.P.Bytes(),
 		N:      params.N.Bytes(),
@@ -295,24 +296,7 @@ func GetECDSAPublicKeyJSON(key *ecdsa.PublicKey) *ECDSAPublicKeyJSON {
 		Y:      key.Y.Bytes(),
 		Curve:  key.Curve.Params().Name,
 		Length: key.Curve.Params().BitSize,
-	}
-}
-
-// GetAugmentedECDSAPublicKeyJSON - get the GetECDSAPublicKeyJSON for the given "augmented"
-// ECDSA PublicKey.
-func GetAugmentedECDSAPublicKeyJSON(key *ecdsa.PublicKey) *ECDSAPublicKeyJSON {
-	params := key.Params()
-	return &ECDSAPublicKeyJSON{
-		P:      params.P.Bytes(),
-		N:      params.N.Bytes(),
-		B:      params.B.Bytes(),
-		Gx:     params.Gx.Bytes(),
-		Gy:     params.Gy.Bytes(),
-		X:      key.X.Bytes(),
-		Y:      key.Y.Bytes(),
-		Curve:  key.Curve.Params().Name,
-		Length: key.Curve.Params().BitSize,
-		// Pub:    key
+		Pub:    pub.Bytes(),
 	}
 }
 
@@ -348,6 +332,9 @@ func (c *Certificate) jsonifySubjectKey() JSONSubjectKeyInfo {
 			Y:      key.Y.Bytes(),
 			Curve:  key.Curve.Params().Name,
 			Length: key.Curve.Params().BitSize,
+		}
+		if pub, err := key.ECDH(); err == nil {
+			j.ECDSAPublicKey.Pub = pub.Bytes()
 		}
 	}
 	return j

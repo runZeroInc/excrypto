@@ -326,6 +326,9 @@ var publicKeyAlgoName = [...]string{
 }
 
 func (algo PublicKeyAlgorithm) String() string {
+	if algo == UnknownPublicKeyAlgorithm {
+		return "unknown_algorithm"
+	}
 	if 0 < algo && int(algo) < len(publicKeyAlgoName) {
 		return publicKeyAlgoName[algo]
 	}
