@@ -1089,7 +1089,7 @@ func (c *Certificate) CheckSignatureFrom(parent *Certificate) error {
 	}
 
 	if parent.PublicKeyAlgorithm == UnknownPublicKeyAlgorithm {
-		return fmt.Errorf("pubkey alg is %d: %w", parent.PublicKeyAlgorithm, ErrUnsupportedAlgorithm)
+		return ErrUnsupportedAlgorithm
 	}
 
 	return checkSignature(c.SignatureAlgorithm, c.RawTBSCertificate, c.Signature, parent.PublicKey, false)
@@ -2008,14 +2008,17 @@ func CreateCertificate(rand io.Reader, template, parent *Certificate, pub, priv 
 		return nil, errors.New("x509: no SerialNumber given")
 	}
 
-	// RFC 5280 Section 4.1.2.2: serial number must positive
-	//
-	// We _should_ also restrict serials to <= 20 octets, but it turns out a lot of people
-	// get this wrong, in part because the encoding can itself alter the length of the
-	// serial. For now we accept these non-conformant serials.
-	if template.SerialNumber.Sign() == -1 {
-		return nil, errors.New("x509: serial number must be positive")
-	}
+	// zcrypto
+	/*
+		// RFC 5280 Section 4.1.2.2: serial number must positive
+		//
+		// We _should_ also restrict serials to <= 20 octets, but it turns out a lot of people
+		// get this wrong, in part because the encoding can itself alter the length of the
+		// serial. For now we accept these non-conformant serials.
+		if template.SerialNumber.Sign() == -1 {
+			return nil, errors.New("x509: serial number must be positive")
+		}
+	*/
 
 	if template.BasicConstraintsValid && !template.IsCA && template.MaxPathLen != -1 && (template.MaxPathLen != 0 || template.MaxPathLenZero) {
 		return nil, errors.New("x509: only CAs are allowed to specify MaxPathLen")
@@ -2867,7 +2870,7 @@ func (rl *RevocationList) CheckSignatureFrom(parent *Certificate) error {
 	}
 
 	if parent.PublicKeyAlgorithm == UnknownPublicKeyAlgorithm {
-		return fmt.Errorf("pubkey alg is %d: %w", parent.PublicKeyAlgorithm, ErrUnsupportedAlgorithm)
+		return ErrUnsupportedAlgorithm
 	}
 
 	return parent.CheckSignature(rl.SignatureAlgorithm, rl.RawTBSRevocationList, rl.Signature)

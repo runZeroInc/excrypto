@@ -1875,7 +1875,7 @@ qViorq4=
 -----END CERTIFICATE-----
 `
 
-func TestMD5(t *testing.T) {
+func TestMD5Success(t *testing.T) {
 	pemBlock, _ := pem.Decode([]byte(md5cert))
 	cert, err := ParseCertificate(pemBlock.Bytes)
 	if err != nil {
@@ -1884,15 +1884,12 @@ func TestMD5(t *testing.T) {
 	if sa := cert.SignatureAlgorithm; sa != MD5WithRSA {
 		t.Errorf("signature algorithm is %v, want %v", sa, MD5WithRSA)
 	}
-	if err = cert.CheckSignatureFrom(cert); err == nil {
-		t.Fatalf("certificate verification succeeded incorrectly")
-	}
-	if _, ok := err.(InsecureAlgorithmError); !ok {
-		t.Fatalf("certificate verification returned %v (%T), wanted InsecureAlgorithmError", err, err)
+	if err = cert.CheckSignatureFrom(cert); err != nil {
+		t.Fatalf("certificate verification failed: %v", err)
 	}
 }
 
-func TestSHA1(t *testing.T) {
+func TestSHA1Succes(t *testing.T) {
 	pemBlock, _ := pem.Decode([]byte(ecdsaSHA1CertPem))
 	cert, err := ParseCertificate(pemBlock.Bytes)
 	if err != nil {
@@ -1901,11 +1898,8 @@ func TestSHA1(t *testing.T) {
 	if sa := cert.SignatureAlgorithm; sa != ECDSAWithSHA1 {
 		t.Errorf("signature algorithm is %v, want %v", sa, ECDSAWithSHA1)
 	}
-	if err = cert.CheckSignatureFrom(cert); err == nil {
-		t.Fatalf("certificate verification succeeded incorrectly")
-	}
-	if _, ok := err.(InsecureAlgorithmError); !ok {
-		t.Fatalf("certificate verification returned %v (%T), wanted InsecureAlgorithmError", err, err)
+	if err = cert.CheckSignatureFrom(cert); err != nil {
+		t.Fatalf("certificate verification failed: %v", err)
 	}
 
 	godebug.SetEnv("GODEBUG", "x509sha1=1")
@@ -1933,12 +1927,10 @@ hB2rXZIxE0/9gzvGnfERYraL7KtnvshksBFQRlgXa5kc0x38BvEO5ZaoDPl4ILdE
 GFGNEH5PlGffo05wc46QkYU=
 -----END CERTIFICATE-----`
 
-func TestRSAMissingNULLParameters(t *testing.T) {
+func TestRSAMissingNULLParametersSuccess(t *testing.T) {
 	block, _ := pem.Decode([]byte(certMissingRSANULL))
-	if _, err := ParseCertificate(block.Bytes); err == nil {
-		t.Error("unexpected success when parsing certificate with missing RSA NULL parameter")
-	} else if !strings.Contains(err.Error(), "missing NULL") {
-		t.Errorf("unrecognised error when parsing certificate with missing RSA NULL parameter: %s", err)
+	if _, err := ParseCertificate(block.Bytes); err != nil {
+		t.Errorf("failed parsing certificate with missing RSA NULL parameter: %v", err)
 	}
 }
 
@@ -3002,7 +2994,7 @@ func TestUnknownExtKey(t *testing.T) {
 	}
 }
 
-func TestIA5SANEnforcement(t *testing.T) {
+func TestIA5SANNonEnforcement(t *testing.T) {
 	k, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		t.Fatalf("ecdsa.GenerateKey failed: %s", err)
@@ -3021,7 +3013,6 @@ func TestIA5SANEnforcement(t *testing.T) {
 				SerialNumber: big.NewInt(0),
 				DNSNames:     []string{"∞"},
 			},
-			expectedError: "x509: \"∞\" cannot be encoded as an IA5String",
 		},
 		{
 			name: "marshal: unicode rfc822Name",
@@ -3029,7 +3020,6 @@ func TestIA5SANEnforcement(t *testing.T) {
 				SerialNumber:   big.NewInt(0),
 				EmailAddresses: []string{"∞"},
 			},
-			expectedError: "x509: \"∞\" cannot be encoded as an IA5String",
 		},
 		{
 			name: "marshal: unicode uniformResourceIdentifier",
@@ -3037,17 +3027,14 @@ func TestIA5SANEnforcement(t *testing.T) {
 				SerialNumber: big.NewInt(0),
 				URIs:         []string{testURL},
 			},
-			expectedError: "x509: \"https://example.com/?∞\" cannot be encoded as an IA5String",
 		},
 	}
 
 	for _, tc := range marshalTests {
 		t.Run(tc.name, func(t *testing.T) {
 			_, err := CreateCertificate(rand.Reader, tc.template, tc.template, k.Public(), k)
-			if err == nil {
-				t.Errorf("expected CreateCertificate to fail with template: %v", tc.template)
-			} else if err.Error() != tc.expectedError {
-				t.Errorf("unexpected error: got %q, want %q", err.Error(), tc.expectedError)
+			if err != nil {
+				t.Errorf("CreateCertificate failed with template: %v", tc.template)
 			}
 		})
 	}
@@ -3080,10 +3067,8 @@ func TestIA5SANEnforcement(t *testing.T) {
 			t.Fatalf("failed to decode test cert: %s", err)
 		}
 		_, err = ParseCertificate(der)
-		if err == nil {
-			t.Error("expected CreateCertificate to fail")
-		} else if err.Error() != tc.expectedError {
-			t.Errorf("unexpected error: got %q, want %q", err.Error(), tc.expectedError)
+		if err != nil {
+			t.Errorf("CreateCertificate failed with template: %v", tc.name)
 		}
 	}
 }
@@ -3612,8 +3597,7 @@ func TestParseUniqueID(t *testing.T) {
 	}
 }
 
-func TestDisableSHA1ForCertOnly(t *testing.T) {
-	t.Setenv("GODEBUG", "")
+func TestSHA1ForCertOnlySuccess(t *testing.T) {
 
 	tmpl := &Certificate{
 		SerialNumber:          big.NewInt(1),
@@ -3634,10 +3618,8 @@ func TestDisableSHA1ForCertOnly(t *testing.T) {
 	}
 
 	err = cert.CheckSignatureFrom(cert)
-	if err == nil {
-		t.Error("expected CheckSignatureFrom to fail")
-	} else if _, ok := err.(InsecureAlgorithmError); !ok {
-		t.Errorf("expected InsecureAlgorithmError error, got %T", err)
+	if err != nil {
+		t.Errorf("CheckSignatureFrom failed: %v", err)
 	}
 
 	crlDER, err := CreateRevocationList(rand.Reader, &RevocationList{
@@ -3829,14 +3811,16 @@ A0cAMEQCIBzfBU5eMPT6m5lsR6cXaJILpAaiD9YxOl4v6dT3rzEjAiBHmjnHmAss
 RqUAyJKFzqZxOlK2q4j2IYnuj5+LrLGbQA==
 -----END CERTIFICATE-----`
 
-func TestParseNegativeSerial(t *testing.T) {
+func TestParseNegativeSerialSuccess(t *testing.T) {
 	pemBlock, _ := pem.Decode([]byte(negativeSerialCert))
 	_, err := ParseCertificate(pemBlock.Bytes)
-	if err == nil {
-		t.Fatal("parsed certificate with negative serial")
+	if err != nil {
+		t.Fatalf("failed to parse certificate with negative serial: %v", err)
 	}
 }
 
+// zcrypto
+/*
 func TestCreateNegativeSerial(t *testing.T) {
 	k, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
@@ -3856,6 +3840,7 @@ func TestCreateNegativeSerial(t *testing.T) {
 		t.Errorf("CreateCertificate returned unexpected error: want %q, got %q", expectedErr, err)
 	}
 }
+*/
 
 const dupExtCert = `-----BEGIN CERTIFICATE-----
 MIIBrjCCARegAwIBAgIBATANBgkqhkiG9w0BAQsFADAPMQ0wCwYDVQQDEwR0ZXN0

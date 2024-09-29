@@ -26,7 +26,6 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
-	"github.com/sirupsen/logrus"
 
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
 	cryptobyte_asn1 "github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
@@ -963,10 +962,9 @@ func processExtensions(out *Certificate) error {
 				return fmt.Errorf("%d/%s qcstatements: %w", extIdx, oidStr, err)
 			}
 			out.QCStatements = &qcStatements
-		} else {
-			if e.Critical && unhandled {
-				out.UnhandledCriticalExtensions = append(out.UnhandledCriticalExtensions, e.Id)
-			}
+		}
+		if e.Critical && unhandled {
+			out.UnhandledCriticalExtensions = append(out.UnhandledCriticalExtensions, e.Id)
 		}
 	}
 	return nil
@@ -1032,13 +1030,17 @@ func parseCertificate(in *certificate) (*Certificate, error) {
 	if !tbs.ReadASN1Integer(serial) {
 		return nil, errors.New("x509: malformed serial number")
 	}
-	if serial.Sign() == -1 {
-		if x509negativeserial.Value() != "1" {
-			return nil, errors.New("x509: negative serial number")
-		} else {
-			x509negativeserial.IncNonDefault()
+
+	// zcrypto
+	/*
+		if serial.Sign() == -1 {
+			if x509negativeserial.Value() != "1" {
+				return nil, errors.New("x509: negative serial number")
+			} else {
+				x509negativeserial.IncNonDefault()
+			}
 		}
-	}
+	*/
 
 	cert.SerialNumber = serial
 
@@ -1126,13 +1128,9 @@ func parseCertificate(in *certificate) (*Certificate, error) {
 
 	// zcrypto: Check if self-signed
 	if bytes.Equal(cert.RawSubject, cert.RawIssuer) {
-		logrus.Errorf("SELF-SIGNED? POSSIBLY!? %s == %s", string(cert.RawSubject), string(cert.RawIssuer))
 		// Possibly self-signed, check the signature against itself.
 		if err := cert.CheckSignature(cert.SignatureAlgorithm, cert.RawTBSCertificate, cert.Signature); err == nil {
 			cert.SelfSigned = true
-			logrus.Errorf("SELF-SIGNED? YES")
-		} else {
-			logrus.Errorf("SELF-SIGNED: NO: %v", err)
 		}
 	}
 
