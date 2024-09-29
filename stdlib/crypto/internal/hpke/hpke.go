@@ -5,14 +5,16 @@
 package hpke
 
 import (
+	"encoding/binary"
+	"errors"
+	"math/bits"
+
+	"crypto/rand"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
-	"crypto/rand"
-	"encoding/binary"
-	"errors"
-	"math/bits"
 
 	"github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305"
 	"github.com/runZeroInc/excrypto/x/crypto/hkdf"

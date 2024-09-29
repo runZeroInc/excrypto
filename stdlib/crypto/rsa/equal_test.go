@@ -5,11 +5,13 @@
 package rsa_test
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"testing"
+
 	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
-	"testing"
 )
 
 func TestEqual(t *testing.T) {

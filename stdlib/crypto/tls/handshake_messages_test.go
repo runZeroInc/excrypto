@@ -6,7 +6,6 @@ package tls
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"encoding/hex"
 	"math"
 	"math/rand"
@@ -15,6 +14,8 @@ import (
 	"testing"
 	"testing/quick"
 	"time"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 )
 
 var tests = []handshakeMessage{
@@ -88,7 +89,7 @@ func TestMarshalUnmarshal(t *testing.T) {
 					ch.extensions = nil
 				}
 
-				// clientHelloMsg and serverHelloMsg, when unmarshalled, store
+				// clientHelloMsg, serverHelloMsg, and clientKeyExchangeMsg, when unmarshalled, store
 				// their original representation, for later use in the handshake
 				// transcript. In order to prevent DeepEqual from failing since
 				// we didn't create the original message via unmarshalling, nil
@@ -98,6 +99,8 @@ func TestMarshalUnmarshal(t *testing.T) {
 					t.original = nil
 				case *serverHelloMsg:
 					t.original = nil
+				case *clientKeyExchangeMsg:
+					t.raw = nil
 				}
 
 				if !reflect.DeepEqual(m1, m) {

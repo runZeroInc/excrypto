@@ -25,6 +25,12 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"io"
+	"math/big"
+	"net"
+	"strconv"
+	"time"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdh"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
@@ -32,16 +38,11 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/ct"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
-	"io"
-	"math/big"
-	"net"
-	"net/url"
-	"strconv"
-	"time"
-	"unicode"
+	"github.com/weppos/publicsuffix-go/publicsuffix"
 
 	// Explicitly import these for their crypto.RegisterHash init side-effects.
 	// Keep these as blank imports, even if they're imported above.
@@ -50,6 +51,7 @@ import (
 	_ "github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
 
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
+
 	cryptobyte_asn1 "github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
 )
 
@@ -114,6 +116,9 @@ func marshalPublicKey(pub any) (publicKeyBytes []byte, publicKeyAlgorithm pkix.A
 	case ed25519.PublicKey:
 		publicKeyBytes = pub
 		publicKeyAlgorithm.Algorithm = oidPublicKeyEd25519
+	case X25519PublicKey:
+		publicKeyAlgorithm.Algorithm = oidKeyX25519
+		return []byte(pub), publicKeyAlgorithm, nil
 	case *ecdh.PublicKey:
 		publicKeyBytes = pub.Bytes()
 		if pub.Curve() == ecdh.X25519() {
@@ -171,9 +176,11 @@ func MarshalPKIXPublicKey(pub any) ([]byte, error) {
 // These structures reflect the ASN.1 structure of X.509 certificates.:
 
 type certificate struct {
+	Raw                asn1.RawContent
 	TBSCertificate     tbsCertificate
 	SignatureAlgorithm pkix.AlgorithmIdentifier
 	SignatureValue     asn1.BitString
+	Extensions         []pkix.Extension `asn1:"omitempty,optional,explicit,tag:3"`
 }
 
 type tbsCertificate struct {
@@ -194,6 +201,12 @@ type dsaAlgorithmParameters struct {
 	P, Q, G *big.Int
 }
 
+type dsaSignature struct {
+	R, S *big.Int
+}
+
+type ecdsaSignature dsaSignature
+
 type validity struct {
 	NotBefore, NotAfter time.Time
 }
@@ -208,6 +221,8 @@ type publicKeyInfo struct {
 type authKeyId struct {
 	Id []byte `asn1:"optional,tag:0"`
 }
+
+type SignatureAlgorithmOID asn1.ObjectIdentifier
 
 type SignatureAlgorithm int
 
@@ -241,6 +256,25 @@ func (algo SignatureAlgorithm) isRSAPSS() bool {
 	return false
 }
 
+var algoName = [...]string{
+	MD2WithRSA:       "MD2-RSA",
+	MD5WithRSA:       "MD5-RSA",
+	SHA1WithRSA:      "SHA1-RSA",
+	SHA256WithRSA:    "SHA256-RSA",
+	SHA384WithRSA:    "SHA384-RSA",
+	SHA512WithRSA:    "SHA512-RSA",
+	SHA256WithRSAPSS: "SHA256-RSAPSS",
+	SHA384WithRSAPSS: "SHA384-RSAPSS",
+	SHA512WithRSAPSS: "SHA512-RSAPSS",
+	DSAWithSHA1:      "DSA-SHA1",
+	DSAWithSHA256:    "DSA-SHA256",
+	ECDSAWithSHA1:    "ECDSA-SHA1",
+	ECDSAWithSHA256:  "ECDSA-SHA256",
+	ECDSAWithSHA384:  "ECDSA-SHA384",
+	ECDSAWithSHA512:  "ECDSA-SHA512",
+	PureEd25519:      "Ed25519",
+}
+
 func (algo SignatureAlgorithm) hashFunc() crypto.Hash {
 	for _, details := range signatureAlgorithmDetails {
 		if details.algo == algo {
@@ -259,6 +293,15 @@ func (algo SignatureAlgorithm) String() string {
 	return strconv.Itoa(int(algo))
 }
 
+var keyAlgorithmNames = []string{
+	"unknown_algorithm",
+	"RSA",
+	"DSA",
+	"ECDSA",
+	"Ed25519",
+	"X25519",
+}
+
 type PublicKeyAlgorithm int
 
 const (
@@ -267,16 +310,25 @@ const (
 	DSA // Only supported for parsing.
 	ECDSA
 	Ed25519
+	X25519
+	total_key_algorithms
 )
+
+// curve25519 package does not expose key types
+type X25519PublicKey []byte
 
 var publicKeyAlgoName = [...]string{
 	RSA:     "RSA",
 	DSA:     "DSA",
 	ECDSA:   "ECDSA",
 	Ed25519: "Ed25519",
+	X25519:  "X25519",
 }
 
 func (algo PublicKeyAlgorithm) String() string {
+	if algo == UnknownPublicKeyAlgorithm {
+		return "unknown_algorithm"
+	}
 	if 0 < algo && int(algo) < len(publicKeyAlgoName) {
 		return publicKeyAlgoName[algo]
 	}
@@ -332,6 +384,7 @@ func (algo PublicKeyAlgorithm) String() string {
 //
 //	id-Ed25519   OBJECT IDENTIFIER ::= { 1 3 101 112 }
 var (
+	oidSignatureMD2WithRSA      = asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 1, 2}
 	oidSignatureMD5WithRSA      = asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 1, 4}
 	oidSignatureSHA1WithRSA     = asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 1, 5}
 	oidSignatureSHA256WithRSA   = asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 1, 11}
@@ -358,6 +411,13 @@ var (
 	oidISOSignatureSHA1WithRSA = asn1.ObjectIdentifier{1, 3, 14, 3, 2, 29}
 )
 
+// cryptoNoDigest means that the signature algorithm does not require a hash
+// digest. The distinction between cryptoNoDigest and crypto.Hash(0)
+// is purely superficial. crypto.Hash(0) is used in place of a null value
+// when hashing is not supported for the given algorithm (as in the case of
+// MD2WithRSA below).
+var cryptoNoDigest = crypto.Hash(0)
+
 var signatureAlgorithmDetails = []struct {
 	algo       SignatureAlgorithm
 	name       string
@@ -367,6 +427,7 @@ var signatureAlgorithmDetails = []struct {
 	hash       crypto.Hash
 	isRSAPSS   bool
 }{
+	{MD2WithRSA, "MD2-RSA", oidSignatureMD2WithRSA, asn1.NullRawValue, RSA, crypto.Hash(0), false /* no value for MD2 */},
 	{MD5WithRSA, "MD5-RSA", oidSignatureMD5WithRSA, asn1.NullRawValue, RSA, crypto.MD5, false},
 	{SHA1WithRSA, "SHA1-RSA", oidSignatureSHA1WithRSA, asn1.NullRawValue, RSA, crypto.SHA1, false},
 	{SHA1WithRSA, "SHA1-RSA", oidISOSignatureSHA1WithRSA, asn1.NullRawValue, RSA, crypto.SHA1, false},
@@ -506,6 +567,8 @@ func getPublicKeyAlgorithmFromOID(oid asn1.ObjectIdentifier) PublicKeyAlgorithm 
 		return ECDSA
 	case oid.Equal(oidPublicKeyEd25519):
 		return Ed25519
+	case oid.Equal(oidKeyX25519):
+		return X25519
 	}
 	return UnknownPublicKeyAlgorithm
 }
@@ -531,6 +594,14 @@ var (
 	oidNamedCurveP256 = asn1.ObjectIdentifier{1, 2, 840, 10045, 3, 1, 7}
 	oidNamedCurveP384 = asn1.ObjectIdentifier{1, 3, 132, 0, 34}
 	oidNamedCurveP521 = asn1.ObjectIdentifier{1, 3, 132, 0, 35}
+)
+
+// https://datatracker.ietf.org/doc/draft-ietf-curdle-pkix/?include_text=1
+// id-X25519    OBJECT IDENTIFIER ::= { 1 3 101 110 }
+// id-Ed25519   OBJECT IDENTIFIER ::= { 1 3 101 112 }
+var (
+	oidKeyX25519  = asn1.ObjectIdentifier{1, 3, 101, 110}
+	oidKeyEd25519 = asn1.ObjectIdentifier{1, 3, 101, 112}
 )
 
 func namedCurveFromOID(oid asn1.ObjectIdentifier) elliptic.Curve {
@@ -605,6 +676,7 @@ const (
 //	id-kp-emailProtection        OBJECT IDENTIFIER ::= { id-kp 4 }
 //	id-kp-timeStamping           OBJECT IDENTIFIER ::= { id-kp 8 }
 //	id-kp-OCSPSigning            OBJECT IDENTIFIER ::= { id-kp 9 }
+/*
 var (
 	oidExtKeyUsageAny                            = asn1.ObjectIdentifier{2, 5, 29, 37, 0}
 	oidExtKeyUsageServerAuth                     = asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 1}
@@ -621,11 +693,13 @@ var (
 	oidExtKeyUsageMicrosoftCommercialCodeSigning = asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 311, 2, 1, 22}
 	oidExtKeyUsageMicrosoftKernelCodeSigning     = asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 311, 61, 1, 1}
 )
+*/
 
 // ExtKeyUsage represents an extended set of actions that are valid for a given key.
 // Each of the ExtKeyUsage* constants define a unique action.
 type ExtKeyUsage int
 
+/*
 const (
 	ExtKeyUsageAny ExtKeyUsage = iota
 	ExtKeyUsageServerAuth
@@ -642,6 +716,7 @@ const (
 	ExtKeyUsageMicrosoftCommercialCodeSigning
 	ExtKeyUsageMicrosoftKernelCodeSigning
 )
+*/
 
 // extKeyUsageOIDs contains the mapping between an ExtKeyUsage and its OID.
 var extKeyUsageOIDs = []struct {
@@ -662,6 +737,28 @@ var extKeyUsageOIDs = []struct {
 	{ExtKeyUsageNetscapeServerGatedCrypto, oidExtKeyUsageNetscapeServerGatedCrypto},
 	{ExtKeyUsageMicrosoftCommercialCodeSigning, oidExtKeyUsageMicrosoftCommercialCodeSigning},
 	{ExtKeyUsageMicrosoftKernelCodeSigning, oidExtKeyUsageMicrosoftKernelCodeSigning},
+}
+
+// TODO: slight differences in case in some names. Should be easy to align with stdlib.
+// leaving for now to not break compatibility
+
+// extKeyUsageOIDs contains the mapping between an ExtKeyUsage and its OID.
+var nativeExtKeyUsageOIDs = []struct {
+	extKeyUsage ExtKeyUsage
+	oid         asn1.ObjectIdentifier
+}{
+	{ExtKeyUsageAny, oidExtKeyUsageAny},
+	{ExtKeyUsageServerAuth, oidExtKeyUsageServerAuth},
+	{ExtKeyUsageClientAuth, oidExtKeyUsageClientAuth},
+	{ExtKeyUsageCodeSigning, oidExtKeyUsageCodeSigning},
+	{ExtKeyUsageEmailProtection, oidExtKeyUsageEmailProtection},
+	{ExtKeyUsageIpsecEndSystem, oidExtKeyUsageIpsecEndSystem},
+	{ExtKeyUsageIpsecTunnel, oidExtKeyUsageIpsecTunnel},
+	{ExtKeyUsageIpsecUser, oidExtKeyUsageIpsecUser},
+	{ExtKeyUsageTimeStamping, oidExtKeyUsageTimeStamping},
+	{ExtKeyUsageOcspSigning, oidExtKeyUsageOcspSigning},
+	{ExtKeyUsageMicrosoftServerGatedCrypto, oidExtKeyUsageMicrosoftServerGatedCrypto},
+	{ExtKeyUsageNetscapeServerGatedCrypto, oidExtKeyUsageNetscapeServerGatedCrypto},
 }
 
 func extKeyUsageFromOID(oid asn1.ObjectIdentifier) (eku ExtKeyUsage, ok bool) {
@@ -693,21 +790,39 @@ type Certificate struct {
 	Signature          []byte
 	SignatureAlgorithm SignatureAlgorithm
 
+	SelfSigned bool
+
+	SignatureAlgorithmOID asn1.ObjectIdentifier
+
 	PublicKeyAlgorithm PublicKeyAlgorithm
 	PublicKey          any
+
+	PublicKeyAlgorithmOID asn1.ObjectIdentifier
 
 	Version             int
 	SerialNumber        *big.Int
 	Issuer              pkix.Name
 	Subject             pkix.Name
 	NotBefore, NotAfter time.Time // Validity bounds.
+	ValidityPeriod      int
 	KeyUsage            KeyUsage
+
+	IssuerUniqueId  asn1.BitString
+	SubjectUniqueId asn1.BitString
 
 	// Extensions contains raw X.509 extensions. When parsing certificates,
 	// this can be used to extract non-critical extensions that are not
 	// parsed by this package. When marshaling certificates, the Extensions
 	// field is ignored, see ExtraExtensions.
 	Extensions []pkix.Extension
+
+	// ExtensionsMap contains raw x.509 extensions keyed by OID (in string
+	// representation). It allows fast membership testing of specific OIDs. Like
+	// the Extensions field this field is ignored when marshaling certificates. If
+	// multiple extensions with the same OID are present only the last
+	// pkix.Extension will be in this map. Consult the `Extensions` slice when it
+	// is required to process all extensions including duplicates.
+	ExtensionsMap map[string]pkix.Extension
 
 	// ExtraExtensions contains extensions to be copied, raw, into any
 	// marshaled certificates. Values override any extensions that would
@@ -765,18 +880,56 @@ type Certificate struct {
 	DNSNames       []string
 	EmailAddresses []string
 	IPAddresses    []net.IP
-	URIs           []*url.URL
+	OtherNames     []pkix.OtherName
+	DirectoryNames []pkix.Name
+	EDIPartyNames  []pkix.EDIPartyName
+	URIs           []string
+	RegisteredIDs  []asn1.ObjectIdentifier
+
+	// Issuer Alternative Name values
+	IANOtherNames     []pkix.OtherName
+	IANDNSNames       []string
+	IANEmailAddresses []string
+	IANDirectoryNames []pkix.Name
+	IANEDIPartyNames  []pkix.EDIPartyName
+	IANURIs           []string
+	IANIPAddresses    []net.IP
+	IANRegisteredIDs  []asn1.ObjectIdentifier
+
+	// Certificate Policies values
+	QualifierId          [][]asn1.ObjectIdentifier
+	CPSuri               [][]string
+	ExplicitTexts        [][]asn1.RawValue
+	NoticeRefOrgnization [][]asn1.RawValue
+	NoticeRefNumbers     [][]NoticeNumber
+
+	ParsedExplicitTexts         [][]string
+	ParsedNoticeRefOrganization [][]string
+
+	UserNotices [][]UserNotice
 
 	// Name constraints
 	PermittedDNSDomainsCritical bool // if true then the name constraints are marked critical.
 	PermittedDNSDomains         []string
 	ExcludedDNSDomains          []string
-	PermittedIPRanges           []*net.IPNet
-	ExcludedIPRanges            []*net.IPNet
 	PermittedEmailAddresses     []string
 	ExcludedEmailAddresses      []string
 	PermittedURIDomains         []string
 	ExcludedURIDomains          []string
+	PermittedIPRanges           []*net.IPNet
+	ExcludedIPRanges            []*net.IPNet
+	PermittedDirectoryNames     []pkix.Name
+	ExcludedDirectoryNames      []pkix.Name
+	PermittedEdiPartyNames      []pkix.EDIPartyName
+	ExcludedEdiPartyNames       []pkix.EDIPartyName
+	PermittedRegisteredIDs      []asn1.ObjectIdentifier
+	ExcludedRegisteredIDs       []asn1.ObjectIdentifier
+	PermittedX400Addresses      []string
+	ExcludedX400Addresses       []string
+
+	// FailedToParseNames contains values that are failed to parse,
+	// without returning an error.
+	FailedToParseNames []asn1.RawValue
 
 	// CRL Distribution Points
 	CRLDistributionPoints []string
@@ -787,10 +940,100 @@ type Certificate struct {
 	// PolicyIdentifiers, but will be present in Policies, which contains all parsed
 	// policy OIDs.
 	PolicyIdentifiers []asn1.ObjectIdentifier
+	ValidationLevel   CertValidationLevel
+
+	// Fingerprints
+	FingerprintMD5    CertificateFingerprint
+	FingerprintSHA1   CertificateFingerprint
+	FingerprintSHA256 CertificateFingerprint
+	FingerprintNoCT   CertificateFingerprint
+
+	// SPKI
+	SPKIFingerprint           CertificateFingerprint
+	SPKISubjectFingerprint    CertificateFingerprint
+	TBSCertificateFingerprint CertificateFingerprint
+
+	IsPrecert bool
+
+	// ValidSignature is true if the certificate was signed by any roots or
+	// intermediates given in a call to (*Certificate).Verify().
+	ValidSignature bool
+
+	// CT
+	SignedCertificateTimestampList []*ct.SignedCertificateTimestamp
+
+	// QWACS
+	CABFOrganizationIdentifier *CABFOrganizationIdentifier
+	QCStatements               *QCStatements
+
+	// Used to speed up the zlint checks. Populated by the GetParsedDNSNames method.
+	parsedDNSNames []ParsedDomainName
+	// Used to speed up the zlint checks. Populated by the GetParsedCommonName method
+	parsedCommonName *ParsedDomainName
+
+	// CAB Forum Tor Service Descriptor Hash Extensions (see EV Guidelines
+	// Appendix F)
+	TorServiceDescriptors []*TorServiceDescriptorHash
 
 	// Policies contains all policy identifiers included in the certificate.
 	// In Go 1.22, encoding/gob cannot handle and ignores this field.
 	Policies []OID
+
+	// PermissiveErrors is a list of errors encountered that were ignored
+	PermissiveErrors []error
+}
+
+// ParsedDomainName is a structure holding a parsed domain name (CommonName or
+// DNS SAN) and a parsing error.
+type ParsedDomainName struct {
+	DomainString string
+	ParsedDomain *publicsuffix.DomainName
+	ParseError   error
+}
+
+// GetParsedDNSNames returns a list of parsed SAN DNS names. It is used to cache the parsing result and
+// speed up zlint linters. If invalidateCache is true, then the cache is repopulated with current list of string from
+// Certificate.DNSNames. This parameter should always be false, unless the Certificate.DNSNames have been modified
+// after calling GetParsedDNSNames the previous time.
+func (c *Certificate) GetParsedDNSNames(invalidateCache bool) []ParsedDomainName {
+	if c.parsedDNSNames != nil && !invalidateCache {
+		return c.parsedDNSNames
+	}
+	c.parsedDNSNames = make([]ParsedDomainName, len(c.DNSNames))
+
+	for i := range c.DNSNames {
+		parsedDomain, parseError := publicsuffix.ParseFromListWithOptions(publicsuffix.DefaultList,
+			c.DNSNames[i],
+			&publicsuffix.FindOptions{IgnorePrivate: true, DefaultRule: publicsuffix.DefaultRule})
+
+		c.parsedDNSNames[i].DomainString = c.DNSNames[i]
+		c.parsedDNSNames[i].ParsedDomain = parsedDomain
+		c.parsedDNSNames[i].ParseError = parseError
+	}
+
+	return c.parsedDNSNames
+}
+
+// GetParsedCommonName returns parsed subject CommonName. It is used to cache the parsing result and
+// speed up zlint linters. If invalidateCache is true, then the cache is repopulated with current subject CommonName.
+// This parameter should always be false, unless the Certificate.Subject.CommonName have been modified
+// after calling GetParsedSubjectCommonName the previous time.
+func (c *Certificate) GetParsedSubjectCommonName(invalidateCache bool) ParsedDomainName {
+	if c.parsedCommonName != nil && !invalidateCache {
+		return *c.parsedCommonName
+	}
+
+	parsedDomain, parseError := publicsuffix.ParseFromListWithOptions(publicsuffix.DefaultList,
+		c.Subject.CommonName,
+		&publicsuffix.FindOptions{IgnorePrivate: true, DefaultRule: publicsuffix.DefaultRule})
+
+	c.parsedCommonName = &ParsedDomainName{
+		DomainString: c.Subject.CommonName,
+		ParsedDomain: parsedDomain,
+		ParseError:   parseError,
+	}
+
+	return *c.parsedCommonName
 }
 
 // ErrUnsupportedAlgorithm results from attempting to perform an operation that
@@ -864,8 +1107,7 @@ func (c *Certificate) CheckSignatureFrom(parent *Certificate) error {
 //
 // This is a low-level API that performs no validity checks on the certificate.
 //
-// [MD5WithRSA] signatures are rejected, while [SHA1WithRSA] and [ECDSAWithSHA1]
-// signatures are currently accepted.
+// All supported algorithms are accepted, including insecure options like MD5/SHA1
 func (c *Certificate) CheckSignature(algo SignatureAlgorithm, signed, signature []byte) error {
 	return checkSignature(algo, signed, signature, c.PublicKey, true)
 }
@@ -891,7 +1133,8 @@ var x509sha1 = godebug.New("x509sha1")
 
 // checkSignature verifies that signature is a valid signature over signed from
 // a crypto.PublicKey.
-func checkSignature(algo SignatureAlgorithm, signed, signature []byte, publicKey crypto.PublicKey, allowSHA1 bool) (err error) {
+// This has been modified to accept insecure signature algorithms (MD5, SHA1)
+func checkSignature(algo SignatureAlgorithm, signed, signature []byte, publicKey crypto.PublicKey, _ bool) (err error) { // Always allow SHA1
 	var hashType crypto.Hash
 	var pubKeyAlgo PublicKeyAlgorithm
 
@@ -906,22 +1149,25 @@ func checkSignature(algo SignatureAlgorithm, signed, signature []byte, publicKey
 	switch hashType {
 	case crypto.Hash(0):
 		if pubKeyAlgo != Ed25519 {
-			return ErrUnsupportedAlgorithm
+			return fmt.Errorf("pubkey is not Ed25519 and has zero hash: %d: %w", pubKeyAlgo, ErrUnsupportedAlgorithm)
 		}
-	case crypto.MD5:
-		return InsecureAlgorithmError(algo)
-	case crypto.SHA1:
-		// SHA-1 signatures are mostly disabled. See go.dev/issue/41682.
-		if !allowSHA1 {
-			if x509sha1.Value() != "1" {
-				return InsecureAlgorithmError(algo)
+	// zcrypto
+	/*
+		case crypto.MD5:
+			return InsecureAlgorithmError(algo)
+		case crypto.SHA1:
+			// SHA-1 signatures are mostly disabled. See go.dev/issue/41682.
+			if !allowSHA1 {
+				if x509sha1.Value() != "1" {
+					return InsecureAlgorithmError(algo)
+				}
+				x509sha1.IncNonDefault()
 			}
-			x509sha1.IncNonDefault()
-		}
-		fallthrough
+			fallthrough
+	*/
 	default:
 		if !hashType.Available() {
-			return ErrUnsupportedAlgorithm
+			return fmt.Errorf("hashtype is not available: %s: %w", hashType.String(), ErrUnsupportedAlgorithm)
 		}
 		h := hashType.New()
 		h.Write(signed)
@@ -954,8 +1200,9 @@ func checkSignature(algo SignatureAlgorithm, signed, signature []byte, publicKey
 			return errors.New("x509: Ed25519 verification failure")
 		}
 		return
+	default:
+		return fmt.Errorf("pubkey type %T not supported: %w", pub, ErrUnsupportedAlgorithm)
 	}
-	return ErrUnsupportedAlgorithm
 }
 
 // CheckCRLSignature checks that the signature in crl is from c.
@@ -966,11 +1213,21 @@ func (c *Certificate) CheckCRLSignature(crl *pkix.CertificateList) error {
 	return c.CheckSignature(algo, crl.TBSCertList.Raw, crl.SignatureValue.RightAlign())
 }
 
-type UnhandledCriticalExtension struct{}
+// START CT CHANGES
+type UnhandledCriticalExtension struct {
+	ID      asn1.ObjectIdentifier
+	Message string
+}
 
 func (h UnhandledCriticalExtension) Error() string {
-	return "x509: unhandled critical extension"
+	if h.Message != "" {
+		return fmt.Sprintf("x509: unhandled critical extension (%v): %s", h.ID, h.Message)
+
+	}
+	return fmt.Sprintf("x509: unhandled critical extension (%v)", h.ID)
 }
+
+// END CT CHANGES
 
 type basicConstraints struct {
 	IsCA       bool `asn1:"optional"`
@@ -979,8 +1236,48 @@ type basicConstraints struct {
 
 // RFC 5280 4.2.1.4
 type policyInformation struct {
-	Policy asn1.ObjectIdentifier
-	// policyQualifiers omitted
+	Policy     asn1.ObjectIdentifier
+	Qualifiers []policyQualifierInfo `asn1:"optional"`
+}
+
+type policyQualifierInfo struct {
+	PolicyQualifierId asn1.ObjectIdentifier
+	Qualifier         asn1.RawValue
+}
+
+type userNotice struct {
+	NoticeRef    noticeReference `asn1:"optional"`
+	ExplicitText asn1.RawValue   `asn1:"optional"`
+}
+
+type UserNotice struct {
+	ExplicitText    *string
+	NoticeReference *NoticeReference
+}
+
+type noticeReference struct {
+	Organization  asn1.RawValue
+	NoticeNumbers []int
+}
+
+type NoticeNumber []int
+
+type generalSubtree struct {
+	Value asn1.RawValue `asn1:"optional"`
+	Min   int           `asn1:"tag:0,default:0,optional"`
+	Max   int           `asn1:"tag:1,optional"`
+}
+
+type GeneralSubtreeRaw struct {
+	Data asn1.RawValue
+	Max  int
+	Min  int
+}
+
+// RFC 5280, 4.2.1.10
+type nameConstraints struct {
+	Permitted []generalSubtree `asn1:"optional,tag:0"`
+	Excluded  []generalSubtree `asn1:"optional,tag:1"`
 }
 
 const (
@@ -1006,6 +1303,110 @@ type distributionPoint struct {
 type distributionPointName struct {
 	FullName     []asn1.RawValue  `asn1:"optional,tag:0"`
 	RelativeName pkix.RDNSequence `asn1:"optional,tag:1"`
+}
+
+func maxValidationLevel(a, b CertValidationLevel) CertValidationLevel {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func hash(hashFunc crypto.Hash, raw []byte) []byte {
+	digest := raw
+	if hashFunc != 0 {
+		h := hashFunc.New()
+		h.Write(raw)
+		digest = h.Sum(nil)
+	}
+	return digest
+}
+
+func getMaxCertValidationLevel(oids []asn1.ObjectIdentifier) CertValidationLevel {
+	maxOID := UnknownValidationLevel
+	for _, oid := range oids {
+		if _, ok := ExtendedValidationOIDs[oid.String()]; ok {
+			return EV
+		} else if _, ok := OrganizationValidationOIDs[oid.String()]; ok {
+			maxOID = maxValidationLevel(maxOID, OV)
+		} else if _, ok := DomainValidationOIDs[oid.String()]; ok {
+			maxOID = maxValidationLevel(maxOID, DV)
+		}
+	}
+	return maxOID
+}
+
+func parseSignedCertificateTimestampList(out *Certificate, ext pkix.Extension) error {
+	var scts []byte
+	if _, err := asn1.Unmarshal(ext.Value, &scts); err != nil {
+		return err
+	}
+	// ignore length of
+	if len(scts) < 2 {
+		return errors.New("malformed SCT extension: incomplete length field")
+	}
+	scts = scts[2:]
+	headerLength := 2
+	for {
+		switch len(scts) {
+		case 0:
+			return nil
+		case 1:
+			return errors.New("malformed SCT extension: trailing data")
+		default:
+			sctLength := int(scts[1]) + (int(scts[0]) << 8) + headerLength
+			if !(sctLength <= len(scts)) {
+				return errors.New("malformed SCT extension: incomplete SCT")
+			}
+			sct, err := ct.DeserializeSCT(bytes.NewReader(scts[headerLength:sctLength]))
+			if err != nil {
+				return fmt.Errorf("malformed SCT extension: SCT parse err: %w", err)
+			}
+			out.SignedCertificateTimestampList = append(out.SignedCertificateTimestampList, sct)
+			scts = scts[sctLength:]
+		}
+	}
+}
+
+// START CT CHANGES
+
+// ParseTBSCertificate parses a single TBSCertificate from the given ASN.1 DER data.
+// The parsed data is returned in a Certificate struct for ease of access.
+func ParseTBSCertificate(asn1Data []byte) (*Certificate, error) {
+	var tbsCert tbsCertificate
+	rest, err := asn1.Unmarshal(asn1Data, &tbsCert)
+	if err != nil {
+		return nil, err
+	}
+	if len(rest) > 0 {
+		return nil, asn1.SyntaxError{Msg: "trailing data"}
+	}
+	return parseCertificate(&certificate{
+		Raw:            tbsCert.Raw,
+		TBSCertificate: tbsCert,
+	})
+}
+
+// END CT CHANGES
+
+// SubjectAndKey represents a (subjecty, subject public key info) tuple.
+type SubjectAndKey struct {
+	RawSubject              []byte
+	RawSubjectPublicKeyInfo []byte
+	Fingerprint             CertificateFingerprint
+	PublicKey               interface{}
+	PublicKeyAlgorithm      PublicKeyAlgorithm
+}
+
+// SubjectAndKey returns a SubjectAndKey for this certificate.
+func (c *Certificate) SubjectAndKey() *SubjectAndKey {
+	return &SubjectAndKey{
+		RawSubject:              c.RawSubject,
+		RawSubjectPublicKeyInfo: c.RawSubjectPublicKeyInfo,
+		Fingerprint:             c.SPKISubjectFingerprint,
+		PublicKey:               c.PublicKey,
+		PublicKeyAlgorithm:      c.PublicKeyAlgorithm,
+	}
 }
 
 func reverseBitsInAByte(in byte) byte {
@@ -1036,18 +1437,20 @@ func asn1BitLength(bitString []byte) int {
 }
 
 var (
-	oidExtensionSubjectKeyId          = []int{2, 5, 29, 14}
-	oidExtensionKeyUsage              = []int{2, 5, 29, 15}
-	oidExtensionExtendedKeyUsage      = []int{2, 5, 29, 37}
-	oidExtensionAuthorityKeyId        = []int{2, 5, 29, 35}
-	oidExtensionBasicConstraints      = []int{2, 5, 29, 19}
-	oidExtensionSubjectAltName        = []int{2, 5, 29, 17}
-	oidExtensionCertificatePolicies   = []int{2, 5, 29, 32}
-	oidExtensionNameConstraints       = []int{2, 5, 29, 30}
-	oidExtensionCRLDistributionPoints = []int{2, 5, 29, 31}
-	oidExtensionAuthorityInfoAccess   = []int{1, 3, 6, 1, 5, 5, 7, 1, 1}
-	oidExtensionCRLNumber             = []int{2, 5, 29, 20}
-	oidExtensionReasonCode            = []int{2, 5, 29, 21}
+	oidExtensionSubjectKeyId                   = []int{2, 5, 29, 14}
+	oidExtensionKeyUsage                       = []int{2, 5, 29, 15}
+	oidExtensionSubjectAltName                 = []int{2, 5, 29, 17}
+	oidExtensionIssuerAltName                  = []int{2, 5, 29, 18}
+	oidExtensionBasicConstraints               = []int{2, 5, 29, 19}
+	oidExtensionCRLNumber                      = []int{2, 5, 29, 20}
+	oidExtensionReasonCode                     = []int{2, 5, 29, 21}
+	oidExtensionNameConstraints                = []int{2, 5, 29, 30}
+	oidExtensionCRLDistributionPoints          = []int{2, 5, 29, 31}
+	oidExtensionCertificatePolicies            = []int{2, 5, 29, 32}
+	oidExtensionAuthorityKeyId                 = []int{2, 5, 29, 35}
+	oidExtensionExtendedKeyUsage               = []int{2, 5, 29, 37}
+	oidExtensionAuthorityInfoAccess            = []int{1, 3, 6, 1, 5, 5, 7, 1, 1}
+	oidExtensionSignedCertificateTimestampList = []int{1, 3, 6, 1, 4, 1, 11129, 2, 4, 2}
 )
 
 var (
@@ -1068,7 +1471,7 @@ func oidInExtensions(oid asn1.ObjectIdentifier, extensions []pkix.Extension) boo
 
 // marshalSANs marshals a list of addresses into a the contents of an X.509
 // SubjectAlternativeName extension.
-func marshalSANs(dnsNames, emailAddresses []string, ipAddresses []net.IP, uris []*url.URL) (derBytes []byte, err error) {
+func marshalSANs(dnsNames, emailAddresses []string, ipAddresses []net.IP, uris []string) (derBytes []byte, err error) {
 	var rawValues []asn1.RawValue
 	for _, name := range dnsNames {
 		if err := isIA5String(name); err != nil {
@@ -1091,15 +1494,12 @@ func marshalSANs(dnsNames, emailAddresses []string, ipAddresses []net.IP, uris [
 		rawValues = append(rawValues, asn1.RawValue{Tag: nameTypeIP, Class: 2, Bytes: ip})
 	}
 	for _, uri := range uris {
-		uriStr := uri.String()
-		if err := isIA5String(uriStr); err != nil {
-			return nil, err
-		}
-		rawValues = append(rawValues, asn1.RawValue{Tag: nameTypeURI, Class: 2, Bytes: []byte(uriStr)})
+		rawValues = append(rawValues, asn1.RawValue{Tag: nameTypeURI, Class: 2, Bytes: []byte(uri)})
 	}
 	return asn1.Marshal(rawValues)
 }
 
+/*
 func isIA5String(s string) error {
 	for _, r := range s {
 		// Per RFC5280 "IA5String is limited to the set of ASCII characters"
@@ -1108,6 +1508,13 @@ func isIA5String(s string) error {
 		}
 	}
 
+	return nil
+}
+*/
+
+// zcrypto
+// isIA5String is disabled to allow lax parsing
+func isIA5String(_ string) error {
 	return nil
 }
 
@@ -1198,7 +1605,10 @@ func buildCertExtensions(template *Certificate, subjectIsEmpty bool, authorityKe
 		n++
 	}
 
-	usePolicies := x509usepolicies.Value() == "1"
+	// zcrypto
+	// usePolicies := x509usepolicies.Value() == "1"
+	usePolicies := false
+
 	if ((!usePolicies && len(template.PolicyIdentifiers) > 0) || (usePolicies && len(template.Policies) > 0)) &&
 		!oidInExtensions(oidExtensionCertificatePolicies, template.ExtraExtensions) {
 		ret[n], err = marshalCertificatePolicies(template.Policies, template.PolicyIdentifiers)
@@ -1208,13 +1618,15 @@ func buildCertExtensions(template *Certificate, subjectIsEmpty bool, authorityKe
 		n++
 	}
 
-	if (len(template.PermittedDNSDomains) > 0 || len(template.ExcludedDNSDomains) > 0 ||
-		len(template.PermittedIPRanges) > 0 || len(template.ExcludedIPRanges) > 0 ||
-		len(template.PermittedEmailAddresses) > 0 || len(template.ExcludedEmailAddresses) > 0 ||
-		len(template.PermittedURIDomains) > 0 || len(template.ExcludedURIDomains) > 0) &&
+	// TODO: this can be cleaned up in go1.10
+	if (len(template.PermittedEmailAddresses) > 0 || len(template.PermittedDNSDomains) > 0 || len(template.PermittedDirectoryNames) > 0 ||
+		len(template.PermittedIPRanges) > 0 || len(template.ExcludedEmailAddresses) > 0 || len(template.ExcludedDNSDomains) > 0 ||
+		len(template.ExcludedDirectoryNames) > 0 || len(template.ExcludedIPRanges) > 0) &&
 		!oidInExtensions(oidExtensionNameConstraints, template.ExtraExtensions) {
 		ret[n].Id = oidExtensionNameConstraints
-		ret[n].Critical = template.PermittedDNSDomainsCritical
+		if template.PermittedDNSDomainsCritical {
+			ret[n].Critical = true
+		}
 
 		ipAndMask := func(ipNet *net.IPNet) []byte {
 			maskedIP := ipNet.IP.Mask(ipNet.Mask)
@@ -1391,7 +1803,8 @@ func marshalCertificatePolicies(policies []OID, policyIdentifiers []asn1.ObjectI
 
 	b := cryptobyte.NewBuilder(make([]byte, 0, 128))
 	b.AddASN1(cryptobyte_asn1.SEQUENCE, func(child *cryptobyte.Builder) {
-		if x509usepolicies.Value() == "1" {
+		// zcrypto
+		if x509usepolicies.Value() == "1" && false { // Disable for zcrypto
 			x509usepolicies.IncNonDefault()
 			for _, v := range policies {
 				child.AddASN1(cryptobyte_asn1.SEQUENCE, func(child *cryptobyte.Builder) {
@@ -1606,14 +2019,17 @@ func CreateCertificate(rand io.Reader, template, parent *Certificate, pub, priv 
 		return nil, errors.New("x509: no SerialNumber given")
 	}
 
-	// RFC 5280 Section 4.1.2.2: serial number must positive
-	//
-	// We _should_ also restrict serials to <= 20 octets, but it turns out a lot of people
-	// get this wrong, in part because the encoding can itself alter the length of the
-	// serial. For now we accept these non-conformant serials.
-	if template.SerialNumber.Sign() == -1 {
-		return nil, errors.New("x509: serial number must be positive")
-	}
+	// zcrypto
+	/*
+		// RFC 5280 Section 4.1.2.2: serial number must positive
+		//
+		// We _should_ also restrict serials to <= 20 octets, but it turns out a lot of people
+		// get this wrong, in part because the encoding can itself alter the length of the
+		// serial. For now we accept these non-conformant serials.
+		if template.SerialNumber.Sign() == -1 {
+			return nil, errors.New("x509: serial number must be positive")
+		}
+	*/
 
 	if template.BasicConstraintsValid && !template.IsCA && template.MaxPathLen != -1 && (template.MaxPathLen != 0 || template.MaxPathLenZero) {
 		return nil, errors.New("x509: only CAs are allowed to specify MaxPathLen")
@@ -1840,7 +2256,7 @@ type CertificateRequest struct {
 	DNSNames       []string
 	EmailAddresses []string
 	IPAddresses    []net.IP
-	URIs           []*url.URL
+	URIs           []string
 }
 
 // These structures reflect the ASN.1 structure of X.509 certificate
@@ -2469,4 +2885,117 @@ func (rl *RevocationList) CheckSignatureFrom(parent *Certificate) error {
 	}
 
 	return parent.CheckSignature(rl.SignatureAlgorithm, rl.RawTBSRevocationList, rl.Signature)
+}
+
+// GetSignatureAlgorithmFromAI is an exported wrapper of getSignatureAlgorithmFromAI
+func GetSignatureAlgorithmFromAI(ai pkix.AlgorithmIdentifier) SignatureAlgorithm {
+	return getSignatureAlgorithmFromAI(ai)
+}
+
+func parseGeneralNames(value []byte) (otherNames []pkix.OtherName, dnsNames, emailAddresses, URIs []string, directoryNames []pkix.Name, ediPartyNames []pkix.EDIPartyName, ipAddresses []net.IP, registeredIDs []asn1.ObjectIdentifier, failedToParse []asn1.RawValue, err error) {
+	// RFC 5280, 4.2.1.6
+
+	// SubjectAltName ::= GeneralNames
+	//
+	// GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
+	//
+	// GeneralName ::= CHOICE {
+	//      otherName                       [0]     OtherName,
+	//      rfc822Name                      [1]     IA5String,
+	//      dNSName                         [2]     IA5String,
+	//      x400Address                     [3]     ORAddress,
+	//      directoryName                   [4]     Name,
+	//      ediPartyName                    [5]     EDIPartyName,
+	//      uniformResourceIdentifier       [6]     IA5String,
+	//      iPAddress                       [7]     OCTET STRING,
+	//      registeredID                    [8]     OBJECT IDENTIFIER }
+	var seq asn1.RawValue
+	if _, err = asn1.Unmarshal(value, &seq); err != nil {
+		return
+	}
+	if !seq.IsCompound || seq.Tag != 16 || seq.Class != 0 {
+		err = asn1.StructuralError{Msg: "bad SAN sequence"}
+		return
+	}
+
+	rest := seq.Bytes
+	for len(rest) > 0 {
+		var v asn1.RawValue
+		rest, err = asn1.Unmarshal(rest, &v)
+		if err != nil {
+			return
+		}
+		switch v.Tag {
+		case 0:
+			var oName pkix.OtherName
+			_, perr := asn1.UnmarshalWithParams(v.FullBytes, &oName, "tag:0")
+			if perr != nil {
+				if asn1.AllowPermissiveParsing {
+					failedToParse = append(failedToParse, v)
+					continue
+				}
+				err = perr
+				return
+			}
+			otherNames = append(otherNames, oName)
+		case 1:
+			emailAddresses = append(emailAddresses, string(v.Bytes))
+		case 2:
+			dnsNames = append(dnsNames, string(v.Bytes))
+		case 4:
+			var rdn pkix.RDNSequence
+			_, perr := asn1.Unmarshal(v.Bytes, &rdn)
+			if perr != nil {
+				if asn1.AllowPermissiveParsing {
+					failedToParse = append(failedToParse, v)
+					continue
+				}
+				err = perr
+				return
+			}
+			var dir pkix.Name
+			dir.FillFromRDNSequence(&rdn)
+			directoryNames = append(directoryNames, dir)
+		case 5:
+			var ediName pkix.EDIPartyName
+			_, perr := asn1.UnmarshalWithParams(v.FullBytes, &ediName, "tag:5")
+			if perr != nil {
+				if asn1.AllowPermissiveParsing {
+					failedToParse = append(failedToParse, v)
+					continue
+				}
+				err = perr
+				return
+			}
+			ediPartyNames = append(ediPartyNames, ediName)
+		case 6:
+			URIs = append(URIs, string(v.Bytes))
+		case 7:
+			switch len(v.Bytes) {
+			case net.IPv4len, net.IPv6len:
+				ipAddresses = append(ipAddresses, v.Bytes)
+			default:
+				if asn1.AllowPermissiveParsing {
+					failedToParse = append(failedToParse, v)
+				} else {
+					err = errors.New("x509: certificate contained IP address of length " + strconv.Itoa(len(v.Bytes)))
+					return
+				}
+			}
+		case 8:
+			var id asn1.ObjectIdentifier
+			_, perr := asn1.UnmarshalWithParams(v.FullBytes, &id, "tag:8")
+			if perr != nil {
+				if asn1.AllowPermissiveParsing {
+					failedToParse = append(failedToParse, v)
+					continue
+				}
+				err = perr
+				return
+			}
+			registeredIDs = append(registeredIDs, id)
+		}
+	}
+
+	return
 }

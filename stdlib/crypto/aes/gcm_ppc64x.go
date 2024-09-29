@@ -7,12 +7,13 @@
 package aes
 
 import (
+	"errors"
+	"runtime"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/alias"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
-	"errors"
 	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
-	"runtime"
 )
 
 // This file implements GCM using an optimized GHASH function.
@@ -173,7 +174,7 @@ func (g *gcmAsm) Seal(dst, nonce, plaintext, data []byte) []byte {
 
 	ret, out := sliceForAppend(dst, len(plaintext)+g.tagSize)
 	if alias.InexactOverlap(out[:len(plaintext)], plaintext) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: invalid buffer overlap")
+		panic("crypto/cipher: invalid buffer overlap")
 	}
 
 	var counter, tagMask [gcmBlockSize]byte
@@ -215,7 +216,7 @@ func (g *gcmAsm) Open(dst, nonce, ciphertext, data []byte) ([]byte, error) {
 
 	ret, out := sliceForAppend(dst, len(ciphertext))
 	if alias.InexactOverlap(out, ciphertext) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: invalid buffer overlap")
+		panic("crypto/cipher: invalid buffer overlap")
 	}
 
 	if subtle.ConstantTimeCompare(expectedTag[:g.tagSize], tag) != 1 {

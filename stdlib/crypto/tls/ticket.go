@@ -5,14 +5,15 @@
 package tls
 
 import (
+	"errors"
+	"io"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
-	"errors"
-	"io"
 
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
 )
@@ -94,9 +95,10 @@ type SessionState struct {
 	alpnProtocol      string // only set if EarlyData is true
 
 	// Client-side TLS 1.3-only fields.
-	useBy  uint64 // seconds since UNIX epoch
-	ageAdd uint32
-	ticket []byte
+	useBy    uint64 // seconds since UNIX epoch
+	ageAdd   uint32
+	ticket   []byte
+	lifetime uint32
 }
 
 // Bytes encodes the session, including any private fields, so that it can be
@@ -398,6 +400,10 @@ func (c *Config) decryptTicket(encrypted []byte, ticketKeys []ticketKey) []byte 
 // resume a previous TLS session.
 type ClientSessionState struct {
 	session *SessionState
+	// zcrypto
+	preMasterSecret PreMasterSecret
+	sessionTicket   SessionTicket
+	lifetimeHint    uint32
 }
 
 // ResumptionState returns the session ticket sent by the server (also known as

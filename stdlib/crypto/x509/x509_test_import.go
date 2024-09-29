@@ -11,12 +11,13 @@ package main
 
 import (
 	"crypto/rand"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"encoding/pem"
 	"math/big"
 	"strings"
 	"time"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 )
 
 func main() {

@@ -9,7 +9,6 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"math/big"
 	"os/exec"
 	"runtime"
@@ -18,6 +17,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
@@ -261,6 +262,7 @@ var verifyTests = []verifyTest{
 				"DigiCert Global Root CA",
 			},
 		},
+		errorCallback: expectExpired,
 	},
 	{
 		// Putting a certificate as a root directly should work as a
@@ -322,30 +324,33 @@ var verifyTests = []verifyTest{
 
 		errorCallback: expectNameConstraintsError,
 	},
-	{
-		// Test that unknown critical extensions in a leaf cause a
-		// verify error.
-		name:          "CriticalExtLeaf",
-		leaf:          criticalExtLeafWithExt,
-		intermediates: []string{criticalExtIntermediate},
-		roots:         []string{criticalExtRoot},
-		currentTime:   1486684488,
-		systemSkip:    true, // does not chain to a system root
+	// zcrypto
+	/*
+		{
+			// Test that unknown critical extensions in a leaf cause a
+			// verify error.
+			name:          "CriticalExtLeaf",
+			leaf:          criticalExtLeafWithExt,
+			intermediates: []string{criticalExtIntermediate},
+			roots:         []string{criticalExtRoot},
+			currentTime:   1486684488,
+			systemSkip:    true, // does not chain to a system root
 
-		errorCallback: expectUnhandledCriticalExtension,
-	},
-	{
-		// Test that unknown critical extensions in an intermediate
-		// cause a verify error.
-		name:          "CriticalExtIntermediate",
-		leaf:          criticalExtLeaf,
-		intermediates: []string{criticalExtIntermediateWithExt},
-		roots:         []string{criticalExtRoot},
-		currentTime:   1486684488,
-		systemSkip:    true, // does not chain to a system root
+			errorCallback: expectUnhandledCriticalExtension,
+		},
+		{
+			// Test that unknown critical extensions in an intermediate
+			// cause a verify error.
+			name:          "CriticalExtIntermediate",
+			leaf:          criticalExtLeaf,
+			intermediates: []string{criticalExtIntermediateWithExt},
+			roots:         []string{criticalExtRoot},
+			currentTime:   1486684488,
+			systemSkip:    true, // does not chain to a system root
 
-		errorCallback: expectUnhandledCriticalExtension,
-	},
+			errorCallback: expectUnhandledCriticalExtension,
+		},
+	*/
 	{
 		name:        "ValidCN",
 		leaf:        validCNWithoutSAN,
@@ -484,7 +489,9 @@ func testVerify(t *testing.T, test verifyTest, useSystemRoots bool) {
 		t.Fatalf("failed to parse leaf: %v", err)
 	}
 
-	chains, err := leaf.Verify(opts)
+	current, expired, never, err := leaf.Verify(opts)
+	chains := append(current, expired...)
+	chains = append(chains, never...)
 
 	if test.errorCallback == nil && err != nil {
 		if runtime.GOOS == "windows" && strings.HasSuffix(testenv.Builder(), "-2008") && err.Error() == "x509: certificate signed by unknown authority" {
@@ -1785,7 +1792,7 @@ func TestPathologicalChain(t *testing.T) {
 	}
 
 	start := time.Now()
-	_, err = leaf.Verify(VerifyOptions{
+	_, _, _, err = leaf.Verify(VerifyOptions{
 		Roots:         roots,
 		Intermediates: intermediates,
 	})
@@ -1824,7 +1831,7 @@ func TestLongChain(t *testing.T) {
 	}
 
 	start := time.Now()
-	if _, err := leaf.Verify(VerifyOptions{
+	if _, _, _, err := leaf.Verify(VerifyOptions{
 		Roots:         roots,
 		Intermediates: intermediates,
 	}); err != nil {
@@ -1857,7 +1864,7 @@ func TestSystemRootsError(t *testing.T) {
 
 	systemRoots = nil
 
-	_, err = leaf.Verify(opts)
+	_, _, _, err = leaf.Verify(opts)
 	if _, ok := err.(SystemRootsError); !ok {
 		t.Errorf("error was not SystemRootsError: %v", err)
 	}
@@ -1888,6 +1895,59 @@ func macosMajorVersion(t *testing.T) (int, error) {
 
 	return major, nil
 }
+
+/*
+func TestIssue51759(t *testing.T) {
+	if runtime.GOOS != "darwin" {
+		t.Skip("only affects darwin")
+	}
+
+	testenv.MustHaveExecPath(t, "sw_vers")
+	if vers, err := macosMajorVersion(t); err != nil {
+		if builder := testenv.Builder(); builder != "" {
+			t.Fatalf("unable to determine macOS version: %s", err)
+		} else {
+			t.Skip("unable to determine macOS version")
+		}
+	} else if vers < 11 {
+		t.Skip("behavior only enforced in macOS 11 and after")
+	}
+
+	// badCertData contains a cert that we parse as valid
+	// but that macOS SecCertificateCreateWithData rejects.
+	const badCertData = "0\x82\x01U0\x82\x01\a\xa0\x03\x02\x01\x02\x02\x01\x020\x05\x06\x03+ep0R1P0N\x06\x03U\x04\x03\x13Gderpkey8dc58100b2493614ee1692831a461f3f4dd3f9b3b088e244f887f81b4906ac260\x1e\x17\r220112235755Z\x17\r220313235755Z0R1P0N\x06\x03U\x04\x03\x13Gderpkey8dc58100b2493614ee1692831a461f3f4dd3f9b3b088e244f887f81b4906ac260*0\x05\x06\x03+ep\x03!\x00bA\xd8e\xadW\xcb\xefZ\x89\xb5\"\x1eR\x9d\xba\x0e:\x1042Q@\u007f\xbd\xfb{ks\x04\xd1£\x020\x000\x05\x06\x03+ep\x03A\x00[\xa7\x06y\x86(\x94\x97\x9eLwA\x00\x01x\xaa\xbc\xbd Ê]\n(΅!ف0\xf5\x9a%I\x19<\xffo\xf1\xeaaf@\xb1\xa7\xaf\xfd\xe9R\xc7\x0f\x8d&\xd5\xfc\x0f;Ϙ\x82\x84a\xbc\r"
+	badCert, err := ParseCertificate([]byte(badCertData))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Run("leaf", func(t *testing.T) {
+		opts := VerifyOptions{}
+		expectedErr := "invalid leaf certificate"
+		_, err = badCert.Verify(opts)
+		if err == nil || err.Error() != expectedErr {
+			t.Fatalf("unexpected error: want %q, got %q", expectedErr, err)
+		}
+	})
+
+	goodCert, err := certificateFromPEM(googleLeaf)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Run("intermediate", func(t *testing.T) {
+		opts := VerifyOptions{
+			Intermediates: NewCertPool(),
+		}
+		opts.Intermediates.AddCert(badCert)
+		expectedErr := "SecCertificateCreateWithData: invalid certificate"
+		_, err = goodCert.Verify(opts)
+		if err == nil || err.Error() != expectedErr {
+			t.Fatalf("unexpected error: want %q, got %q", expectedErr, err)
+		}
+	})
+}
+*/
 
 type trustGraphEdge struct {
 	Issuer         string
@@ -2535,7 +2595,7 @@ func TestPathBuilding(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			roots, intermediates, leaf := buildTrustGraph(t, tc.graph)
-			chains, err := leaf.Verify(VerifyOptions{
+			chains, _, _, err := leaf.Verify(VerifyOptions{
 				Roots:         roots,
 				Intermediates: intermediates,
 			})
@@ -2663,7 +2723,7 @@ func TestEKUEnforcement(t *testing.T) {
 				c.UnknownExtKeyUsage = tc.leaf.Unknown
 			}, intermediateCertificate, parent, k)
 
-			_, err := leaf.Verify(VerifyOptions{Roots: rootPool, Intermediates: interPool, KeyUsages: tc.verifyEKUs})
+			_, _, _, err := leaf.Verify(VerifyOptions{Roots: rootPool, Intermediates: interPool, KeyUsages: tc.verifyEKUs})
 			if err == nil && tc.err != "" {
 				t.Errorf("expected error")
 			} else if err != nil && err.Error() != tc.err {
@@ -2733,7 +2793,7 @@ func TestVerifyEKURootAsLeaf(t *testing.T) {
 			roots := NewCertPool()
 			roots.AddCert(root)
 
-			_, err = root.Verify(VerifyOptions{Roots: roots, KeyUsages: tc.verifyEKUs})
+			_, _, _, err = root.Verify(VerifyOptions{Roots: roots, KeyUsages: tc.verifyEKUs})
 			if err == nil && !tc.succeed {
 				t.Error("verification succeed")
 			} else if err != nil && tc.succeed {

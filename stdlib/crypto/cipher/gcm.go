@@ -5,9 +5,10 @@
 package cipher
 
 import (
+	"errors"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/alias"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
-	"errors"
 	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 )
 
@@ -167,15 +168,15 @@ func (g *gcm) Overhead() int {
 
 func (g *gcm) Seal(dst, nonce, plaintext, data []byte) []byte {
 	if len(nonce) != g.nonceSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: incorrect nonce length given to GCM")
+		panic("crypto/cipher: incorrect nonce length given to GCM")
 	}
 	if uint64(len(plaintext)) > ((1<<32)-2)*uint64(g.cipher.BlockSize()) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: message too large for GCM")
+		panic("crypto/cipher: message too large for GCM")
 	}
 
 	ret, out := sliceForAppend(dst, len(plaintext)+g.tagSize)
 	if alias.InexactOverlap(out, plaintext) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: invalid buffer overlap")
+		panic("crypto/cipher: invalid buffer overlap")
 	}
 
 	var counter, tagMask [gcmBlockSize]byte
@@ -197,12 +198,12 @@ var errOpen = errors.New("cipher: message authentication failed")
 
 func (g *gcm) Open(dst, nonce, ciphertext, data []byte) ([]byte, error) {
 	if len(nonce) != g.nonceSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: incorrect nonce length given to GCM")
+		panic("crypto/cipher: incorrect nonce length given to GCM")
 	}
 	// Sanity check to prevent the authentication from always succeeding if an implementation
 	// leaves tagSize uninitialized, for example.
 	if g.tagSize < gcmMinimumTagSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: incorrect GCM tag size")
+		panic("crypto/cipher: incorrect GCM tag size")
 	}
 
 	if len(ciphertext) < g.tagSize {
@@ -226,7 +227,7 @@ func (g *gcm) Open(dst, nonce, ciphertext, data []byte) ([]byte, error) {
 
 	ret, out := sliceForAppend(dst, len(ciphertext))
 	if alias.InexactOverlap(out, ciphertext) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: invalid buffer overlap")
+		panic("crypto/cipher: invalid buffer overlap")
 	}
 
 	if subtle.ConstantTimeCompare(expectedTag[:g.tagSize], tag) != 1 {

@@ -10,13 +10,8 @@ import (
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
-	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"math/big"
 	"net"
-	"net/url"
 	"os"
 	"os/exec"
 	"strconv"
@@ -24,6 +19,11 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 )
 
 const (
@@ -147,7 +147,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"dns:example.com"},
 		},
-		expectedError: "\"example.com\" is not permitted",
+		// zcrypto
+		// expectedError: "\"example.com\" is not permitted",
 	},
 
 	// #6: .example.com matches subdomains.
@@ -1003,7 +1004,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"uri:http://1.2.3.4/"},
 		},
-		expectedError: "URI with IP",
+		// zcrypto
+		// expectedError: "URI with IP",
 	},
 
 	// #52: URIs with IPs and ports are rejected
@@ -1021,7 +1023,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"uri:http://1.2.3.4:43/"},
 		},
-		expectedError: "URI with IP",
+		// zcrypto
+		// expectedError: "URI with IP",
 	},
 
 	// #53: URIs with IPv6 addresses are also rejected
@@ -1039,7 +1042,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"uri:http://[2006:abcd::1]/"},
 		},
-		expectedError: "URI with IP",
+		// zcrypto
+		// expectedError: "URI with IP",
 	},
 
 	// #54: URIs with IPv6 addresses with ports are also rejected
@@ -1057,7 +1061,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"uri:http://[2006:abcd::1]:16/"},
 		},
-		expectedError: "URI with IP",
+		// zcrypto
+		// expectedError: "URI with IP",
 	},
 
 	// #55: URI constraints are effective
@@ -1075,7 +1080,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"uri:http://bar.com/"},
 		},
-		expectedError: "\"http://bar.com/\" is not permitted",
+		// zcrypto
+		// expectedError: "\"http://bar.com/\" is not permitted",
 	},
 
 	// #56: URI constraints are effective
@@ -1093,7 +1099,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"uri:http://foo.com/"},
 		},
-		expectedError: "\"http://foo.com/\" is excluded",
+		// zcrypto
+		// expectedError: "\"http://foo.com/\" is excluded",
 	},
 
 	// #57: URI constraints can allow subdomains
@@ -1146,7 +1153,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"uri:urn:example"},
 		},
-		expectedError: "URI with empty host",
+		// zcrypto
+		// expectedError: "URI with empty host",
 	},
 
 	// #60: excluding all IPv6 addresses doesn't exclude all IPv4 addresses
@@ -1419,7 +1427,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"uri:https://example.com/test"},
 		},
-		expectedError: "\"https://example.com/test\" is excluded",
+		// zcrypto
+		// expectedError: "\"https://example.com/test\" is excluded",
 	},
 
 	// #75: serverAuth in a leaf shouldn't permit clientAuth when requested in
@@ -1490,7 +1499,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"dns:this is invalid"},
 		},
-		expectedError: "cannot parse dnsName",
+		// zcrypto
+		// expectedError: "cannot parse dnsName",
 	},
 
 	// #79: an invalid email SAN will be detected if any name constraint
@@ -1509,7 +1519,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"email:this @ is invalid"},
 		},
-		expectedError: "cannot parse rfc822Name",
+		// zcrypto
+		// expectedError: "cannot parse rfc822Name",
 	},
 
 	// #80: if several EKUs are requested, satisfying any of them is sufficient.
@@ -1685,11 +1696,7 @@ func makeConstraintsLeafCert(leaf leafSpec, key *ecdsa.PrivateKey, parent *Certi
 			template.EmailAddresses = append(template.EmailAddresses, name[6:])
 
 		case strings.HasPrefix(name, "uri:"):
-			uri, err := url.Parse(name[4:])
-			if err != nil {
-				return nil, fmt.Errorf("cannot parse URI %q: %s", name[4:], err)
-			}
-			template.URIs = append(template.URIs, uri)
+			template.URIs = append(template.URIs, name[4:])
 
 		case strings.HasPrefix(name, "unknown:"):
 			// This is a special case for testing unknown
@@ -1762,7 +1769,7 @@ func customConstraintsExtension(typeNum int, constraint []byte, isExcluded bool)
 }
 
 func addConstraintsToTemplate(constraints constraintsSpec, template *Certificate) error {
-	parse := func(constraints []string) (dnsNames []string, ips []*net.IPNet, emailAddrs []string, uriDomains []string, err error) {
+	parse := func(constraints []string) (dnsNames []string, ips []*net.IPNet, emailAddrs []string, URIs []string, err error) {
 		for _, constraint := range constraints {
 			switch {
 			case strings.HasPrefix(constraint, "dns:"):
@@ -1779,14 +1786,14 @@ func addConstraintsToTemplate(constraints constraintsSpec, template *Certificate
 				emailAddrs = append(emailAddrs, constraint[6:])
 
 			case strings.HasPrefix(constraint, "uri:"):
-				uriDomains = append(uriDomains, constraint[4:])
+				URIs = append(URIs, constraint[4:])
 
 			default:
 				return nil, nil, nil, nil, fmt.Errorf("unknown constraint %q", constraint)
 			}
 		}
 
-		return dnsNames, ips, emailAddrs, uriDomains, err
+		return dnsNames, ips, emailAddrs, URIs, err
 	}
 
 	handleSpecialConstraint := func(constraint string, isExcluded bool) bool {
@@ -1955,7 +1962,7 @@ func TestConstraintCases(t *testing.T) {
 				CurrentTime:   time.Unix(1500, 0),
 				KeyUsages:     test.requestedEKUs,
 			}
-			_, err = leafCert.Verify(verifyOpts)
+			_, _, _, err = leafCert.Verify(verifyOpts)
 
 			logInfo := true
 			if len(test.expectedError) == 0 {
@@ -2102,6 +2109,8 @@ func TestRFC2821Parsing(t *testing.T) {
 	}
 }
 
+// zcrypto: allow invalid name constraints
+/*
 func TestBadNamesInConstraints(t *testing.T) {
 	constraintParseError := func(err error) bool {
 		str := err.Error()
@@ -2177,3 +2186,4 @@ func TestBadNamesInSANs(t *testing.T) {
 		}
 	}
 }
+*/

@@ -6,6 +6,7 @@ package x509
 
 import (
 	"bytes"
+
 	"errors"
 	"fmt"
 	"net"
@@ -25,22 +26,51 @@ const (
 	// NotAuthorizedToSign results when a certificate is signed by another
 	// which isn't marked as a CA certificate.
 	NotAuthorizedToSign InvalidReason = iota
+
 	// Expired results when a certificate has expired, based on the time
 	// given in the VerifyOptions.
 	Expired
+
 	// CANotAuthorizedForThisName results when an intermediate or root
 	// certificate has a name constraint which doesn't permit a DNS or
 	// other name (including IP address) in the leaf certificate.
 	CANotAuthorizedForThisName
+
+	// CANotAuthorizedForThisEmail results when an intermediate or root
+	// certificate has a name constraint which doesn't include the email
+	// being checked.
+	CANotAuthorizedForThisEmail
+
+	// CANotAuthorizedForThisIP results when an intermediate or root
+	// certificate has a name constraint which doesn't include the IP
+	// being checked.
+	CANotAuthorizedForThisIP
+
+	// CANotAuthorizedForThisDirectory results when an intermediate or root
+	// certificate has a name constraint which doesn't include the directory
+	// being checked.
+	CANotAuthorizedForThisDirectory
+
 	// TooManyIntermediates results when a path length constraint is
 	// violated.
 	TooManyIntermediates
+
 	// IncompatibleUsage results when the certificate's key usage indicates
 	// that it may only be used for a different purpose.
 	IncompatibleUsage
+
 	// NameMismatch results when the subject name of a parent certificate
 	// does not match the issuer name in the child.
 	NameMismatch
+
+	// NeverValid results when the certificate could never have been valid due to
+	// some date-related issue, e.g. NotBefore > NotAfter.
+	NeverValid
+
+	// IsSelfSigned results when the certificate is self-signed and not a trusted
+	// root.
+	IsSelfSigned
+
 	// NameConstraintsWithoutSANs is a legacy error and is no longer returned.
 	NameConstraintsWithoutSANs
 	// UnconstrainedName results when a CA certificate contains permitted
@@ -74,6 +104,12 @@ func (e CertificateInvalidError) Error() string {
 		return "x509: certificate has expired or is not yet valid: " + e.Detail
 	case CANotAuthorizedForThisName:
 		return "x509: a root or intermediate certificate is not authorized to sign for this name: " + e.Detail
+	case CANotAuthorizedForThisEmail:
+		return "x509: a root or intermediate certificate is not authorized to sign this email address"
+	case CANotAuthorizedForThisIP:
+		return "x509: a root or intermediate certificate is not authorized to sign this IP address"
+	case CANotAuthorizedForThisDirectory:
+		return "x509: a root or intermediate certificate is not authorized to sign in this directory"
 	case CANotAuthorizedForExtKeyUsage:
 		return "x509: a root or intermediate certificate is not authorized for an extended key usage: " + e.Detail
 	case TooManyIntermediates:
@@ -82,6 +118,8 @@ func (e CertificateInvalidError) Error() string {
 		return "x509: certificate specifies an incompatible key usage"
 	case NameMismatch:
 		return "x509: issuer name does not match subject from issuing certificate"
+	case NeverValid:
+		return "x509: certificate will never be valid"
 	case NameConstraintsWithoutSANs:
 		return "x509: issuer has name constraints but leaf doesn't have a SAN extension"
 	case UnconstrainedName:
@@ -177,6 +215,10 @@ type VerifyOptions struct {
 	// DNSName, if set, is checked against the leaf certificate with
 	// Certificate.VerifyHostname or the platform verifier.
 	DNSName string
+
+	EmailAddress string
+
+	IPAddress net.IP
 
 	// Intermediates is an optional pool of certificates that are not trust
 	// anchors, but can be used to form a chain from the leaf certificate to a
@@ -622,7 +664,12 @@ func (c *Certificate) isValid(certType int, currentChain []*Certificate, opts *V
 
 					if err := c.checkNameConstraints(&comparisonCount, maxConstraintComparisons, "email address", name, mailbox,
 						func(parsedName, constraint any) (bool, error) {
-							return matchEmailConstraint(parsedName.(rfc2821Mailbox), constraint.(string))
+							var constraintString string
+							switch tv := constraint.(type) {
+							case string:
+								constraintString = tv
+							}
+							return matchEmailConstraint(parsedName.(rfc2821Mailbox), constraintString)
 						}, c.PermittedEmailAddresses, c.ExcludedEmailAddresses); err != nil {
 						return err
 					}
@@ -635,7 +682,12 @@ func (c *Certificate) isValid(certType int, currentChain []*Certificate, opts *V
 
 					if err := c.checkNameConstraints(&comparisonCount, maxConstraintComparisons, "DNS name", name, name,
 						func(parsedName, constraint any) (bool, error) {
-							return matchDomainConstraint(parsedName.(string), constraint.(string))
+							var constraintString string
+							switch tv := constraint.(type) {
+							case string:
+								constraintString = tv
+							}
+							return matchDomainConstraint(parsedName.(string), constraintString)
 						}, c.PermittedDNSDomains, c.ExcludedDNSDomains); err != nil {
 						return err
 					}
@@ -649,7 +701,12 @@ func (c *Certificate) isValid(certType int, currentChain []*Certificate, opts *V
 
 					if err := c.checkNameConstraints(&comparisonCount, maxConstraintComparisons, "URI", name, uri,
 						func(parsedName, constraint any) (bool, error) {
-							return matchURIConstraint(parsedName.(*url.URL), constraint.(string))
+							var constraintString string
+							switch tv := constraint.(type) {
+							case string:
+								constraintString = tv
+							}
+							return matchURIConstraint(parsedName.(*url.URL), constraintString)
 						}, c.PermittedURIDomains, c.ExcludedURIDomains); err != nil {
 						return err
 					}
@@ -750,26 +807,30 @@ func (c *Certificate) isValid(certType int, currentChain []*Certificate, opts *V
 // Certificates other than c in the returned chains should not be modified.
 //
 // WARNING: this function doesn't do any revocation checking.
-func (c *Certificate) Verify(opts VerifyOptions) (chains [][]*Certificate, err error) {
+func (c *Certificate) Verify(opts VerifyOptions) (current, expired, never [][]*Certificate, err error) {
 	// Platform-specific verification needs the ASN.1 contents so
 	// this makes the behavior consistent across platforms.
 	if len(c.Raw) == 0 {
-		return nil, errNotParsed
+		err = errNotParsed
+		return
 	}
 	for i := 0; i < opts.Intermediates.len(); i++ {
-		c, _, err := opts.Intermediates.cert(i)
-		if err != nil {
-			return nil, fmt.Errorf("github.com/runZeroInc/excrypto/stdlib/crypto/x509: error fetching intermediate: %w", err)
+		c, _, iErr := opts.Intermediates.cert(i)
+		if iErr != nil {
+			err = fmt.Errorf("crypto/x509: error fetching intermediate: %w", iErr)
+			return
 		}
 		if len(c.Raw) == 0 {
-			return nil, errNotParsed
+			err = errNotParsed
+			return
 		}
 	}
 
 	if opts.Roots == nil {
 		opts.Roots = systemRootsPool()
 		if opts.Roots == nil {
-			return nil, SystemRootsError{systemRootsErr}
+			err = SystemRootsError{systemRootsErr}
+			return
 		}
 	}
 
@@ -791,7 +852,7 @@ func (c *Certificate) Verify(opts VerifyOptions) (chains [][]*Certificate, err e
 	} else {
 		candidateChains, err = c.buildChains([]*Certificate{c}, nil, &opts)
 		if err != nil {
-			return nil, err
+			return
 		}
 	}
 
@@ -803,11 +864,14 @@ func (c *Certificate) Verify(opts VerifyOptions) (chains [][]*Certificate, err e
 		if eku == ExtKeyUsageAny {
 			// If any key usage is acceptable, no need to check the chain for
 			// key usages.
-			return candidateChains, nil
+			if len(candidateChains) > 0 {
+				c.ValidSignature = true
+			}
+			return candidateChains, nil, nil, nil
 		}
 	}
 
-	chains = make([][]*Certificate, 0, len(candidateChains))
+	chains := make([][]*Certificate, 0, len(candidateChains))
 	for _, candidate := range candidateChains {
 		if checkChainForKeyUsage(candidate, opts.KeyUsages) {
 			chains = append(chains, candidate)
@@ -815,10 +879,25 @@ func (c *Certificate) Verify(opts VerifyOptions) (chains [][]*Certificate, err e
 	}
 
 	if len(chains) == 0 {
-		return nil, CertificateInvalidError{c, IncompatibleUsage, ""}
+		err = CertificateInvalidError{c, IncompatibleUsage, "no valid chains"}
+		return
 	}
 
-	return chains, nil
+	current, expired, never = FilterByDate(chains, opts.CurrentTime)
+	if len(current) == 0 {
+		if len(expired) > 0 {
+			err = CertificateInvalidError{Cert: c, Reason: Expired, Detail: fmt.Sprintf("%d expired", len(expired))}
+		} else if len(never) > 0 {
+			err = CertificateInvalidError{Cert: c, Reason: NeverValid, Detail: fmt.Sprintf("%d invalid", len(never))}
+		}
+		return
+	}
+
+	if len(current) > 0 {
+		c.ValidSignature = true
+	}
+
+	return current, expired, never, nil
 }
 
 func appendToFreshChain(chain []*Certificate, cert *Certificate) []*Certificate {
@@ -1174,4 +1253,56 @@ NextCert:
 	}
 
 	return true
+}
+
+// earlier returns the earlier of a and b
+func earlier(a, b time.Time) time.Time {
+	if a.Before(b) {
+		return a
+	}
+	return b
+}
+
+// later returns the later of a and b
+func later(a, b time.Time) time.Time {
+	if a.After(b) {
+		return a
+	}
+	return b
+}
+
+// check expirations divides chains into a set of disjoint chains, containing
+// current chains valid now, expired chains that were valid at some point, and
+// the set of chains that were never valid.
+func FilterByDate(chains [][]*Certificate, now time.Time) (current, expired, never [][]*Certificate) {
+	if now.IsZero() {
+		now = time.Now()
+	}
+
+	for _, chain := range chains {
+		if len(chain) == 0 {
+			continue
+		}
+		leaf := chain[0]
+		lowerBound := leaf.NotBefore
+		upperBound := leaf.NotAfter
+		for _, c := range chain[1:] {
+			lowerBound = later(lowerBound, c.NotBefore)
+			upperBound = earlier(upperBound, c.NotAfter)
+		}
+		valid := lowerBound.Before(now) && upperBound.After(now)
+		wasValid := lowerBound.Before(upperBound)
+		if valid && !wasValid {
+			// Math/logic tells us this is impossible.
+			panic("valid && !wasValid should not be possible")
+		}
+		if valid {
+			current = append(current, chain)
+		} else if wasValid {
+			expired = append(expired, chain)
+		} else {
+			never = append(never, chain)
+		}
+	}
+	return
 }

@@ -9,10 +9,17 @@ package pkix
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"math/big"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 )
+
+// zcrypto
+// LegacyNameString allows to specify legacy ZCrypto behaviour
+// for X509Name.String() in reverse order
+var LegacyNameString = false
 
 // AlgorithmIdentifier represents the ASN.1 structure of the same name. See RFC
 // 5280, section 4.1.1.2.
@@ -23,35 +30,31 @@ type AlgorithmIdentifier struct {
 
 type RDNSequence []RelativeDistinguishedNameSET
 
-var attributeTypeNames = map[string]string{
-	"2.5.4.6":  "C",
-	"2.5.4.10": "O",
-	"2.5.4.11": "OU",
-	"2.5.4.3":  "CN",
-	"2.5.4.5":  "SERIALNUMBER",
-	"2.5.4.7":  "L",
-	"2.5.4.8":  "ST",
-	"2.5.4.9":  "STREET",
-	"2.5.4.17": "POSTALCODE",
-}
-
 // String returns a string representation of the sequence r,
 // roughly following the RFC 2253 Distinguished Names syntax.
+// zcrypto
 func (r RDNSequence) String() string {
 	s := ""
 	for i := 0; i < len(r); i++ {
-		rdn := r[len(r)-1-i]
+		idx := len(r) - 1 - i
+		if LegacyNameString {
+			idx = i
+		}
+		rdn := r[idx]
 		if i > 0 {
-			s += ","
+			s += ", "
 		}
 		for j, tv := range rdn {
 			if j > 0 {
-				s += "+"
+				s += ", "
 			}
 
 			oidString := tv.Type.String()
-			typeName, ok := attributeTypeNames[oidString]
-			if !ok {
+			var typeName string
+			if oidName, ok := oidDotNotationToNames[oidString]; ok {
+				typeName = oidName.ShortName
+			}
+			if typeName == "" {
 				derBytes, err := asn1.Marshal(tv.Value)
 				if err == nil {
 					s += oidString + "=#" + hex.EncodeToString(derBytes)
@@ -97,8 +100,8 @@ type RelativeDistinguishedNameSET []AttributeTypeAndValue
 // AttributeTypeAndValue mirrors the ASN.1 structure of the same name in
 // RFC 5280, Section 4.1.2.4.
 type AttributeTypeAndValue struct {
-	Type  asn1.ObjectIdentifier
-	Value any
+	Type  asn1.ObjectIdentifier `json:"type"`
+	Value interface{}           `json:"value"`
 }
 
 // AttributeTypeAndValueSET represents a set of ASN.1 sequences of
@@ -121,10 +124,16 @@ type Extension struct {
 // structure. If an accurate representation is needed, asn1.Unmarshal the raw
 // subject or issuer as an [RDNSequence].
 type Name struct {
-	Country, Organization, OrganizationalUnit []string
-	Locality, Province                        []string
-	StreetAddress, PostalCode                 []string
-	SerialNumber, CommonName                  string
+	Country, Organization, OrganizationalUnit  []string
+	Locality, Province                         []string
+	StreetAddress, PostalCode, DomainComponent []string
+	EmailAddress                               []string
+	SerialNumber, CommonName                   string
+	SerialNumbers, CommonNames                 []string
+	GivenName, Surname                         []string
+	OrganizationIDs                            []string
+	// EV Components
+	JurisdictionLocality, JurisdictionProvince, JurisdictionCountry []string
 
 	// Names contains all parsed attributes. When parsing distinguished names,
 	// this can be used to extract non-standard attributes that are not parsed
@@ -136,12 +145,18 @@ type Name struct {
 	// distinguished names. Values override any attributes with the same OID.
 	// The ExtraNames field is not populated when parsing, see Names.
 	ExtraNames []AttributeTypeAndValue
+
+	// OriginalRDNS is saved if the name is populated using FillFromRDNSequence.
+	// Additionally, if OriginalRDNS is non-nil, the String and ToRDNSequence
+	// methods will simply use this.
+	OriginalRDNS RDNSequence
 }
 
 // FillFromRDNSequence populates n from the provided [RDNSequence].
 // Multi-entry RDNs are flattened, all entries are added to the
 // relevant n fields, and the grouping is not preserved.
 func (n *Name) FillFromRDNSequence(rdns *RDNSequence) {
+	n.OriginalRDNS = *rdns
 	for _, rdn := range *rdns {
 		if len(rdn) == 0 {
 			continue
@@ -159,8 +174,12 @@ func (n *Name) FillFromRDNSequence(rdns *RDNSequence) {
 				switch t[3] {
 				case 3:
 					n.CommonName = value
+					n.CommonNames = append(n.CommonNames, value)
+				case 4:
+					n.Surname = append(n.Surname, value)
 				case 5:
 					n.SerialNumber = value
+					n.SerialNumbers = append(n.SerialNumbers, value)
 				case 6:
 					n.Country = append(n.Country, value)
 				case 7:
@@ -175,7 +194,22 @@ func (n *Name) FillFromRDNSequence(rdns *RDNSequence) {
 					n.OrganizationalUnit = append(n.OrganizationalUnit, value)
 				case 17:
 					n.PostalCode = append(n.PostalCode, value)
+				case 42:
+					n.GivenName = append(n.GivenName, value)
+				case 97:
+					n.OrganizationIDs = append(n.OrganizationIDs, value)
 				}
+			} else if t.Equal(oidDomainComponent) {
+				n.DomainComponent = append(n.DomainComponent, value)
+			} else if t.Equal(oidDNEmailAddress) {
+				// Deprecated, see RFC 5280 Section 4.1.2.6
+				n.EmailAddress = append(n.EmailAddress, value)
+			} else if t.Equal(oidJurisdictionLocality) {
+				n.JurisdictionLocality = append(n.JurisdictionLocality, value)
+			} else if t.Equal(oidJurisdictionProvince) {
+				n.JurisdictionProvince = append(n.JurisdictionProvince, value)
+			} else if t.Equal(oidJurisdictionCountry) {
+				n.JurisdictionCountry = append(n.JurisdictionCountry, value)
 			}
 		}
 	}
@@ -191,6 +225,16 @@ var (
 	oidProvince           = []int{2, 5, 4, 8}
 	oidStreetAddress      = []int{2, 5, 4, 9}
 	oidPostalCode         = []int{2, 5, 4, 17}
+	oidSurname            = []int{2, 5, 4, 4}
+	oidGivenName          = []int{2, 5, 4, 42}
+	oidDomainComponent    = []int{0, 9, 2342, 19200300, 100, 1, 25}
+	oidDNEmailAddress     = []int{1, 2, 840, 113549, 1, 9, 1}
+	// EV
+	oidJurisdictionLocality = []int{1, 3, 6, 1, 4, 1, 311, 60, 2, 1, 1}
+	oidJurisdictionProvince = []int{1, 3, 6, 1, 4, 1, 311, 60, 2, 1, 2}
+	oidJurisdictionCountry  = []int{1, 3, 6, 1, 4, 1, 311, 60, 2, 1, 3}
+	// QWACS
+	oidOrganizationID = []int{2, 5, 4, 97}
 )
 
 // appendRDNs appends a relativeDistinguishedNameSET to the given RDNSequence
@@ -198,7 +242,10 @@ var (
 // attributeTypeAndValue for each of the given values. See RFC 5280, A.1, and
 // search for AttributeTypeAndValue.
 func (n Name) appendRDNs(in RDNSequence, values []string, oid asn1.ObjectIdentifier) RDNSequence {
-	if len(values) == 0 || oidInAttributeTypeAndValue(oid, n.ExtraNames) {
+	// zcrypto
+	// NOTE: stdlib prevents adding if the oid is already present in n.ExtraNames
+	// if len(values) == 0 || oidInAttributeTypeAndValue(oid, n.ExtraNames) {
+	if len(values) == 0 {
 		return in
 	}
 
@@ -224,24 +271,47 @@ func (n Name) appendRDNs(in RDNSequence, values []string, oid asn1.ObjectIdentif
 //
 // Each ExtraNames entry is encoded as an individual RDN.
 func (n Name) ToRDNSequence() (ret RDNSequence) {
-	ret = n.appendRDNs(ret, n.Country, oidCountry)
-	ret = n.appendRDNs(ret, n.Province, oidProvince)
-	ret = n.appendRDNs(ret, n.Locality, oidLocality)
-	ret = n.appendRDNs(ret, n.StreetAddress, oidStreetAddress)
-	ret = n.appendRDNs(ret, n.PostalCode, oidPostalCode)
-	ret = n.appendRDNs(ret, n.Organization, oidOrganization)
-	ret = n.appendRDNs(ret, n.OrganizationalUnit, oidOrganizationalUnit)
+	if n.OriginalRDNS != nil {
+		return n.OriginalRDNS
+	}
 	if len(n.CommonName) > 0 {
 		ret = n.appendRDNs(ret, []string{n.CommonName}, oidCommonName)
 	}
+	ret = n.appendRDNs(ret, n.OrganizationalUnit, oidOrganizationalUnit)
+	ret = n.appendRDNs(ret, n.Organization, oidOrganization)
+	ret = n.appendRDNs(ret, n.StreetAddress, oidStreetAddress)
+	ret = n.appendRDNs(ret, n.Locality, oidLocality)
+	ret = n.appendRDNs(ret, n.Province, oidProvince)
+	ret = n.appendRDNs(ret, n.PostalCode, oidPostalCode)
+	ret = n.appendRDNs(ret, n.Country, oidCountry)
+	ret = n.appendRDNs(ret, n.DomainComponent, oidDomainComponent)
+	// EV Components
+	ret = n.appendRDNs(ret, n.JurisdictionLocality, oidJurisdictionLocality)
+	ret = n.appendRDNs(ret, n.JurisdictionProvince, oidJurisdictionProvince)
+	ret = n.appendRDNs(ret, n.JurisdictionCountry, oidJurisdictionCountry)
+	// QWACS
+	ret = n.appendRDNs(ret, n.OrganizationIDs, oidOrganizationID)
 	if len(n.SerialNumber) > 0 {
 		ret = n.appendRDNs(ret, []string{n.SerialNumber}, oidSerialNumber)
 	}
 	for _, atv := range n.ExtraNames {
 		ret = append(ret, []AttributeTypeAndValue{atv})
 	}
-
 	return ret
+}
+
+// CertificateList represents the ASN.1 structure of the same name. See RFC
+// 5280, section 5.1. Use Certificate.CheckCRLSignature to verify the
+// signature.
+type CertificateList struct {
+	TBSCertList        TBSCertificateList
+	SignatureAlgorithm AlgorithmIdentifier
+	SignatureValue     asn1.BitString
+}
+
+// HasExpired reports whether certList should have been updated by now.
+func (certList *CertificateList) HasExpired(now time.Time) bool {
+	return !now.Before(certList.TBSCertList.NextUpdate)
 }
 
 // String returns the string form of n, roughly following
@@ -255,7 +325,7 @@ func (n Name) String() string {
 			t := atv.Type
 			if len(t) == 4 && t[0] == 2 && t[1] == 5 && t[2] == 4 {
 				switch t[3] {
-				case 3, 5, 6, 7, 8, 9, 10, 11, 17:
+				case 3, 4, 5, 6, 7, 8, 9, 10, 11, 17, 42, 97:
 					// These attributes were already parsed into named fields.
 					continue
 				}
@@ -269,6 +339,20 @@ func (n Name) String() string {
 	return rdns.String()
 }
 
+// OtherName represents the ASN.1 structure of the same name. See RFC
+// 5280, section 4.2.1.6.
+type OtherName struct {
+	TypeID asn1.ObjectIdentifier
+	Value  asn1.RawValue `asn1:"explicit"`
+}
+
+// EDIPartyName represents the ASN.1 structure of the same name. See RFC
+// 5280, section 4.2.1.6.
+type EDIPartyName struct {
+	NameAssigner string `asn1:"tag:0,optional,explicit" json:"name_assigner,omitempty"`
+	PartyName    string `asn1:"tag:1,explicit" json:"party_name"`
+}
+
 // oidInAttributeTypeAndValue reports whether a type with the given OID exists
 // in atv.
 func oidInAttributeTypeAndValue(oid asn1.ObjectIdentifier, atv []AttributeTypeAndValue) bool {
@@ -280,26 +364,21 @@ func oidInAttributeTypeAndValue(oid asn1.ObjectIdentifier, atv []AttributeTypeAn
 	return false
 }
 
-// CertificateList represents the ASN.1 structure of the same name. See RFC
-// 5280, section 5.1. Use Certificate.CheckCRLSignature to verify the
-// signature.
-//
-// Deprecated: x509.RevocationList should be used instead.
-type CertificateList struct {
-	TBSCertList        TBSCertificateList
-	SignatureAlgorithm AlgorithmIdentifier
-	SignatureValue     asn1.BitString
-}
-
-// HasExpired reports whether certList should have been updated by now.
-func (certList *CertificateList) HasExpired(now time.Time) bool {
-	return !now.Before(certList.TBSCertList.NextUpdate)
+// oidValueAlreadyInAttributeTypeAndValue reports whether the specific type and value
+// already exists for a given oid in the rdn.
+func oidValueAlreadyInAttributeTypeAndValue(in RDNSequence, oid asn1.ObjectIdentifier, v any) bool {
+	for _, rdn := range in {
+		for _, atv := range rdn {
+			if atv.Type.Equal(oid) && cmp.Equal(atv.Value, v) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // TBSCertificateList represents the ASN.1 structure of the same name. See RFC
 // 5280, section 5.1.
-//
-// Deprecated: x509.RevocationList should be used instead.
 type TBSCertificateList struct {
 	Raw                 asn1.RawContent
 	Version             int `asn1:"optional,default:0"`

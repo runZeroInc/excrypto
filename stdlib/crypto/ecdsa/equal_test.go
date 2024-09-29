@@ -5,12 +5,14 @@
 package ecdsa_test
 
 import (
+	"testing"
+
+	"crypto/rand"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
-	"crypto/rand"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
-	"testing"
 )
 
 func testEqual(t *testing.T, c elliptic.Curve) {

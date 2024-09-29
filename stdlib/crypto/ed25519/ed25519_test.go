@@ -8,16 +8,18 @@ import (
 	"bufio"
 	"bytes"
 	"compress/gzip"
-	"github.com/runZeroInc/excrypto/stdlib/crypto"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
-	"crypto/rand"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
 	"encoding/hex"
-	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 	"log"
 	"os"
 	"strings"
 	"testing"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
+	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 )
 
 func Example_ed25519ctx() {

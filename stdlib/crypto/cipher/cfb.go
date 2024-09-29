@@ -22,10 +22,10 @@ type cfb struct {
 
 func (x *cfb) XORKeyStream(dst, src []byte) {
 	if len(dst) < len(src) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: output smaller than input")
+		panic("crypto/cipher: output smaller than input")
 	}
 	if alias.InexactOverlap(dst[:len(src)], src) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: invalid buffer overlap")
+		panic("crypto/cipher: invalid buffer overlap")
 	}
 	for len(src) > 0 {
 		if x.outUsed == len(x.out) {

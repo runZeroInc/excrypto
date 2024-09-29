@@ -7,16 +7,17 @@ package tls
 import (
 	"bytes"
 	"context"
+	"errors"
+	"hash"
+	"io"
+	"slices"
+	"time"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/mlkem768"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
-	"errors"
-	"hash"
 	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
-	"io"
-	"slices"
-	"time"
 )
 
 // maxClientPSKIdentities is the number of client PSK identities the server will

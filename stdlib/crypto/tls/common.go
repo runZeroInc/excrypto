@@ -8,24 +8,29 @@ import (
 	"bytes"
 	"container/list"
 	"context"
-	"github.com/runZeroInc/excrypto/stdlib/crypto"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"crypto/rand"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"io"
+	"math/big"
 	"net"
 	"slices"
 	"strings"
 	"sync"
 	"time"
-	_ "unsafe" // for linkname
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 )
 
 const (
@@ -38,6 +43,29 @@ const (
 	// supported by this package. See golang.org/issue/32716.
 	VersionSSL30 = 0x0300
 )
+
+// TLSVersion represents the TLS version in numeric format
+type TLSVersion uint16
+
+// Strings shows the TLS version nicely formatted
+func (tv TLSVersion) String() string {
+	switch tv {
+	default:
+		return "Unknown"
+	case 0x0200:
+		return "SSL 2.0"
+	case 0x0300:
+		return "SSL 3.0"
+	case 0x0301:
+		return "TLS 1.0"
+	case 0x0302:
+		return "TLS 1.1"
+	case 0x0303:
+		return "TLS 1.2"
+	case 0x0304:
+		return "TLS 1.3"
+	}
+}
 
 // VersionName returns the name for the provided TLS version number
 // (e.g. "TLS 1.3"), or a fallback representation of the value if the
@@ -84,6 +112,7 @@ const (
 	typeHelloRequest        uint8 = 0
 	typeClientHello         uint8 = 1
 	typeServerHello         uint8 = 2
+	typeHelloVerifyRequest  uint8 = 3
 	typeNewSessionTicket    uint8 = 4
 	typeEndOfEarlyData      uint8 = 5
 	typeEncryptedExtensions uint8 = 8
@@ -97,6 +126,7 @@ const (
 	typeCertificateStatus   uint8 = 22
 	typeKeyUpdate           uint8 = 24
 	typeMessageHash         uint8 = 254 // synthetic message
+	typeNextProtocol        uint8 = 67  // Not IANA assigned
 )
 
 // TLS compression types.
@@ -127,6 +157,8 @@ const (
 	extensionRenegotiationInfo       uint16 = 0xff01
 	extensionECHOuterExtensions      uint16 = 0xfd00
 	extensionEncryptedClientHello    uint16 = 0xfe0d
+	extensionExtendedRandom          uint16 = 0x0028 // not IANA assigned
+	extensionNextProtoNeg            uint16 = 13172  // not IANA assigned
 )
 
 // TLS signaling cipher suite values
@@ -174,11 +206,80 @@ type pskIdentity struct {
 	obfuscatedTicketAge uint32
 }
 
+func (curveID *CurveID) MarshalJSON() ([]byte, error) {
+	buf := make([]byte, 2)
+	buf[0] = byte(*curveID >> 8)
+	buf[1] = byte(*curveID)
+	enc := strings.ToUpper(hex.EncodeToString(buf))
+	aux := struct {
+		Hex   string `json:"hex"`
+		Name  string `json:"name"`
+		Value uint16 `json:"value"`
+	}{
+		Hex:   fmt.Sprintf("0x%s", enc),
+		Name:  curveID.String(),
+		Value: uint16(*curveID),
+	}
+
+	return json.Marshal(aux)
+}
+
+func (curveID *CurveID) UnmarshalJSON(b []byte) error {
+	aux := struct {
+		Hex   string `json:"hex"`
+		Name  string `json:"name"`
+		Value uint16 `json:"value"`
+	}{}
+	if err := json.Unmarshal(b, &aux); err != nil {
+		return err
+	}
+	if expectedName := nameForCurve(aux.Value); expectedName != aux.Name {
+		return fmt.Errorf("mismatched curve and name, curve: %d, name: %s, expected name: %s", aux.Value, aux.Name, expectedName)
+	}
+	*curveID = CurveID(aux.Value)
+	return nil
+}
+
+type PointFormat uint8
+
 // TLS Elliptic Curve Point Formats
 // https://www.iana.org/assignments/tls-parameters/tls-parameters.xml#tls-parameters-9
 const (
 	pointFormatUncompressed uint8 = 0
 )
+
+func (pFormat *PointFormat) MarshalJSON() ([]byte, error) {
+	buf := make([]byte, 1)
+	buf[0] = byte(*pFormat)
+	enc := strings.ToUpper(hex.EncodeToString(buf))
+	aux := struct {
+		Hex   string `json:"hex"`
+		Name  string `json:"name"`
+		Value uint8  `json:"value"`
+	}{
+		Hex:   fmt.Sprintf("0x%s", enc),
+		Name:  pFormat.String(),
+		Value: uint8(*pFormat),
+	}
+
+	return json.Marshal(aux)
+}
+
+func (pFormat *PointFormat) UnmarshalJSON(b []byte) error {
+	aux := struct {
+		Hex   string `json:"hex"`
+		Name  string `json:"name"`
+		Value uint8  `json:"value"`
+	}{}
+	if err := json.Unmarshal(b, &aux); err != nil {
+		return err
+	}
+	if expectedName := nameForPointFormat(aux.Value); expectedName != aux.Name {
+		return fmt.Errorf("mismatched point format and name, point format: %d, name: %s, expected name: %s", aux.Value, aux.Name, expectedName)
+	}
+	*pFormat = PointFormat(aux.Value)
+	return nil
+}
 
 // TLS CertificateStatusType (RFC 3546)
 const (
@@ -187,13 +288,44 @@ const (
 
 // Certificate types (for certificateRequestMsg)
 const (
-	certTypeRSASign   = 1
-	certTypeECDSASign = 64 // ECDSA or EdDSA keys, see RFC 8422, Section 3.
+	certTypeRSASign    = 1 // A certificate containing an RSA key
+	certTypeDSSSign    = 2 // A certificate containing a DSA key
+	certTypeRSAFixedDH = 3 // A certificate containing a static DH key
+	certTypeDSSFixedDH = 4 // A certificate containing a static DH key
+
+	// See RFC4492 sections 3 and 5.5.
+	certTypeECDSASign      = 64 // A certificate containing an ECDSA-capable public key, signed with ECDSA.
+	certTypeRSAFixedECDH   = 65 // A certificate containing an ECDH-capable public key, signed with RSA.
+	certTypeECDSAFixedECDH = 66 // A certificate containing an ECDH-capable public key, signed with ECDSA.
+
+	// Rest of these are reserved by the TLS spec
 )
 
+// Hash functions for TLS 1.2 (See RFC 5246, section A.4.1)
+const (
+	hashMD5    uint8 = 1
+	hashSHA1   uint8 = 2
+	hashSHA224 uint8 = 3
+	hashSHA256 uint8 = 4
+	hashSHA384 uint8 = 5
+	hashSHA512 uint8 = 6
+)
+
+var supportedHashFunc = map[uint8]crypto.Hash{
+	hashMD5:    crypto.MD5,
+	hashSHA1:   crypto.SHA1,
+	hashSHA224: crypto.SHA224,
+	hashSHA256: crypto.SHA256,
+	hashSHA384: crypto.SHA384,
+	hashSHA512: crypto.SHA512,
+}
+
+// Signature algorithms for TLS 1.2 (See RFC 5246, section A.4.1)
 // Signature algorithms (for internal signaling use). Starting at 225 to avoid overlap with
 // TLS 1.2 codepoints (RFC 5246, Appendix A.4.1), with which these have nothing to do.
 const (
+	signatureRSA      uint8 = 1
+	signatureDSA      uint8 = 2
 	signaturePKCS1v15 uint8 = iota + 225
 	signatureRSAPSS
 	signatureECDSA
@@ -225,6 +357,53 @@ const (
 // testingOnlyForceDowngradeCanary is set in tests to force the server side to
 // include downgrade canaries even if it's using its highers supported version.
 var testingOnlyForceDowngradeCanary bool
+
+// SigAndHash mirrors the TLS 1.2, SignatureAndHashAlgorithm struct. See
+// RFC 5246, section A.4.1.
+type SigAndHash struct {
+	Signature, Hash uint8
+}
+
+// supportedSKXSignatureAlgorithms contains the signature and hash algorithms
+// that the code advertises as supported in a TLS 1.2 ClientHello.
+var supportedSKXSignatureAlgorithms = []SigAndHash{
+	{signatureRSA, hashSHA512},
+	{signatureECDSA, hashSHA512},
+	{signatureDSA, hashSHA512},
+	{signatureRSA, hashSHA384},
+	{signatureECDSA, hashSHA384},
+	{signatureDSA, hashSHA384},
+	{signatureRSA, hashSHA256},
+	{signatureECDSA, hashSHA256},
+	{signatureDSA, hashSHA256},
+	{signatureRSA, hashSHA224},
+	{signatureECDSA, hashSHA224},
+	{signatureDSA, hashSHA224},
+	{signatureRSA, hashSHA1},
+	{signatureECDSA, hashSHA1},
+	{signatureDSA, hashSHA1},
+	{signatureRSA, hashMD5},
+	{signatureECDSA, hashMD5},
+	{signatureDSA, hashMD5},
+}
+
+var defaultSKXSignatureAlgorithms = []SigAndHash{
+	{signatureRSA, hashSHA256},
+	{signatureECDSA, hashSHA256},
+	{signatureRSA, hashSHA1},
+	{signatureECDSA, hashSHA1},
+	{signatureRSA, hashSHA256},
+	{signatureRSA, hashSHA384},
+	{signatureRSA, hashSHA512},
+}
+
+// supportedClientCertSignatureAlgorithms contains the signature and hash
+// algorithms that the code advertises as supported in a TLS 1.2
+// CertificateRequest.
+var supportedClientCertSignatureAlgorithms = []SigAndHash{
+	{signatureRSA, hashSHA256},
+	{signatureECDSA, hashSHA256},
+}
 
 // ConnectionState records basic TLS details about the connection.
 type ConnectionState struct {
@@ -327,25 +506,41 @@ const (
 	// NoClientCert indicates that no client certificate should be requested
 	// during the handshake, and if any certificates are sent they will not
 	// be verified.
-	NoClientCert ClientAuthType = iota
+	NoClientCert ClientAuthType = 0
 	// RequestClientCert indicates that a client certificate should be requested
 	// during the handshake, but does not require that the client send any
 	// certificates.
-	RequestClientCert
+	RequestClientCert ClientAuthType = 1
 	// RequireAnyClientCert indicates that a client certificate should be requested
 	// during the handshake, and that at least one certificate is required to be
 	// sent by the client, but that certificate is not required to be valid.
-	RequireAnyClientCert
+	RequireAnyClientCert ClientAuthType = 2
 	// VerifyClientCertIfGiven indicates that a client certificate should be requested
 	// during the handshake, but does not require that the client sends a
 	// certificate. If the client does send a certificate it is required to be
 	// valid.
-	VerifyClientCertIfGiven
+	VerifyClientCertIfGiven ClientAuthType = 3
 	// RequireAndVerifyClientCert indicates that a client certificate should be requested
 	// during the handshake, and that at least one valid certificate is required
 	// to be sent by the client.
-	RequireAndVerifyClientCert
+	RequireAndVerifyClientCert ClientAuthType = 4
 )
+
+func (authType *ClientAuthType) String() string {
+	if name, ok := clientAuthTypeNames[int(*authType)]; ok {
+		return name
+	}
+
+	return "unknown"
+}
+
+func (authType *ClientAuthType) MarshalJSON() ([]byte, error) {
+	return []byte(`"` + authType.String() + `"`), nil
+}
+
+func (authType *ClientAuthType) UnmarshalJSON(b []byte) error {
+	panic("unimplemented")
+}
 
 // requiresClientCert reports whether the ClientAuthType requires a client
 // certificate to be provided.
@@ -376,6 +571,15 @@ type ClientSessionCache interface {
 	Put(sessionKey string, cs *ClientSessionState)
 }
 
+func isSupportedSignatureAndHash(sigHash SignatureAndHash, sigHashes []SignatureAndHash) bool {
+	for _, s := range sigHashes {
+		if s == sigHash {
+			return true
+		}
+	}
+	return false
+}
+
 //go:generate stringer -linecomment -type=SignatureScheme,CurveID,ClientAuthType -output=common_string.go
 
 // SignatureScheme identifies a signature algorithm supported by TLS. See
@@ -402,9 +606,43 @@ const (
 	Ed25519 SignatureScheme = 0x0807
 
 	// Legacy signature and hash algorithms for TLS 1.2.
-	PKCS1WithSHA1 SignatureScheme = 0x0201
-	ECDSAWithSHA1 SignatureScheme = 0x0203
+	PKCS1WithSHA1    SignatureScheme = 0x0201
+	ECDSAWithSHA1    SignatureScheme = 0x0203
+	EdDSAWithEd25519 SignatureScheme = 0x0807
+	EdDSAWithEd448   SignatureScheme = 0x0808
 )
+
+func (sigScheme *SignatureScheme) MarshalJSON() ([]byte, error) {
+	buf := sigScheme.Bytes()
+	enc := strings.ToUpper(hex.EncodeToString(buf))
+	aux := struct {
+		Hex   string `json:"hex"`
+		Name  string `json:"name"`
+		Value uint16 `json:"value"`
+	}{
+		Hex:   fmt.Sprintf("0x%s", enc),
+		Name:  sigScheme.String(),
+		Value: uint16(*sigScheme),
+	}
+
+	return json.Marshal(aux)
+}
+
+func (sigScheme *SignatureScheme) UnmarshalJSON(b []byte) error {
+	aux := struct {
+		Hex   string `json:"hex"`
+		Name  string `json:"name"`
+		Value uint16 `json:"value"`
+	}{}
+	if err := json.Unmarshal(b, &aux); err != nil {
+		return err
+	}
+	if expectedName := nameForSignatureScheme(aux.Value); expectedName != aux.Name {
+		return fmt.Errorf("mismatched signature scheme and name, signature scheme: %d, name: %s, expected name: %s", aux.Value, aux.Name, expectedName)
+	}
+	*sigScheme = SignatureScheme(aux.Value)
+	return nil
+}
 
 // ClientHelloInfo contains information from a ClientHello message in order to
 // guide application logic in the GetCertificate and GetConfigForClient callbacks.
@@ -462,7 +700,249 @@ type ClientHelloInfo struct {
 
 	// ctx is the context of the handshake that is in progress.
 	ctx context.Context
+
+	// Add a pointer to the entire tls handshake structure so that it can
+	// be retrieved without hijacking the connection from higher-level
+	// packages
+	HandshakeLog *ServerHandshake
 }
+
+func (info *ClientHelloInfo) MarshalJSON() ([]byte, error) {
+	aux := struct {
+		CipherSuites      []CipherSuite     `json:"cipher_suites"`
+		ServerName        string            `json:"server_name,omitempty"`
+		SupportedCurves   []CurveID         `json:"supported_curves,omitempty"`
+		SupportedPoints   []PointFormat     `json:"supported_point_formats,omitempty"`
+		SignatureSchemes  []SignatureScheme `json:"signature_schemes,omitempty"`
+		SupportedProtos   []string          `json:"supported_protocols,omitempty"`
+		SupportedVersions []TLSVersion      `json:"supported_versions,omitempty"`
+		LocalAddr         string            `json:"local_address,omitempty"`
+		RemoteAddr        string            `json:"remote_address,omitempty"`
+	}{
+		ServerName:       info.ServerName,
+		SupportedCurves:  info.SupportedCurves,
+		SignatureSchemes: info.SignatureSchemes,
+		SupportedProtos:  info.SupportedProtos,
+		// Do not marshal HandshakeLog IOT avoid duplication of data
+		// HandshakeLog can be marshalled manually from
+		// ClientHelloInfo.HandshakeLog or Conn.GetHandshakeLog()
+	}
+
+	aux.CipherSuites = make([]CipherSuite, len(info.CipherSuites))
+	for i, cipher := range info.CipherSuites {
+		aux.CipherSuites[i] = CipherSuite{ID: cipher}
+	}
+
+	aux.SupportedPoints = make([]PointFormat, len(info.SupportedPoints))
+	for i, format := range info.SupportedPoints {
+		aux.SupportedPoints[i] = PointFormat(format)
+	}
+
+	aux.SupportedVersions = make([]TLSVersion, len(info.SupportedVersions))
+	for i, version := range info.SupportedVersions {
+		aux.SupportedVersions[i] = TLSVersion(version)
+	}
+
+	aux.LocalAddr = fmt.Sprintf("%s+%s", info.Conn.LocalAddr().String(), info.Conn.LocalAddr().Network())
+	aux.RemoteAddr = fmt.Sprintf("%s+%s", info.Conn.RemoteAddr().String(), info.Conn.RemoteAddr().Network())
+
+	return json.Marshal(aux)
+}
+
+func (info *ClientHelloInfo) UnmarshalJSON(b []byte) error {
+	aux := struct {
+		CipherSuites      []CipherSuite     `json:"cipher_suites"`
+		ServerName        string            `json:"server_name,omitempty"`
+		SupportedCurves   []CurveID         `json:"supported_curves,omitempty"`
+		SupportedPoints   []PointFormat     `json:"supported_point_formats,omitempty"`
+		SignatureSchemes  []SignatureScheme `json:"signature_schemes,omitempty"`
+		SupportedProtos   []string          `json:"supported_protocols,omitempty"`
+		SupportedVersions []TLSVersion      `json:"supported_versions,omitempty"`
+		LocalAddr         string            `json:"local_address,omitempty"`
+		RemoteAddr        string            `json:"remote_address,omitempty"`
+	}{}
+
+	err := json.Unmarshal(b, &aux)
+	if err != nil {
+		return err
+	}
+
+	splitLocalAddr := strings.Split(aux.LocalAddr, "+")
+	if len(splitLocalAddr) != 2 {
+		return errors.New("local_address is not unmarshalable")
+	}
+	splitRemoteAddr := strings.Split(aux.RemoteAddr, "+")
+	if len(splitRemoteAddr) != 2 {
+		return errors.New("remote_address is not unmarshalable")
+	}
+
+	info.Conn = FakeConn{
+		localAddr: FakeAddr{
+			stringStr:  splitLocalAddr[0],
+			networkStr: splitLocalAddr[1],
+		},
+		remoteAddr: FakeAddr{
+			stringStr:  splitRemoteAddr[0],
+			networkStr: splitLocalAddr[1],
+		},
+	}
+
+	info.ServerName = aux.ServerName
+	info.SupportedCurves = aux.SupportedCurves
+	info.SignatureSchemes = aux.SignatureSchemes
+	info.SupportedProtos = aux.SupportedProtos
+
+	info.CipherSuites = make([]uint16, len(aux.CipherSuites))
+	for i, cipher := range aux.CipherSuites {
+		info.CipherSuites[i] = uint16(cipher.ID)
+	}
+
+	info.SupportedPoints = make([]uint8, len(aux.SupportedPoints))
+	for i, format := range aux.SupportedPoints {
+		info.SupportedPoints[i] = uint8(format)
+	}
+
+	info.SupportedVersions = make([]uint16, len(aux.SupportedVersions))
+	for i, version := range aux.SupportedVersions {
+		info.SupportedVersions[i] = uint16(version)
+	}
+
+	return nil
+}
+
+// FakeConn and FakeAddr are to allow unmarshaling of tls objects that contain
+// net.Conn objects
+// With the exeption of recovering the net.Addr strings contained in the JSON,
+// any attempt to use these objects will result in a runtime panic()
+type FakeConn struct {
+	localAddr  FakeAddr
+	remoteAddr FakeAddr
+}
+
+func (fConn FakeConn) Read(b []byte) (int, error) {
+	panic("Read() on FakeConn")
+}
+
+func (fConn FakeConn) Write(b []byte) (int, error) {
+	panic("Write() on FakeConn")
+}
+
+func (fConn FakeConn) Close() error {
+	panic("Close() on FakeConn")
+}
+
+func (fConn FakeConn) LocalAddr() net.Addr {
+	return fConn.localAddr
+}
+
+func (fConn FakeConn) RemoteAddr() net.Addr {
+	return fConn.remoteAddr
+}
+
+func (fConn FakeConn) SetDeadline(t time.Time) error {
+	panic("SetDeadline() on FakeConn")
+}
+
+func (fConn FakeConn) SetReadDeadline(t time.Time) error {
+	panic("SetReadDeadline() on FakeConn")
+}
+
+func (fConn FakeConn) SetWriteDeadline(t time.Time) error {
+	panic("SetWriteDeadline() on FakeConn")
+}
+
+type FakeAddr struct {
+	networkStr string
+	stringStr  string
+}
+
+func (fAddr FakeAddr) String() string {
+	return fAddr.stringStr
+}
+
+func (fAddr FakeAddr) Network() string {
+	return fAddr.networkStr
+}
+
+type ConfigJSON struct {
+	Certificates                   []Certificate                   `json:"certificates,omitempty"`
+	RootCAs                        *x509.CertPool                  `json:"root_cas,omitempty"`
+	NextProtos                     []string                        `json:"next_protocols,omitempty"`
+	ServerName                     string                          `json:"server_name,omitempty"`
+	ClientAuth                     ClientAuthType                  `json:"client_auth_type"`
+	ClientCAs                      *x509.CertPool                  `json:"client_cas,omitempty"`
+	InsecureSkipVerify             bool                            `json:"skip_verify"`
+	CipherSuites                   []CipherSuite                   `json:"cipher_suites,omitempty"`
+	PreferServerCipherSuites       bool                            `json:"prefer_server_cipher_suites"`
+	SessionTicketsDisabled         bool                            `json:"session_tickets_disabled"`
+	SessionTicketKey               []byte                          `json:"session_ticket_key,omitempty"`
+	ClientSessionCache             ClientSessionCache              `json:"client_session_cache,omitempty"`
+	MinVersion                     TLSVersion                      `json:"min_tls_version,omitempty"`
+	MaxVersion                     TLSVersion                      `json:"max_tls_version,omitempty"`
+	CurvePreferences               []CurveID                       `json:"curve_preferences,omitempty"`
+	ExplicitCurvePreferences       bool                            `json:"explicit_curve_preferences"`
+	ForceSuites                    bool                            `json:"force_cipher_suites"`
+	ExportRSAKey                   *rsa.PrivateKey                 `json:"export_rsa_key,omitempty"`
+	HeartbeatEnabled               bool                            `json:"heartbeat_enabled"`
+	ClientDSAEnabled               bool                            `json:"client_dsa_enabled"`
+	ExtendedRandom                 bool                            `json:"extended_random_enabled"`
+	ForceSessionTicketExt          bool                            `json:"session_ticket_ext_enabled"`
+	ExtendedMasterSecret           bool                            `json:"extended_master_secret_enabled"`
+	SignedCertificateTimestampExt  bool                            `json:"sct_ext_enabled"`
+	ClientRandom                   []byte                          `json:"client_random,omitempty"`
+	ExternalClientHello            []byte                          `json:"external_client_hello,omitempty"`
+	ClientFingerprintConfiguration *ClientFingerprintConfiguration `json:"client_fingerprint_config,omitempty"`
+	DontBufferHandshakes           bool                            `json:"dont_buffer_handshakes"`
+}
+
+func (config *Config) MarshalJSON() ([]byte, error) {
+	aux := new(ConfigJSON)
+
+	aux.Certificates = config.Certificates
+	aux.RootCAs = config.RootCAs
+	aux.NextProtos = config.NextProtos
+	aux.ServerName = config.ServerName
+	aux.ClientAuth = config.ClientAuth
+	aux.ClientCAs = config.ClientCAs
+	aux.InsecureSkipVerify = config.InsecureSkipVerify
+
+	ciphers := config.cipherSuites()
+	aux.CipherSuites = make([]CipherSuite, len(ciphers))
+	for i, aCipher := range ciphers {
+		aux.CipherSuites[i] = CipherSuite{ID: aCipher}
+	}
+
+	aux.PreferServerCipherSuites = config.PreferServerCipherSuites
+	aux.SessionTicketsDisabled = config.SessionTicketsDisabled
+	aux.SessionTicketKey = config.SessionTicketKey[:]
+	aux.ClientSessionCache = config.ClientSessionCache
+	aux.MinVersion = TLSVersion(config.MinVersion)
+	aux.MaxVersion = TLSVersion(config.MaxVersion)
+	aux.CurvePreferences = config.curvePreferences(config.MaxVersion) // TODO: Use the negotiated version
+	aux.ExplicitCurvePreferences = config.ExplicitCurvePreferences
+	aux.ForceSuites = config.ForceSuites
+	aux.ExportRSAKey = config.ExportRSAKey
+	aux.HeartbeatEnabled = config.HeartbeatEnabled
+	aux.ClientDSAEnabled = config.ClientDSAEnabled
+	aux.ExtendedRandom = config.ExtendedRandom
+	aux.ForceSessionTicketExt = config.ForceSessionTicketExt
+	aux.ExtendedMasterSecret = config.ExtendedMasterSecret
+	aux.SignedCertificateTimestampExt = config.SignedCertificateTimestampExt
+	aux.ClientRandom = config.ClientRandom
+	aux.ExternalClientHello = config.ExternalClientHello
+	aux.ClientFingerprintConfiguration = config.ClientFingerprintConfiguration
+	aux.DontBufferHandshakes = config.DontBufferHandshakes
+
+	return json.Marshal(aux)
+}
+
+func (config *Config) UnmarshalJSON(b []byte) error {
+	panic("unimplemented")
+}
+
+// Error type raised by doFullHandshake() when the CertsOnly option is
+// in use
+var ErrCertsOnly = errors.New("handshake abandoned per CertsOnly option")
 
 // Context returns the context of the handshake that is in progress.
 // This context is a child of the context passed to HandshakeContext,
@@ -785,6 +1265,73 @@ type Config struct {
 	// such as Wireshark to decrypt TLS connections.
 	// See https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Key_Log_Format.
 	// Use of KeyLogWriter compromises security and should only be
+
+	// If enabled, empty CurvePreferences indicates that there are no curves
+	// supported for ECDHE key exchanges
+	ExplicitCurvePreferences bool
+
+	// EC Point Formats. Specifies what compressed points the client supports
+	SupportedPoints []uint8
+
+	// Online Certificate Status Protocol (OCSP) stapling,
+	// formally knows as TLS Certificate Status Request.
+	// If this option enabled, the certificate status won't be checked
+	NoOcspStapling bool
+
+	// Specifies what compression methods the client supports
+	CompressionMethods []uint8
+
+	// If enabled, specifies the signature and hash algorithms to be accepted by
+	// a server, or sent by a client
+	SignatureAndHashes []SigAndHash
+
+	serverInitOnce sync.Once // guards calling (*Config).serverInit
+
+	// Add all ciphers in CipherSuites to Client Hello even if unimplemented
+	// Client-side Only
+	ForceSuites bool
+
+	// Export RSA Key
+	ExportRSAKey *rsa.PrivateKey
+
+	// HeartbeatEnabled sets whether the heartbeat extension is sent
+	HeartbeatEnabled bool
+
+	// ClientDSAEnabled sets whether a TLS client will accept server DSA keys
+	// and DSS signatures
+	ClientDSAEnabled bool
+
+	// Use extended random
+	ExtendedRandom bool
+
+	// Force Client Hello to send TLS Session Ticket extension
+	ForceSessionTicketExt bool
+
+	// Enable use of the Extended Master Secret extension
+	ExtendedMasterSecret bool
+
+	SignedCertificateTimestampExt bool
+
+	// Explicitly set Client random
+	ClientRandom []byte
+
+	// Explicitly set Server random
+	ServerRandom []byte
+
+	// Explicitly set ClientHello with raw data
+	ExternalClientHello []byte
+
+	// If non-null specifies the contents of the client-hello
+	// WARNING: Setting this may invalidate other fields in the Config object
+	ClientFingerprintConfiguration *ClientFingerprintConfiguration
+
+	// CertsOnly is used to cause a client to close the TLS connection
+	// as soon as the server's certificates have been received
+	CertsOnly bool
+
+	// DontBufferHandshakes causes Handshake() to act like older versions of the go crypto library, where each TLS packet is sent in a separate Write.
+	DontBufferHandshakes bool
+
 	// used for debugging.
 	KeyLogWriter io.Writer
 
@@ -886,10 +1433,8 @@ func (c *Config) Clone() *Config {
 		Time:                                c.Time,
 		Certificates:                        c.Certificates,
 		NameToCertificate:                   c.NameToCertificate,
-		GetCertificate:                      c.GetCertificate,
 		GetClientCertificate:                c.GetClientCertificate,
 		GetConfigForClient:                  c.GetConfigForClient,
-		VerifyPeerCertificate:               c.VerifyPeerCertificate,
 		VerifyConnection:                    c.VerifyConnection,
 		RootCAs:                             c.RootCAs,
 		NextProtos:                          c.NextProtos,
@@ -907,13 +1452,18 @@ func (c *Config) Clone() *Config {
 		MinVersion:                          c.MinVersion,
 		MaxVersion:                          c.MaxVersion,
 		CurvePreferences:                    c.CurvePreferences,
-		DynamicRecordSizingDisabled:         c.DynamicRecordSizingDisabled,
-		Renegotiation:                       c.Renegotiation,
-		KeyLogWriter:                        c.KeyLogWriter,
 		EncryptedClientHelloConfigList:      c.EncryptedClientHelloConfigList,
 		EncryptedClientHelloRejectionVerify: c.EncryptedClientHelloRejectionVerify,
 		sessionTicketKeys:                   c.sessionTicketKeys,
 		autoSessionTicketKeys:               c.autoSessionTicketKeys,
+		ExplicitCurvePreferences:            c.ExplicitCurvePreferences,
+		ClientFingerprintConfiguration:      c.ClientFingerprintConfiguration,
+		CertsOnly:                           c.CertsOnly,
+		GetCertificate:                      c.GetCertificate,
+		DynamicRecordSizingDisabled:         c.DynamicRecordSizingDisabled,
+		VerifyPeerCertificate:               c.VerifyPeerCertificate,
+		KeyLogWriter:                        c.KeyLogWriter,
+		Renegotiation:                       c.Renegotiation,
 	}
 }
 
@@ -1188,8 +1738,6 @@ func (c *Config) mutualVersion(isClient bool, peerVersions []uint16) (uint16, bo
 //
 // Do not remove or change the type signature.
 // See go.dev/issue/67401.
-//
-//go:linkname errNoCertificates
 var errNoCertificates = errors.New("tls: no certificates configured")
 
 // getCertificate returns the best certificate for the given ClientHelloInfo,
@@ -1235,6 +1783,56 @@ func (c *Config) getCertificate(clientHello *ClientHelloInfo) (*Certificate, err
 
 	// If nothing matches, return the first certificate.
 	return &c.Certificates[0], nil
+}
+
+// getCertificateForName returns the best certificate for the given name,
+// defaulting to the first element of c.Certificates if there are no good
+// options.
+func (c *Config) getCertificateForName(name string) *Certificate {
+	if len(c.Certificates) == 1 || c.NameToCertificate == nil {
+		// There's only one choice, so no point doing any work.
+		return &c.Certificates[0]
+	}
+
+	name = strings.ToLower(name)
+	for len(name) > 0 && name[len(name)-1] == '.' {
+		name = name[:len(name)-1]
+	}
+
+	if cert, ok := c.NameToCertificate[name]; ok {
+		return cert
+	}
+
+	// try replacing labels in the name with wildcards until we get a
+	// match.
+	labels := strings.Split(name, ".")
+	for i := range labels {
+		labels[i] = "*"
+		candidate := strings.Join(labels, ".")
+		if cert, ok := c.NameToCertificate[candidate]; ok {
+			return cert
+		}
+	}
+
+	// If nothing matches, return the first certificate.
+	return &c.Certificates[0]
+}
+
+func (c *Config) signatureAndHashesForServer() []SigAndHash {
+	if c != nil && c.SignatureAndHashes != nil {
+		return c.SignatureAndHashes
+	}
+	return supportedClientCertSignatureAlgorithms
+}
+
+func (c *Config) signatureAndHashesForClient() []SigAndHash {
+	if c != nil && c.SignatureAndHashes != nil {
+		return c.SignatureAndHashes
+	}
+	if c.ClientDSAEnabled {
+		return supportedSKXSignatureAlgorithms
+	}
+	return defaultSKXSignatureAlgorithms
 }
 
 // SupportsCertificate returns nil if the provided certificate is supported by
@@ -1335,20 +1933,20 @@ func (chi *ClientHelloInfo) SupportsCertificate(c *Certificate) error {
 	if priv, ok := c.PrivateKey.(crypto.Signer); ok {
 		switch pub := priv.Public().(type) {
 		case *ecdsa.PublicKey:
-			var curve CurveID
+			var cid CurveID
 			switch pub.Curve {
 			case elliptic.P256():
-				curve = CurveP256
+				cid = CurveP256
 			case elliptic.P384():
-				curve = CurveP384
+				cid = CurveP384
 			case elliptic.P521():
-				curve = CurveP521
+				cid = CurveP521
 			default:
 				return supportsRSAFallback(unsupportedCertificateError(c))
 			}
 			var curveOk bool
 			for _, c := range chi.SupportedCurves {
-				if c == curve && config.supportsCurve(vers, c) {
+				if c == cid && config.supportsCurve(vers, c) {
 					curveOk = true
 					break
 				}
@@ -1484,25 +2082,25 @@ var writerMutex sync.Mutex
 
 // A Certificate is a chain of one or more certificates, leaf first.
 type Certificate struct {
-	Certificate [][]byte
+	Certificate [][]byte `json:"certificate_chain,omitempty"`
 	// PrivateKey contains the private key corresponding to the public key in
 	// Leaf. This must implement crypto.Signer with an RSA, ECDSA or Ed25519 PublicKey.
 	// For a server up to TLS 1.2, it can also implement crypto.Decrypter with
 	// an RSA PublicKey.
-	PrivateKey crypto.PrivateKey
+	PrivateKey crypto.PrivateKey `json:"-"`
 	// SupportedSignatureAlgorithms is an optional list restricting what
 	// signature algorithms the PrivateKey can be used for.
-	SupportedSignatureAlgorithms []SignatureScheme
+	SupportedSignatureAlgorithms []SignatureScheme `json:"signature_scheme,omitempty"`
 	// OCSPStaple contains an optional OCSP response which will be served
 	// to clients that request it.
-	OCSPStaple []byte
+	OCSPStaple []byte `json:"ocsp_staple,omitempty"`
 	// SignedCertificateTimestamps contains an optional list of Signed
 	// Certificate Timestamps which will be served to clients that request it.
-	SignedCertificateTimestamps [][]byte
+	SignedCertificateTimestamps [][]byte `json:"signed_certificate_timestamps,omitempty"`
 	// Leaf is the parsed form of the leaf certificate, which may be initialized
 	// using x509.ParseCertificate to reduce per-handshake processing. If nil,
 	// the leaf certificate will be parsed as needed.
-	Leaf *x509.Certificate
+	Leaf *x509.Certificate `json:"leaf,omitempty"`
 }
 
 // leaf returns the parsed leaf certificate, either from c.Leaf or by parsing
@@ -1512,6 +2110,13 @@ func (c *Certificate) leaf() (*x509.Certificate, error) {
 		return c.Leaf, nil
 	}
 	return x509.ParseCertificate(c.Certificate[0])
+}
+
+// A TLS record.
+type record struct {
+	contentType  recordType
+	major, minor uint8
+	payload      []byte
 }
 
 type handshakeMessage interface {
@@ -1605,7 +2210,14 @@ func (c *lruSessionCache) Get(sessionKey string) (*ClientSessionState, bool) {
 	return nil, false
 }
 
-var emptyConfig Config
+// TODO(jsing): Make these available to both crypto/x509 and crypto/tls.
+type dsaSignature struct {
+	R, S *big.Int
+}
+
+type ecdsaSignature dsaSignature
+
+var emptyConfig Config = Config{}
 
 func defaultConfig() *Config {
 	return &emptyConfig

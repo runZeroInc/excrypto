@@ -5,8 +5,9 @@
 package x509
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 
 	cryptobyte_asn1 "github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
 )
@@ -68,10 +69,10 @@ func TestParseASN1String(t *testing.T) {
 			expected: string("PQ"),
 		},
 		{
-			name:        "IA5String (invalid)",
-			tag:         cryptobyte_asn1.IA5String,
-			value:       []byte{255},
-			expectedErr: "invalid IA5String",
+			name:     "IA5String (invalid)",
+			tag:      cryptobyte_asn1.IA5String,
+			value:    []byte{255},
+			expected: string("\xff"), // zcrypto: allow invalid strings
 		},
 		{
 			name:     "NumericString",

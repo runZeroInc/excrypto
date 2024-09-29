@@ -12,7 +12,6 @@ import (
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
-	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"io"
 	"math"
 	"math/big"
@@ -25,6 +24,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/dsa"
@@ -670,17 +671,18 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 			OCSPServer:            []string{"http://ocsp.example.com"},
 			IssuingCertificateURL: []string{"http://crt.example.com/ca1.crt"},
 
-			DNSNames:       []string{"test.example.com"},
-			EmailAddresses: []string{"gopher@golang.org"},
-			IPAddresses:    []net.IP{net.IPv4(127, 0, 0, 1).To4(), net.ParseIP("2001:4860:0:2001::68")},
-			URIs:           []*url.URL{parseURI("https://foo.com/wibble#foo")},
+			DNSNames:            []string{"test.example.com"},
+			EmailAddresses:      []string{"gopher@golang.org"},
+			IPAddresses:         []net.IP{net.IPv4(127, 0, 0, 1).To4(), net.ParseIP("2001:4860:0:2001::68")},
+			URIs:                []string{"https://foo.com/wibble#foo"},
+			PolicyIdentifiers:   []asn1.ObjectIdentifier{[]int{1, 2, 3}},
+			Policies:            []OID{mustNewOIDFromInts(t, []uint64{1, 2, 3, math.MaxUint32, math.MaxUint64})},
+			PermittedDNSDomains: []string{".example.com", "example.com"},
+			ExcludedDNSDomains:  []string{"bar.example.com"},
 
-			PolicyIdentifiers:       []asn1.ObjectIdentifier{[]int{1, 2, 3}},
-			Policies:                []OID{mustNewOIDFromInts(t, []uint64{1, 2, 3, math.MaxUint32, math.MaxUint64})},
-			PermittedDNSDomains:     []string{".example.com", "example.com"},
-			ExcludedDNSDomains:      []string{"bar.example.com"},
-			PermittedIPRanges:       []*net.IPNet{parseCIDR("192.168.1.1/16"), parseCIDR("1.2.3.4/8")},
-			ExcludedIPRanges:        []*net.IPNet{parseCIDR("2001:db8::/48")},
+			PermittedIPRanges: []*net.IPNet{parseCIDR("192.168.1.1/16"), parseCIDR("1.2.3.4/8")},
+			ExcludedIPRanges:  []*net.IPNet{parseCIDR("2001:db8::/48")},
+
 			PermittedEmailAddresses: []string{"foo@example.com"},
 			ExcludedEmailAddresses:  []string{".example.com", "example.com"},
 			PermittedURIDomains:     []string{".bar.com", "bar.com"},
@@ -718,8 +720,9 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 			t.Errorf("%s: failed to parse policy identifiers: got:%#v want:%#v", test.name, cert.PolicyIdentifiers, template.PolicyIdentifiers)
 		}
 
-		if len(cert.PermittedDNSDomains) != 2 || cert.PermittedDNSDomains[0] != ".example.com" || cert.PermittedDNSDomains[1] != "example.com" {
-			t.Errorf("%s: failed to parse name constraints: %#v", test.name, cert.PermittedDNSDomains)
+		// The leading dot is trimmed
+		if len(cert.PermittedDNSDomains) != 2 || cert.PermittedDNSDomains[0] != "example.com" || cert.PermittedDNSDomains[1] != "example.com" {
+			t.Errorf("%s: failed to parse name constraints: %#v (cert:%#v)", test.name, cert.PermittedDNSDomains, cert)
 		}
 
 		if len(cert.ExcludedDNSDomains) != 1 || cert.ExcludedDNSDomains[0] != "bar.example.com" {
@@ -809,7 +812,7 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 			t.Errorf("%s: SAN emails differ from template. Got %v, want %v", test.name, cert.EmailAddresses, template.EmailAddresses)
 		}
 
-		if len(cert.URIs) != 1 || cert.URIs[0].String() != "https://foo.com/wibble#foo" {
+		if len(cert.URIs) != 1 || cert.URIs[0] != "https://foo.com/wibble#foo" {
 			t.Errorf("%s: URIs differ from template. Got %v, want %v", test.name, cert.URIs, template.URIs)
 		}
 
@@ -1808,7 +1811,7 @@ func TestASN1BitLength(t *testing.T) {
 }
 
 func TestVerifyEmptyCertificate(t *testing.T) {
-	if _, err := new(Certificate).Verify(VerifyOptions{}); err != errNotParsed {
+	if _, _, _, err := new(Certificate).Verify(VerifyOptions{}); err != errNotParsed {
 		t.Errorf("Verifying empty certificate resulted in unexpected error: %q (wanted %q)", err, errNotParsed)
 	}
 }
@@ -1821,7 +1824,7 @@ func TestInsecureAlgorithmErrorString(t *testing.T) {
 		{MD5WithRSA, "x509: cannot verify signature: insecure algorithm MD5-RSA"},
 		{SHA1WithRSA, "x509: cannot verify signature: insecure algorithm SHA1-RSA (temporarily override with GODEBUG=x509sha1=1)"},
 		{ECDSAWithSHA1, "x509: cannot verify signature: insecure algorithm ECDSA-SHA1 (temporarily override with GODEBUG=x509sha1=1)"},
-		{MD2WithRSA, "x509: cannot verify signature: insecure algorithm 1"},
+		{MD2WithRSA, "x509: cannot verify signature: insecure algorithm MD2-RSA"},
 		{-1, "x509: cannot verify signature: insecure algorithm -1"},
 		{0, "x509: cannot verify signature: insecure algorithm 0"},
 		{9999, "x509: cannot verify signature: insecure algorithm 9999"},
@@ -1869,7 +1872,7 @@ qViorq4=
 -----END CERTIFICATE-----
 `
 
-func TestMD5(t *testing.T) {
+func TestMD5Success(t *testing.T) {
 	pemBlock, _ := pem.Decode([]byte(md5cert))
 	cert, err := ParseCertificate(pemBlock.Bytes)
 	if err != nil {
@@ -1878,15 +1881,12 @@ func TestMD5(t *testing.T) {
 	if sa := cert.SignatureAlgorithm; sa != MD5WithRSA {
 		t.Errorf("signature algorithm is %v, want %v", sa, MD5WithRSA)
 	}
-	if err = cert.CheckSignatureFrom(cert); err == nil {
-		t.Fatalf("certificate verification succeeded incorrectly")
-	}
-	if _, ok := err.(InsecureAlgorithmError); !ok {
-		t.Fatalf("certificate verification returned %v (%T), wanted InsecureAlgorithmError", err, err)
+	if err = cert.CheckSignatureFrom(cert); err != nil {
+		t.Fatalf("certificate verification failed: %v", err)
 	}
 }
 
-func TestSHA1(t *testing.T) {
+func TestSHA1Succes(t *testing.T) {
 	pemBlock, _ := pem.Decode([]byte(ecdsaSHA1CertPem))
 	cert, err := ParseCertificate(pemBlock.Bytes)
 	if err != nil {
@@ -1895,11 +1895,8 @@ func TestSHA1(t *testing.T) {
 	if sa := cert.SignatureAlgorithm; sa != ECDSAWithSHA1 {
 		t.Errorf("signature algorithm is %v, want %v", sa, ECDSAWithSHA1)
 	}
-	if err = cert.CheckSignatureFrom(cert); err == nil {
-		t.Fatalf("certificate verification succeeded incorrectly")
-	}
-	if _, ok := err.(InsecureAlgorithmError); !ok {
-		t.Fatalf("certificate verification returned %v (%T), wanted InsecureAlgorithmError", err, err)
+	if err = cert.CheckSignatureFrom(cert); err != nil {
+		t.Fatalf("certificate verification failed: %v", err)
 	}
 
 	godebug.SetEnv("GODEBUG", "x509sha1=1")
@@ -1927,12 +1924,10 @@ hB2rXZIxE0/9gzvGnfERYraL7KtnvshksBFQRlgXa5kc0x38BvEO5ZaoDPl4ILdE
 GFGNEH5PlGffo05wc46QkYU=
 -----END CERTIFICATE-----`
 
-func TestRSAMissingNULLParameters(t *testing.T) {
+func TestRSAMissingNULLParametersSuccess(t *testing.T) {
 	block, _ := pem.Decode([]byte(certMissingRSANULL))
-	if _, err := ParseCertificate(block.Bytes); err == nil {
-		t.Error("unexpected success when parsing certificate with missing RSA NULL parameter")
-	} else if !strings.Contains(err.Error(), "missing NULL") {
-		t.Errorf("unrecognised error when parsing certificate with missing RSA NULL parameter: %s", err)
+	if _, err := ParseCertificate(block.Bytes); err != nil {
+		t.Errorf("failed parsing certificate with missing RSA NULL parameter: %v", err)
 	}
 }
 
@@ -2120,7 +2115,7 @@ func TestPKIXNameString(t *testing.T) {
 		dn   pkix.Name
 		want string
 	}{
-		{nn, "L=Gophertown,1.2.3.4.5=#130a676f6c616e672e6f7267"},
+		{nn, "1.2.3.4.5=#130a676f6c616e672e6f7267, L=Gophertown"},
 		{extraNotNil, "L=Gophertown"},
 		{pkix.Name{
 			CommonName:         "Steve Kille",
@@ -2132,30 +2127,30 @@ func TestPKIXNameString(t *testing.T) {
 			PostalCode:         []string{"TW9 1DT"},
 			SerialNumber:       "RFC 2253",
 			Country:            []string{"GB"},
-		}, "SERIALNUMBER=RFC 2253,CN=Steve Kille,OU=RFCs,O=Isode Limited,POSTALCODE=TW9 1DT,STREET=The Square,L=Richmond,ST=Surrey,C=GB"},
+		}, "SERIALNUMBER=RFC 2253, C=GB, POSTALCODE=TW9 1DT, ST=Surrey, L=Richmond, STREET=The Square, O=Isode Limited, OU=RFCs, CN=Steve Kille"},
 		{certs[0].Subject,
-			"CN=mail.google.com,O=Google LLC,L=Mountain View,ST=California,C=US"},
+			"CN=mail.google.com, O=Google LLC, L=Mountain View, ST=California, C=US"},
 		{pkix.Name{
 			Organization: []string{"#Google, Inc. \n-> 'Alphabet\" "},
 			Country:      []string{"US"},
-		}, "O=\\#Google\\, Inc. \n-\\> 'Alphabet\\\"\\ ,C=US"},
+		}, "C=US, O=\\#Google\\, Inc. \n-\\> 'Alphabet\\\"\\ "},
 		{pkix.Name{
 			CommonName:   "foo.com",
 			Organization: []string{"Gopher Industries"},
 			ExtraNames: []pkix.AttributeTypeAndValue{
 				{Type: asn1.ObjectIdentifier([]int{2, 5, 4, 3}), Value: "bar.com"}},
-		}, "CN=bar.com,O=Gopher Industries"},
+		}, "CN=bar.com, O=Gopher Industries"},
 		{pkix.Name{
 			Locality: []string{"Gophertown"},
 			ExtraNames: []pkix.AttributeTypeAndValue{
 				{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "golang.org"}},
-		}, "1.2.3.4.5=#130a676f6c616e672e6f7267,L=Gophertown"},
+		}, "1.2.3.4.5=#130a676f6c616e672e6f7267, L=Gophertown"},
 		// If there are no ExtraNames, the Names are printed instead.
 		{pkix.Name{
 			Locality: []string{"Gophertown"},
 			Names: []pkix.AttributeTypeAndValue{
 				{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "golang.org"}},
-		}, "L=Gophertown,1.2.3.4.5=#130a676f6c616e672e6f7267"},
+		}, "L=Gophertown, 1.2.3.4.5=#130a676f6c616e672e6f7267"},
 		// If there are both, print only the ExtraNames.
 		{pkix.Name{
 			Locality: []string{"Gophertown"},
@@ -2163,7 +2158,7 @@ func TestPKIXNameString(t *testing.T) {
 				{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "golang.org"}},
 			Names: []pkix.AttributeTypeAndValue{
 				{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 6}), Value: "example.com"}},
-		}, "1.2.3.4.5=#130a676f6c616e672e6f7267,L=Gophertown"},
+		}, "1.2.3.4.5=#130a676f6c616e672e6f7267, L=Gophertown"},
 	}
 
 	for i, test := range tests {
@@ -2205,7 +2200,7 @@ func TestRDNSequenceString(t *testing.T) {
 					pkix.AttributeTypeAndValue{Type: oidCommonName, Value: "J. Smith"},
 				},
 			},
-			want: "OU=Sales+CN=J. Smith,O=Widget Inc.,C=US",
+			want: "OU=Sales+CN=J. Smith, O=Widget Inc., C=US",
 		},
 	}
 
@@ -2996,17 +2991,13 @@ func TestUnknownExtKey(t *testing.T) {
 	}
 }
 
-func TestIA5SANEnforcement(t *testing.T) {
+func TestIA5SANNonEnforcement(t *testing.T) {
 	k, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		t.Fatalf("ecdsa.GenerateKey failed: %s", err)
 	}
 
-	testURL, err := url.Parse("https://example.com/")
-	if err != nil {
-		t.Fatalf("url.Parse failed: %s", err)
-	}
-	testURL.RawQuery = "∞"
+	testURL := "https://example.com/?∞"
 
 	marshalTests := []struct {
 		name          string
@@ -3019,7 +3010,6 @@ func TestIA5SANEnforcement(t *testing.T) {
 				SerialNumber: big.NewInt(0),
 				DNSNames:     []string{"∞"},
 			},
-			expectedError: "x509: \"∞\" cannot be encoded as an IA5String",
 		},
 		{
 			name: "marshal: unicode rfc822Name",
@@ -3027,25 +3017,21 @@ func TestIA5SANEnforcement(t *testing.T) {
 				SerialNumber:   big.NewInt(0),
 				EmailAddresses: []string{"∞"},
 			},
-			expectedError: "x509: \"∞\" cannot be encoded as an IA5String",
 		},
 		{
 			name: "marshal: unicode uniformResourceIdentifier",
 			template: &Certificate{
 				SerialNumber: big.NewInt(0),
-				URIs:         []*url.URL{testURL},
+				URIs:         []string{testURL},
 			},
-			expectedError: "x509: \"https://example.com/?∞\" cannot be encoded as an IA5String",
 		},
 	}
 
 	for _, tc := range marshalTests {
 		t.Run(tc.name, func(t *testing.T) {
 			_, err := CreateCertificate(rand.Reader, tc.template, tc.template, k.Public(), k)
-			if err == nil {
-				t.Errorf("expected CreateCertificate to fail with template: %v", tc.template)
-			} else if err.Error() != tc.expectedError {
-				t.Errorf("unexpected error: got %q, want %q", err.Error(), tc.expectedError)
+			if err != nil {
+				t.Errorf("CreateCertificate failed with template: %v", tc.template)
 			}
 		})
 	}
@@ -3078,10 +3064,8 @@ func TestIA5SANEnforcement(t *testing.T) {
 			t.Fatalf("failed to decode test cert: %s", err)
 		}
 		_, err = ParseCertificate(der)
-		if err == nil {
-			t.Error("expected CreateCertificate to fail")
-		} else if err.Error() != tc.expectedError {
-			t.Errorf("unexpected error: got %q, want %q", err.Error(), tc.expectedError)
+		if err != nil {
+			t.Errorf("CreateCertificate failed with template: %v", tc.name)
 		}
 	}
 }
@@ -3221,19 +3205,13 @@ func certPoolEqual(a, b *CertPool) bool {
 }
 
 func TestCertificateRequestRoundtripFields(t *testing.T) {
-	urlA, err := url.Parse("https://example.com/_")
-	if err != nil {
-		t.Fatal(err)
-	}
-	urlB, err := url.Parse("https://example.org/_")
-	if err != nil {
-		t.Fatal(err)
-	}
+	urlA := "https://example.com/_"
+	urlB := "https://example.org/_"
 	in := &CertificateRequest{
 		DNSNames:       []string{"example.com", "example.org"},
 		EmailAddresses: []string{"a@example.com", "b@example.com"},
 		IPAddresses:    []net.IP{net.IPv4(192, 0, 2, 0), net.IPv6loopback},
-		URIs:           []*url.URL{urlA, urlB},
+		URIs:           []string{urlA, urlB},
 	}
 	out := marshalAndParseCSR(t, in)
 
@@ -3616,8 +3594,7 @@ func TestParseUniqueID(t *testing.T) {
 	}
 }
 
-func TestDisableSHA1ForCertOnly(t *testing.T) {
-	t.Setenv("GODEBUG", "")
+func TestSHA1ForCertOnlySuccess(t *testing.T) {
 
 	tmpl := &Certificate{
 		SerialNumber:          big.NewInt(1),
@@ -3638,10 +3615,8 @@ func TestDisableSHA1ForCertOnly(t *testing.T) {
 	}
 
 	err = cert.CheckSignatureFrom(cert)
-	if err == nil {
-		t.Error("expected CheckSignatureFrom to fail")
-	} else if _, ok := err.(InsecureAlgorithmError); !ok {
-		t.Errorf("expected InsecureAlgorithmError error, got %T", err)
+	if err != nil {
+		t.Errorf("CheckSignatureFrom failed: %v", err)
 	}
 
 	crlDER, err := CreateRevocationList(rand.Reader, &RevocationList{
@@ -3833,14 +3808,16 @@ A0cAMEQCIBzfBU5eMPT6m5lsR6cXaJILpAaiD9YxOl4v6dT3rzEjAiBHmjnHmAss
 RqUAyJKFzqZxOlK2q4j2IYnuj5+LrLGbQA==
 -----END CERTIFICATE-----`
 
-func TestParseNegativeSerial(t *testing.T) {
+func TestParseNegativeSerialSuccess(t *testing.T) {
 	pemBlock, _ := pem.Decode([]byte(negativeSerialCert))
 	_, err := ParseCertificate(pemBlock.Bytes)
-	if err == nil {
-		t.Fatal("parsed certificate with negative serial")
+	if err != nil {
+		t.Fatalf("failed to parse certificate with negative serial: %v", err)
 	}
 }
 
+// zcrypto
+/*
 func TestCreateNegativeSerial(t *testing.T) {
 	k, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
@@ -3860,6 +3837,7 @@ func TestCreateNegativeSerial(t *testing.T) {
 		t.Errorf("CreateCertificate returned unexpected error: want %q, got %q", expectedErr, err)
 	}
 }
+*/
 
 const dupExtCert = `-----BEGIN CERTIFICATE-----
 MIIBrjCCARegAwIBAgIBATANBgkqhkiG9w0BAQsFADAPMQ0wCwYDVQQDEwR0ZXN0
@@ -3965,6 +3943,7 @@ func TestCertificateOIDPolicies(t *testing.T) {
 	}
 }
 
+/*
 func TestCertificatePoliciesGODEBUG(t *testing.T) {
 	template := Certificate{
 		SerialNumber:      big.NewInt(1),
@@ -4009,6 +3988,7 @@ func TestCertificatePoliciesGODEBUG(t *testing.T) {
 		t.Errorf("cert.Policies = %v, want: %v", cert.Policies, expectPolicies)
 	}
 }
+*/
 
 func TestGob(t *testing.T) {
 	// Test that gob does not reject Certificate.

@@ -5,9 +5,6 @@
 package x509
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
-	"crypto/rand"
 	"encoding/pem"
 	"math/big"
 	"os"
@@ -15,6 +12,11 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 )
 
 // In order to run this test suite locally, you need to insert the test root, at
@@ -60,7 +62,7 @@ func TestPlatformVerifier(t *testing.T) {
 		t.Fatalf("failed to parse test key: %s", err)
 	}
 
-	if _, err := testRoot.Verify(VerifyOptions{}); err != nil {
+	if _, _, _, err := testRoot.Verify(VerifyOptions{}); err != nil {
 		t.Skipf("test root is not in trust store, skipping (err: %q)", err)
 	}
 
@@ -236,7 +238,7 @@ func TestPlatformVerifier(t *testing.T) {
 				expectedErr = tc.windowsErr
 			}
 
-			_, err = cert.Verify(opts)
+			_, _, _, err = cert.Verify(opts)
 			if err != nil && expectedErr == "" {
 				t.Errorf("unexpected verification error: %s", err)
 			} else if err != nil && !strings.HasPrefix(err.Error(), expectedErr) {

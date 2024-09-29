@@ -5,9 +5,10 @@
 package elliptic
 
 import (
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/nistec"
 	"errors"
 	"math/big"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/nistec"
 )
 
 var p224 = &nistCurve[*nistec.P224Point]{
@@ -174,11 +175,11 @@ func (curve *nistCurve[Point]) pointToAffine(p Point) (x, y *big.Int) {
 func (curve *nistCurve[Point]) Add(x1, y1, x2, y2 *big.Int) (*big.Int, *big.Int) {
 	p1, err := curve.pointFromAffine(x1, y1)
 	if err != nil {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/elliptic: Add was called on an invalid point")
+		panic("crypto/elliptic: Add was called on an invalid point")
 	}
 	p2, err := curve.pointFromAffine(x2, y2)
 	if err != nil {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/elliptic: Add was called on an invalid point")
+		panic("crypto/elliptic: Add was called on an invalid point")
 	}
 	return curve.pointToAffine(p1.Add(p1, p2))
 }
@@ -186,7 +187,7 @@ func (curve *nistCurve[Point]) Add(x1, y1, x2, y2 *big.Int) (*big.Int, *big.Int)
 func (curve *nistCurve[Point]) Double(x1, y1 *big.Int) (*big.Int, *big.Int) {
 	p, err := curve.pointFromAffine(x1, y1)
 	if err != nil {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/elliptic: Double was called on an invalid point")
+		panic("crypto/elliptic: Double was called on an invalid point")
 	}
 	return curve.pointToAffine(p.Double(p))
 }
@@ -209,12 +210,12 @@ func (curve *nistCurve[Point]) normalizeScalar(scalar []byte) []byte {
 func (curve *nistCurve[Point]) ScalarMult(Bx, By *big.Int, scalar []byte) (*big.Int, *big.Int) {
 	p, err := curve.pointFromAffine(Bx, By)
 	if err != nil {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/elliptic: ScalarMult was called on an invalid point")
+		panic("crypto/elliptic: ScalarMult was called on an invalid point")
 	}
 	scalar = curve.normalizeScalar(scalar)
 	p, err = p.ScalarMult(p, scalar)
 	if err != nil {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/elliptic: nistec rejected normalized scalar")
+		panic("crypto/elliptic: nistec rejected normalized scalar")
 	}
 	return curve.pointToAffine(p)
 }
@@ -223,7 +224,7 @@ func (curve *nistCurve[Point]) ScalarBaseMult(scalar []byte) (*big.Int, *big.Int
 	scalar = curve.normalizeScalar(scalar)
 	p, err := curve.newPoint().ScalarBaseMult(scalar)
 	if err != nil {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/elliptic: nistec rejected normalized scalar")
+		panic("crypto/elliptic: nistec rejected normalized scalar")
 	}
 	return curve.pointToAffine(p)
 }
@@ -234,16 +235,16 @@ func (curve *nistCurve[Point]) CombinedMult(Px, Py *big.Int, s1, s2 []byte) (x, 
 	s1 = curve.normalizeScalar(s1)
 	q, err := curve.newPoint().ScalarBaseMult(s1)
 	if err != nil {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/elliptic: nistec rejected normalized scalar")
+		panic("crypto/elliptic: nistec rejected normalized scalar")
 	}
 	p, err := curve.pointFromAffine(Px, Py)
 	if err != nil {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/elliptic: CombinedMult was called on an invalid point")
+		panic("crypto/elliptic: CombinedMult was called on an invalid point")
 	}
 	s2 = curve.normalizeScalar(s2)
 	p, err = p.ScalarMult(p, s2)
 	if err != nil {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/elliptic: nistec rejected normalized scalar")
+		panic("crypto/elliptic: nistec rejected normalized scalar")
 	}
 	return curve.pointToAffine(p.Add(p, q))
 }
@@ -280,7 +281,7 @@ func (curve *nistCurve[Point]) UnmarshalCompressed(data []byte) (x, y *big.Int) 
 func bigFromDecimal(s string) *big.Int {
 	b, ok := new(big.Int).SetString(s, 10)
 	if !ok {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/elliptic: internal error: invalid encoding")
+		panic("crypto/elliptic: internal error: invalid encoding")
 	}
 	return b
 }
@@ -288,7 +289,7 @@ func bigFromDecimal(s string) *big.Int {
 func bigFromHex(s string) *big.Int {
 	b, ok := new(big.Int).SetString(s, 16)
 	if !ok {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/elliptic: internal error: invalid encoding")
+		panic("crypto/elliptic: internal error: invalid encoding")
 	}
 	return b
 }

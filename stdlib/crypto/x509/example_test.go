@@ -5,13 +5,14 @@
 package x509_test
 
 import (
+	"encoding/pem"
+	"fmt"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto/dsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
-	"encoding/pem"
-	"fmt"
 )
 
 func ExampleCertificate_Verify() {
@@ -90,7 +91,7 @@ yE+vPxsiUkvQHdO2fojCkY8jg70jxM+gu59tPDNbw3Uh/2Ij310FgTHsnGQMyA==
 		Roots:   roots,
 	}
 
-	if _, err := cert.Verify(opts); err != nil {
+	if _, _, _, err := cert.Verify(opts); err != nil {
 		panic("failed to verify certificate: " + err.Error())
 	}
 }

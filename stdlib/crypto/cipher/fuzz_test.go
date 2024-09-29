@@ -8,11 +8,13 @@ package cipher_test
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
-	"crypto/rand"
 	"testing"
 	"time"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 )
 
 var cbcAESFuzzTests = []struct {

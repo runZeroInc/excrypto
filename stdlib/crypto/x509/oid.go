@@ -7,12 +7,13 @@ package x509
 import (
 	"bytes"
 	"errors"
-	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"math"
 	"math/big"
 	"math/bits"
 	"strconv"
 	"strings"
+
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 )
 
 var (

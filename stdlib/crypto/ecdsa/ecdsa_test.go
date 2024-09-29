@@ -8,12 +8,6 @@ import (
 	"bufio"
 	"bytes"
 	"compress/bzip2"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/bigmod"
-	"crypto/rand"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
 	"encoding/hex"
 	"hash"
 	"io"
@@ -21,6 +15,14 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/bigmod"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha512"
 )
 
 func testAllCurves(t *testing.T, f func(*testing.T, elliptic.Curve)) {

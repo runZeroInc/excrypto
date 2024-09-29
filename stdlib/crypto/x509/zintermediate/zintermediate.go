@@ -47,7 +47,7 @@ import (
 	"time"
 
 	"github.com/op/go-logging"
-	"github.com/zmap/zcrypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 )
 
 var log = logging.MustGetLogger("")
@@ -206,7 +206,7 @@ func main() {
 			Type:  "CERTIFICATE",
 			Bytes: c.Raw,
 		}
-		pem.Encode(os.Stdout, &block)
+		_ = pem.Encode(os.Stdout, &block)
 	}
 	log.Infof("complete")
 }

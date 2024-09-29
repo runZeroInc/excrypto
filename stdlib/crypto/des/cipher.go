@@ -5,10 +5,11 @@
 package des
 
 import (
+	"strconv"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/alias"
 	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
-	"strconv"
 )
 
 // The DES block size in bytes.
@@ -17,7 +18,7 @@ const BlockSize = 8
 type KeySizeError int
 
 func (k KeySizeError) Error() string {
-	return "github.com/runZeroInc/excrypto/stdlib/crypto/des: invalid key size " + strconv.Itoa(int(k))
+	return "crypto/des: invalid key size " + strconv.Itoa(int(k))
 }
 
 // desCipher is an instance of DES encryption.
@@ -40,26 +41,26 @@ func (c *desCipher) BlockSize() int { return BlockSize }
 
 func (c *desCipher) Encrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/des: input not full block")
+		panic("crypto/des: input not full block")
 	}
 	if len(dst) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/des: output not full block")
+		panic("crypto/des: output not full block")
 	}
 	if alias.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/des: invalid buffer overlap")
+		panic("crypto/des: invalid buffer overlap")
 	}
 	cryptBlock(c.subkeys[:], dst, src, false)
 }
 
 func (c *desCipher) Decrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/des: input not full block")
+		panic("crypto/des: input not full block")
 	}
 	if len(dst) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/des: output not full block")
+		panic("crypto/des: output not full block")
 	}
 	if alias.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/des: invalid buffer overlap")
+		panic("crypto/des: invalid buffer overlap")
 	}
 	cryptBlock(c.subkeys[:], dst, src, true)
 }
@@ -86,13 +87,13 @@ func (c *tripleDESCipher) BlockSize() int { return BlockSize }
 
 func (c *tripleDESCipher) Encrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/des: input not full block")
+		panic("crypto/des: input not full block")
 	}
 	if len(dst) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/des: output not full block")
+		panic("crypto/des: output not full block")
 	}
 	if alias.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/des: invalid buffer overlap")
+		panic("crypto/des: invalid buffer overlap")
 	}
 
 	b := byteorder.BeUint64(src)
@@ -121,13 +122,13 @@ func (c *tripleDESCipher) Encrypt(dst, src []byte) {
 
 func (c *tripleDESCipher) Decrypt(dst, src []byte) {
 	if len(src) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/des: input not full block")
+		panic("crypto/des: input not full block")
 	}
 	if len(dst) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/des: output not full block")
+		panic("crypto/des: output not full block")
 	}
 	if alias.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/des: invalid buffer overlap")
+		panic("crypto/des: invalid buffer overlap")
 	}
 
 	b := byteorder.BeUint64(src)

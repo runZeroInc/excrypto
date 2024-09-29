@@ -22,9 +22,10 @@ timing side-channels:
 package hmac
 
 import (
+	"hash"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
-	"hash"
 )
 
 // FIPS 198-1:
@@ -148,7 +149,7 @@ func New(h func() hash.Hash, key []byte) hash.Hash {
 		}
 	}()
 	if !unique {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/hmac: hash generation function does not produce unique values")
+		panic("crypto/hmac: hash generation function does not produce unique values")
 	}
 	blocksize := hm.inner.BlockSize()
 	hm.ipad = make([]byte, blocksize)

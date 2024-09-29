@@ -6,16 +6,18 @@ package cipher_test
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/cryptotest"
-	"crypto/rand"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
 	"reflect"
 	"testing"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/cryptotest"
 )
 
 var aesGCMTests = []struct {

@@ -7,15 +7,16 @@ package tls
 import (
 	"bytes"
 	"context"
+	"errors"
+	"hash"
+	"slices"
+	"time"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/hmac"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/mlkem768"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/subtle"
-	"errors"
-	"hash"
-	"slices"
-	"time"
 )
 
 type clientHandshakeStateTLS13 struct {
@@ -155,6 +156,15 @@ func (hs *clientHandshakeStateTLS13) handshake() error {
 		c.sendAlert(alertECHRequired)
 		return &ECHRejectionError{echRetryConfigList}
 	}
+
+	if hs.session != nil {
+		if hs.session.ticket == nil {
+			c.handshakeLog.SessionTicket = nil
+		} else {
+			c.handshakeLog.SessionTicket = hs.session.MakeLog()
+		}
+	}
+	c.handshakeLog.KeyMaterial = hs.MakeLog()
 
 	c.isHandshakeComplete.Store(true)
 
@@ -655,6 +665,14 @@ func (hs *clientHandshakeStateTLS13) readServerCertificate() error {
 		return errors.New("tls: received empty certificates message")
 	}
 
+	c.handshakeLog.ServerCertificates = certMsg.MakeLog()
+
+	if c.config.CertsOnly {
+		// short circuit!
+		err = ErrCertsOnly
+		return err
+	}
+
 	c.scts = certMsg.certificate.SignedCertificateTimestamps
 	c.ocspResponse = certMsg.certificate.OCSPStaple
 
@@ -891,6 +909,7 @@ func (c *Conn) handleNewSessionTicket(msg *newSessionTicketMsgTLS13) error {
 		msg.nonce, cipherSuite.hash.Size())
 
 	session := c.sessionState()
+	session.lifetime = msg.lifetime
 	session.secret = psk
 	session.useBy = uint64(c.config.time().Add(lifetime).Unix())
 	session.ageAdd = msg.ageAdd

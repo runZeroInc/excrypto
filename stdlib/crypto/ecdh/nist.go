@@ -5,13 +5,14 @@
 package ecdh
 
 import (
+	"errors"
+	"io"
+	"math/bits"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/nistec"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/randutil"
-	"errors"
 	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
-	"io"
-	"math/bits"
 )
 
 type nistCurve[Point nistPoint[Point]] struct {
@@ -33,7 +34,7 @@ func (c *nistCurve[Point]) String() string {
 	return c.name
 }
 
-var errInvalidPrivateKey = errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/ecdh: invalid private key")
+var errInvalidPrivateKey = errors.New("crypto/ecdh: invalid private key")
 
 func (c *nistCurve[Point]) GenerateKey(rand io.Reader) (*PrivateKey, error) {
 	if boring.Enabled && rand == boring.RandReader {
@@ -74,7 +75,7 @@ func (c *nistCurve[Point]) GenerateKey(rand io.Reader) (*PrivateKey, error) {
 
 func (c *nistCurve[Point]) NewPrivateKey(key []byte) (*PrivateKey, error) {
 	if len(key) != len(c.scalarOrder) {
-		return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/ecdh: invalid private key size")
+		return nil, errors.New("crypto/ecdh: invalid private key size")
 	}
 	if isZero(key) || !isLess(key, c.scalarOrder) {
 		return nil, errInvalidPrivateKey
@@ -105,20 +106,20 @@ func newBoringPrivateKey(c Curve, bk *boring.PrivateKeyECDH, privateKey []byte) 
 func (c *nistCurve[Point]) privateKeyToPublicKey(key *PrivateKey) *PublicKey {
 	boring.Unreachable()
 	if key.curve != c {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/ecdh: internal error: converting the wrong key type")
+		panic("crypto/ecdh: internal error: converting the wrong key type")
 	}
 	p, err := c.newPoint().ScalarBaseMult(key.privateKey)
 	if err != nil {
 		// This is unreachable because the only error condition of
 		// ScalarBaseMult is if the input is not the right size.
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/ecdh: internal error: nistec ScalarBaseMult failed for a fixed-size input")
+		panic("crypto/ecdh: internal error: nistec ScalarBaseMult failed for a fixed-size input")
 	}
 	publicKey := p.Bytes()
 	if len(publicKey) == 1 {
 		// The encoding of the identity is a single 0x00 byte. This is
 		// unreachable because the only scalar that generates the identity is
 		// zero, which is rejected by NewPrivateKey.
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/ecdh: internal error: nistec ScalarBaseMult returned the identity")
+		panic("crypto/ecdh: internal error: nistec ScalarBaseMult returned the identity")
 	}
 	return &PublicKey{
 		curve:     key.curve,
@@ -139,14 +140,14 @@ func isZero(a []byte) bool {
 // same length and shorter than 72 bytes.
 func isLess(a, b []byte) bool {
 	if len(a) != len(b) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/ecdh: internal error: mismatched isLess inputs")
+		panic("crypto/ecdh: internal error: mismatched isLess inputs")
 	}
 
 	// Copy the values into a fixed-size preallocated little-endian buffer.
 	// 72 bytes is enough for every scalar in this package, and having a fixed
 	// size lets us avoid heap allocations.
 	if len(a) > 72 {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/ecdh: internal error: isLess input too large")
+		panic("crypto/ecdh: internal error: isLess input too large")
 	}
 	bufA, bufB := make([]byte, 72), make([]byte, 72)
 	for i := range a {
@@ -167,7 +168,7 @@ func isLess(a, b []byte) bool {
 func (c *nistCurve[Point]) NewPublicKey(key []byte) (*PublicKey, error) {
 	// Reject the point at infinity and compressed encodings.
 	if len(key) == 0 || key[0] != 4 {
-		return nil, errors.New("github.com/runZeroInc/excrypto/stdlib/crypto/ecdh: invalid public key")
+		return nil, errors.New("crypto/ecdh: invalid public key")
 	}
 	k := &PublicKey{
 		curve:     c,

@@ -5,6 +5,11 @@
 package tls
 
 import (
+	"fmt"
+	"hash"
+	"runtime"
+	_ "unsafe" // for linkname
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/aes"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
@@ -14,11 +19,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rc4"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha1"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
-	"fmt"
-	"hash"
 	"github.com/runZeroInc/excrypto/stdlib/internal/cpu"
-	"runtime"
-	_ "unsafe" // for linkname
 
 	"github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305"
 )
@@ -26,16 +27,16 @@ import (
 // CipherSuite is a TLS cipher suite. Note that most functions in this package
 // accept and expose cipher suite IDs instead of this type.
 type CipherSuite struct {
-	ID   uint16
-	Name string
+	ID   uint16 `json:"id"`
+	Name string `json:"name"`
 
 	// Supported versions is the list of TLS protocol versions that can
 	// negotiate this cipher suite.
-	SupportedVersions []uint16
+	SupportedVersions []uint16 `json:"supported_versions"`
 
 	// Insecure is true if the cipher suite has known security issues
 	// due to its primitives, design, or implementation.
-	Insecure bool
+	Insecure bool `json:"insecure"`
 }
 
 var (

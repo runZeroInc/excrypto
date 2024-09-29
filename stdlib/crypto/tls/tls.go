@@ -14,18 +14,19 @@ package tls
 import (
 	"bytes"
 	"context"
+	"encoding/pem"
+	"errors"
+	"fmt"
+	"net"
+	"os"
+	"strings"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
-	"encoding/pem"
-	"errors"
-	"fmt"
 	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
-	"net"
-	"os"
-	"strings"
 )
 
 // Server returns a new TLS server side connection

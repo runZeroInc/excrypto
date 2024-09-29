@@ -47,13 +47,13 @@ func cryptBlocksChain(c code, iv, key, dst, src *byte, length int)
 
 func (x *cbc) CryptBlocks(dst, src []byte) {
 	if len(src)%BlockSize != 0 {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: input not full blocks")
+		panic("crypto/cipher: input not full blocks")
 	}
 	if len(dst) < len(src) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: output smaller than input")
+		panic("crypto/cipher: output smaller than input")
 	}
 	if alias.InexactOverlap(dst[:len(src)], src) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/cipher: invalid buffer overlap")
+		panic("crypto/cipher: invalid buffer overlap")
 	}
 	if len(src) > 0 {
 		cryptBlocksChain(x.c, &x.iv[0], &x.b.key[0], &dst[0], &src[0], len(src))

@@ -6,15 +6,16 @@ package tls
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
+	"hash"
+	"io"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/ed25519"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
-	"errors"
-	"fmt"
-	"hash"
-	"io"
 )
 
 // verifyHandshakeSignature verifies a signature against pre-hashed
@@ -190,6 +191,7 @@ func signatureSchemesForCertificate(version uint16, cert *Certificate) []Signatu
 			}
 			break
 		}
+
 		switch pub.Curve {
 		case elliptic.P256():
 			sigAlgs = []SignatureScheme{ECDSAWithP256AndSHA256}

@@ -7,18 +7,11 @@ package tls
 import (
 	"bytes"
 	"context"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
-	"crypto/rand"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 	"io"
 	"math/big"
 	"net"
@@ -31,6 +24,15 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/stdlib/internal/byteorder"
 )
 
 // Note: see comment in handshake_test.go for details of how the reference

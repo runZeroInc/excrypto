@@ -6,13 +6,14 @@ package chacha20poly1305
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 	cryptorand "crypto/rand"
 	"encoding/hex"
 	"fmt"
 	mathrand "math/rand"
 	"strconv"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/cipher"
 )
 
 func TestVectors(t *testing.T) {

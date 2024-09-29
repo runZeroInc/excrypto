@@ -12,7 +12,6 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"io"
 	"math"
 	"math/big"
@@ -29,6 +28,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 	"github.com/runZeroInc/excrypto/stdlib/internal/testenv"
 )
@@ -884,6 +884,11 @@ func TestCloneNonFuncFields(t *testing.T) {
 			f.Set(reflect.ValueOf([]byte{'x'}))
 		case "mutex", "autoSessionTicketKeys", "sessionTicketKeys":
 			continue // these are unexported fields that are handled separately
+		case "ExplicitCurvePreferences", "SupportedPoints", "NoOcspStapling", "CompressionMethods",
+			"SignatureAndHashes", "serverInitOnce", "ForceSuites", "ExportRSAKey", "HeartbeatEnabled", "ClientDSAEnabled",
+			"ExtendedRandom", "ForceSessionTicketExt", "ExtendedMasterSecret", "SignedCertificateTimestampExt", "ClientRandom",
+			"ServerRandom", "ExternalClientHello", "ClientFingerprintConfiguration", "CertsOnly", "DontBufferHandshakes":
+			continue // zcrypto
 		default:
 			t.Errorf("all fields must be accounted for, but saw unknown field %q", fn)
 		}

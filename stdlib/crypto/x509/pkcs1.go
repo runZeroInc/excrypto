@@ -6,9 +6,10 @@ package x509
 
 import (
 	"errors"
+	"math/big"
+
 	"github.com/runZeroInc/excrypto/stdlib/crypto/rsa"
 	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
-	"math/big"
 )
 
 // pkcs1PrivateKey is a structure which mirrors the PKCS #1 ASN.1 for an RSA private key.

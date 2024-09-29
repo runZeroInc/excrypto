@@ -6,10 +6,12 @@ package hkdf_test
 
 import (
 	"bytes"
-	"crypto/rand"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 	"fmt"
 	"io"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/sha256"
 
 	"github.com/runZeroInc/excrypto/x/crypto/hkdf"
 )

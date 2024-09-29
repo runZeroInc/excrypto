@@ -71,13 +71,13 @@ func (c *aesCipherAsm) BlockSize() int { return BlockSize }
 func (c *aesCipherAsm) Encrypt(dst, src []byte) {
 	boring.Unreachable()
 	if len(src) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: input not full block")
+		panic("crypto/aes: input not full block")
 	}
 	if len(dst) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: output not full block")
+		panic("crypto/aes: output not full block")
 	}
 	if alias.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: invalid buffer overlap")
+		panic("crypto/aes: invalid buffer overlap")
 	}
 	encryptBlockAsm(int(c.l)/4-1, &c.enc[0], &dst[0], &src[0])
 }
@@ -85,13 +85,13 @@ func (c *aesCipherAsm) Encrypt(dst, src []byte) {
 func (c *aesCipherAsm) Decrypt(dst, src []byte) {
 	boring.Unreachable()
 	if len(src) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: input not full block")
+		panic("crypto/aes: input not full block")
 	}
 	if len(dst) < BlockSize {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: output not full block")
+		panic("crypto/aes: output not full block")
 	}
 	if alias.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
-		panic("github.com/runZeroInc/excrypto/stdlib/crypto/aes: invalid buffer overlap")
+		panic("crypto/aes: invalid buffer overlap")
 	}
 	decryptBlockAsm(int(c.l)/4-1, &c.dec[0], &dst[0], &src[0])
 }

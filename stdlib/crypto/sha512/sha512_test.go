@@ -8,15 +8,17 @@ package sha512
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
-	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/cryptotest"
-	"crypto/rand"
-	"github.com/runZeroInc/excrypto/stdlib/encoding"
 	"encoding/hex"
 	"fmt"
 	"hash"
 	"io"
 	"testing"
+
+	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/stdlib/crypto/internal/cryptotest"
+	"github.com/runZeroInc/excrypto/stdlib/encoding"
 )
 
 type sha512Test struct {
