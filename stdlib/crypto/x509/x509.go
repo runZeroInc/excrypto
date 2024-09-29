@@ -1127,7 +1127,7 @@ var x509sha1 = godebug.New("x509sha1")
 // checkSignature verifies that signature is a valid signature over signed from
 // a crypto.PublicKey.
 // This has been modified to accept insecure signature algorithms (MD5, SHA1)
-func checkSignature(algo SignatureAlgorithm, signed, signature []byte, publicKey crypto.PublicKey, allowSHA1 bool) (err error) {
+func checkSignature(algo SignatureAlgorithm, signed, signature []byte, publicKey crypto.PublicKey, _ bool) (err error) { // Always allow SHA1
 	var hashType crypto.Hash
 	var pubKeyAlgo PublicKeyAlgorithm
 

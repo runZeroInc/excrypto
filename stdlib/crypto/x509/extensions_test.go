@@ -220,25 +220,25 @@ func TestNameConstraintJSON(t *testing.T) {
 					"http://www.example.com/foo/bar.html",
 				},
 				PermittedIPRanges: []*net.IPNet{
-					&net.IPNet{IP: net.IPv4(127, 0, 0, 1), Mask: net.IPv4Mask(0, 0, 0, 0)},
-					&net.IPNet{IP: net.IPv4(127, 0, 0, 2), Mask: net.IPv4Mask(0, 0, 0, 0)},
+					{IP: net.IPv4(127, 0, 0, 1), Mask: net.IPv4Mask(0, 0, 0, 0)},
+					{IP: net.IPv4(127, 0, 0, 2), Mask: net.IPv4Mask(0, 0, 0, 0)},
 				},
 				PermittedDirectoryNames: []pkix.Name{
 					testName,
 				},
 				PermittedEdiPartyNames: []pkix.EDIPartyName{
-					pkix.EDIPartyName{
+					{
 						NameAssigner: "test1",
 						PartyName:    "test2",
 					},
-					pkix.EDIPartyName{
+					{
 						NameAssigner: "test3",
 						PartyName:    "test4",
 					},
 				},
 				PermittedRegisteredIDs: []asn1.ObjectIdentifier{
-					asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 1466, 115, 121, 1, 28},
-					asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 1466, 115, 121, 1, 29},
+					{1, 3, 6, 1, 4, 1, 1466, 115, 121, 1, 28},
+					{1, 3, 6, 1, 4, 1, 1466, 115, 121, 1, 29},
 				},
 				ExcludedEmailAddresses: []string{
 					"test1@censys.io",
@@ -249,25 +249,25 @@ func TestNameConstraintJSON(t *testing.T) {
 					"censys.singles",
 				},
 				ExcludedIPRanges: []*net.IPNet{
-					&net.IPNet{IP: net.IPv4(127, 0, 0, 1), Mask: net.IPv4Mask(0, 0, 0, 0)},
-					&net.IPNet{IP: net.IPv4(127, 0, 0, 2), Mask: net.IPv4Mask(0, 0, 0, 0)},
+					{IP: net.IPv4(127, 0, 0, 1), Mask: net.IPv4Mask(0, 0, 0, 0)},
+					{IP: net.IPv4(127, 0, 0, 2), Mask: net.IPv4Mask(0, 0, 0, 0)},
 				},
 				ExcludedDirectoryNames: []pkix.Name{
 					testName,
 				},
 				ExcludedEdiPartyNames: []pkix.EDIPartyName{
-					pkix.EDIPartyName{
+					{
 						NameAssigner: "test1",
 						PartyName:    "test2",
 					},
-					pkix.EDIPartyName{
+					{
 						NameAssigner: "test3",
 						PartyName:    "test4",
 					},
 				},
 				ExcludedRegisteredIDs: []asn1.ObjectIdentifier{
-					asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 1466, 115, 121, 1, 28},
-					asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 1466, 115, 121, 1, 29},
+					{1, 3, 6, 1, 4, 1, 1466, 115, 121, 1, 28},
+					{1, 3, 6, 1, 4, 1, 1466, 115, 121, 1, 29},
 				},
 			},
 		},

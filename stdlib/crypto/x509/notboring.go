@@ -6,4 +6,4 @@
 
 package x509
 
-func boringAllowCert(c *Certificate) bool { return true }
+func boringAllowCert(_ *Certificate) bool { return true }
