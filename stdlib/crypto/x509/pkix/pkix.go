@@ -15,6 +15,11 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 )
 
+// zcrypto
+// LegacyNameString allows to specify legacy ZCrypto behaviour
+// for X509Name.String() in reverse order
+var LegacyNameString = false
+
 // AlgorithmIdentifier represents the ASN.1 structure of the same name. See RFC
 // 5280, section 4.1.1.2.
 type AlgorithmIdentifier struct {
@@ -24,35 +29,31 @@ type AlgorithmIdentifier struct {
 
 type RDNSequence []RelativeDistinguishedNameSET
 
-var attributeTypeNames = map[string]string{
-	"2.5.4.6":  "C",
-	"2.5.4.10": "O",
-	"2.5.4.11": "OU",
-	"2.5.4.3":  "CN",
-	"2.5.4.5":  "SERIALNUMBER",
-	"2.5.4.7":  "L",
-	"2.5.4.8":  "ST",
-	"2.5.4.9":  "STREET",
-	"2.5.4.17": "POSTALCODE",
-}
-
 // String returns a string representation of the sequence r,
 // roughly following the RFC 2253 Distinguished Names syntax.
+// zcrypto
 func (r RDNSequence) String() string {
 	s := ""
 	for i := 0; i < len(r); i++ {
-		rdn := r[len(r)-1-i]
+		idx := len(r) - 1 - i
+		if LegacyNameString {
+			idx = i
+		}
+		rdn := r[idx]
 		if i > 0 {
-			s += ","
+			s += ", "
 		}
 		for j, tv := range rdn {
 			if j > 0 {
-				s += "+"
+				s += ", "
 			}
 
 			oidString := tv.Type.String()
-			typeName, ok := attributeTypeNames[oidString]
-			if !ok {
+			var typeName string
+			if oidName, ok := oidDotNotationToNames[oidString]; ok {
+				typeName = oidName.ShortName
+			}
+			if typeName == "" {
 				derBytes, err := asn1.Marshal(tv.Value)
 				if err == nil {
 					s += oidString + "=#" + hex.EncodeToString(derBytes)
@@ -98,8 +99,8 @@ type RelativeDistinguishedNameSET []AttributeTypeAndValue
 // AttributeTypeAndValue mirrors the ASN.1 structure of the same name in
 // RFC 5280, Section 4.1.2.4.
 type AttributeTypeAndValue struct {
-	Type  asn1.ObjectIdentifier
-	Value any
+	Type  asn1.ObjectIdentifier `json:"type"`
+	Value interface{}           `json:"value"`
 }
 
 // AttributeTypeAndValueSET represents a set of ASN.1 sequences of
@@ -154,6 +155,7 @@ type Name struct {
 // Multi-entry RDNs are flattened, all entries are added to the
 // relevant n fields, and the grouping is not preserved.
 func (n *Name) FillFromRDNSequence(rdns *RDNSequence) {
+	n.OriginalRDNS = *rdns
 	for _, rdn := range *rdns {
 		if len(rdn) == 0 {
 			continue
@@ -176,6 +178,7 @@ func (n *Name) FillFromRDNSequence(rdns *RDNSequence) {
 					n.Surname = append(n.Surname, value)
 				case 5:
 					n.SerialNumber = value
+					n.SerialNumbers = append(n.SerialNumbers, value)
 				case 6:
 					n.Country = append(n.Country, value)
 				case 7:
@@ -238,7 +241,10 @@ var (
 // attributeTypeAndValue for each of the given values. See RFC 5280, A.1, and
 // search for AttributeTypeAndValue.
 func (n Name) appendRDNs(in RDNSequence, values []string, oid asn1.ObjectIdentifier) RDNSequence {
-	if len(values) == 0 || oidInAttributeTypeAndValue(oid, n.ExtraNames) {
+	// zcrypto
+	// NOTE: stdlib prevents adding if the oid is already present in n.ExtraNames
+	// if len(values) == 0 || oidInAttributeTypeAndValue(oid, n.ExtraNames) {
+	if len(values) == 0 {
 		return in
 	}
 
@@ -293,6 +299,20 @@ func (n Name) ToRDNSequence() (ret RDNSequence) {
 	return ret
 }
 
+// CertificateList represents the ASN.1 structure of the same name. See RFC
+// 5280, section 5.1. Use Certificate.CheckCRLSignature to verify the
+// signature.
+type CertificateList struct {
+	TBSCertList        TBSCertificateList
+	SignatureAlgorithm AlgorithmIdentifier
+	SignatureValue     asn1.BitString
+}
+
+// HasExpired reports whether certList should have been updated by now.
+func (certList *CertificateList) HasExpired(now time.Time) bool {
+	return !now.Before(certList.TBSCertList.NextUpdate)
+}
+
 // String returns the string form of n, roughly following
 // the RFC 2253 Distinguished Names syntax.
 func (n Name) String() string {
@@ -343,26 +363,8 @@ func oidInAttributeTypeAndValue(oid asn1.ObjectIdentifier, atv []AttributeTypeAn
 	return false
 }
 
-// CertificateList represents the ASN.1 structure of the same name. See RFC
-// 5280, section 5.1. Use Certificate.CheckCRLSignature to verify the
-// signature.
-//
-// Deprecated: x509.RevocationList should be used instead.
-type CertificateList struct {
-	TBSCertList        TBSCertificateList
-	SignatureAlgorithm AlgorithmIdentifier
-	SignatureValue     asn1.BitString
-}
-
-// HasExpired reports whether certList should have been updated by now.
-func (certList *CertificateList) HasExpired(now time.Time) bool {
-	return !now.Before(certList.TBSCertList.NextUpdate)
-}
-
 // TBSCertificateList represents the ASN.1 structure of the same name. See RFC
 // 5280, section 5.1.
-//
-// Deprecated: x509.RevocationList should be used instead.
 type TBSCertificateList struct {
 	Raw                 asn1.RawContent
 	Version             int `asn1:"optional,default:0"`

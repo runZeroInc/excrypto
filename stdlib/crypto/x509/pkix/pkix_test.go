@@ -66,6 +66,7 @@ func TestNameString(t *testing.T) {
 		s := test.name.String()
 		assert.Equal(t, test.expected, s)
 	}
+	LegacyNameString = true
 	for _, test := range tests {
 		s := test.name.String()
 		assert.Equal(t, test.legacy, s)
