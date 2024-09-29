@@ -185,7 +185,7 @@ TEXT ·p256Sqr(SB),NOSPLIT,$0
 
 sqrLoop:
 	SUB	$1, b_ptr
-	CALL	p256SqrInternal<>(SB)
+	CALL	p256SqrInternalExCrypto<>(SB)
 	MOVD	y0, x0
 	MOVD	y1, x1
 	MOVD	y2, x2
@@ -211,7 +211,7 @@ TEXT ·p256Mul(SB),NOSPLIT,$0
 	LDP	0*16(b_ptr), (y0, y1)
 	LDP	1*16(b_ptr), (y2, y3)
 
-	CALL	p256MulInternal<>(SB)
+	CALL	p256MulInternalExCrypto<>(SB)
 
 	STP	(y0, y1), 0*16(res_ptr)
 	STP	(y2, y3), 1*16(res_ptr)
@@ -791,7 +791,7 @@ TEXT ·p256OrdMul(SB),NOSPLIT,$0
 
 	RET
 /* ---------------------------------------*/
-TEXT p256SubInternal<>(SB),NOSPLIT,$0
+TEXT p256SubInternalExCrypto<>(SB),NOSPLIT,$0
 	SUBS	x0, y0, acc0
 	SBCS	x1, y1, acc1
 	SBCS	x2, y2, acc2
@@ -811,7 +811,7 @@ TEXT p256SubInternal<>(SB),NOSPLIT,$0
 
 	RET
 /* ---------------------------------------*/
-TEXT p256SqrInternal<>(SB),NOSPLIT,$0
+TEXT p256SqrInternalExCrypto<>(SB),NOSPLIT,$0
 	// x[1:] * x[0]
 	MUL	x0, x1, acc1
 	UMULH	x0, x1, acc2
@@ -920,7 +920,7 @@ TEXT p256SqrInternal<>(SB),NOSPLIT,$0
 	CSEL	CS, t3, acc3, y3
 	RET
 /* ---------------------------------------*/
-TEXT p256MulInternal<>(SB),NOSPLIT,$0
+TEXT p256MulInternalExCrypto<>(SB),NOSPLIT,$0
 	// y[0] * x
 	MUL	y0, x0, acc0
 	UMULH	y0, x0, acc1
@@ -1147,18 +1147,18 @@ TEXT ·p256PointAddAffineAsm(SB),0,$264-48
 	STy(y2in)
 	// Begin point add
 	LDx(z1in)
-	CALL	p256SqrInternal<>(SB)    // z1ˆ2
+	CALL	p256SqrInternalExCrypto<>(SB)    // z1ˆ2
 	STy(z1sqr)
 
 	LDx(x2in)
-	CALL	p256MulInternal<>(SB)    // x2 * z1ˆ2
+	CALL	p256MulInternalExCrypto<>(SB)    // x2 * z1ˆ2
 
 	LDx(x1in)
-	CALL	p256SubInternal<>(SB)    // h = u2 - u1
+	CALL	p256SubInternalExCrypto<>(SB)    // h = u2 - u1
 	STx(h)
 
 	LDy(z1in)
-	CALL	p256MulInternal<>(SB)    // z3 = h * z1
+	CALL	p256MulInternalExCrypto<>(SB)    // z3 = h * z1
 
 	LDP	4*16(a_ptr), (acc0, acc1)// iff select[0] == 0, z3 = z1
 	LDP	5*16(a_ptr), (acc2, acc3)
@@ -1180,49 +1180,49 @@ TEXT ·p256PointAddAffineAsm(SB),0,$264-48
 	STP	(y2, y3), 5*16(t0)
 
 	LDy(z1sqr)
-	CALL	p256MulInternal<>(SB)    // z1 ^ 3
+	CALL	p256MulInternalExCrypto<>(SB)    // z1 ^ 3
 
 	LDx(y2in)
-	CALL	p256MulInternal<>(SB)    // s2 = y2 * z1ˆ3
+	CALL	p256MulInternalExCrypto<>(SB)    // s2 = y2 * z1ˆ3
 	STy(s2)
 
 	LDx(y1in)
-	CALL	p256SubInternal<>(SB)    // r = s2 - s1
+	CALL	p256SubInternalExCrypto<>(SB)    // r = s2 - s1
 	STx(r)
 
-	CALL	p256SqrInternal<>(SB)    // rsqr = rˆ2
+	CALL	p256SqrInternalExCrypto<>(SB)    // rsqr = rˆ2
 	STy	(rsqr)
 
 	LDx(h)
-	CALL	p256SqrInternal<>(SB)    // hsqr = hˆ2
+	CALL	p256SqrInternalExCrypto<>(SB)    // hsqr = hˆ2
 	STy(hsqr)
 
-	CALL	p256MulInternal<>(SB)    // hcub = hˆ3
+	CALL	p256MulInternalExCrypto<>(SB)    // hcub = hˆ3
 	STy(hcub)
 
 	LDx(y1in)
-	CALL	p256MulInternal<>(SB)    // y1 * hˆ3
+	CALL	p256MulInternalExCrypto<>(SB)    // y1 * hˆ3
 	STy(s2)
 
 	LDP	hsqr(0*8), (x0, x1)
 	LDP	hsqr(2*8), (x2, x3)
 	LDP	0*16(a_ptr), (y0, y1)
 	LDP	1*16(a_ptr), (y2, y3)
-	CALL	p256MulInternal<>(SB)    // u1 * hˆ2
+	CALL	p256MulInternalExCrypto<>(SB)    // u1 * hˆ2
 	STP	(y0, y1), h(0*8)
 	STP	(y2, y3), h(2*8)
 
 	p256MulBy2Inline               // u1 * hˆ2 * 2, inline
 
 	LDy(rsqr)
-	CALL	p256SubInternal<>(SB)    // rˆ2 - u1 * hˆ2 * 2
+	CALL	p256SubInternalExCrypto<>(SB)    // rˆ2 - u1 * hˆ2 * 2
 
 	MOVD	x0, y0
 	MOVD	x1, y1
 	MOVD	x2, y2
 	MOVD	x3, y3
 	LDx(hcub)
-	CALL	p256SubInternal<>(SB)
+	CALL	p256SubInternalExCrypto<>(SB)
 
 	LDP	0*16(a_ptr), (acc0, acc1)
 	LDP	1*16(a_ptr), (acc2, acc3)
@@ -1244,15 +1244,15 @@ TEXT ·p256PointAddAffineAsm(SB),0,$264-48
 
 	LDP	h(0*8), (y0, y1)
 	LDP	h(2*8), (y2, y3)
-	CALL	p256SubInternal<>(SB)
+	CALL	p256SubInternalExCrypto<>(SB)
 
 	LDP	r(0*8), (y0, y1)
 	LDP	r(2*8), (y2, y3)
-	CALL	p256MulInternal<>(SB)
+	CALL	p256MulInternalExCrypto<>(SB)
 
 	LDP	s2(0*8), (x0, x1)
 	LDP	s2(2*8), (x2, x3)
-	CALL	p256SubInternal<>(SB)
+	CALL	p256SubInternalExCrypto<>(SB)
 	LDP	2*16(a_ptr), (acc0, acc1)
 	LDP	3*16(a_ptr), (acc2, acc3)
 	ANDS	$1, hlp1, ZR           // iff select[0] == 0, y3 = y1
@@ -1305,7 +1305,7 @@ TEXT ·p256PointDoubleAsm(SB),NOSPLIT,$136-16
 	// Begin point double
 	LDP	4*16(a_ptr), (x0, x1)
 	LDP	5*16(a_ptr), (x2, x3)
-	CALL	p256SqrInternal<>(SB)
+	CALL	p256SqrInternalExCrypto<>(SB)
 	STP	(y0, y1), zsqr(0*8)
 	STP	(y2, y3), zsqr(2*8)
 
@@ -1316,15 +1316,15 @@ TEXT ·p256PointDoubleAsm(SB),NOSPLIT,$136-16
 
 	LDx(z1in)
 	LDy(y1in)
-	CALL	p256MulInternal<>(SB)
+	CALL	p256MulInternalExCrypto<>(SB)
 	p256MulBy2Inline
 	STx(z3out)
 
 	LDy(x1in)
 	LDx(zsqr)
-	CALL	p256SubInternal<>(SB)
+	CALL	p256SubInternalExCrypto<>(SB)
 	LDy(m)
-	CALL	p256MulInternal<>(SB)
+	CALL	p256MulInternalExCrypto<>(SB)
 
 	// Multiply by 3
 	p256MulBy2Inline
@@ -1333,13 +1333,13 @@ TEXT ·p256PointDoubleAsm(SB),NOSPLIT,$136-16
 
 	LDy(y1in)
 	p256MulBy2Inline
-	CALL	p256SqrInternal<>(SB)
+	CALL	p256SqrInternalExCrypto<>(SB)
 	STy(s)
 	MOVD	y0, x0
 	MOVD	y1, x1
 	MOVD	y2, x2
 	MOVD	y3, x3
-	CALL	p256SqrInternal<>(SB)
+	CALL	p256SqrInternalExCrypto<>(SB)
 
 	// Divide by 2
 	ADDS	$-1, y0, t0
@@ -1363,26 +1363,26 @@ TEXT ·p256PointDoubleAsm(SB),NOSPLIT,$136-16
 
 	LDx(x1in)
 	LDy(s)
-	CALL	p256MulInternal<>(SB)
+	CALL	p256MulInternalExCrypto<>(SB)
 	STy(s)
 	p256MulBy2Inline
 	STx(tmp)
 
 	LDx(m)
-	CALL	p256SqrInternal<>(SB)
+	CALL	p256SqrInternalExCrypto<>(SB)
 	LDx(tmp)
-	CALL	p256SubInternal<>(SB)
+	CALL	p256SubInternalExCrypto<>(SB)
 
 	STx(x3out)
 
 	LDy(s)
-	CALL	p256SubInternal<>(SB)
+	CALL	p256SubInternalExCrypto<>(SB)
 
 	LDy(m)
-	CALL	p256MulInternal<>(SB)
+	CALL	p256MulInternalExCrypto<>(SB)
 
 	LDx(y3out)
-	CALL	p256SubInternal<>(SB)
+	CALL	p256SubInternalExCrypto<>(SB)
 	STx(y3out)
 	RET
 /* ---------------------------------------*/
@@ -1406,26 +1406,26 @@ TEXT ·p256PointAddAsm(SB),0,$392-32
 
 	// Begin point add
 	LDx(z2in)
-	CALL	p256SqrInternal<>(SB)    // z2^2
+	CALL	p256SqrInternalExCrypto<>(SB)    // z2^2
 	STy(z2sqr)
 
-	CALL	p256MulInternal<>(SB)    // z2^3
+	CALL	p256MulInternalExCrypto<>(SB)    // z2^3
 
 	LDx(y1in)
-	CALL	p256MulInternal<>(SB)    // s1 = z2ˆ3*y1
+	CALL	p256MulInternalExCrypto<>(SB)    // s1 = z2ˆ3*y1
 	STy(s1)
 
 	LDx(z1in)
-	CALL	p256SqrInternal<>(SB)    // z1^2
+	CALL	p256SqrInternalExCrypto<>(SB)    // z1^2
 	STy(z1sqr)
 
-	CALL	p256MulInternal<>(SB)    // z1^3
+	CALL	p256MulInternalExCrypto<>(SB)    // z1^3
 
 	LDx(y2in)
-	CALL	p256MulInternal<>(SB)    // s2 = z1ˆ3*y2
+	CALL	p256MulInternalExCrypto<>(SB)    // s2 = z1ˆ3*y2
 
 	LDx(s1)
-	CALL	p256SubInternal<>(SB)    // r = s2 - s1
+	CALL	p256SubInternalExCrypto<>(SB)    // r = s2 - s1
 	STx(r)
 
 	MOVD	$1, t2
@@ -1447,16 +1447,16 @@ TEXT ·p256PointAddAsm(SB),0,$392-32
 
 	LDx(z2sqr)
 	LDy(x1in)
-	CALL	p256MulInternal<>(SB)    // u1 = x1 * z2ˆ2
+	CALL	p256MulInternalExCrypto<>(SB)    // u1 = x1 * z2ˆ2
 	STy(u1)
 
 	LDx(z1sqr)
 	LDy(x2in)
-	CALL	p256MulInternal<>(SB)    // u2 = x2 * z1ˆ2
+	CALL	p256MulInternalExCrypto<>(SB)    // u2 = x2 * z1ˆ2
 	STy(u2)
 
 	LDx(u1)
-	CALL	p256SubInternal<>(SB)    // h = u2 - u1
+	CALL	p256SubInternalExCrypto<>(SB)    // h = u2 - u1
 	STx(h)
 
 	MOVD	$1, t2
@@ -1479,54 +1479,54 @@ TEXT ·p256PointAddAsm(SB),0,$392-32
 	AND	hlp0, hlp1, hlp1
 
 	LDx(r)
-	CALL	p256SqrInternal<>(SB)    // rsqr = rˆ2
+	CALL	p256SqrInternalExCrypto<>(SB)    // rsqr = rˆ2
 	STy(rsqr)
 
 	LDx(h)
-	CALL	p256SqrInternal<>(SB)    // hsqr = hˆ2
+	CALL	p256SqrInternalExCrypto<>(SB)    // hsqr = hˆ2
 	STy(hsqr)
 
 	LDx(h)
-	CALL	p256MulInternal<>(SB)    // hcub = hˆ3
+	CALL	p256MulInternalExCrypto<>(SB)    // hcub = hˆ3
 	STy(hcub)
 
 	LDx(s1)
-	CALL	p256MulInternal<>(SB)
+	CALL	p256MulInternalExCrypto<>(SB)
 	STy(s2)
 
 	LDx(z1in)
 	LDy(z2in)
-	CALL	p256MulInternal<>(SB)    // z1 * z2
+	CALL	p256MulInternalExCrypto<>(SB)    // z1 * z2
 	LDx(h)
-	CALL	p256MulInternal<>(SB)    // z1 * z2 * h
+	CALL	p256MulInternalExCrypto<>(SB)    // z1 * z2 * h
 	MOVD	res+0(FP), b_ptr
 	STy(z3out)
 
 	LDx(hsqr)
 	LDy(u1)
-	CALL	p256MulInternal<>(SB)    // hˆ2 * u1
+	CALL	p256MulInternalExCrypto<>(SB)    // hˆ2 * u1
 	STy(u2)
 
 	p256MulBy2Inline               // u1 * hˆ2 * 2, inline
 	LDy(rsqr)
-	CALL	p256SubInternal<>(SB)    // rˆ2 - u1 * hˆ2 * 2
+	CALL	p256SubInternalExCrypto<>(SB)    // rˆ2 - u1 * hˆ2 * 2
 
 	MOVD	x0, y0
 	MOVD	x1, y1
 	MOVD	x2, y2
 	MOVD	x3, y3
 	LDx(hcub)
-	CALL	p256SubInternal<>(SB)
+	CALL	p256SubInternalExCrypto<>(SB)
 	STx(x3out)
 
 	LDy(u2)
-	CALL	p256SubInternal<>(SB)
+	CALL	p256SubInternalExCrypto<>(SB)
 
 	LDy(r)
-	CALL	p256MulInternal<>(SB)
+	CALL	p256MulInternalExCrypto<>(SB)
 
 	LDx(s2)
-	CALL	p256SubInternal<>(SB)
+	CALL	p256SubInternalExCrypto<>(SB)
 	STx(y3out)
 
 	MOVD	hlp1, R0

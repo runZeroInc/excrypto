@@ -1173,9 +1173,9 @@ ordSqrLoop:
 	JNE     ordSqrLoop
 	RET
 
-// func p256SubInternal()
+// func p256SubInternalExCrypto()
 // Requires: CMOV
-TEXT p256SubInternal(SB), NOSPLIT, $0
+TEXT p256SubInternalExCrypto(SB), NOSPLIT, $0
 	XORQ    AX, AX
 	SUBQ    R14, R10
 	SBBQ    R15, R11
@@ -1197,9 +1197,9 @@ TEXT p256SubInternal(SB), NOSPLIT, $0
 	CMOVQEQ R9, R13
 	RET
 
-// func p256MulInternal()
+// func p256MulInternalExCrypto()
 // Requires: CMOV
-TEXT p256MulInternal(SB), NOSPLIT, $8
+TEXT p256MulInternalExCrypto(SB), NOSPLIT, $8
 	MOVQ R10, AX
 	MULQ R14
 	MOVQ AX, BX
@@ -1374,9 +1374,9 @@ TEXT p256MulInternal(SB), NOSPLIT, $8
 	CMOVQCS R9, R13
 	RET
 
-// func p256SqrInternal()
+// func p256SqrInternalExCrypto()
 // Requires: CMOV
-TEXT p256SqrInternal(SB), NOSPLIT, $8
+TEXT p256SqrInternalExCrypto(SB), NOSPLIT, $8
 	MOVQ R10, AX
 	MULQ R11
 	MOVQ AX, CX
@@ -1600,7 +1600,7 @@ TEXT ·p256PointAddAffineAsm(SB), $512-48
 	MOVQ    72(SP), R11
 	MOVQ    80(SP), R12
 	MOVQ    88(SP), R13
-	CALL    p256SqrInternal(SB)
+	CALL    p256SqrInternalExCrypto(SB)
 	MOVQ    R10, 288(SP)
 	MOVQ    R11, 296(SP)
 	MOVQ    R12, 304(SP)
@@ -1609,12 +1609,12 @@ TEXT ·p256PointAddAffineAsm(SB), $512-48
 	MOVQ    104(SP), R15
 	MOVQ    112(SP), DI
 	MOVQ    120(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    (SP), R14
 	MOVQ    8(SP), R15
 	MOVQ    16(SP), DI
 	MOVQ    24(SP), SI
-	CALL    p256SubInternal(SB)
+	CALL    p256SubInternalExCrypto(SB)
 	MOVQ    R10, 320(SP)
 	MOVQ    R11, 328(SP)
 	MOVQ    R12, 336(SP)
@@ -1623,7 +1623,7 @@ TEXT ·p256PointAddAffineAsm(SB), $512-48
 	MOVQ    72(SP), R15
 	MOVQ    80(SP), DI
 	MOVQ    88(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    R10, 224(SP)
 	MOVQ    R11, 232(SP)
 	MOVQ    R12, 240(SP)
@@ -1632,12 +1632,12 @@ TEXT ·p256PointAddAffineAsm(SB), $512-48
 	MOVQ    296(SP), R11
 	MOVQ    304(SP), R12
 	MOVQ    312(SP), R13
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    128(SP), R14
 	MOVQ    136(SP), R15
 	MOVQ    144(SP), DI
 	MOVQ    152(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    R10, 256(SP)
 	MOVQ    R11, 264(SP)
 	MOVQ    R12, 272(SP)
@@ -1646,12 +1646,12 @@ TEXT ·p256PointAddAffineAsm(SB), $512-48
 	MOVQ    40(SP), R15
 	MOVQ    48(SP), DI
 	MOVQ    56(SP), SI
-	CALL    p256SubInternal(SB)
+	CALL    p256SubInternalExCrypto(SB)
 	MOVQ    R10, 352(SP)
 	MOVQ    R11, 360(SP)
 	MOVQ    R12, 368(SP)
 	MOVQ    R13, 376(SP)
-	CALL    p256SqrInternal(SB)
+	CALL    p256SqrInternalExCrypto(SB)
 	MOVQ    R10, 416(SP)
 	MOVQ    R11, 424(SP)
 	MOVQ    R12, 432(SP)
@@ -1660,7 +1660,7 @@ TEXT ·p256PointAddAffineAsm(SB), $512-48
 	MOVQ    328(SP), R11
 	MOVQ    336(SP), R12
 	MOVQ    344(SP), R13
-	CALL    p256SqrInternal(SB)
+	CALL    p256SqrInternalExCrypto(SB)
 	MOVQ    R10, 384(SP)
 	MOVQ    R11, 392(SP)
 	MOVQ    R12, 400(SP)
@@ -1669,7 +1669,7 @@ TEXT ·p256PointAddAffineAsm(SB), $512-48
 	MOVQ    328(SP), R15
 	MOVQ    336(SP), DI
 	MOVQ    344(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    R10, 448(SP)
 	MOVQ    R11, 456(SP)
 	MOVQ    R12, 464(SP)
@@ -1678,7 +1678,7 @@ TEXT ·p256PointAddAffineAsm(SB), $512-48
 	MOVQ    40(SP), R15
 	MOVQ    48(SP), DI
 	MOVQ    56(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    R10, 256(SP)
 	MOVQ    R11, 264(SP)
 	MOVQ    R12, 272(SP)
@@ -1691,7 +1691,7 @@ TEXT ·p256PointAddAffineAsm(SB), $512-48
 	MOVQ    392(SP), R15
 	MOVQ    400(SP), DI
 	MOVQ    408(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    R10, 320(SP)
 	MOVQ    R11, 328(SP)
 	MOVQ    R12, 336(SP)
@@ -1719,12 +1719,12 @@ TEXT ·p256PointAddAffineAsm(SB), $512-48
 	MOVQ    424(SP), R11
 	MOVQ    432(SP), R12
 	MOVQ    440(SP), R13
-	CALL    p256SubInternal(SB)
+	CALL    p256SubInternalExCrypto(SB)
 	MOVQ    448(SP), R14
 	MOVQ    456(SP), R15
 	MOVQ    464(SP), DI
 	MOVQ    472(SP), SI
-	CALL    p256SubInternal(SB)
+	CALL    p256SubInternalExCrypto(SB)
 	MOVQ    R10, 160(SP)
 	MOVQ    R11, 168(SP)
 	MOVQ    R12, 176(SP)
@@ -1737,17 +1737,17 @@ TEXT ·p256PointAddAffineAsm(SB), $512-48
 	MOVQ    328(SP), R11
 	MOVQ    336(SP), R12
 	MOVQ    344(SP), R13
-	CALL    p256SubInternal(SB)
+	CALL    p256SubInternalExCrypto(SB)
 	MOVQ    352(SP), R14
 	MOVQ    360(SP), R15
 	MOVQ    368(SP), DI
 	MOVQ    376(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    256(SP), R14
 	MOVQ    264(SP), R15
 	MOVQ    272(SP), DI
 	MOVQ    280(SP), SI
-	CALL    p256SubInternal(SB)
+	CALL    p256SubInternalExCrypto(SB)
 	MOVQ    R10, 192(SP)
 	MOVQ    R11, 200(SP)
 	MOVQ    R12, 208(SP)
@@ -1845,9 +1845,9 @@ DATA p256one<>+16(SB)/8, $0xffffffffffffffff
 DATA p256one<>+24(SB)/8, $0x00000000fffffffe
 GLOBL p256one<>(SB), RODATA, $32
 
-// func p256IsZero()
+// func p256IsZeroExCrypto()
 // Requires: CMOV
-TEXT p256IsZero(SB), NOSPLIT, $0
+TEXT p256IsZeroExCrypto(SB), NOSPLIT, $0
 	// AX contains a flag that is set if the input is zero.
 	XORQ AX, AX
 	MOVQ $0x00000001, R15
@@ -1914,7 +1914,7 @@ TEXT ·p256PointAddAsm(SB), $680-32
 	MOVQ    168(SP), R11
 	MOVQ    176(SP), R12
 	MOVQ    184(SP), R13
-	CALL    p256SqrInternal(SB)
+	CALL    p256SqrInternalExCrypto(SB)
 	MOVQ    R10, 448(SP)
 	MOVQ    R11, 456(SP)
 	MOVQ    R12, 464(SP)
@@ -1923,12 +1923,12 @@ TEXT ·p256PointAddAsm(SB), $680-32
 	MOVQ    168(SP), R15
 	MOVQ    176(SP), DI
 	MOVQ    184(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    32(SP), R14
 	MOVQ    40(SP), R15
 	MOVQ    48(SP), DI
 	MOVQ    56(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    R10, 352(SP)
 	MOVQ    R11, 360(SP)
 	MOVQ    R12, 368(SP)
@@ -1937,7 +1937,7 @@ TEXT ·p256PointAddAsm(SB), $680-32
 	MOVQ    72(SP), R11
 	MOVQ    80(SP), R12
 	MOVQ    88(SP), R13
-	CALL    p256SqrInternal(SB)
+	CALL    p256SqrInternalExCrypto(SB)
 	MOVQ    R10, 416(SP)
 	MOVQ    R11, 424(SP)
 	MOVQ    R12, 432(SP)
@@ -1946,12 +1946,12 @@ TEXT ·p256PointAddAsm(SB), $680-32
 	MOVQ    72(SP), R15
 	MOVQ    80(SP), DI
 	MOVQ    88(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    128(SP), R14
 	MOVQ    136(SP), R15
 	MOVQ    144(SP), DI
 	MOVQ    152(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    R10, 384(SP)
 	MOVQ    R11, 392(SP)
 	MOVQ    R12, 400(SP)
@@ -1960,12 +1960,12 @@ TEXT ·p256PointAddAsm(SB), $680-32
 	MOVQ    360(SP), R15
 	MOVQ    368(SP), DI
 	MOVQ    376(SP), SI
-	CALL    p256SubInternal(SB)
+	CALL    p256SubInternalExCrypto(SB)
 	MOVQ    R10, 512(SP)
 	MOVQ    R11, 520(SP)
 	MOVQ    R12, 528(SP)
 	MOVQ    R13, 536(SP)
-	CALL    p256IsZero(SB)
+	CALL    p256IsZeroExCrypto(SB)
 	MOVQ    AX, 648(SP)
 	MOVQ    448(SP), R10
 	MOVQ    456(SP), R11
@@ -1975,7 +1975,7 @@ TEXT ·p256PointAddAsm(SB), $680-32
 	MOVQ    8(SP), R15
 	MOVQ    16(SP), DI
 	MOVQ    24(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    R10, 288(SP)
 	MOVQ    R11, 296(SP)
 	MOVQ    R12, 304(SP)
@@ -1988,7 +1988,7 @@ TEXT ·p256PointAddAsm(SB), $680-32
 	MOVQ    104(SP), R15
 	MOVQ    112(SP), DI
 	MOVQ    120(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    R10, 320(SP)
 	MOVQ    R11, 328(SP)
 	MOVQ    R12, 336(SP)
@@ -1997,19 +1997,19 @@ TEXT ·p256PointAddAsm(SB), $680-32
 	MOVQ    296(SP), R15
 	MOVQ    304(SP), DI
 	MOVQ    312(SP), SI
-	CALL    p256SubInternal(SB)
+	CALL    p256SubInternalExCrypto(SB)
 	MOVQ    R10, 480(SP)
 	MOVQ    R11, 488(SP)
 	MOVQ    R12, 496(SP)
 	MOVQ    R13, 504(SP)
-	CALL    p256IsZero(SB)
+	CALL    p256IsZeroExCrypto(SB)
 	ANDQ    648(SP), AX
 	MOVQ    AX, 648(SP)
 	MOVQ    512(SP), R10
 	MOVQ    520(SP), R11
 	MOVQ    528(SP), R12
 	MOVQ    536(SP), R13
-	CALL    p256SqrInternal(SB)
+	CALL    p256SqrInternalExCrypto(SB)
 	MOVQ    R10, 576(SP)
 	MOVQ    R11, 584(SP)
 	MOVQ    R12, 592(SP)
@@ -2018,7 +2018,7 @@ TEXT ·p256PointAddAsm(SB), $680-32
 	MOVQ    488(SP), R11
 	MOVQ    496(SP), R12
 	MOVQ    504(SP), R13
-	CALL    p256SqrInternal(SB)
+	CALL    p256SqrInternalExCrypto(SB)
 	MOVQ    R10, 544(SP)
 	MOVQ    R11, 552(SP)
 	MOVQ    R12, 560(SP)
@@ -2027,7 +2027,7 @@ TEXT ·p256PointAddAsm(SB), $680-32
 	MOVQ    488(SP), R15
 	MOVQ    496(SP), DI
 	MOVQ    504(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    R10, 608(SP)
 	MOVQ    R11, 616(SP)
 	MOVQ    R12, 624(SP)
@@ -2036,7 +2036,7 @@ TEXT ·p256PointAddAsm(SB), $680-32
 	MOVQ    360(SP), R15
 	MOVQ    368(SP), DI
 	MOVQ    376(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    R10, 384(SP)
 	MOVQ    R11, 392(SP)
 	MOVQ    R12, 400(SP)
@@ -2049,12 +2049,12 @@ TEXT ·p256PointAddAsm(SB), $680-32
 	MOVQ    168(SP), R15
 	MOVQ    176(SP), DI
 	MOVQ    184(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    480(SP), R14
 	MOVQ    488(SP), R15
 	MOVQ    496(SP), DI
 	MOVQ    504(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    R10, 256(SP)
 	MOVQ    R11, 264(SP)
 	MOVQ    R12, 272(SP)
@@ -2067,7 +2067,7 @@ TEXT ·p256PointAddAsm(SB), $680-32
 	MOVQ    296(SP), R15
 	MOVQ    304(SP), DI
 	MOVQ    312(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    R10, 320(SP)
 	MOVQ    R11, 328(SP)
 	MOVQ    R12, 336(SP)
@@ -2095,12 +2095,12 @@ TEXT ·p256PointAddAsm(SB), $680-32
 	MOVQ    584(SP), R11
 	MOVQ    592(SP), R12
 	MOVQ    600(SP), R13
-	CALL    p256SubInternal(SB)
+	CALL    p256SubInternalExCrypto(SB)
 	MOVQ    608(SP), R14
 	MOVQ    616(SP), R15
 	MOVQ    624(SP), DI
 	MOVQ    632(SP), SI
-	CALL    p256SubInternal(SB)
+	CALL    p256SubInternalExCrypto(SB)
 	MOVQ    R10, 192(SP)
 	MOVQ    R11, 200(SP)
 	MOVQ    R12, 208(SP)
@@ -2113,17 +2113,17 @@ TEXT ·p256PointAddAsm(SB), $680-32
 	MOVQ    328(SP), R11
 	MOVQ    336(SP), R12
 	MOVQ    344(SP), R13
-	CALL    p256SubInternal(SB)
+	CALL    p256SubInternalExCrypto(SB)
 	MOVQ    512(SP), R14
 	MOVQ    520(SP), R15
 	MOVQ    528(SP), DI
 	MOVQ    536(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    384(SP), R14
 	MOVQ    392(SP), R15
 	MOVQ    400(SP), DI
 	MOVQ    408(SP), SI
-	CALL    p256SubInternal(SB)
+	CALL    p256SubInternalExCrypto(SB)
 	MOVQ    R10, 224(SP)
 	MOVQ    R11, 232(SP)
 	MOVQ    R12, 240(SP)
@@ -2174,7 +2174,7 @@ TEXT ·p256PointDoubleAsm(SB), NOSPLIT, $256-16
 	MOVQ    72(SP), R11
 	MOVQ    80(SP), R12
 	MOVQ    88(SP), R13
-	CALL    p256SqrInternal(SB)
+	CALL    p256SqrInternalExCrypto(SB)
 	MOVQ    R10, 160(SP)
 	MOVQ    R11, 168(SP)
 	MOVQ    R12, 176(SP)
@@ -2214,7 +2214,7 @@ TEXT ·p256PointDoubleAsm(SB), NOSPLIT, $256-16
 	MOVQ    40(SP), R15
 	MOVQ    48(SP), DI
 	MOVQ    56(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	XORQ    AX, AX
 	ADDQ    R10, R10
 	ADCQ    R11, R11
@@ -2249,12 +2249,12 @@ TEXT ·p256PointDoubleAsm(SB), NOSPLIT, $256-16
 	MOVQ 168(SP), R15
 	MOVQ 176(SP), DI
 	MOVQ 184(SP), SI
-	CALL p256SubInternal(SB)
+	CALL p256SubInternalExCrypto(SB)
 	MOVQ 128(SP), R14
 	MOVQ 136(SP), R15
 	MOVQ 144(SP), DI
 	MOVQ 152(SP), SI
-	CALL p256MulInternal(SB)
+	CALL p256MulInternalExCrypto(SB)
 	MOVQ R10, 128(SP)
 	MOVQ R11, 136(SP)
 	MOVQ R12, 144(SP)
@@ -2336,12 +2336,12 @@ TEXT ·p256PointDoubleAsm(SB), NOSPLIT, $256-16
 	MOVQ    R15, R11
 	MOVQ    DI, R12
 	MOVQ    SI, R13
-	CALL    p256SqrInternal(SB)
+	CALL    p256SqrInternalExCrypto(SB)
 	MOVQ    R10, 96(SP)
 	MOVQ    R11, 104(SP)
 	MOVQ    R12, 112(SP)
 	MOVQ    R13, 120(SP)
-	CALL    p256SqrInternal(SB)
+	CALL    p256SqrInternalExCrypto(SB)
 
 	// Divide by 2
 	XORQ    AX, AX
@@ -2378,7 +2378,7 @@ TEXT ·p256PointDoubleAsm(SB), NOSPLIT, $256-16
 	MOVQ    104(SP), R15
 	MOVQ    112(SP), DI
 	MOVQ    120(SP), SI
-	CALL    p256MulInternal(SB)
+	CALL    p256MulInternalExCrypto(SB)
 	MOVQ    R10, 96(SP)
 	MOVQ    R11, 104(SP)
 	MOVQ    R12, 112(SP)
@@ -2410,12 +2410,12 @@ TEXT ·p256PointDoubleAsm(SB), NOSPLIT, $256-16
 	MOVQ    136(SP), R11
 	MOVQ    144(SP), R12
 	MOVQ    152(SP), R13
-	CALL    p256SqrInternal(SB)
+	CALL    p256SqrInternalExCrypto(SB)
 	MOVQ    192(SP), R14
 	MOVQ    200(SP), R15
 	MOVQ    208(SP), DI
 	MOVQ    216(SP), SI
-	CALL    p256SubInternal(SB)
+	CALL    p256SubInternalExCrypto(SB)
 	MOVQ    224(SP), AX
 
 	// Store x
@@ -2431,17 +2431,17 @@ TEXT ·p256PointDoubleAsm(SB), NOSPLIT, $256-16
 	MOVQ 104(SP), R11
 	MOVQ 112(SP), R12
 	MOVQ 120(SP), R13
-	CALL p256SubInternal(SB)
+	CALL p256SubInternalExCrypto(SB)
 	MOVQ 128(SP), R14
 	MOVQ 136(SP), R15
 	MOVQ 144(SP), DI
 	MOVQ 152(SP), SI
-	CALL p256MulInternal(SB)
+	CALL p256MulInternalExCrypto(SB)
 	MOVQ 32(SP), R14
 	MOVQ 40(SP), R15
 	MOVQ 48(SP), DI
 	MOVQ 56(SP), SI
-	CALL p256SubInternal(SB)
+	CALL p256SubInternalExCrypto(SB)
 	MOVQ 224(SP), AX
 
 	// Store y

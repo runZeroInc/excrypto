@@ -58,20 +58,20 @@ func main() {
 	p256SelectAffine()
 	p256OrdMul()
 	p256OrdSqr()
-	p256SubInternal()
-	p256MulInternal()
-	p256SqrInternal()
+	p256SubInternalExCrypto()
+	p256MulInternalExCrypto()
+	p256SqrInternalExCrypto()
 	p256PointAddAffineAsm()
-	p256IsZero()
+	p256IsZeroExCrypto()
 	p256PointAddAsm()
 	p256PointDoubleAsm()
 	Generate()
 
 	internalFunctions := []string{
-		"·p256SubInternal",
-		"·p256MulInternal",
-		"·p256SqrInternal",
-		"·p256IsZero",
+		"·p256SubInternalExCrypto",
+		"·p256MulInternalExCrypto",
+		"·p256SqrInternalExCrypto",
+		"·p256IsZeroExCrypto",
 	}
 	removePeskyUnicodeDot(internalFunctions, "../p256_asm_amd64.s")
 }
@@ -1509,8 +1509,8 @@ var (
 	hlp_v2  = RBP
 )
 
-func p256SubInternal() {
-	Function("p256SubInternal")
+func p256SubInternalExCrypto() {
+	Function("p256SubInternalExCrypto")
 	Attributes(NOSPLIT)
 
 	XORQ(mul0_v2, mul0_v2)
@@ -1541,8 +1541,8 @@ func p256SubInternal() {
 	RET()
 }
 
-func p256MulInternal() {
-	Function("p256MulInternal")
+func p256MulInternalExCrypto() {
+	Function("p256MulInternalExCrypto")
 	Attributes(NOSPLIT)
 
 	MOVQ(acc4_v2, mul0_v2)
@@ -1738,8 +1738,8 @@ func p256MulInternal() {
 	RET()
 }
 
-func p256SqrInternal() {
-	Function("p256SqrInternal")
+func p256SqrInternalExCrypto() {
+	Function("p256SqrInternalExCrypto")
 	Attributes(NOSPLIT)
 
 	MOVQ(acc4_v2, mul0_v2)
@@ -2119,57 +2119,57 @@ func p256PointAddAffineAsm() {
 
 	Comment("Begin point add")
 	LDacc(z1in_v1)
-	CALL(LabelRef("p256SqrInternal(SB)")) //                  z1ˆ2
+	CALL(LabelRef("p256SqrInternalExCrypto(SB)")) //                  z1ˆ2
 	ST(z1sqr_v1)
 
 	LDt(x2in_v1)
-	CALL(LabelRef("p256MulInternal(SB)")) //             x2 * z1ˆ2
+	CALL(LabelRef("p256MulInternalExCrypto(SB)")) //             x2 * z1ˆ2
 
 	LDt(x1in_v1)
-	CALL(LabelRef("p256SubInternal(SB)")) //          h = u2 - u1)
+	CALL(LabelRef("p256SubInternalExCrypto(SB)")) //          h = u2 - u1)
 	ST(h_v1)
 
 	LDt(z1in_v1)
-	CALL(LabelRef("p256MulInternal(SB)")) //           z3 = h * z1
+	CALL(LabelRef("p256MulInternalExCrypto(SB)")) //           z3 = h * z1
 	ST(zout_v1)
 
 	LDacc(z1sqr_v1)
-	CALL(LabelRef("p256MulInternal(SB)")) //                  z1ˆ3
+	CALL(LabelRef("p256MulInternalExCrypto(SB)")) //                  z1ˆ3
 
 	LDt(y2in_v1)
-	CALL(LabelRef("p256MulInternal(SB)")) //        s2 = y2 * z1ˆ3
+	CALL(LabelRef("p256MulInternalExCrypto(SB)")) //        s2 = y2 * z1ˆ3
 	ST(s2_v1)
 
 	LDt(y1in_v1)
-	CALL(LabelRef("p256SubInternal(SB)")) //          r = s2 - s1)
+	CALL(LabelRef("p256SubInternalExCrypto(SB)")) //          r = s2 - s1)
 	ST(r_v1)
 
-	CALL(LabelRef("p256SqrInternal(SB)")) //            rsqr = rˆ2
+	CALL(LabelRef("p256SqrInternalExCrypto(SB)")) //            rsqr = rˆ2
 	ST(rsqr_v1)
 
 	LDacc(h_v1)
-	CALL(LabelRef("p256SqrInternal(SB)")) //            hsqr = hˆ2
+	CALL(LabelRef("p256SqrInternalExCrypto(SB)")) //            hsqr = hˆ2
 	ST(hsqr_v1)
 
 	LDt(h_v1)
-	CALL(LabelRef("p256MulInternal(SB)")) //            hcub = hˆ3
+	CALL(LabelRef("p256MulInternalExCrypto(SB)")) //            hcub = hˆ3
 	ST(hcub_v1)
 
 	LDt(y1in_v1)
-	CALL(LabelRef("p256MulInternal(SB)")) //             y1 * hˆ3
+	CALL(LabelRef("p256MulInternalExCrypto(SB)")) //             y1 * hˆ3
 	ST(s2_v1)
 
 	LDacc(x1in_v1)
 	LDt(hsqr_v1)
-	CALL(LabelRef("p256MulInternal(SB)")) //             u1 * hˆ2
+	CALL(LabelRef("p256MulInternalExCrypto(SB)")) //             u1 * hˆ2
 	ST(h_v1)
 
 	p256MulBy2Inline() //                    u1 * hˆ2 * 2, inline
 	LDacc(rsqr_v1)
-	CALL(LabelRef("p256SubInternal(SB)")) //  rˆ2 - u1 * hˆ2 * 2)
+	CALL(LabelRef("p256SubInternalExCrypto(SB)")) //  rˆ2 - u1 * hˆ2 * 2)
 
 	LDt(hcub_v1)
-	CALL(LabelRef("p256SubInternal(SB)"))
+	CALL(LabelRef("p256SubInternalExCrypto(SB)"))
 	ST(xout_v1)
 
 	MOVQ(acc4_v2, t0_v2)
@@ -2177,13 +2177,13 @@ func p256PointAddAffineAsm() {
 	MOVQ(acc6_v2, t2_v2)
 	MOVQ(acc7_v2, t3_v2)
 	LDacc(h_v1)
-	CALL(LabelRef("p256SubInternal(SB)"))
+	CALL(LabelRef("p256SubInternalExCrypto(SB)"))
 
 	LDt(r_v1)
-	CALL(LabelRef("p256MulInternal(SB)"))
+	CALL(LabelRef("p256MulInternalExCrypto(SB)"))
 
 	LDt(s2_v1)
-	CALL(LabelRef("p256SubInternal(SB)"))
+	CALL(LabelRef("p256SubInternalExCrypto(SB)"))
 	ST(yout_v1)
 
 	Comment("Load stored values from stack")
@@ -2299,10 +2299,10 @@ func p256PointAddAffineAsm() {
 	RET()
 }
 
-// p256IsZero returns 1 in AX if [acc4..acc7] represents zero and zero
+// p256IsZeroExCrypto returns 1 in AX if [acc4..acc7] represents zero and zero
 // otherwise. It writes to [acc4..acc7], t0 and t1.
-func p256IsZero() {
-	Function("p256IsZero")
+func p256IsZeroExCrypto() {
+	Function("p256IsZeroExCrypto")
 	Attributes(NOSPLIT)
 
 	Comment("AX contains a flag that is set if the input is zero.")
@@ -2409,79 +2409,79 @@ func p256PointAddAsm() {
 
 	Comment("Begin point add")
 	LDacc(z2in_v2)
-	CALL(LabelRef("p256SqrInternal(SB)")) //               z2ˆ2
+	CALL(LabelRef("p256SqrInternalExCrypto(SB)")) //               z2ˆ2
 	ST(z2sqr_v2)
 	LDt(z2in_v2)
-	CALL(LabelRef("p256MulInternal(SB)")) //               z2ˆ3
+	CALL(LabelRef("p256MulInternalExCrypto(SB)")) //               z2ˆ3
 	LDt(y1in_v2)
-	CALL(LabelRef("p256MulInternal(SB)")) //       s1 = z2ˆ3*y1
+	CALL(LabelRef("p256MulInternalExCrypto(SB)")) //       s1 = z2ˆ3*y1
 	ST(s1_v2)
 
 	LDacc(z1in_v2)
-	CALL(LabelRef("p256SqrInternal(SB)")) //               z1ˆ2
+	CALL(LabelRef("p256SqrInternalExCrypto(SB)")) //               z1ˆ2
 	ST(z1sqr_v2)
 	LDt(z1in_v2)
-	CALL(LabelRef("p256MulInternal(SB)")) //               z1ˆ3
+	CALL(LabelRef("p256MulInternalExCrypto(SB)")) //               z1ˆ3
 	LDt(y2in_v2)
-	CALL(LabelRef("p256MulInternal(SB)")) //       s2 = z1ˆ3*y2
+	CALL(LabelRef("p256MulInternalExCrypto(SB)")) //       s2 = z1ˆ3*y2
 	ST(s2_v2)
 
 	LDt(s1_v2)
-	CALL(LabelRef("p256SubInternal(SB)")) //        r = s2 - s1
+	CALL(LabelRef("p256SubInternalExCrypto(SB)")) //        r = s2 - s1
 	ST(r_v2)
-	CALL(LabelRef("p256IsZero(SB)"))
+	CALL(LabelRef("p256IsZeroExCrypto(SB)"))
 	MOVQ(RAX, points_eq_v2)
 
 	LDacc(z2sqr_v2)
 	LDt(x1in_v2)
-	CALL(LabelRef("p256MulInternal(SB)")) //     u1 = x1 * z2ˆ2
+	CALL(LabelRef("p256MulInternalExCrypto(SB)")) //     u1 = x1 * z2ˆ2
 	ST(u1_v2)
 	LDacc(z1sqr_v2)
 	LDt(x2in_v2)
-	CALL(LabelRef("p256MulInternal(SB)")) //     u2 = x2 * z1ˆ2
+	CALL(LabelRef("p256MulInternalExCrypto(SB)")) //     u2 = x2 * z1ˆ2
 	ST(u2_v2)
 
 	LDt(u1_v2)
-	CALL(LabelRef("p256SubInternal(SB)")) //        h = u2 - u1
+	CALL(LabelRef("p256SubInternalExCrypto(SB)")) //        h = u2 - u1
 	ST(h_v2)
-	CALL(LabelRef("p256IsZero(SB)"))
+	CALL(LabelRef("p256IsZeroExCrypto(SB)"))
 	ANDQ(points_eq_v2, RAX)
 	MOVQ(RAX, points_eq_v2)
 
 	LDacc(r_v2)
-	CALL(LabelRef("p256SqrInternal(SB)")) //         rsqr = rˆ2
+	CALL(LabelRef("p256SqrInternalExCrypto(SB)")) //         rsqr = rˆ2
 	ST(rsqr_v2)
 
 	LDacc(h_v2)
-	CALL(LabelRef("p256SqrInternal(SB)")) //         hsqr = hˆ2
+	CALL(LabelRef("p256SqrInternalExCrypto(SB)")) //         hsqr = hˆ2
 	ST(hsqr_v2)
 
 	LDt(h_v2)
-	CALL(LabelRef("p256MulInternal(SB)")) //         hcub = hˆ3
+	CALL(LabelRef("p256MulInternalExCrypto(SB)")) //         hcub = hˆ3
 	ST(hcub_v2)
 
 	LDt(s1_v2)
-	CALL(LabelRef("p256MulInternal(SB)"))
+	CALL(LabelRef("p256MulInternalExCrypto(SB)"))
 	ST(s2_v2)
 
 	LDacc(z1in_v2)
 	LDt(z2in_v2)
-	CALL(LabelRef("p256MulInternal(SB)")) //            z1 * z2
+	CALL(LabelRef("p256MulInternalExCrypto(SB)")) //            z1 * z2
 	LDt(h_v2)
-	CALL(LabelRef("p256MulInternal(SB)")) //        z1 * z2 * h
+	CALL(LabelRef("p256MulInternalExCrypto(SB)")) //        z1 * z2 * h
 	ST(zout_v2)
 
 	LDacc(hsqr_v2)
 	LDt(u1_v2)
-	CALL(LabelRef("p256MulInternal(SB)")) //           hˆ2 * u1
+	CALL(LabelRef("p256MulInternalExCrypto(SB)")) //           hˆ2 * u1
 	ST(u2_v2)
 
 	p256MulBy2Inline() //                  u1 * hˆ2 * 2, inline
 	LDacc(rsqr_v2)
-	CALL(LabelRef("p256SubInternal(SB)")) // rˆ2 - u1 * hˆ2 * 2
+	CALL(LabelRef("p256SubInternalExCrypto(SB)")) // rˆ2 - u1 * hˆ2 * 2
 
 	LDt(hcub_v2)
-	CALL(LabelRef("p256SubInternal(SB)"))
+	CALL(LabelRef("p256SubInternalExCrypto(SB)"))
 	ST(xout_v2)
 
 	MOVQ(acc4_v2, t0_v2)
@@ -2489,13 +2489,13 @@ func p256PointAddAsm() {
 	MOVQ(acc6_v2, t2_v2)
 	MOVQ(acc7_v2, t3_v2)
 	LDacc(u2_v2)
-	CALL(LabelRef("p256SubInternal(SB)"))
+	CALL(LabelRef("p256SubInternalExCrypto(SB)"))
 
 	LDt(r_v2)
-	CALL(LabelRef("p256MulInternal(SB)"))
+	CALL(LabelRef("p256MulInternalExCrypto(SB)"))
 
 	LDt(s2_v2)
-	CALL(LabelRef("p256SubInternal(SB)"))
+	CALL(LabelRef("p256SubInternalExCrypto(SB)"))
 	ST(yout_v2)
 
 	MOVOU(xout_v2(16*0), X0)
@@ -2563,7 +2563,7 @@ func p256PointDoubleAsm() {
 
 	Comment("Begin point double")
 	LDacc(z)
-	CALL(LabelRef("p256SqrInternal(SB)"))
+	CALL(LabelRef("p256SqrInternalExCrypto(SB)"))
 	ST(zsqr)
 
 	LDt(x)
@@ -2572,7 +2572,7 @@ func p256PointDoubleAsm() {
 
 	LDacc(z)
 	LDt(y)
-	CALL(LabelRef("p256MulInternal(SB)"))
+	CALL(LabelRef("p256MulInternalExCrypto(SB)"))
 	p256MulBy2Inline()
 	MOVQ(rptr_v3, RAX)
 
@@ -2584,9 +2584,9 @@ func p256PointDoubleAsm() {
 
 	LDacc(x)
 	LDt(zsqr)
-	CALL(LabelRef("p256SubInternal(SB)"))
+	CALL(LabelRef("p256SubInternalExCrypto(SB)"))
 	LDt(m)
-	CALL(LabelRef("p256MulInternal(SB)"))
+	CALL(LabelRef("p256MulInternalExCrypto(SB)"))
 	ST(m)
 
 	Comment("Multiply by 3")
@@ -2598,9 +2598,9 @@ func p256PointDoubleAsm() {
 	LDacc(y)
 	p256MulBy2Inline()
 	t2acc()
-	CALL(LabelRef("p256SqrInternal(SB)"))
+	CALL(LabelRef("p256SqrInternalExCrypto(SB)"))
 	ST(s)
-	CALL(LabelRef("p256SqrInternal(SB)"))
+	CALL(LabelRef("p256SqrInternalExCrypto(SB)"))
 
 	Comment("Divide by 2")
 	XORQ(mul0_v2, mul0_v2)
@@ -2632,15 +2632,15 @@ func p256PointDoubleAsm() {
 	Comment("/////////////////////////")
 	LDacc(x)
 	LDt(s)
-	CALL(LabelRef("p256MulInternal(SB)"))
+	CALL(LabelRef("p256MulInternalExCrypto(SB)"))
 	ST(s)
 	p256MulBy2Inline()
 	STt(tmp)
 
 	LDacc(m)
-	CALL(LabelRef("p256SqrInternal(SB)"))
+	CALL(LabelRef("p256SqrInternalExCrypto(SB)"))
 	LDt(tmp)
-	CALL(LabelRef("p256SubInternal(SB)"))
+	CALL(LabelRef("p256SubInternalExCrypto(SB)"))
 
 	MOVQ(rptr_v3, RAX)
 
@@ -2652,13 +2652,13 @@ func p256PointDoubleAsm() {
 
 	acc2t()
 	LDacc(s)
-	CALL(LabelRef("p256SubInternal(SB)"))
+	CALL(LabelRef("p256SubInternalExCrypto(SB)"))
 
 	LDt(m)
-	CALL(LabelRef("p256MulInternal(SB)"))
+	CALL(LabelRef("p256MulInternalExCrypto(SB)"))
 
 	LDt(y)
-	CALL(LabelRef("p256SubInternal(SB)"))
+	CALL(LabelRef("p256SubInternalExCrypto(SB)"))
 	MOVQ(rptr_v3, RAX)
 
 	Comment("Store y")
