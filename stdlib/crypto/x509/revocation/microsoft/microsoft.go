@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/big"
 
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
@@ -141,7 +140,7 @@ func parse(byteData []byte) (*DisallowedCerts, error) {
 			binary.Read(bytesReader, binary.LittleEndian, &certChain)
 			certs = append(certs, certChain)
 		} else { // this is a SerializedPropertyEntry, so skip it
-			io.CopyN(ioutil.Discard, bytesReader, int64(len)) // skip over value bytes
+			_, _ = io.CopyN(io.Discard, bytesReader, int64(len)) // skip over value bytes
 		}
 	}
 

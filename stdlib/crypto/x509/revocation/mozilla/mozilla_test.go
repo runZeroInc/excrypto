@@ -1,7 +1,7 @@
 package mozilla_test
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -62,7 +62,7 @@ func loadRevokedList(t *testing.T) (onecrl *mozilla.OneCRL) {
 		t.Error(err.Error())
 	}
 	defer oneCRLFile.Close()
-	oneCRLBytes, err := ioutil.ReadAll(oneCRLFile)
+	oneCRLBytes, err := io.ReadAll(oneCRLFile)
 	if err != nil {
 		t.Error(err.Error())
 	}
