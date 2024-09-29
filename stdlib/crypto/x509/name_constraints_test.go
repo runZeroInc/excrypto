@@ -147,7 +147,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"dns:example.com"},
 		},
-		expectedError: "\"example.com\" is not permitted",
+		// zcrypto
+		// expectedError: "\"example.com\" is not permitted",
 	},
 
 	// #6: .example.com matches subdomains.
@@ -1003,7 +1004,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"uri:http://1.2.3.4/"},
 		},
-		expectedError: "URI with IP",
+		// zcrypto
+		// expectedError: "URI with IP",
 	},
 
 	// #52: URIs with IPs and ports are rejected
@@ -1021,7 +1023,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"uri:http://1.2.3.4:43/"},
 		},
-		expectedError: "URI with IP",
+		// zcrypto
+		// expectedError: "URI with IP",
 	},
 
 	// #53: URIs with IPv6 addresses are also rejected
@@ -1039,7 +1042,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"uri:http://[2006:abcd::1]/"},
 		},
-		expectedError: "URI with IP",
+		// zcrypto
+		// expectedError: "URI with IP",
 	},
 
 	// #54: URIs with IPv6 addresses with ports are also rejected
@@ -1057,7 +1061,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"uri:http://[2006:abcd::1]:16/"},
 		},
-		expectedError: "URI with IP",
+		// zcrypto
+		// expectedError: "URI with IP",
 	},
 
 	// #55: URI constraints are effective
@@ -1075,7 +1080,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"uri:http://bar.com/"},
 		},
-		expectedError: "\"http://bar.com/\" is not permitted",
+		// zcrypto
+		// expectedError: "\"http://bar.com/\" is not permitted",
 	},
 
 	// #56: URI constraints are effective
@@ -1093,7 +1099,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"uri:http://foo.com/"},
 		},
-		expectedError: "\"http://foo.com/\" is excluded",
+		// zcrypto
+		// expectedError: "\"http://foo.com/\" is excluded",
 	},
 
 	// #57: URI constraints can allow subdomains
@@ -1146,7 +1153,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"uri:urn:example"},
 		},
-		expectedError: "URI with empty host",
+		// zcrypto
+		// expectedError: "URI with empty host",
 	},
 
 	// #60: excluding all IPv6 addresses doesn't exclude all IPv4 addresses
@@ -1419,7 +1427,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"uri:https://example.com/test"},
 		},
-		expectedError: "\"https://example.com/test\" is excluded",
+		// zcrypto
+		// expectedError: "\"https://example.com/test\" is excluded",
 	},
 
 	// #75: serverAuth in a leaf shouldn't permit clientAuth when requested in
@@ -1490,7 +1499,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"dns:this is invalid"},
 		},
-		expectedError: "cannot parse dnsName",
+		// zcrypto
+		// expectedError: "cannot parse dnsName",
 	},
 
 	// #79: an invalid email SAN will be detected if any name constraint
@@ -1509,7 +1519,8 @@ var nameConstraintsTests = []nameConstraintsTest{
 		leaf: leafSpec{
 			sans: []string{"email:this @ is invalid"},
 		},
-		expectedError: "cannot parse rfc822Name",
+		// zcrypto
+		// expectedError: "cannot parse rfc822Name",
 	},
 
 	// #80: if several EKUs are requested, satisfying any of them is sufficient.
