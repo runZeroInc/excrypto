@@ -1141,6 +1141,7 @@ func parseCertificate(in *certificate) (*Certificate, error) {
 	if err != nil {
 		return nil, err
 	}
+	cert.Signature = in.SignatureValue.RightAlign()
 	cert.SignatureAlgorithm = getSignatureAlgorithmFromAI(sigAI)
 	cert.SignatureAlgorithmOID = sigAI.Algorithm
 
@@ -1273,7 +1274,6 @@ func parseCertificate(in *certificate) (*Certificate, error) {
 	if !input.ReadASN1BitString(&signature) {
 		return nil, errors.New("x509: malformed signature")
 	}
-	cert.Signature = signature.RightAlign()
 
 	return cert, nil
 }

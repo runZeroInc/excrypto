@@ -2200,7 +2200,7 @@ func TestRDNSequenceString(t *testing.T) {
 					pkix.AttributeTypeAndValue{Type: oidCommonName, Value: "J. Smith"},
 				},
 			},
-			want: "OU=Sales+CN=J. Smith,O=Widget Inc.,C=US",
+			want: "OU=Sales+CN=J. Smith, O=Widget Inc., C=US",
 		},
 	}
 
