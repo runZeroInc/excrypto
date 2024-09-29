@@ -1100,8 +1100,7 @@ func (c *Certificate) CheckSignatureFrom(parent *Certificate) error {
 //
 // This is a low-level API that performs no validity checks on the certificate.
 //
-// [MD5WithRSA] signatures are rejected, while [SHA1WithRSA] and [ECDSAWithSHA1]
-// signatures are currently accepted.
+// All supported algorithms are accepted, including insecure options like MD5/SHA1
 func (c *Certificate) CheckSignature(algo SignatureAlgorithm, signed, signature []byte) error {
 	return checkSignature(algo, signed, signature, c.PublicKey, true)
 }
