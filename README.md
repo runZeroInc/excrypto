@@ -1,7 +1,6 @@
 excrypto
 ========
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/runZeroInc/excrypto)](https://goreportcard.com/report/github.com/runZeroInc/excrypto)
 [![GoDoc](https://godoc.org/github.com/runZeroInc/excrypto?status.svg)](https://godoc.org/github.com/runZeroInc/excrypto)
 
 excrypto offers specialized versions of the Go crypto, TLS, x509, and SSH packages designed for security research.
