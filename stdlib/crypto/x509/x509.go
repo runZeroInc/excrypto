@@ -975,6 +975,9 @@ type Certificate struct {
 	// Policies contains all policy identifiers included in the certificate.
 	// In Go 1.22, encoding/gob cannot handle and ignores this field.
 	Policies []OID
+
+	// PermissiveErrors is a list of errors encountered that were ignored
+	PermissiveErrors []error
 }
 
 // ParsedDomainName is a structure holding a parsed domain name (CommonName or

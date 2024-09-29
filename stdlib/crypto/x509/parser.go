@@ -804,24 +804,45 @@ func processExtensions(out *Certificate) error {
 		oidStr := e.Id.String()
 		unhandled := false
 
+		// zcrypto
+		// TODO: Handle additional permissive parsing (skip most returns on error)
+
 		if len(e.Id) == 4 && e.Id[0] == 2 && e.Id[1] == 5 && e.Id[2] == 29 {
 			switch e.Id[3] {
 			case 15:
 				out.KeyUsage, err = parseKeyUsageExtension(e.Value)
 				if err != nil {
-					return err
+					if !asn1.AllowPermissiveParsing {
+						return err
+					} else {
+						out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
+					}
 				}
 			case 19:
 				out.IsCA, out.MaxPathLen, err = parseBasicConstraintsExtension(e.Value)
 				if err != nil {
-					return err
+					if !asn1.AllowPermissiveParsing {
+						return err
+					} else {
+						out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
+					}
 				}
 				out.BasicConstraintsValid = true
 				out.MaxPathLenZero = out.MaxPathLen == 0
 			case 17:
-				out.DNSNames, out.EmailAddresses, out.IPAddresses, out.URIs, err = parseSANExtension(e.Value)
+				// zcrypto
+				out.OtherNames, out.DNSNames, out.EmailAddresses,
+					out.URIs, out.DirectoryNames, out.EDIPartyNames,
+					out.IPAddresses, out.RegisteredIDs, out.FailedToParseNames, err = parseGeneralNames(e.Value)
+
+				// TODO: verify that parseGeneralNames handles the same cases as parseSANExtension
+				// out.DNSNames, out.EmailAddresses, out.IPAddresses, out.URIs, err = parseSANExtension(e.Value)
 				if err != nil {
-					return err
+					if !asn1.AllowPermissiveParsing {
+						return err
+					} else {
+						out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
+					}
 				}
 
 				if len(out.DNSNames) == 0 && len(out.EmailAddresses) == 0 && len(out.IPAddresses) == 0 && len(out.URIs) == 0 {
@@ -833,7 +854,11 @@ func processExtensions(out *Certificate) error {
 					out.IANURIs, out.IANDirectoryNames, out.IANEDIPartyNames,
 					out.IANIPAddresses, out.IANRegisteredIDs, out.FailedToParseNames, err = parseGeneralNames(e.Value)
 				if err != nil {
-					return err
+					if !asn1.AllowPermissiveParsing {
+						return err
+					} else {
+						out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
+					}
 				}
 
 				if len(out.IANDNSNames) > 0 || len(out.IANEmailAddresses) > 0 || len(out.IANIPAddresses) > 0 {
@@ -842,7 +867,11 @@ func processExtensions(out *Certificate) error {
 			case 30:
 				unhandled, err = parseNameConstraintsExtension(out, e)
 				if err != nil {
-					return err
+					if !asn1.AllowPermissiveParsing {
+						return err
+					} else {
+						out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
+					}
 				}
 
 			case 31:
@@ -893,12 +922,20 @@ func processExtensions(out *Certificate) error {
 			case 35:
 				out.AuthorityKeyId, err = parseAuthorityKeyIdentifier(e)
 				if err != nil {
-					return err
+					if !asn1.AllowPermissiveParsing {
+						return err
+					} else {
+						out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
+					}
 				}
 			case 37:
 				out.ExtKeyUsage, out.UnknownExtKeyUsage, err = parseExtKeyUsageExtension(e.Value)
 				if err != nil {
-					return err
+					if !asn1.AllowPermissiveParsing {
+						return err
+					} else {
+						out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
+					}
 				}
 			case 14:
 				// RFC 5280, 4.2.1.2
@@ -915,7 +952,11 @@ func processExtensions(out *Certificate) error {
 			case 32:
 				err = parseCertificatePoliciesExtension(out, e.Value)
 				if err != nil {
-					return err
+					if !asn1.AllowPermissiveParsing {
+						return err
+					} else {
+						out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
+					}
 				}
 			default:
 				// Unknown extensions are recorded if critical.
@@ -974,7 +1015,11 @@ func processExtensions(out *Certificate) error {
 		} else if e.Id.Equal(oidExtensionSignedCertificateTimestampList) {
 			err := parseSignedCertificateTimestampList(out, e)
 			if err != nil {
-				return fmt.Errorf("%d/%s sct list: %w", extIdx, oidStr, err)
+				if !asn1.AllowPermissiveParsing {
+					return err
+				} else {
+					out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
+				}
 			}
 		} else if e.Id.Equal(oidExtensionCTPrecertificatePoison) {
 			if e.Value[0] == 5 && e.Value[1] == 0 {
@@ -988,14 +1033,22 @@ func processExtensions(out *Certificate) error {
 		} else if e.Id.Equal(oidBRTorServiceDescriptor) {
 			descs, err := parseTorServiceDescriptorSyntax(e)
 			if err != nil {
-				return fmt.Errorf("%d/%s tor sd: %w", extIdx, oidStr, err)
+				if !asn1.AllowPermissiveParsing {
+					return err
+				} else {
+					out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
+				}
 			}
 			out.TorServiceDescriptors = descs
 		} else if e.Id.Equal(oidExtCABFOrganizationID) {
 			cabf := CABFOrganizationIDASN{}
 			_, err := asn1.Unmarshal(e.Value, &cabf)
 			if err != nil {
-				return fmt.Errorf("%d/%s cabf oid: %w", extIdx, oidStr, err)
+				if !asn1.AllowPermissiveParsing {
+					return err
+				} else {
+					out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
+				}
 			}
 			out.CABFOrganizationIdentifier = &CABFOrganizationIdentifier{
 				Scheme:    cabf.RegistrationSchemeIdentifier,
@@ -1007,7 +1060,11 @@ func processExtensions(out *Certificate) error {
 			rawStatements := QCStatementsASN{}
 			_, err := asn1.Unmarshal(e.Value, &rawStatements.QCStatements)
 			if err != nil {
-				return fmt.Errorf("%d/%s qcstatements asn: %w", extIdx, oidStr, err)
+				if !asn1.AllowPermissiveParsing {
+					return err
+				} else {
+					out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
+				}
 			}
 			qcStatements := QCStatements{}
 			if err := qcStatements.Parse(&rawStatements); err != nil {
