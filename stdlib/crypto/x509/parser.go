@@ -469,6 +469,12 @@ func parseCertificatePoliciesExtension(out *Certificate, der cryptobyte.String) 
 	out.UserNotices = make([][]UserNotice, len(policies))
 
 	for i, policy := range policies {
+
+		// TODO: Avoid double marshal by adding a conversion function
+		if oidVal, err := ParseOID(policy.Policy.String()); err == nil {
+			out.Policies = append(out.Policies, oidVal)
+		}
+
 		out.PolicyIdentifiers[i] = policy.Policy
 		// parse optional Qualifier for zlint
 		for _, qualifier := range policy.Qualifiers {
