@@ -6,7 +6,7 @@ excrypto
 
 excrypto offers specialized versions of the Go crypto, TLS, x509, and SSH packages designed for security research.
 
-excrypto is written in Go and is based on Google's Go [crypto](https://github.com/golang/go/blob/master/src/crypto/] source code, Google's Go [x/crypto](https://cs.opensource.google/go/x/crypto) library, and the [ZCrypto](https://github.com/zmap/zcrypto/) project.
+excrypto is written in Go and is based on Google's Go [crypto](https://github.com/golang/go/blob/master/src/crypto/) source code, Google's Go [x/crypto](https://cs.opensource.google/go/x/crypto) library, and the [ZCrypto](https://github.com/zmap/zcrypto/) project.
 
 ## Security
 
