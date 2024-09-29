@@ -6,7 +6,6 @@ package tls
 
 import (
 	"container/list"
-	"crypto"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -17,6 +16,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"crypto/rand"
 

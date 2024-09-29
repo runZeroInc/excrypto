@@ -6,13 +6,14 @@
 package tls
 
 import (
-	"crypto"
 	"encoding/pem"
 	"errors"
 	"net"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 

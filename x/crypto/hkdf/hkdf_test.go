@@ -5,13 +5,14 @@ package hkdf
 
 import (
 	"bytes"
+	"hash"
+	"io"
+	"testing"
+
 	"github.com/runZeroInc/excrypto/crypto/md5"
 	"github.com/runZeroInc/excrypto/crypto/sha1"
 	"github.com/runZeroInc/excrypto/crypto/sha256"
 	"github.com/runZeroInc/excrypto/crypto/sha512"
-	"hash"
-	"io"
-	"testing"
 )
 
 type hkdfTest struct {

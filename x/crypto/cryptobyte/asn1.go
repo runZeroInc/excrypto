@@ -6,10 +6,11 @@ package cryptobyte
 
 import (
 	"fmt"
-	encoding_asn1 "github.com/runZeroInc/excrypto/encoding/asn1"
 	"math/big"
 	"reflect"
 	"time"
+
+	encoding_asn1 "github.com/runZeroInc/excrypto/encoding/asn1"
 
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
 )

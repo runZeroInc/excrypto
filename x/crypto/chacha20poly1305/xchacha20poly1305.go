@@ -6,6 +6,7 @@ package chacha20poly1305
 
 import (
 	"errors"
+
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 
 	"github.com/runZeroInc/excrypto/x/crypto/chacha20"
