@@ -12,6 +12,7 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 )
 
@@ -358,6 +359,19 @@ func oidInAttributeTypeAndValue(oid asn1.ObjectIdentifier, atv []AttributeTypeAn
 	for _, a := range atv {
 		if a.Type.Equal(oid) {
 			return true
+		}
+	}
+	return false
+}
+
+// oidValueAlreadyInAttributeTypeAndValue reports whether the specific type and value
+// already exists for a given oid in the rdn.
+func oidValueAlreadyInAttributeTypeAndValue(in RDNSequence, oid asn1.ObjectIdentifier, v any) bool {
+	for _, rdn := range in {
+		for _, atv := range rdn {
+			if atv.Type.Equal(oid) && cmp.Equal(atv.Value, v) {
+				return true
+			}
 		}
 	}
 	return false

@@ -35,8 +35,8 @@ func TestNameString(t *testing.T) {
 				DomainComponent:    nil,
 				ExtraNames:         []AttributeTypeAndValue{{Type: oidCommonName, Value: "name"}, {Type: oidSerialNumber, Value: "67890"}},
 			},
-			expected: "serialNumber=67890, CN=name, serialNumber=12345, C=US, C=RU, postalCode=48109, ST=Michigan, L=Ann Arbor, street=2260 Hayward St, O=University of Michigan, OU=0x21, CN=common",
-			legacy:   "CN=common, OU=0x21, O=University of Michigan, street=2260 Hayward St, L=Ann Arbor, ST=Michigan, postalCode=48109, C=US, C=RU, serialNumber=12345, CN=name, serialNumber=67890",
+			expected: "SERIALNUMBER=67890, CN=name, SERIALNUMBER=12345, C=US, C=RU, POSTALCODE=48109, ST=Michigan, L=Ann Arbor, STREET=2260 Hayward St, O=University of Michigan, OU=0x21, CN=common",
+			legacy:   "CN=common, OU=0x21, O=University of Michigan, STREET=2260 Hayward St, L=Ann Arbor, ST=Michigan, POSTALCODE=48109, C=US, C=RU, SERIALNUMBER=12345, CN=name, SERIALNUMBER=67890",
 		},
 		{
 			name: Name{
@@ -58,8 +58,8 @@ func TestNameString(t *testing.T) {
 					},
 				},
 			},
-			expected: "postalCode=48109, serialNumber=12345, CN=common, GN=given, DC=domain, emailAddress=user@dn.com, jurisdictionLocality=Locality, jurisdictionStateOrProvince=Prov, jurisdictionCountry=Canada, organizationIdentifier=QWACS",
-			legacy:   "postalCode=48109, serialNumber=12345, CN=common, GN=given, DC=domain, emailAddress=user@dn.com, jurisdictionLocality=Locality, jurisdictionStateOrProvince=Prov, jurisdictionCountry=Canada, organizationIdentifier=QWACS",
+			expected: "POSTALCODE=48109, SERIALNUMBER=12345, CN=common, GN=given, DC=domain, emailAddress=user@dn.com, jurisdictionLocality=Locality, jurisdictionStateOrProvince=Prov, jurisdictionCountry=Canada, organizationIdentifier=QWACS",
+			legacy:   "POSTALCODE=48109, SERIALNUMBER=12345, CN=common, GN=given, DC=domain, emailAddress=user@dn.com, jurisdictionLocality=Locality, jurisdictionStateOrProvince=Prov, jurisdictionCountry=Canada, organizationIdentifier=QWACS",
 		},
 	}
 	for _, test := range tests {

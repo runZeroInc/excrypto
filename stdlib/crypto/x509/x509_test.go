@@ -2127,7 +2127,7 @@ func TestPKIXNameString(t *testing.T) {
 			PostalCode:         []string{"TW9 1DT"},
 			SerialNumber:       "RFC 2253",
 			Country:            []string{"GB"},
-		}, "serialNumber=RFC 2253, C=GB, postalCode=TW9 1DT, ST=Surrey, L=Richmond, street=The Square, O=Isode Limited, OU=RFCs, CN=Steve Kille"},
+		}, "SERIALNUMBER=RFC 2253, C=GB, POSTALCODE=TW9 1DT, ST=Surrey, L=Richmond, STREET=The Square, O=Isode Limited, OU=RFCs, CN=Steve Kille"},
 		{certs[0].Subject,
 			"CN=mail.google.com, O=Google LLC, L=Mountain View, ST=California, C=US"},
 		{pkix.Name{

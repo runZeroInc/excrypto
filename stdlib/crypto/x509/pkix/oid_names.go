@@ -10,6 +10,18 @@ type OIDName struct {
 	LongName  string `json:"long_name"`
 }
 
+var oidDotNotationToNamesRFC = map[string]string{
+	"2.5.4.6":  "C",
+	"2.5.4.10": "O",
+	"2.5.4.11": "OU",
+	"2.5.4.3":  "CN",
+	"2.5.4.5":  "SERIALNUMBER",
+	"2.5.4.7":  "L",
+	"2.5.4.8":  "ST",
+	"2.5.4.9":  "STREET",
+	"2.5.4.17": "POSTALCODE",
+}
+
 var oidDotNotationToNames map[string]OIDName
 
 func init() {
@@ -102,7 +114,7 @@ func init() {
 	oidDotNotationToNames["2.5.4.43"] = OIDName{ShortName: "initials", LongName: "initials"}
 	oidDotNotationToNames["2.5.29.31"] = OIDName{ShortName: "crlDistributionPoints", LongName: "X509v3 CRL Distribution Points"}
 	oidDotNotationToNames["1.3.14.3.2.3"] = OIDName{ShortName: "RSA-NP-MD5", LongName: "md5WithRSA"}
-	oidDotNotationToNames["2.5.4.5"] = OIDName{ShortName: "serialNumber", LongName: "serialNumber"}
+	oidDotNotationToNames["2.5.4.5"] = OIDName{ShortName: "SERIALNUMBER", LongName: "serialNumber"}
 	oidDotNotationToNames["2.5.4.12"] = OIDName{ShortName: "title", LongName: "title"}
 	oidDotNotationToNames["2.5.4.13"] = OIDName{ShortName: "description", LongName: "description"}
 	oidDotNotationToNames["1.2.840.113533.7.66.10"] = OIDName{ShortName: "CAST5-CBC", LongName: "cast5-cbc"}
@@ -636,8 +648,8 @@ func init() {
 	oidDotNotationToNames["2.23"] = OIDName{ShortName: "international-organizations", LongName: "International Organizations"}
 	oidDotNotationToNames["1.3.6.1.4.1.311.20.2.2"] = OIDName{ShortName: "msSmartcardLogin", LongName: "Microsoft Smartcardlogin"}
 	oidDotNotationToNames["1.3.6.1.4.1.311.20.2.3"] = OIDName{ShortName: "msUPN", LongName: "Microsoft Universal Principal Name"}
-	oidDotNotationToNames["2.5.4.9"] = OIDName{ShortName: "street", LongName: "streetAddress"}
-	oidDotNotationToNames["2.5.4.17"] = OIDName{ShortName: "postalCode", LongName: "postalCode"}
+	oidDotNotationToNames["2.5.4.9"] = OIDName{ShortName: "STREET", LongName: "streetAddress"}
+	oidDotNotationToNames["2.5.4.17"] = OIDName{ShortName: "POSTALCODE", LongName: "postalCode"}
 	oidDotNotationToNames["1.3.6.1.5.5.7.21"] = OIDName{ShortName: "id-ppl", LongName: "id-ppl"}
 	oidDotNotationToNames["1.3.6.1.5.5.7.1.14"] = OIDName{ShortName: "proxyCertInfo", LongName: "Proxy Certificate Information"}
 	oidDotNotationToNames["1.3.6.1.5.5.7.21.0"] = OIDName{ShortName: "id-ppl-anyLanguage", LongName: "Any language"}
