@@ -101,6 +101,10 @@ func TestMarshalUnmarshal(t *testing.T) {
 					t.original = nil
 				case *clientKeyExchangeMsg:
 					t.raw = nil
+				case *certificateRequestMsg:
+					t.raw = nil
+				case *certificateRequestMsgTLS13:
+					t.raw = nil
 				}
 
 				if !reflect.DeepEqual(m1, m) {

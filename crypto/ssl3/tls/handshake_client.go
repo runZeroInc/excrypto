@@ -20,6 +20,7 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/subtle"
+	utls "github.com/runZeroInc/excrypto/crypto/tls"
 	"github.com/runZeroInc/excrypto/crypto/x509"
 )
 
@@ -726,6 +727,20 @@ func (hs *clientHandshakeState) doFullHandshake() error {
 	certReq, ok := msg.(*certificateRequestMsg)
 	if ok {
 		certRequested = true
+		c.ClientCertificateRequested = true
+		c.ClientCertificateRequest = &utls.ClientCertificateRequest{
+			Raw:                    make([]byte, len(certReq.raw)),
+			HasSignatureAndHash:    certReq.hasSignatureAndHash,
+			CertificateTypes:       make([]byte, len(certReq.certificateTypes)),
+			SignatureAndHashes:     make([]utls.SigAndHash, len(certReq.signatureAndHashes)),
+			CertificateAuthorities: make([][]byte, len(certReq.certificateAuthorities)),
+		}
+		copy(c.ClientCertificateRequest.Raw, certReq.raw)
+		copy(c.ClientCertificateRequest.CertificateTypes, certReq.certificateTypes)
+		copy(c.ClientCertificateRequest.CertificateAuthorities, certReq.certificateAuthorities)
+		for i, sh := range certReq.signatureAndHashes {
+			c.ClientCertificateRequest.SignatureAndHashes[i] = utls.SigAndHash{Signature: sh.Signature, Hash: sh.Hash}
+		}
 
 		// RFC 4346 on the certificateAuthorities field:
 		// A list of the distinguished names of acceptable certificate

@@ -950,6 +950,20 @@ func (hs *clientHandshakeState) doFullHandshake() error {
 	certReq, ok := msg.(*certificateRequestMsg)
 	if ok {
 		certRequested = true
+		c.ClientCertificateRequested = true
+		c.ClientCertificateRequest = &ClientCertificateRequest{
+			Raw:                    make([]byte, len(certReq.raw)),
+			HasSignatureAndHash:    certReq.hasSignatureAlgorithm,
+			CertificateTypes:       make([]byte, len(certReq.certificateTypes)),
+			SignatureAndHashes:     make([]SigAndHash, len(certReq.supportedSignatureAlgorithms)),
+			CertificateAuthorities: make([][]byte, len(certReq.certificateAuthorities)),
+		}
+		copy(c.ClientCertificateRequest.Raw, certReq.raw)
+		copy(c.ClientCertificateRequest.CertificateTypes, certReq.certificateTypes)
+		copy(c.ClientCertificateRequest.CertificateAuthorities, certReq.certificateAuthorities)
+		for i, sh := range certReq.supportedSignatureAlgorithms {
+			c.ClientCertificateRequest.SignatureAndHashes[i] = SigAndHash{Signature: uint8(sh >> 8), Hash: uint8(0xff & sh)}
+		}
 
 		cri := certificateRequestInfoFromMsg(hs.ctx, c.vers, certReq)
 		if chainToSend, err = c.getClientCertificate(cri); err != nil {

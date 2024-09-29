@@ -1337,6 +1337,7 @@ func (m *newSessionTicketMsgTLS13) unmarshal(data []byte) bool {
 }
 
 type certificateRequestMsgTLS13 struct {
+	raw                              []byte
 	ocspStapling                     bool
 	scts                             bool
 	supportedSignatureAlgorithms     []SignatureScheme
@@ -1412,6 +1413,7 @@ func (m *certificateRequestMsgTLS13) marshal() ([]byte, error) {
 
 func (m *certificateRequestMsgTLS13) unmarshal(data []byte) bool {
 	*m = certificateRequestMsgTLS13{}
+	m.raw = data
 	s := cryptobyte.String(data)
 
 	var context, extensions cryptobyte.String
@@ -1815,6 +1817,7 @@ func (m *finishedMsg) unmarshal(data []byte) bool {
 }
 
 type certificateRequestMsg struct {
+	raw []byte
 	// hasSignatureAlgorithm indicates whether this message includes a list of
 	// supported signature algorithms. This change was introduced with TLS 1.2.
 	hasSignatureAlgorithm bool
@@ -1875,6 +1878,8 @@ func (m *certificateRequestMsg) marshal() ([]byte, error) {
 }
 
 func (m *certificateRequestMsg) unmarshal(data []byte) bool {
+	m.raw = data
+
 	if len(data) < 5 {
 		return false
 	}

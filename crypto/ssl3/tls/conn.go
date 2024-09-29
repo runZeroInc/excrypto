@@ -19,6 +19,7 @@ import (
 
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 
+	utls "github.com/runZeroInc/excrypto/crypto/tls"
 	"github.com/runZeroInc/excrypto/crypto/x509"
 )
 
@@ -73,6 +74,12 @@ type Conn struct {
 
 	// Raw client hello
 	clientHelloRaw []byte
+
+	// ClientCertificateRequested indicates that the server requested a certificate
+	ClientCertificateRequested bool
+
+	// ClientCertificateRequest stores the full certificate request
+	ClientCertificateRequest *utls.ClientCertificateRequest
 }
 
 func (c *Conn) ClientHelloRaw() []byte {
@@ -1089,27 +1096,32 @@ func (c *Conn) ConnectionState() ConnectionState {
 		state.PeerCertificates = c.peerCertificates
 		state.VerifiedChains = c.verifiedChains
 		state.ServerName = c.serverName
+		state.ClientCertificateRequested = c.ClientCertificateRequested
+		state.ClientCertificateRequest = c.ClientCertificateRequest
 	}
 
 	return state
 }
 
-// ConnectionStateZTLS returns basic TLS details about the connection as ztls.ConnectionState()
-func (c *Conn) ConnectionStateZTLS() ConnectionState {
+// ConnectionStateZTLS returns basic TLS details about the connection as tls.ConnectionState()
+// Note that this returns the non-SSL3 tls.ConnectionState
+func (c *Conn) ConnectionStateZTLS() utls.ConnectionState {
 	c.handshakeMutex.Lock()
 	defer c.handshakeMutex.Unlock()
 
-	var state ConnectionState
+	var state utls.ConnectionState
 	state.HandshakeComplete = c.handshakeComplete
 	if c.handshakeComplete {
 		state.Version = c.vers
 		state.NegotiatedProtocol = c.clientProtocol
 		state.DidResume = c.didResume
-		state.NegotiatedProtocolIsMutual = !c.clientProtocolFallback
 		state.CipherSuite = c.cipherSuite
 		state.PeerCertificates = c.peerCertificates
-		state.VerifiedChains = c.verifiedChains
+		for _, certs := range c.verifiedChains {
+			state.VerifiedChains = append(state.VerifiedChains, certs)
+		}
 		state.ServerName = c.serverName
+		state.ClientCertificateRequested = c.ClientCertificateRequested
 	}
 
 	return state

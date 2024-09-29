@@ -143,6 +143,12 @@ type Conn struct {
 
 	// Raw client hello
 	clientHelloRaw []byte
+
+	// ClientCertificateRequested indicates that the server requested a certificate
+	ClientCertificateRequested bool
+
+	// ClientCertificateRequest stores the full certificate request
+	ClientCertificateRequest *ClientCertificateRequest
 }
 
 // Access to net.Conn methods.
@@ -1653,6 +1659,9 @@ func (c *Conn) connectionStateLocked() ConnectionState {
 	state.VerifiedChains = c.verifiedChains
 	state.SignedCertificateTimestamps = c.scts
 	state.OCSPResponse = c.ocspResponse
+	state.ClientCertificateRequested = c.ClientCertificateRequested
+	state.ClientCertificateRequest = c.ClientCertificateRequest
+
 	if (!c.didResume || c.extMasterSecret) && c.vers != VersionTLS13 {
 		if c.clientFinishedIsFirst {
 			state.TLSUnique = c.clientFinished[:]

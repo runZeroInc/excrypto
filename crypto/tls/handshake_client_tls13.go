@@ -648,7 +648,26 @@ func (hs *clientHandshakeStateTLS13) readServerCertificate() error {
 	certReq, ok := msg.(*certificateRequestMsgTLS13)
 	if ok {
 		hs.certReq = certReq
-
+		c.ClientCertificateRequested = true
+		c.ClientCertificateRequest = &ClientCertificateRequest{
+			Raw:                    make([]byte, len(certReq.raw)),
+			HasSignatureAndHash:    true,
+			SignatureAndHashes:     make([]SigAndHash, len(certReq.supportedSignatureAlgorithms)),
+			SignatureAndHashesCert: make([]SigAndHash, len(certReq.supportedSignatureAlgorithmsCert)),
+			CertificateAuthorities: make([][]byte, len(certReq.certificateAuthorities)),
+			OCSPStapling:           certReq.ocspStapling,
+			SCTS:                   certReq.scts,
+			UnknownExtensions:      make([][]byte, len(certReq.unknownExtensions)),
+		}
+		copy(c.ClientCertificateRequest.Raw, certReq.raw)
+		copy(c.ClientCertificateRequest.CertificateAuthorities, certReq.certificateAuthorities)
+		copy(c.ClientCertificateRequest.UnknownExtensions, certReq.unknownExtensions)
+		for i, sh := range certReq.supportedSignatureAlgorithms {
+			c.ClientCertificateRequest.SignatureAndHashes[i] = SigAndHash{Signature: uint8(sh >> 8), Hash: uint8(0xff & sh)}
+		}
+		for i, sh := range certReq.supportedSignatureAlgorithmsCert {
+			c.ClientCertificateRequest.SignatureAndHashesCert[i] = SigAndHash{Signature: uint8(sh >> 8), Hash: uint8(0xff & sh)}
+		}
 		msg, err = c.readHandshake(hs.transcript)
 		if err != nil {
 			return err

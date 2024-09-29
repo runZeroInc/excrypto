@@ -21,6 +21,8 @@ import (
 	"sync"
 	"time"
 
+	rtls "crypto/tls"
+
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/internal/godebug"
 
@@ -481,7 +483,45 @@ type ConnectionState struct {
 
 	// testingOnlyCurveID is the selected CurveID, or zero if an RSA exchanges
 	// is performed.
-	testingOnlyCurveID CurveID
+	testingOnlyCurveID         CurveID
+	ClientCertificateRequested bool                      // indicates that the server has requested a certificate
+	ClientCertificateRequest   *ClientCertificateRequest // the client certificate request details
+}
+
+// ConnectionStateFromStdlibTLS returns a zcrypto/tls.Connection state from a crypto/tls.ConnectionState
+func ConnectionStateFromStdlibTLS(tlsState rtls.ConnectionState) *ConnectionState {
+	state := &ConnectionState{
+		Version:                    tlsState.Version,
+		HandshakeComplete:          tlsState.HandshakeComplete,
+		DidResume:                  tlsState.DidResume,
+		CipherSuite:                tlsState.CipherSuite,
+		NegotiatedProtocol:         tlsState.NegotiatedProtocol,
+		NegotiatedProtocolIsMutual: tlsState.NegotiatedProtocolIsMutual,
+		ServerName:                 tlsState.ServerName,
+		PeerCertificates:           []*x509.Certificate{},
+		VerifiedChains:             [][]*x509.Certificate{},
+	}
+	// Convert PeerCertificates
+	for _, cert := range tlsState.PeerCertificates {
+		certCopy, e := x509.ParseCertificate(cert.Raw)
+		if e != nil {
+			continue
+		}
+		state.PeerCertificates = append(state.PeerCertificates, certCopy)
+	}
+	// Convert VerifiedChains
+	for _, chain := range tlsState.VerifiedChains {
+		chainCopy := x509.CertificateChain{}
+		for _, cert := range chain {
+			certCopy, e := x509.ParseCertificate(cert.Raw)
+			if e != nil {
+				continue
+			}
+			chainCopy = append(chainCopy, certCopy)
+		}
+		state.VerifiedChains = append(state.VerifiedChains, chainCopy)
+	}
+	return state
 }
 
 // ExportKeyingMaterial returns length bytes of exported key material in a new
@@ -2257,4 +2297,21 @@ func (e *CertificateVerificationError) Error() string {
 
 func (e *CertificateVerificationError) Unwrap() error {
 	return e.Err
+}
+
+// ClientCertificateRequest is a shared and exported version of certificateRequestMsg
+type ClientCertificateRequest struct {
+	Raw []byte
+	// hasSignatureAndHash indicates whether this message includes a list
+	// of signature and hash functions. This change was introduced with TLS
+	// 1.2.
+	HasSignatureAndHash bool
+
+	CertificateTypes       []byte
+	SignatureAndHashes     []SigAndHash
+	SignatureAndHashesCert []SigAndHash
+	CertificateAuthorities [][]byte
+	SCTS                   bool
+	OCSPStapling           bool
+	UnknownExtensions      [][]byte
 }
