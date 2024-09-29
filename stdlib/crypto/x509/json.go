@@ -300,19 +300,19 @@ func GetECDSAPublicKeyJSON(key *ecdsa.PublicKey) *ECDSAPublicKeyJSON {
 
 // GetAugmentedECDSAPublicKeyJSON - get the GetECDSAPublicKeyJSON for the given "augmented"
 // ECDSA PublicKey.
-func GetAugmentedECDSAPublicKeyJSON(key *AugmentedECDSA) *ECDSAPublicKeyJSON {
-	params := key.Pub.Params()
+func GetAugmentedECDSAPublicKeyJSON(key *ecdsa.PublicKey) *ECDSAPublicKeyJSON {
+	params := key.Params()
 	return &ECDSAPublicKeyJSON{
 		P:      params.P.Bytes(),
 		N:      params.N.Bytes(),
 		B:      params.B.Bytes(),
 		Gx:     params.Gx.Bytes(),
 		Gy:     params.Gy.Bytes(),
-		X:      key.Pub.X.Bytes(),
-		Y:      key.Pub.Y.Bytes(),
-		Curve:  key.Pub.Curve.Params().Name,
-		Length: key.Pub.Curve.Params().BitSize,
-		Pub:    key.Raw.Bytes,
+		X:      key.X.Bytes(),
+		Y:      key.Y.Bytes(),
+		Curve:  key.Curve.Params().Name,
+		Length: key.Curve.Params().BitSize,
+		// Pub:    key
 	}
 }
 
@@ -348,20 +348,6 @@ func (c *Certificate) jsonifySubjectKey() JSONSubjectKeyInfo {
 			Y:      key.Y.Bytes(),
 			Curve:  key.Curve.Params().Name,
 			Length: key.Curve.Params().BitSize,
-		}
-	case *AugmentedECDSA:
-		params := key.Pub.Params()
-		j.ECDSAPublicKey = &ECDSAPublicKeyJSON{
-			P:      params.P.Bytes(),
-			N:      params.N.Bytes(),
-			B:      params.B.Bytes(),
-			Gx:     params.Gx.Bytes(),
-			Gy:     params.Gy.Bytes(),
-			X:      key.Pub.X.Bytes(),
-			Y:      key.Pub.Y.Bytes(),
-			Curve:  key.Pub.Curve.Params().Name,
-			Length: key.Pub.Curve.Params().BitSize,
-			Pub:    key.Raw.Bytes,
 		}
 	}
 	return j

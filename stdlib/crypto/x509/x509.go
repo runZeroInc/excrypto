@@ -70,9 +70,12 @@ type pkixPublicKey struct {
 // More types might be supported in the future.
 //
 // This kind of key is commonly encoded in PEM blocks of type "PUBLIC KEY".
-func ParsePKIXPublicKey(derBytes []byte) (pub interface{}, err error) {
+func ParsePKIXPublicKey(derBytes []byte) (pub any, err error) {
 	var pki publicKeyInfo
 	if rest, err := asn1.Unmarshal(derBytes, &pki); err != nil {
+		if _, err := asn1.Unmarshal(derBytes, &pkcs1PublicKey{}); err == nil {
+			return nil, errors.New("x509: failed to parse public key (use ParsePKCS1PublicKey instead for this key format)")
+		}
 		return nil, err
 	} else if len(rest) != 0 {
 		return nil, errors.New("x509: trailing data after ASN.1 of public-key")
@@ -110,8 +113,6 @@ func marshalPublicKey(pub any) (publicKeyBytes []byte, publicKeyAlgorithm pkix.A
 			return
 		}
 		publicKeyAlgorithm.Parameters.FullBytes = paramBytes
-	case *AugmentedECDSA:
-		return marshalPublicKey(pub.Pub)
 	case ed25519.PublicKey:
 		publicKeyBytes = pub
 		publicKeyAlgorithm.Algorithm = oidPublicKeyEd25519
@@ -205,11 +206,6 @@ type dsaSignature struct {
 }
 
 type ecdsaSignature dsaSignature
-
-type AugmentedECDSA struct {
-	Pub *ecdsa.PublicKey
-	Raw asn1.BitString
-}
 
 type validity struct {
 	NotBefore, NotAfter time.Time
@@ -1190,14 +1186,6 @@ func checkSignature(algo SignatureAlgorithm, signed, signature []byte, publicKey
 			return errors.New("x509: ECDSA verification failure")
 		}
 		return
-	case *AugmentedECDSA:
-		if pubKeyAlgo != ECDSA {
-			return signaturePublicKeyAlgoMismatchError(pubKeyAlgo, pub)
-		}
-		if !ecdsa.VerifyASN1(pub.Pub, signed, signature) {
-			return errors.New("x509: ECDSA verification failure")
-		}
-		return
 	case ed25519.PublicKey:
 		if pubKeyAlgo != Ed25519 {
 			return signaturePublicKeyAlgoMismatchError(pubKeyAlgo, pub)
@@ -1872,17 +1860,9 @@ func signingParamsForKey(key crypto.Signer, sigAlgo SignatureAlgorithm) (Signatu
 		pubType = RSA
 		defaultAlgo = SHA256WithRSA
 
-	case *ecdsa.PublicKey, *AugmentedECDSA:
+	case *ecdsa.PublicKey:
 		pubType = ECDSA
-		var curve elliptic.Curve
-		switch pubt := pub.(type) {
-		case *ecdsa.PublicKey:
-			curve = pubt.Curve
-		case *AugmentedECDSA:
-			curve = pubt.Pub.Curve
-		}
-
-		switch curve {
+		switch pub.Curve {
 		case elliptic.P224(), elliptic.P256():
 			defaultAlgo = ECDSAWithSHA256
 		case elliptic.P384():

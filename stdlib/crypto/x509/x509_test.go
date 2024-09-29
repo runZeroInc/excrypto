@@ -609,8 +609,8 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 		t.Fatalf("Failed to generate ECDSA key: %s", err)
 	}
 
-	byt := make([]byte, 0)
-	null := asn1.BitString{Bytes: byt, BitLength: 0}
+	// byt := make([]byte, 0)
+	// null := asn1.BitString{Bytes: byt, BitLength: 0}
 
 	ed25519Pub, ed25519Priv, err := ed25519.GenerateKey(random)
 	if err != nil {
@@ -631,8 +631,6 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 		{"ECDSA/RSAPSS", &ecdsaPriv.PublicKey, testPrivateKey, false, SHA256WithRSAPSS},
 		{"RSAPSS/ECDSA", &testPrivateKey.PublicKey, ecdsaPriv, false, ECDSAWithSHA384},
 		{"Ed25519", ed25519Pub, ed25519Priv, true, PureEd25519},
-		{"ECDSAA-Aug/RSA", &AugmentedECDSA{Pub: &ecdsaPriv.PublicKey, Raw: null}, testPrivateKey, false, SHA256WithRSA},
-		{"ECDSA/ECDSA-Aug", &AugmentedECDSA{Pub: &ecdsaPriv.PublicKey, Raw: null}, ecdsaPriv, true, ECDSAWithSHA1},
 	}
 
 	testExtKeyUsage := []ExtKeyUsage{ExtKeyUsageClientAuth, ExtKeyUsageServerAuth}
@@ -1829,7 +1827,7 @@ func TestInsecureAlgorithmErrorString(t *testing.T) {
 		{MD5WithRSA, "x509: cannot verify signature: insecure algorithm MD5-RSA"},
 		{SHA1WithRSA, "x509: cannot verify signature: insecure algorithm SHA1-RSA (temporarily override with GODEBUG=x509sha1=1)"},
 		{ECDSAWithSHA1, "x509: cannot verify signature: insecure algorithm ECDSA-SHA1 (temporarily override with GODEBUG=x509sha1=1)"},
-		{MD2WithRSA, "x509: cannot verify signature: insecure algorithm 1"},
+		{MD2WithRSA, "x509: cannot verify signature: insecure algorithm MD2-RSA"},
 		{-1, "x509: cannot verify signature: insecure algorithm -1"},
 		{0, "x509: cannot verify signature: insecure algorithm 0"},
 		{9999, "x509: cannot verify signature: insecure algorithm 9999"},

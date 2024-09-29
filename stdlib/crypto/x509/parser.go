@@ -26,6 +26,7 @@ import (
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/pkix"
 	"github.com/runZeroInc/excrypto/stdlib/encoding/asn1"
 	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
+	"github.com/sirupsen/logrus"
 
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
 	cryptobyte_asn1 "github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
@@ -1125,9 +1126,13 @@ func parseCertificate(in *certificate) (*Certificate, error) {
 
 	// zcrypto: Check if self-signed
 	if bytes.Equal(cert.RawSubject, cert.RawIssuer) {
+		logrus.Errorf("SELF-SIGNED? POSSIBLY!? %s == %s", string(cert.RawSubject), string(cert.RawIssuer))
 		// Possibly self-signed, check the signature against itself.
 		if err := cert.CheckSignature(cert.SignatureAlgorithm, cert.RawTBSCertificate, cert.Signature); err == nil {
 			cert.SelfSigned = true
+			logrus.Errorf("SELF-SIGNED? YES")
+		} else {
+			logrus.Errorf("SELF-SIGNED: NO: %v", err)
 		}
 	}
 

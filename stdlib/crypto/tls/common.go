@@ -1932,17 +1932,9 @@ func (chi *ClientHelloInfo) SupportsCertificate(c *Certificate) error {
 	var ecdsaCipherSuite bool
 	if priv, ok := c.PrivateKey.(crypto.Signer); ok {
 		switch pub := priv.Public().(type) {
-		case *ecdsa.PublicKey, *x509.AugmentedECDSA:
-			var curve elliptic.Curve
-			switch pubt := pub.(type) {
-			case *ecdsa.PublicKey:
-				curve = pubt.Curve
-			case *x509.AugmentedECDSA:
-				curve = pubt.Pub.Curve
-			}
-
+		case *ecdsa.PublicKey:
 			var cid CurveID
-			switch curve {
+			switch pub.Curve {
 			case elliptic.P256():
 				cid = CurveP256
 			case elliptic.P384():

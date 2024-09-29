@@ -199,16 +199,9 @@ func signingParamsForPublicKey(pub interface{}, requestedSigAlgo x509.SignatureA
 			Tag: 5,
 		}
 
-	case *ecdsa.PublicKey, *x509.AugmentedECDSA:
+	case *ecdsa.PublicKey:
 		pubType = x509.ECDSA
-		var curve elliptic.Curve
-		switch pubt := pub.(type) {
-		case *ecdsa.PublicKey:
-			curve = pubt.Curve
-		case *x509.AugmentedECDSA:
-			curve = pubt.Pub.Curve
-		}
-		switch curve {
+		switch pub.Curve {
 		case elliptic.P224(), elliptic.P256():
 			hashFunc = crypto.SHA256
 			sigAlgo.Algorithm = oidSignatureECDSAWithSHA256

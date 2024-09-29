@@ -263,7 +263,7 @@ func (hs *serverHandshakeState) processClientHello() error {
 
 	if priv, ok := hs.cert.PrivateKey.(crypto.Signer); ok {
 		switch priv.Public().(type) {
-		case *ecdsa.PublicKey, *x509.AugmentedECDSA:
+		case *ecdsa.PublicKey:
 			hs.ecSignOk = true
 		case ed25519.PublicKey:
 			hs.ecSignOk = true
@@ -934,7 +934,7 @@ func (c *Conn) processCertsFromClient(certificate Certificate) error {
 
 	if len(certs) > 0 {
 		switch certs[0].PublicKey.(type) {
-		case *ecdsa.PublicKey, *rsa.PublicKey, ed25519.PublicKey, *x509.AugmentedECDSA:
+		case *ecdsa.PublicKey, *rsa.PublicKey, ed25519.PublicKey:
 		default:
 			c.sendAlert(alertUnsupportedCertificate)
 			return fmt.Errorf("tls: client certificate contains an unsupported public key of type %T", certs[0].PublicKey)
