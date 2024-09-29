@@ -97,6 +97,9 @@ func (cp *CertificatePoliciesData) MarshalJSON() ([]byte, error) {
 	for idx, oid := range cp.PolicyIdentifiers {
 		cpsJSON := CertificatePoliciesJSON{}
 		cpsJSON.PolicyIdentifier = oid.String()
+		if idx >= len(cp.CPSUri) {
+			continue
+		}
 		for _, uri := range cp.CPSUri[idx] {
 			cpsJSON.CPSUri = append(cpsJSON.CPSUri, uri)
 		}

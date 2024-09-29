@@ -7,6 +7,7 @@ import (
 
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509"
 	"github.com/runZeroInc/excrypto/stdlib/crypto/x509/revocation/microsoft"
+	"github.com/runZeroInc/excrypto/stdlib/internal/godebug"
 )
 
 // obtained from http://ctldl.windowsupdate.com/msdownload/update/v3/static/trustedr/en/disallowedcert.sst
@@ -74,11 +75,20 @@ func TestParse(t *testing.T) {
 }
 
 func TestCheck(t *testing.T) {
+	godebug.SetEnv("GODEBUG", "x509negativeserial=1")
+	t.Cleanup(func() { godebug.SetEnv("GODEBUG", "") })
+
 	disallowed := loadRevokedList(t)
 	revoked := parseCertPEM(t)
 	entry := microsoft.Check(disallowed, revoked)
 	if entry == nil { // this should provide an entry, since cert is revoked and in the provided sst file
-		t.Fail()
+		t.Fatalf("certificate entry is nil")
+	}
+	if entry.SerialNumber == nil {
+		t.Fatalf("entry serial is nil")
+	}
+	if revoked.SerialNumber == nil {
+		t.Fatalf("revoked serial is nil")
 	}
 	if entry.SerialNumber.Cmp(revoked.SerialNumber) != 0 {
 		t.Fail()

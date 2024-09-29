@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"math/big"
@@ -40,6 +41,9 @@ func Parse(byteData []byte) (*DisallowedCerts, error) {
 // Check - Given a parsed DisallowedCerts instance created by the Parse Func,
 // check to see if a provided certificate has been revoked by this list
 func Check(disallowed *DisallowedCerts, cert *x509.Certificate) *Entry {
+	if disallowed == nil || disallowed.IssuerLists == nil {
+		return nil
+	}
 	issuerStr := cert.Issuer.String()
 	issuersRevokedCerts := disallowed.IssuerLists[issuerStr]
 	if issuersRevokedCerts == nil { // no entries for this issuer
@@ -145,7 +149,10 @@ func parse(byteData []byte) (*DisallowedCerts, error) {
 	disallowed.IssuerLists = map[string]*IssuerList{}
 
 	for i := range certs {
-		cert, _ := x509.ParseCertificate(certs[i])
+		cert, err := x509.ParseCertificate(certs[i])
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse cert %d: %v", i, err)
+		}
 		entry := &Entry{
 			SerialNumber: cert.SerialNumber,
 		}
