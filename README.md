@@ -11,7 +11,6 @@ excrypto is written in Go and is based on Google's Go [crypto](https://github.co
 ## Security
 
  * excrypto is intended to support security research and does not make any guarantees on confidentiality, integrity, or availability. 
- * The TLS, SSH, and cryptographic features of this package are intentionally less secure than the Go source code variants.
  * excrypto should not be used to implement authentication or to transfer sensitive information over untrusted networks.
  * excrypto may have more bugs, including security vulnerabiltiies, compared to the Go source code itself.
 
