@@ -25,4 +25,4 @@ NREF=$(cd x/crypto.upstream/; git rev-parse HEAD)
 rm -rf x/crypto/
 mv x/crypto.upstream x/crypto
 patch -p0 < xcrypto.diff
-# echo $NREF > refs/xcrypto.hash
+echo $NREF > refs/xcrypto.hash
