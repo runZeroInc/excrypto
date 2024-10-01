@@ -8,6 +8,7 @@
 package ocsp
 
 import (
+	"crypto/rand"
 	"errors"
 	"fmt"
 	"math/big"
@@ -15,11 +16,6 @@ import (
 	"time"
 
 	"github.com/runZeroInc/excrypto/crypto"
-
-	"github.com/runZeroInc/excrypto/encoding/asn1"
-
-	"crypto/rand"
-
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
@@ -28,6 +24,7 @@ import (
 	_ "github.com/runZeroInc/excrypto/crypto/sha512"
 	"github.com/runZeroInc/excrypto/crypto/x509"
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/encoding/asn1"
 )
 
 var idPKIXOCSPBasic = asn1.ObjectIdentifier([]int{1, 3, 6, 1, 5, 5, 7, 48, 1, 1})

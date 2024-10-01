@@ -8,12 +8,10 @@ import (
 	"bytes"
 	"errors"
 
-	"github.com/runZeroInc/excrypto/encoding/asn1"
-
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"github.com/runZeroInc/excrypto/crypto/des"
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
-
+	"github.com/runZeroInc/excrypto/encoding/asn1"
 	"github.com/runZeroInc/excrypto/x/crypto/pkcs12/internal/rc2"
 )
 

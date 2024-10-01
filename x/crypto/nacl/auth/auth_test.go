@@ -6,10 +6,9 @@ package auth
 
 import (
 	"bytes"
+	rand "crypto/rand"
 	mrand "math/rand"
 	"testing"
-
-	rand "crypto/rand"
 )
 
 // Test cases are from RFC 4231, and match those present in the tests directory

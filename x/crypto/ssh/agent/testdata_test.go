@@ -9,9 +9,8 @@
 package agent
 
 import (
-	"fmt"
-
 	"crypto/rand"
+	"fmt"
 
 	"github.com/runZeroInc/excrypto/x/crypto/ssh"
 	"github.com/runZeroInc/excrypto/x/crypto/ssh/testdata"

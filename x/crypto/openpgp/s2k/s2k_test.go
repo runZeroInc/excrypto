@@ -6,18 +6,15 @@ package s2k
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/hex"
 	"testing"
 
 	"github.com/runZeroInc/excrypto/crypto"
-
-	"crypto/rand"
-
 	_ "github.com/runZeroInc/excrypto/crypto/md5"
 	"github.com/runZeroInc/excrypto/crypto/sha1"
 	_ "github.com/runZeroInc/excrypto/crypto/sha256"
 	_ "github.com/runZeroInc/excrypto/crypto/sha512"
-
 	_ "github.com/runZeroInc/excrypto/x/crypto/ripemd160"
 )
 

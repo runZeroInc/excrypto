@@ -12,7 +12,6 @@ import (
 	"testing"
 
 	_ "github.com/runZeroInc/excrypto/crypto/sha512"
-
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/armor"
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 )

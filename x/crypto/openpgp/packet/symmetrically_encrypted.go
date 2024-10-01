@@ -12,7 +12,6 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"github.com/runZeroInc/excrypto/crypto/sha1"
 	"github.com/runZeroInc/excrypto/crypto/subtle"
-
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 )
 

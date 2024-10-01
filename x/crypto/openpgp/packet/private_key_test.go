@@ -6,15 +6,13 @@ package packet
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/hex"
 	"hash"
 	"testing"
 	"time"
 
 	"github.com/runZeroInc/excrypto/crypto"
-
-	"crypto/rand"
-
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/crypto/rsa"

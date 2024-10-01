@@ -17,9 +17,7 @@ import (
 	"strconv"
 
 	"github.com/runZeroInc/excrypto/crypto"
-
 	_ "github.com/runZeroInc/excrypto/crypto/sha256"
-
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/armor"
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/packet"

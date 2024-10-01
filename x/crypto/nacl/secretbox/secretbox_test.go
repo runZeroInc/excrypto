@@ -6,10 +6,9 @@ package secretbox
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/hex"
 	"testing"
-
-	"crypto/rand"
 )
 
 func TestSealOpen(t *testing.T) {

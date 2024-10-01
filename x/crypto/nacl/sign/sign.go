@@ -24,7 +24,6 @@ import (
 	"io"
 
 	"github.com/runZeroInc/excrypto/crypto/ed25519"
-
 	"github.com/runZeroInc/excrypto/x/crypto/internal/alias"
 )
 

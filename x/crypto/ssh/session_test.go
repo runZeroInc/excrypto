@@ -8,14 +8,13 @@ package ssh
 
 import (
 	"bytes"
+	crypto_rand "crypto/rand"
 	"errors"
 	"io"
 	"math/rand"
 	"net"
 	"sync"
 	"testing"
-
-	crypto_rand "crypto/rand"
 
 	"github.com/runZeroInc/excrypto/x/crypto/ssh/terminal"
 )

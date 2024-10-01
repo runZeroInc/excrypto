@@ -6,14 +6,12 @@ package ssh
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/binary"
 	"io"
 	"testing"
 
 	"github.com/runZeroInc/excrypto/crypto"
-
-	"crypto/rand"
-
 	"github.com/runZeroInc/excrypto/x/crypto/chacha20"
 	"github.com/runZeroInc/excrypto/x/crypto/internal/poly1305"
 )

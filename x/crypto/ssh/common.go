@@ -5,15 +5,13 @@
 package ssh
 
 import (
+	"crypto/rand"
 	"fmt"
 	"io"
 	"math"
 	"sync"
 
 	"github.com/runZeroInc/excrypto/crypto"
-
-	"crypto/rand"
-
 	_ "github.com/runZeroInc/excrypto/crypto/sha1"
 	_ "github.com/runZeroInc/excrypto/crypto/sha256"
 	_ "github.com/runZeroInc/excrypto/crypto/sha512"

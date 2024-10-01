@@ -12,13 +12,11 @@ import (
 	"time"
 
 	"github.com/runZeroInc/excrypto/crypto"
-
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"github.com/runZeroInc/excrypto/crypto/dsa"
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/sha1"
-
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/elgamal"
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/s2k"

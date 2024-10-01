@@ -10,12 +10,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/runZeroInc/excrypto/encoding/asn1"
-
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/crypto/x509"
-
+	"github.com/runZeroInc/excrypto/encoding/asn1"
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
 	casn1 "github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
 )

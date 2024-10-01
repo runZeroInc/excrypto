@@ -38,9 +38,8 @@ https://libsodium.gitbook.io/doc/public-key_cryptography/sealed_boxes.
 package box
 
 import (
-	"io"
-
 	cryptorand "crypto/rand"
+	"io"
 
 	"github.com/runZeroInc/excrypto/x/crypto/blake2b"
 	"github.com/runZeroInc/excrypto/x/crypto/curve25519"

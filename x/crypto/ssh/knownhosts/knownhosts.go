@@ -10,6 +10,7 @@ package knownhosts
 import (
 	"bufio"
 	"bytes"
+	"crypto/rand"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -18,11 +19,8 @@ import (
 	"os"
 	"strings"
 
-	"crypto/rand"
-
 	"github.com/runZeroInc/excrypto/crypto/hmac"
 	"github.com/runZeroInc/excrypto/crypto/sha1"
-
 	"github.com/runZeroInc/excrypto/x/crypto/ssh"
 )
 

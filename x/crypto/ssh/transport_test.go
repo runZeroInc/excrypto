@@ -6,11 +6,10 @@ package ssh
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/binary"
 	"strings"
 	"testing"
-
-	"crypto/rand"
 )
 
 func TestReadVersion(t *testing.T) {

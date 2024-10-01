@@ -12,7 +12,6 @@ import (
 	"math/bits"
 
 	"github.com/runZeroInc/excrypto/crypto/cipher"
-
 	"github.com/runZeroInc/excrypto/x/crypto/internal/alias"
 )
 
