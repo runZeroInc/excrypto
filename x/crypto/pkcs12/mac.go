@@ -5,11 +5,10 @@
 package pkcs12
 
 import (
-	"github.com/runZeroInc/excrypto/encoding/asn1"
-
 	"github.com/runZeroInc/excrypto/crypto/hmac"
 	"github.com/runZeroInc/excrypto/crypto/sha1"
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/encoding/asn1"
 )
 
 type macData struct {

@@ -10,7 +10,6 @@ import (
 	"strconv"
 
 	"github.com/runZeroInc/excrypto/crypto"
-
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/s2k"
 )

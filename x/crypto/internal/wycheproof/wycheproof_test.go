@@ -18,12 +18,10 @@ import (
 	"testing"
 
 	"github.com/runZeroInc/excrypto/crypto"
-
-	"github.com/runZeroInc/excrypto/crypto/x509"
-
 	_ "github.com/runZeroInc/excrypto/crypto/sha1"
 	_ "github.com/runZeroInc/excrypto/crypto/sha256"
 	_ "github.com/runZeroInc/excrypto/crypto/sha512"
+	"github.com/runZeroInc/excrypto/crypto/x509"
 )
 
 const wycheproofModVer = "v0.0.0-20191219022705-2196000605e4"

@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/runZeroInc/excrypto/crypto/dsa"
-
 	wdsa "github.com/runZeroInc/excrypto/x/crypto/internal/wycheproof/internal/dsa"
 )
 

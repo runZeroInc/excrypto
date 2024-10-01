@@ -10,7 +10,6 @@ import (
 	"math/big"
 
 	"github.com/runZeroInc/excrypto/crypto/dsa"
-
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
 )

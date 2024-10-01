@@ -17,12 +17,11 @@ import (
 	"encoding/pem"
 	"errors"
 
-	"github.com/runZeroInc/excrypto/encoding/asn1"
-
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/x509"
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/encoding/asn1"
 )
 
 var (

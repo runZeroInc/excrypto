@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	ed25519std "github.com/runZeroInc/excrypto/crypto/ed25519"
-
 	"github.com/runZeroInc/excrypto/x/crypto/ed25519"
 )
 

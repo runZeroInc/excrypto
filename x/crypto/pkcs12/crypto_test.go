@@ -8,9 +8,8 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/runZeroInc/excrypto/encoding/asn1"
-
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/encoding/asn1"
 )
 
 var sha1WithTripleDES = asn1.ObjectIdentifier([]int{1, 2, 840, 113549, 1, 12, 1, 3})

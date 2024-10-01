@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
-
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
 )

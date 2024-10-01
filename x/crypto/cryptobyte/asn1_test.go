@@ -12,7 +12,6 @@ import (
 	"time"
 
 	encoding_asn1 "github.com/runZeroInc/excrypto/encoding/asn1"
-
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
 )
 

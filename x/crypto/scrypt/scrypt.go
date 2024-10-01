@@ -13,7 +13,6 @@ import (
 	"math/bits"
 
 	"github.com/runZeroInc/excrypto/crypto/sha256"
-
 	"github.com/runZeroInc/excrypto/x/crypto/pbkdf2"
 )
 

@@ -12,6 +12,7 @@ package otr
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
@@ -19,8 +20,6 @@ import (
 	"io"
 	"math/big"
 	"strconv"
-
-	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/crypto/aes"
 	"github.com/runZeroInc/excrypto/crypto/cipher"

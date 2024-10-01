@@ -10,6 +10,7 @@ package test
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/base64"
 	"fmt"
 	"log"
@@ -20,8 +21,6 @@ import (
 	"path/filepath"
 	"testing"
 	"text/template"
-
-	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/x/crypto/internal/testenv"
 	"github.com/runZeroInc/excrypto/x/crypto/ssh"

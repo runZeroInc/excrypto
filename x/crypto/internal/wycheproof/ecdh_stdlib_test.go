@@ -6,10 +6,9 @@ package wycheproof
 
 import (
 	"bytes"
+	"crypto/ecdh"
 	"fmt"
 	"testing"
-
-	"github.com/runZeroInc/excrypto/crypto/ecdh"
 )
 
 func TestECDHStdLib(t *testing.T) {

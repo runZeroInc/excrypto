@@ -19,7 +19,7 @@
 // Deprecated: Poly1305 as implemented by this package is a cryptographic
 // building block that is not safe for general purpose use.
 // For encryption, use the full ChaCha20-Poly1305 construction implemented by
-// github.com/runZeroInc/sshamble/crypto/chacha20poly1305. For authentication, use a general
+// github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305. For authentication, use a general
 // purpose MAC such as HMAC implemented by crypto/hmac.
 package poly1305
 
@@ -27,7 +27,7 @@ import "github.com/runZeroInc/excrypto/x/crypto/internal/poly1305"
 
 // TagSize is the size, in bytes, of a poly1305 authenticator.
 //
-// For use with github.com/runZeroInc/sshamble/crypto/chacha20poly1305, chacha20poly1305.Overhead
+// For use with github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305, chacha20poly1305.Overhead
 // can be used instead.
 const TagSize = 16
 

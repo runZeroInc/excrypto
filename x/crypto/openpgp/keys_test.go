@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/runZeroInc/excrypto/crypto"
-
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/packet"
 )

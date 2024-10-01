@@ -8,9 +8,9 @@ import (
 	"encoding/binary"
 	"unsafe"
 
-	"github.com/runZeroInc/excrypto/crypto/subtle"
-
 	"golang.org/x/sys/cpu"
+
+	"github.com/runZeroInc/excrypto/crypto/subtle"
 )
 
 // xorIn xors the bytes in buf into the state.

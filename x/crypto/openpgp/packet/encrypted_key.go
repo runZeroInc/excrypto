@@ -11,9 +11,7 @@ import (
 	"strconv"
 
 	"github.com/runZeroInc/excrypto/crypto"
-
 	"github.com/runZeroInc/excrypto/crypto/rsa"
-
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/elgamal"
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"
 )

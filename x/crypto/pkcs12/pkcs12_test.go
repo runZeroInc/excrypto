@@ -5,12 +5,12 @@
 package pkcs12
 
 import (
+	"crypto/tls"
 	"encoding/base64"
 	"encoding/pem"
 	"testing"
 
 	"github.com/runZeroInc/excrypto/crypto/rsa"
-	"github.com/runZeroInc/excrypto/crypto/tls"
 )
 
 func TestPfx(t *testing.T) {

@@ -5,6 +5,7 @@
 package ssh
 
 import (
+	"crypto/rand"
 	"errors"
 	"fmt"
 	"io"
@@ -12,8 +13,6 @@ import (
 	"net"
 	"strings"
 	"sync"
-
-	"crypto/rand"
 )
 
 // debugHandshake, if set, prints messages sent and received.  Key

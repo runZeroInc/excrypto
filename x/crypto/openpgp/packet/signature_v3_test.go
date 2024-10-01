@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/runZeroInc/excrypto/crypto"
-
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/armor"
 )
 

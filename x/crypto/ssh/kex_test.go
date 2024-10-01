@@ -7,12 +7,11 @@ package ssh
 // Key exchange tests.
 
 import (
+	"crypto/rand"
 	"fmt"
 	"reflect"
 	"sync"
 	"testing"
-
-	"crypto/rand"
 )
 
 // Runs multiple key exchanges concurrent to detect potential data races with

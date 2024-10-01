@@ -5,12 +5,11 @@
 package packet
 
 import (
+	"crypto/rand"
 	"io"
 	"time"
 
 	"github.com/runZeroInc/excrypto/crypto"
-
-	"crypto/rand"
 )
 
 // Config collects a number of parameters along with sensible defaults.

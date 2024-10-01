@@ -5,6 +5,7 @@
 package agent
 
 import (
+	"crypto/rand"
 	"fmt"
 	pseudorand "math/rand"
 	"reflect"
@@ -12,9 +13,6 @@ import (
 	"testing"
 
 	"github.com/runZeroInc/excrypto/crypto"
-
-	"crypto/rand"
-
 	"github.com/runZeroInc/excrypto/x/crypto/ssh"
 )
 

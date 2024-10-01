@@ -9,8 +9,9 @@ package chacha20poly1305
 import (
 	"encoding/binary"
 
-	"github.com/runZeroInc/excrypto/x/crypto/internal/alias"
 	"golang.org/x/sys/cpu"
+
+	"github.com/runZeroInc/excrypto/x/crypto/internal/alias"
 )
 
 //go:noescape

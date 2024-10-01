@@ -5,6 +5,7 @@
 package ssh
 
 import (
+	"crypto/rand"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -12,13 +13,9 @@ import (
 	"math/big"
 
 	"github.com/runZeroInc/excrypto/crypto"
-
-	"crypto/rand"
-
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/crypto/subtle"
-
 	"github.com/runZeroInc/excrypto/x/crypto/curve25519"
 )
 
