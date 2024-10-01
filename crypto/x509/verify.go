@@ -867,7 +867,8 @@ func (c *Certificate) Verify(opts VerifyOptions) (current, expired, never [][]*C
 			if len(candidateChains) > 0 {
 				c.ValidSignature = true
 			}
-			return candidateChains, nil, nil, nil
+			current, expired, never = FilterByDate(candidateChains, opts.CurrentTime)
+			return
 		}
 	}
 
