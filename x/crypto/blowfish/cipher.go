@@ -30,7 +30,7 @@ type Cipher struct {
 type KeySizeError int
 
 func (k KeySizeError) Error() string {
-	return "github.com/runZeroInc/excrypto/crypto/blowfish: invalid key size " + strconv.Itoa(int(k))
+	return "crypto/blowfish: invalid key size " + strconv.Itoa(int(k))
 }
 
 // NewCipher creates and returns a Cipher.
