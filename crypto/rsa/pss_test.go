@@ -21,6 +21,7 @@ import (
 	. "github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/sha1"
 	"github.com/runZeroInc/excrypto/crypto/sha256"
+	"github.com/runZeroInc/excrypto/crypto/sha512"
 )
 
 func TestEMSAPSS(t *testing.T) {
@@ -306,5 +307,24 @@ func TestInvalidPSSSaltLength(t *testing.T) {
 		SaltLength: -2,
 	}); err == nil {
 		t.Fatal("VerifyPSS unexpected success")
+	}
+}
+
+func TestHashOverride(t *testing.T) {
+	key, err := GenerateKey(rand.Reader, 1024)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	digest := sha512.Sum512([]byte("message"))
+	// opts.Hash overrides the passed hash argument.
+	sig, err := SignPSS(rand.Reader, key, crypto.SHA256, digest[:], &PSSOptions{Hash: crypto.SHA512})
+	if err != nil {
+		t.Fatalf("SignPSS unexpected error: got %v, want nil", err)
+	}
+
+	// VerifyPSS has the inverse behavior, opts.Hash is always ignored, check this is true.
+	if err := VerifyPSS(&key.PublicKey, crypto.SHA512, digest[:], sig, &PSSOptions{Hash: crypto.SHA256}); err != nil {
+		t.Fatalf("VerifyPSS unexpected error: got %v, want nil", err)
 	}
 }

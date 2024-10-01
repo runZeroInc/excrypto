@@ -7,7 +7,7 @@ if [[ "${DIR}" == "" ]]; then
     exit 1
 fi
 
-rm -f ${DIR}/ go.mod ${DIR}/ ${OPTS}go.sum
+rm -f ${DIR}/go.mod ${DIR}/go.sum
 
 OPTS="-prune -o -name '.git'"
 
