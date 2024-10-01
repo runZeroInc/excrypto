@@ -9,8 +9,8 @@ if [[ "${OREF}" == "" ]]; then
     OREF=master
 fi
 
-# rm -rf crypto.upstream/ && \
-# git clone https://github.com/golang/go.git crypto.upstream/ || exit 1
+rm -rf crypto.upstream/ && \
+git clone https://github.com/golang/go.git crypto.upstream/ || exit 1
 ( cd crypto.upstream; git checkout -- ; git reset --hard )
 
 (cd crypto.upstream; git checkout ${OREF}) || exit 1
@@ -55,4 +55,4 @@ rm -rf ./crypto.upstream/src/crypto/purego_test.go
 rm -rf crypto/
 cp -a crypto.upstream/src/crypto crypto
 patch -p0 < crypto.diff
-# echo $NREF > refs/crypto.hash
+echo $NREF > refs/crypto.hash
