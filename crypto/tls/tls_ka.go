@@ -6,7 +6,6 @@ package tls
 
 import (
 	"encoding/json"
-	"regexp"
 
 	jsonKeys "github.com/runZeroInc/excrypto/crypto/json"
 )
@@ -54,8 +53,6 @@ func (sh *SignatureAndHash) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&aux)
 }
 
-var unknownAlgorithmRegex = regexp.MustCompile(`unknown\.(\d+)`)
-
 // UnmarshalJSON implements the json.Unmarshaler interface
 func (sh *SignatureAndHash) UnmarshalJSON(b []byte) error {
 	aux := new(auxSignatureAndHash)
@@ -69,24 +66,34 @@ func (sh *SignatureAndHash) UnmarshalJSON(b []byte) error {
 
 func (ka *rsaKeyAgreement) RSAParams() *jsonKeys.RSAPublicKey {
 	out := new(jsonKeys.RSAPublicKey)
-	out.PublicKey = ka.RSAParams().PublicKey
+	if ka.privateKey != nil {
+		out.PublicKey = &ka.privateKey.PublicKey
+	}
 	return out
 }
 
 func (ka *ecdheKeyAgreement) ECDHParams() *jsonKeys.ECDHKeys {
 	out := new(jsonKeys.ECDHKeys)
 	out.TLSCurveID = jsonKeys.TLSCurveID(ka.curveID)
-	out.ServerPrivateKey = ka.key.Bytes()
-	out.ServerPublicKey = make([]byte, len(ka.pub))
-	copy(out.ServerPublicKey, ka.pub)
+	if ka.key != nil {
+		out.ServerPrivateKey = ka.key.Bytes()
+	}
+	if len(ka.pub) > 0 {
+		out.ServerPublicKey = make([]byte, len(ka.pub))
+		copy(out.ServerPublicKey, ka.pub)
+	}
 	return out
 }
 
 func (ka *ecdheKeyAgreement) ClientECDHParams() *jsonKeys.ECDHKeys {
 	out := new(jsonKeys.ECDHKeys)
 	out.TLSCurveID = jsonKeys.TLSCurveID(ka.curveID)
-	out.ClientPrivateKey = ka.key.Bytes()
-	out.ClientPublicKey = make([]byte, len(ka.pub))
-	copy(out.ClientPublicKey, ka.pub)
+	if ka.key != nil {
+		out.ClientPrivateKey = ka.key.Bytes()
+	}
+	if len(ka.pub) > 0 {
+		out.ClientPublicKey = make([]byte, len(ka.pub))
+		copy(out.ClientPublicKey, ka.pub)
+	}
 	return out
 }
