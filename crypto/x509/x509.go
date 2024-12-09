@@ -32,6 +32,7 @@ import (
 	"time"
 
 	"github.com/runZeroInc/excrypto/crypto"
+	"github.com/runZeroInc/excrypto/crypto/dsa"
 	"github.com/runZeroInc/excrypto/crypto/ecdh"
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/ed25519"
@@ -136,6 +137,18 @@ func marshalPublicKey(pub any) (publicKeyBytes []byte, publicKeyAlgorithm pkix.A
 			}
 			publicKeyAlgorithm.Parameters.FullBytes = paramBytes
 		}
+	case *dsa.PublicKey:
+		publicKeyAlgorithm.Algorithm = oidPublicKeyDSA
+		publicKeyBytes, err = asn1.Marshal(pub.Y)
+		if err != nil {
+			return
+		}
+		var paramBytes []byte
+		paramBytes, err = asn1.Marshal(pub.Parameters)
+		if err != nil {
+			return
+		}
+		publicKeyAlgorithm.Parameters.FullBytes = paramBytes
 	default:
 		return nil, pkix.AlgorithmIdentifier{}, fmt.Errorf("x509: unsupported public key type: %T", pub)
 	}
