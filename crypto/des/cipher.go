@@ -5,11 +5,13 @@
 package des
 
 import (
+	"errors"
+	"internal/byteorder"
 	"strconv"
 
 	"github.com/runZeroInc/excrypto/crypto/cipher"
-	"github.com/runZeroInc/excrypto/crypto/internal/alias"
-	"github.com/runZeroInc/excrypto/internal/byteorder"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140/alias"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140only"
 )
 
 // The DES block size in bytes.
@@ -28,6 +30,10 @@ type desCipher struct {
 
 // NewCipher creates and returns a new [cipher.Block].
 func NewCipher(key []byte) (cipher.Block, error) {
+	if fips140only.Enabled {
+		return nil, errors.New("crypto/des: use of DES is not allowed in FIPS 140-only mode")
+	}
+
 	if len(key) != 8 {
 		return nil, KeySizeError(len(key))
 	}
@@ -72,6 +78,10 @@ type tripleDESCipher struct {
 
 // NewTripleDESCipher creates and returns a new [cipher.Block].
 func NewTripleDESCipher(key []byte) (cipher.Block, error) {
+	if fips140only.Enabled {
+		return nil, errors.New("crypto/des: use of TripleDES is not allowed in FIPS 140-only mode")
+	}
+
 	if len(key) != 24 {
 		return nil, KeySizeError(len(key))
 	}
@@ -96,7 +106,7 @@ func (c *tripleDESCipher) Encrypt(dst, src []byte) {
 		panic("crypto/des: invalid buffer overlap")
 	}
 
-	b := byteorder.BeUint64(src)
+	b := byteorder.BEUint64(src)
 	b = permuteInitialBlock(b)
 	left, right := uint32(b>>32), uint32(b)
 
@@ -117,7 +127,7 @@ func (c *tripleDESCipher) Encrypt(dst, src []byte) {
 	right = (right << 31) | (right >> 1)
 
 	preOutput := (uint64(right) << 32) | uint64(left)
-	byteorder.BePutUint64(dst, permuteFinalBlock(preOutput))
+	byteorder.BEPutUint64(dst, permuteFinalBlock(preOutput))
 }
 
 func (c *tripleDESCipher) Decrypt(dst, src []byte) {
@@ -131,7 +141,7 @@ func (c *tripleDESCipher) Decrypt(dst, src []byte) {
 		panic("crypto/des: invalid buffer overlap")
 	}
 
-	b := byteorder.BeUint64(src)
+	b := byteorder.BEUint64(src)
 	b = permuteInitialBlock(b)
 	left, right := uint32(b>>32), uint32(b)
 
@@ -152,5 +162,5 @@ func (c *tripleDESCipher) Decrypt(dst, src []byte) {
 	right = (right << 31) | (right >> 1)
 
 	preOutput := (uint64(right) << 32) | uint64(left)
-	byteorder.BePutUint64(dst, permuteFinalBlock(preOutput))
+	byteorder.BEPutUint64(dst, permuteFinalBlock(preOutput))
 }

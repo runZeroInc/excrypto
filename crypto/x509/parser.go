@@ -450,98 +450,29 @@ func parseExtKeyUsageExtension(der cryptobyte.String) ([]ExtKeyUsage, []asn1.Obj
 	return extKeyUsages, unknownUsages, nil
 }
 
-func parseCertificatePoliciesExtension(out *Certificate, der cryptobyte.String) error {
-	var err error
-	// RFC 5280 4.2.1.4: Certificate Policies
-	var policies []policyInformation
-	if _, err = asn1.Unmarshal(der, &policies); err != nil {
-		return err
+func parseCertificatePoliciesExtension(der cryptobyte.String) ([]OID, error) {
+	var oids []OID
+	seenOIDs := map[string]bool{}
+	if !der.ReadASN1(&der, cryptobyte_asn1.SEQUENCE) {
+		return nil, errors.New("x509: invalid certificate policies")
 	}
-
-	out.PolicyIdentifiers = make([]asn1.ObjectIdentifier, len(policies))
-	out.QualifierId = make([][]asn1.ObjectIdentifier, len(policies))
-	out.ExplicitTexts = make([][]asn1.RawValue, len(policies))
-	out.NoticeRefOrgnization = make([][]asn1.RawValue, len(policies))
-	out.NoticeRefNumbers = make([][]NoticeNumber, len(policies))
-	out.ParsedExplicitTexts = make([][]string, len(policies))
-	out.ParsedNoticeRefOrganization = make([][]string, len(policies))
-	out.CPSuri = make([][]string, len(policies))
-	out.UserNotices = make([][]UserNotice, len(policies))
-
-	for i, policy := range policies {
-
-		// TODO: Avoid double marshal by adding a conversion function
-		if oidVal, err := ParseOID(policy.Policy.String()); err == nil {
-			out.Policies = append(out.Policies, oidVal)
+	for !der.Empty() {
+		var cp cryptobyte.String
+		var OIDBytes cryptobyte.String
+		if !der.ReadASN1(&cp, cryptobyte_asn1.SEQUENCE) || !cp.ReadASN1(&OIDBytes, cryptobyte_asn1.OBJECT_IDENTIFIER) {
+			return nil, errors.New("x509: invalid certificate policies")
 		}
-
-		out.PolicyIdentifiers[i] = policy.Policy
-		// parse optional Qualifier for zlint
-		for _, qualifier := range policy.Qualifiers {
-			out.QualifierId[i] = append(out.QualifierId[i], qualifier.PolicyQualifierId)
-			userNoticeOID := asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 2, 2}
-			cpsURIOID := asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 2, 1}
-
-			if qualifier.PolicyQualifierId.Equal(userNoticeOID) {
-				var un userNotice
-				_, err := asn1.Unmarshal(qualifier.Qualifier.FullBytes, &un)
-				if err != nil && !asn1.AllowPermissiveParsing {
-					return err
-				}
-				if err == nil {
-					groupUserNotice := UserNotice{}
-					if len(un.ExplicitText.Bytes) != 0 {
-						out.ExplicitTexts[i] = append(out.ExplicitTexts[i], un.ExplicitText)
-						parsed := string(un.ExplicitText.Bytes)
-						out.ParsedExplicitTexts[i] = append(out.ParsedExplicitTexts[i], parsed)
-
-						groupUserNotice.ExplicitText = &parsed
-					}
-
-					if un.NoticeRef.Organization.Bytes != nil || un.NoticeRef.NoticeNumbers != nil {
-						out.NoticeRefOrgnization[i] = append(out.NoticeRefOrgnization[i], un.NoticeRef.Organization)
-						out.NoticeRefNumbers[i] = append(out.NoticeRefNumbers[i], un.NoticeRef.NoticeNumbers)
-						out.ParsedNoticeRefOrganization[i] = append(out.ParsedNoticeRefOrganization[i], string(un.NoticeRef.Organization.Bytes))
-
-						groupUserNotice.NoticeReference = &NoticeReference{
-							Organization:  string(un.NoticeRef.Organization.Bytes),
-							NoticeNumbers: un.NoticeRef.NoticeNumbers,
-						}
-					}
-
-					out.UserNotices[i] = append(out.UserNotices[i], groupUserNotice)
-				}
-			}
-			if qualifier.PolicyQualifierId.Equal(cpsURIOID) {
-				var cpsURIRaw asn1.RawValue
-				_, err = asn1.Unmarshal(qualifier.Qualifier.FullBytes, &cpsURIRaw)
-				if err != nil && !asn1.AllowPermissiveParsing {
-					return err
-				}
-				if err == nil {
-					out.CPSuri[i] = append(out.CPSuri[i], string(cpsURIRaw.Bytes))
-				}
-			}
+		if seenOIDs[string(OIDBytes)] {
+			return nil, errors.New("x509: invalid certificate policies")
 		}
+		seenOIDs[string(OIDBytes)] = true
+		oid, ok := newOIDFromDER(OIDBytes)
+		if !ok {
+			return nil, errors.New("x509: invalid certificate policies")
+		}
+		oids = append(oids, oid)
 	}
-	if out.SelfSigned {
-		out.ValidationLevel = UnknownValidationLevel
-	} else {
-		// See http://unmitigatedrisk.com/?p=203
-		validationLevel := getMaxCertValidationLevel(out.PolicyIdentifiers)
-		if validationLevel == UnknownValidationLevel {
-			if (len(out.Subject.Organization) > 0 && out.Subject.Organization[0] == out.Subject.CommonName) || (len(out.Subject.OrganizationalUnit) > 0 && strings.Contains(out.Subject.OrganizationalUnit[0], "Domain Control Validated")) {
-				if len(out.Subject.Locality) == 0 && len(out.Subject.Province) == 0 && len(out.Subject.PostalCode) == 0 {
-					validationLevel = DV
-				}
-			} else if len(out.Subject.Organization) > 0 && out.Subject.Organization[0] == "Persona Not Validated" && strings.Contains(out.Issuer.CommonName, "StartCom") {
-				validationLevel = DV
-			}
-		}
-		out.ValidationLevel = validationLevel
-	}
-
-	return nil
+	return oids, nil
 }
 
 // isValidIPMask reports whether mask consists of zero or more 1 bits, followed by zero bits.
@@ -922,23 +853,43 @@ func processExtensions(out *Certificate) error {
 			case 35:
 				out.AuthorityKeyId, err = parseAuthorityKeyIdentifier(e)
 				if err != nil {
-					if !asn1.AllowPermissiveParsing {
-						return err
-					} else {
-						out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
+					return err
+				}
+			case 36:
+				val := cryptobyte.String(e.Value)
+				if !val.ReadASN1(&val, cryptobyte_asn1.SEQUENCE) {
+					return errors.New("x509: invalid policy constraints extension")
+				}
+				if val.PeekASN1Tag(cryptobyte_asn1.Tag(0).ContextSpecific()) {
+					var v int64
+					if !val.ReadASN1Int64WithTag(&v, cryptobyte_asn1.Tag(0).ContextSpecific()) {
+						return errors.New("x509: invalid policy constraints extension")
 					}
+					out.RequireExplicitPolicy = int(v)
+					// Check for overflow.
+					if int64(out.RequireExplicitPolicy) != v {
+						return errors.New("x509: policy constraints requireExplicitPolicy field overflows int")
+					}
+					out.RequireExplicitPolicyZero = out.RequireExplicitPolicy == 0
+				}
+				if val.PeekASN1Tag(cryptobyte_asn1.Tag(1).ContextSpecific()) {
+					var v int64
+					if !val.ReadASN1Int64WithTag(&v, cryptobyte_asn1.Tag(1).ContextSpecific()) {
+						return errors.New("x509: invalid policy constraints extension")
+					}
+					out.InhibitPolicyMapping = int(v)
+					// Check for overflow.
+					if int64(out.InhibitPolicyMapping) != v {
+						return errors.New("x509: policy constraints inhibitPolicyMapping field overflows int")
+					}
+					out.InhibitPolicyMappingZero = out.InhibitPolicyMapping == 0
 				}
 			case 37:
 				out.ExtKeyUsage, out.UnknownExtKeyUsage, err = parseExtKeyUsageExtension(e.Value)
 				if err != nil {
-					if !asn1.AllowPermissiveParsing {
-						return err
-					} else {
-						out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
-					}
+					return err
 				}
-			case 14:
-				// RFC 5280, 4.2.1.2
+			case 14: // RFC 5280, 4.2.1.2
 				if e.Critical {
 					// Conforming CAs MUST mark this extension as non-critical
 					return errors.New("x509: subject key identifier incorrectly marked critical")
@@ -958,6 +909,27 @@ func processExtensions(out *Certificate) error {
 						out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
 					}
 				}
+			case 33:
+				val := cryptobyte.String(e.Value)
+				if !val.ReadASN1(&val, cryptobyte_asn1.SEQUENCE) {
+					return errors.New("x509: invalid policy mappings extension")
+				}
+				for !val.Empty() {
+					var s cryptobyte.String
+					var issuer, subject cryptobyte.String
+					if !val.ReadASN1(&s, cryptobyte_asn1.SEQUENCE) ||
+						!s.ReadASN1(&issuer, cryptobyte_asn1.OBJECT_IDENTIFIER) ||
+						!s.ReadASN1(&subject, cryptobyte_asn1.OBJECT_IDENTIFIER) {
+						return errors.New("x509: invalid policy mappings extension")
+					}
+					out.PolicyMappings = append(out.PolicyMappings, PolicyMapping{OID{issuer}, OID{subject}})
+				}
+			case 54:
+				val := cryptobyte.String(e.Value)
+				if !val.ReadASN1Integer(&out.InhibitAnyPolicy) {
+					return errors.New("x509: invalid inhibit any policy extension")
+				}
+				out.InhibitAnyPolicyZero = out.InhibitAnyPolicy == 0
 			default:
 				// Unknown extensions are recorded if critical.
 				unhandled = true

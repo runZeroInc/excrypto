@@ -6,9 +6,10 @@ package bn256
 
 import (
 	"bytes"
-	"crypto/rand"
 	"math/big"
 	"testing"
+
+	"crypto/rand"
 )
 
 func TestGFp2Invert(t *testing.T) {

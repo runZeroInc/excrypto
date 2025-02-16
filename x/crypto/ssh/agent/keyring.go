@@ -6,11 +6,12 @@ package agent
 
 import (
 	"bytes"
-	"crypto/rand"
 	"errors"
 	"fmt"
 	"sync"
 	"time"
+
+	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/crypto/subtle"
 	"github.com/runZeroInc/excrypto/x/crypto/ssh"

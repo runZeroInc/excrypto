@@ -6,13 +6,14 @@ package ssh
 
 import (
 	"bytes"
-	"crypto/rand"
 	"fmt"
 	"io"
 	"net"
 	"reflect"
 	"testing"
 	"time"
+
+	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/elliptic"

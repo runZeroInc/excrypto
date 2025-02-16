@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"bytes"
 	"compress/gzip"
+	"crypto"
 	"encoding/hex"
 	"log"
 	"os"
@@ -16,10 +17,8 @@ import (
 
 	"crypto/rand"
 
-	"github.com/runZeroInc/excrypto/crypto"
-	"github.com/runZeroInc/excrypto/crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
 	"github.com/runZeroInc/excrypto/crypto/sha512"
-	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
 func Example_ed25519ctx() {
@@ -41,6 +40,56 @@ func Example_ed25519ctx() {
 		Context: "Example_ed25519ctx",
 	}); err != nil {
 		log.Fatal("invalid signature")
+	}
+}
+
+func TestGenerateKey(t *testing.T) {
+	// nil is like using crypto/rand.Reader.
+	public, private, err := GenerateKey(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(public) != PublicKeySize {
+		t.Errorf("public key has the wrong size: %d", len(public))
+	}
+	if len(private) != PrivateKeySize {
+		t.Errorf("private key has the wrong size: %d", len(private))
+	}
+	if !bytes.Equal(private.Public().(PublicKey), public) {
+		t.Errorf("public key doesn't match private key")
+	}
+	fromSeed := NewKeyFromSeed(private.Seed())
+	if !bytes.Equal(private, fromSeed) {
+		t.Errorf("recreating key pair from seed gave different private key")
+	}
+
+	_, k2, err := GenerateKey(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Equal(private, k2) {
+		t.Errorf("GenerateKey returned the same private key twice")
+	}
+
+	_, k3, err := GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Equal(private, k3) {
+		t.Errorf("GenerateKey returned the same private key twice")
+	}
+
+	// GenerateKey is documented to be the same as NewKeyFromSeed.
+	seed := make([]byte, SeedSize)
+	rand.Read(seed)
+	_, k4, err := GenerateKey(bytes.NewReader(seed))
+	if err != nil {
+		t.Fatal(err)
+	}
+	k4n := NewKeyFromSeed(seed)
+	if !bytes.Equal(k4, k4n) {
+		t.Errorf("GenerateKey with seed gave different private key")
 	}
 }
 
@@ -321,11 +370,7 @@ func TestMalleability(t *testing.T) {
 }
 
 func TestAllocations(t *testing.T) {
-	if boring.Enabled {
-		t.Skip("skipping allocations test with BoringCrypto")
-	}
-	testenv.SkipIfOptimizationOff(t)
-
+	cryptotest.SkipTestAllocations(t)
 	if allocs := testing.AllocsPerRun(100, func() {
 		seed := make([]byte, SeedSize)
 		message := []byte("Hello, world!")

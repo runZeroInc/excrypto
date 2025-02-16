@@ -6,8 +6,9 @@ package x509
 
 import (
 	"bytes"
-	"crypto/rand"
 	"testing"
+
+	"crypto/rand"
 )
 
 func TestCertPoolEqual(t *testing.T) {

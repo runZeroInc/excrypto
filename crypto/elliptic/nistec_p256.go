@@ -9,7 +9,7 @@ package elliptic
 import (
 	"math/big"
 
-	"github.com/runZeroInc/excrypto/crypto/internal/nistec"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140/nistec"
 )
 
 func (c p256Curve) Inverse(k *big.Int) *big.Int {

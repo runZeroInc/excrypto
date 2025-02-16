@@ -7,12 +7,12 @@ package ed25519_test
 import (
 	"encoding/hex"
 	"encoding/json"
-	"github.com/runZeroInc/excrypto/crypto/ed25519"
-	"github.com/runZeroInc/excrypto/internal/testenv"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto/ed25519"
+	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
 )
 
 // TestEd25519Vectors runs a very large set of test vectors that exercise all
@@ -72,38 +72,13 @@ func TestEd25519Vectors(t *testing.T) {
 }
 
 func downloadEd25519Vectors(t *testing.T) []byte {
-	testenv.MustHaveExternalNetwork(t)
-
-	// Create a temp dir and modcache subdir.
-	d := t.TempDir()
-	// Create a spot for the modcache.
-	modcache := filepath.Join(d, "modcache")
-	if err := os.Mkdir(modcache, 0777); err != nil {
-		t.Fatal(err)
-	}
-
-	t.Setenv("GO111MODULE", "on")
-	t.Setenv("GOMODCACHE", modcache)
-
 	// Download the JSON test file from the GOPROXY with `go mod download`,
 	// pinning the version so test and module caching works as expected.
-	goTool := testenv.GoToolPath(t)
-	path := "filippo.io/mostly-harmless/ed25519vectors@v0.0.0-20210322192420-30a2d7243a94"
-	cmd := exec.Command(goTool, "mod", "download", "-modcacherw", "-json", path)
-	// TODO: enable the sumdb once the TryBots proxy supports it.
-	cmd.Env = append(os.Environ(), "GONOSUMDB=*")
-	output, err := cmd.Output()
-	if err != nil {
-		t.Fatalf("failed to run `go mod download -json %s`, output: %s", path, output)
-	}
-	var dm struct {
-		Dir string // absolute path to cached source root directory
-	}
-	if err := json.Unmarshal(output, &dm); err != nil {
-		t.Fatal(err)
-	}
+	path := "filippo.io/mostly-harmless/ed25519vectors"
+	version := "v0.0.0-20210322192420-30a2d7243a94"
+	dir := cryptotest.FetchModule(t, path, version)
 
-	jsonVectors, err := os.ReadFile(filepath.Join(dm.Dir, "ed25519vectors.json"))
+	jsonVectors, err := os.ReadFile(filepath.Join(dir, "ed25519vectors.json"))
 	if err != nil {
 		t.Fatalf("failed to read ed25519vectors.json: %v", err)
 	}

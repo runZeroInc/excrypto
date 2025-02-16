@@ -5,12 +5,13 @@
 package agent
 
 import (
-	"crypto/rand"
 	"fmt"
 	pseudorand "math/rand"
 	"reflect"
 	"strings"
 	"testing"
+
+	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/x/crypto/ssh"

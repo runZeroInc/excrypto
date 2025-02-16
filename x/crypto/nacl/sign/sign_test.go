@@ -6,9 +6,10 @@ package sign
 
 import (
 	"bytes"
-	"crypto/rand"
 	"encoding/hex"
 	"testing"
+
+	"crypto/rand"
 )
 
 var testSignedMessage, _ = hex.DecodeString("26a0a47f733d02ddb74589b6cbd6f64a7dab1947db79395a1a9e00e4c902c0f185b119897b89b248d16bab4ea781b5a3798d25c2984aec833dddab57e0891e0d68656c6c6f20776f726c64")

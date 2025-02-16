@@ -9,10 +9,16 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
 	"crypto/rand"
+
+	"github.com/runZeroInc/excrypto/internal/testenv"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/cipher"
@@ -420,7 +426,8 @@ package main
 import "github.com/runZeroInc/excrypto/crypto/ecdh"
 import "crypto/rand"
 func main() {
-	curve := ecdh.P384()
+	// Use P-256, since that's what the always-enabled CAST uses.
+	curve := ecdh.P256()
 	key, err := curve.GenerateKey(rand.Reader)
 	if err != nil { panic(err) }
 	_, err = curve.NewPublicKey(key.PublicKey().Bytes())
@@ -432,6 +439,56 @@ func main() {
 	println("OK")
 }
 `
+
+// TestLinker ensures that using one curve does not bring all other
+// implementations into the binary. This also guarantees that govulncheck can
+// avoid warning about a curve-specific vulnerability if that curve is not used.
+func TestLinker(t *testing.T) {
+	if testing.Short() {
+		t.Skip("test requires running 'go build'")
+	}
+	testenv.MustHaveGoBuild(t)
+
+	dir := t.TempDir()
+	hello := filepath.Join(dir, "hello.go")
+	err := os.WriteFile(hello, []byte(linkerTestProgram), 0664)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	run := func(args ...string) string {
+		cmd := exec.Command(args[0], args[1:]...)
+		cmd.Dir = dir
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatalf("%v: %v\n%s", args, err, string(out))
+		}
+		return string(out)
+	}
+
+	goBin := testenv.GoToolPath(t)
+	run(goBin, "build", "-o", "hello.exe", "hello.go")
+	if out := run("./hello.exe"); out != "OK\n" {
+		t.Error("unexpected output:", out)
+	}
+
+	// List all text symbols under crypto/... and make sure there are some for
+	// P256, but none for the other curves.
+	var consistent bool
+	nm := run(goBin, "tool", "nm", "hello.exe")
+	for _, match := range regexp.MustCompile(`(?m)T (crypto/.*)$`).FindAllStringSubmatch(nm, -1) {
+		symbol := strings.ToLower(match[1])
+		if strings.Contains(symbol, "p256") {
+			consistent = true
+		}
+		if strings.Contains(symbol, "p224") || strings.Contains(symbol, "p384") || strings.Contains(symbol, "p521") {
+			t.Errorf("unexpected symbol in program using only ecdh.P256: %s", match[1])
+		}
+	}
+	if !consistent {
+		t.Error("no P256 symbols found in program using ecdh.P256, test is broken")
+	}
+}
 
 func TestMismatchedCurves(t *testing.T) {
 	curves := []struct {

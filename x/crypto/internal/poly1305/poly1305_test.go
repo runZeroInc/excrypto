@@ -5,12 +5,13 @@
 package poly1305
 
 import (
-	"crypto/rand"
 	"encoding/binary"
 	"encoding/hex"
 	"flag"
 	"testing"
 	"unsafe"
+
+	"crypto/rand"
 )
 
 var stressFlag = flag.Bool("stress", false, "run slow stress tests")

@@ -6,10 +6,11 @@ package ssh
 
 import (
 	"bytes"
-	"crypto/rand"
 	"encoding/binary"
 	"io"
 	"testing"
+
+	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/x/crypto/chacha20"

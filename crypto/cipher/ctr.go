@@ -15,7 +15,9 @@ package cipher
 import (
 	"bytes"
 
-	"github.com/runZeroInc/excrypto/crypto/internal/alias"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140/aes"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140/alias"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140only"
 	"github.com/runZeroInc/excrypto/crypto/subtle"
 )
 
@@ -29,8 +31,8 @@ type ctr struct {
 const streamBufferSize = 512
 
 // ctrAble is an interface implemented by ciphers that have a specific optimized
-// implementation of CTR, like crypto/aes. NewCTR will check for this interface
-// and return the specific Stream if found.
+// implementation of CTR. crypto/aes doesn't use this anymore, and we'd like to
+// eventually remove it.
 type ctrAble interface {
 	NewCTR(iv []byte) Stream
 }
@@ -38,6 +40,12 @@ type ctrAble interface {
 // NewCTR returns a [Stream] which encrypts/decrypts using the given [Block] in
 // counter mode. The length of iv must be the same as the [Block]'s block size.
 func NewCTR(block Block, iv []byte) Stream {
+	if block, ok := block.(*aes.Block); ok {
+		return aesCtrWrapper{aes.NewCTR(block, iv)}
+	}
+	if fips140only.Enabled {
+		panic("crypto/cipher: use of CTR with non-AES ciphers is not allowed in FIPS 140-only mode")
+	}
 	if ctr, ok := block.(ctrAble); ok {
 		return ctr.NewCTR(iv)
 	}
@@ -54,6 +62,15 @@ func NewCTR(block Block, iv []byte) Stream {
 		out:     make([]byte, 0, bufSize),
 		outUsed: 0,
 	}
+}
+
+// aesCtrWrapper hides extra methods from aes.CTR.
+type aesCtrWrapper struct {
+	c *aes.CTR
+}
+
+func (x aesCtrWrapper) XORKeyStream(dst, src []byte) {
+	x.c.XORKeyStream(dst, src)
 }
 
 func (x *ctr) refill() {
@@ -83,6 +100,9 @@ func (x *ctr) XORKeyStream(dst, src []byte) {
 	}
 	if alias.InexactOverlap(dst[:len(src)], src) {
 		panic("crypto/cipher: invalid buffer overlap")
+	}
+	if _, ok := x.b.(*aes.Block); ok {
+		panic("crypto/cipher: internal error: generic CTR used with AES")
 	}
 	for len(src) > 0 {
 		if x.outUsed >= len(x.out)-x.b.BlockSize() {

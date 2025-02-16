@@ -19,10 +19,11 @@
 package elgamal
 
 import (
-	"crypto/rand"
 	"errors"
 	"io"
 	"math/big"
+
+	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/crypto/subtle"
 )

@@ -6,7 +6,6 @@ package ssh
 
 import (
 	"bytes"
-	"crypto/rand"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
@@ -16,6 +15,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/crypto/dsa"
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
