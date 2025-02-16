@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	github.com/mmcloughlin/avo v0.6.0
-	github.com/runZeroInc/excrypto/x/crypto v0.26.0
+	github.com/runZeroInc/excrypto/x/crypto v0.33.0
 
 )
 
