@@ -12,7 +12,6 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"internal/byteorder"
 	"io"
 	"math/big"
 	"net"
@@ -32,14 +31,6 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/tls/internal/fips140tls"
-	"github.com/runZeroInc/excrypto/crypto/x509"
-	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
-
-	"crypto/rand"
-
-	"github.com/runZeroInc/excrypto/crypto/ecdsa"
-	"github.com/runZeroInc/excrypto/crypto/elliptic"
-	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/x509"
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
 	"github.com/runZeroInc/excrypto/internal/byteorder"

@@ -5,10 +5,10 @@
 package fips140hash
 
 import (
-	fsha3 "crypto/internal/fips140/sha3"
 	"hash"
 	_ "unsafe"
 
+	fsha3 "github.com/runZeroInc/excrypto/crypto/internal/fips140/sha3"
 	"github.com/runZeroInc/excrypto/crypto/sha3"
 )
 

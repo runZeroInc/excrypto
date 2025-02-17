@@ -11,8 +11,6 @@ import (
 	"encoding/pem"
 	"flag"
 	"fmt"
-	"internal/byteorder"
-	"internal/testenv"
 	"io"
 	"log"
 	"net"
@@ -25,7 +23,9 @@ import (
 	"testing"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140deps/byteorder"
 	"github.com/runZeroInc/excrypto/crypto/x509"
+	"github.com/runZeroInc/excrypto/internal/testenv"
 
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
 )

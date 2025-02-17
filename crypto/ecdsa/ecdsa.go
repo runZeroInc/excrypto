@@ -17,10 +17,11 @@
 package ecdsa
 
 import (
-	"crypto"
 	"errors"
 	"io"
 	"math/big"
+
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"github.com/runZeroInc/excrypto/crypto/ecdh"
 	"github.com/runZeroInc/excrypto/crypto/elliptic"

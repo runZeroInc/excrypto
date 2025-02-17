@@ -4,9 +4,7 @@
 
 package godebug
 
-import (
-	"internal/godebug"
-)
+import "github.com/runZeroInc/excrypto/internal/godebug"
 
 type Setting godebug.Setting
 

@@ -11,8 +11,9 @@
 package sha512
 
 import (
-	"crypto"
 	"hash"
+
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/sha512"

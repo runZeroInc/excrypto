@@ -22,19 +22,17 @@ package x509
 
 import (
 	"bytes"
-	"crypto"
 	cryptorand "crypto/rand"
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"internal/godebug"
 	"io"
 	"math/big"
 	"net"
 	"strconv"
 	"time"
 
-	"github.com/runZeroInc/excrypto/encoding/asn1"
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"github.com/runZeroInc/excrypto/crypto/dsa"
 	"github.com/runZeroInc/excrypto/crypto/ecdh"
@@ -45,6 +43,8 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/sha1"
 	"github.com/runZeroInc/excrypto/crypto/x509/ct"
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/encoding/asn1"
+	"github.com/runZeroInc/excrypto/internal/godebug"
 
 	// Explicitly import these for their crypto.RegisterHash init side-effects.
 	// Keep these as blank imports, even if they're imported above.
@@ -52,8 +52,8 @@ import (
 	_ "github.com/runZeroInc/excrypto/crypto/sha256"
 	_ "github.com/runZeroInc/excrypto/crypto/sha512"
 
-	"golang.org/x/crypto/cryptobyte"
-	cryptobyte_asn1 "golang.org/x/crypto/cryptobyte/asn1"
+	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
+	cryptobyte_asn1 "github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
 )
 
 // pkixPublicKey reflects a PKIX public key structure. See SubjectPublicKeyInfo

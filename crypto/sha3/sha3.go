@@ -7,9 +7,10 @@
 package sha3
 
 import (
-	"crypto"
 	"hash"
 	_ "unsafe"
+
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/sha3"
 )

@@ -5,10 +5,10 @@
 package fipstest
 
 import (
-	. "crypto/internal/fips140/edwards25519"
 	"testing"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
+	. "github.com/runZeroInc/excrypto/crypto/internal/fips140/edwards25519"
 )
 
 var testAllocationsSink byte

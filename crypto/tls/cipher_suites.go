@@ -5,19 +5,20 @@
 package tls
 
 import (
-	"crypto"
-	fipsaes "crypto/internal/fips140/aes"
 	"fmt"
 	"hash"
-	"internal/cpu"
 	"runtime"
 	_ "unsafe" // for linkname
+
+	"github.com/runZeroInc/excrypto/crypto"
+	"github.com/runZeroInc/excrypto/internal/cpu"
 
 	"github.com/runZeroInc/excrypto/crypto/aes"
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"github.com/runZeroInc/excrypto/crypto/des"
 	"github.com/runZeroInc/excrypto/crypto/hmac"
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
+	fipsaes "github.com/runZeroInc/excrypto/crypto/internal/fips140/aes"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/aes/gcm"
 	"github.com/runZeroInc/excrypto/crypto/rc4"
 	"github.com/runZeroInc/excrypto/crypto/sha1"

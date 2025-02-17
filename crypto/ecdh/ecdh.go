@@ -7,9 +7,10 @@
 package ecdh
 
 import (
-	"crypto"
 	"errors"
 	"io"
+
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/ecdh"

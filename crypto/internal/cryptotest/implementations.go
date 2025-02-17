@@ -5,12 +5,12 @@
 package cryptotest
 
 import (
-	"internal/goos"
-	"internal/testenv"
 	"testing"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/crypto/internal/goos"
 	"github.com/runZeroInc/excrypto/crypto/internal/impl"
+	"github.com/runZeroInc/excrypto/crypto/internal/testenv"
 )
 
 // TestAllImplementations runs the provided test function with each available

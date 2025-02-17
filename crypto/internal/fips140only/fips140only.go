@@ -6,13 +6,13 @@ package fips140only
 
 import (
 	"hash"
-	"internal/godebug"
 	"io"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/drbg"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/sha256"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/sha3"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/sha512"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140deps/godebug"
 )
 
 // Enabled reports whether FIPS 140-only mode is enabled, in which non-approved

@@ -6,13 +6,14 @@ package cipher_test
 
 import (
 	"bytes"
-	fipsaes "crypto/internal/fips140/aes"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
 	"reflect"
 	"testing"
+
+	fipsaes "github.com/runZeroInc/excrypto/crypto/internal/fips140/aes"
 
 	"crypto/rand"
 

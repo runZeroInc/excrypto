@@ -5,14 +5,14 @@
 package cryptotest
 
 import (
-	"internal/asan"
-	"internal/msan"
-	"internal/race"
-	"internal/testenv"
 	"runtime"
 	"testing"
 
+	"github.com/runZeroInc/excrypto/crypto/internal/asan"
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/crypto/internal/msan"
+	"github.com/runZeroInc/excrypto/crypto/internal/race"
+	"github.com/runZeroInc/excrypto/crypto/internal/testenv"
 )
 
 // SkipTestAllocations skips the test if there are any factors that interfere

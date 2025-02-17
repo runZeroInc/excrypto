@@ -11,12 +11,13 @@
 package md5
 
 import (
-	"crypto"
 	"errors"
 	"hash"
-	"internal/byteorder"
+
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140only"
+	"github.com/runZeroInc/excrypto/internal/byteorder"
 )
 
 func init() {

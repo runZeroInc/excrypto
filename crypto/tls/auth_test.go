@@ -5,8 +5,9 @@
 package tls
 
 import (
-	"crypto"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"github.com/runZeroInc/excrypto/crypto/tls/internal/fips140tls"
 )

@@ -7,14 +7,14 @@ package tls
 import (
 	"bytes"
 	"context"
-	"crypto"
 	"errors"
 	"hash"
-	"internal/byteorder"
 	"io"
 	"slices"
 	"sort"
 	"time"
+
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"github.com/runZeroInc/excrypto/crypto/hmac"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/hkdf"

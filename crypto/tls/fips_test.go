@@ -7,8 +7,6 @@ package tls
 import (
 	"encoding/pem"
 	"fmt"
-	"internal/obscuretestdata"
-	"internal/testenv"
 	"math/big"
 	"net"
 	"runtime"
@@ -23,6 +21,7 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/x509"
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
 func allCipherSuitesIncludingTLS13() []uint16 {

@@ -6,8 +6,9 @@ package rsa
 
 import (
 	"bytes"
-	"crypto"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
 	"github.com/runZeroInc/excrypto/encoding/asn1"

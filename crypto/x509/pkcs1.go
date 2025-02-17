@@ -6,12 +6,11 @@ package x509
 
 import (
 	"errors"
-	"internal/godebug"
 	"math/big"
 
-	"github.com/runZeroInc/excrypto/encoding/asn1"
-
 	"github.com/runZeroInc/excrypto/crypto/rsa"
+	"github.com/runZeroInc/excrypto/encoding/asn1"
+	"github.com/runZeroInc/excrypto/internal/godebug"
 )
 
 // pkcs1PrivateKey is a structure which mirrors the PKCS #1 ASN.1 for an RSA private key.

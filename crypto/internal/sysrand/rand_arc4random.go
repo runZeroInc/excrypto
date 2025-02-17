@@ -6,7 +6,7 @@
 
 package sysrand
 
-import "internal/syscall/unix"
+import "github.com/runZeroInc/excrypto/internal/syscall/unix"
 
 // arc4random_buf is the recommended application CSPRNG, accepts buffers of
 // any size, and never returns an error.

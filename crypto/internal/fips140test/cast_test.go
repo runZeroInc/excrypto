@@ -7,7 +7,6 @@ package fipstest
 import (
 	"encoding/pem"
 	"fmt"
-	"internal/testenv"
 	"io/fs"
 	"os"
 	"regexp"
@@ -18,6 +17,7 @@ import (
 	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/crypto/x509"
+	"github.com/runZeroInc/excrypto/internal/testenv"
 
 	// Import packages that define CASTs to test them.
 	_ "github.com/runZeroInc/excrypto/crypto/internal/fips140/aes"

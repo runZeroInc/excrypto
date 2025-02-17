@@ -18,13 +18,11 @@ import (
 
 	"crypto/rand"
 
-	"github.com/runZeroInc/excrypto/internal/testenv"
-
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"github.com/runZeroInc/excrypto/crypto/ecdh"
 	"github.com/runZeroInc/excrypto/crypto/sha256"
-
+	"github.com/runZeroInc/excrypto/internal/testenv"
 	"github.com/runZeroInc/excrypto/x/crypto/chacha20"
 )
 

@@ -5,10 +5,10 @@
 package hpke
 
 import (
-	"crypto"
 	"errors"
-	"internal/byteorder"
 	"math/bits"
+
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"crypto/rand"
 
@@ -16,8 +16,8 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"github.com/runZeroInc/excrypto/crypto/ecdh"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/hkdf"
-
-	"golang.org/x/crypto/chacha20poly1305"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140deps/byteorder"
+	"github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305"
 )
 
 // testingOnlyGenerateKey is only used during testing, to provide

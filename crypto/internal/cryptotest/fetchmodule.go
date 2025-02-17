@@ -7,10 +7,11 @@ package cryptotest
 import (
 	"bytes"
 	"encoding/json"
-	"internal/testenv"
 	"os"
 	"os/exec"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
 // FetchModule fetches the module at the given version and returns the directory

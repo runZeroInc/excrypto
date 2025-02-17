@@ -7,7 +7,6 @@ package tls
 import (
 	"bytes"
 	"context"
-	"crypto"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -25,16 +24,10 @@ import (
 
 	"crypto/rand"
 
-	"github.com/runZeroInc/excrypto/crypto/ecdh"
-	"github.com/runZeroInc/excrypto/crypto/elliptic"
-	"github.com/runZeroInc/excrypto/crypto/tls/internal/fips140tls"
-	"github.com/runZeroInc/excrypto/crypto/x509"
-
-	"crypto/rand"
-
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/ecdh"
 	"github.com/runZeroInc/excrypto/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/crypto/tls/internal/fips140tls"
 	"github.com/runZeroInc/excrypto/crypto/x509"
 )
 

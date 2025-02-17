@@ -8,12 +8,10 @@ import (
 	"bytes"
 	"container/list"
 	"context"
-	"crypto"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"internal/godebug"
 	"io"
 	"math/big"
 	"net"
@@ -25,6 +23,9 @@ import (
 
 	"crypto/rand"
 
+	rtls "crypto/tls"
+
+	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/ed25519"
 	"github.com/runZeroInc/excrypto/crypto/elliptic"
@@ -32,6 +33,7 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/sha512"
 	"github.com/runZeroInc/excrypto/crypto/tls/internal/fips140tls"
 	"github.com/runZeroInc/excrypto/crypto/x509"
+	"github.com/runZeroInc/excrypto/internal/godebug"
 )
 
 const (

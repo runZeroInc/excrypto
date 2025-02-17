@@ -4,10 +4,6 @@
 
 package byteorder
 
-import (
-	"internal/byteorder"
-)
-
 func LEUint16(b []byte) uint16 {
 	return byteorder.LEUint16(b)
 }

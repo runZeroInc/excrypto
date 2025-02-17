@@ -7,12 +7,9 @@ package tls
 import (
 	"bytes"
 	"context"
-	"crypto"
 	"errors"
 	"fmt"
 	"hash"
-	"internal/byteorder"
-	"internal/godebug"
 	"io"
 	"net"
 	"slices"
@@ -20,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/ed25519"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/mlkem"
@@ -29,6 +27,8 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/subtle"
 	"github.com/runZeroInc/excrypto/crypto/tls/internal/fips140tls"
 	"github.com/runZeroInc/excrypto/crypto/x509"
+	"github.com/runZeroInc/excrypto/internal/byteorder"
+	"github.com/runZeroInc/excrypto/internal/godebug"
 )
 
 type clientHandshakeState struct {

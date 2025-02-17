@@ -6,11 +6,12 @@ package tls
 
 import (
 	"bytes"
-	"crypto"
 	"errors"
 	"fmt"
 	"hash"
 	"io"
+
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/ed25519"

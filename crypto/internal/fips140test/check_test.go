@@ -6,11 +6,7 @@ package fipstest
 
 import (
 	"bytes"
-	. "crypto/internal/fips140/check"
 	"fmt"
-	"internal/abi"
-	"internal/godebug"
-	"internal/testenv"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -18,8 +14,12 @@ import (
 	"unicode"
 	"unsafe"
 
+	. "github.com/runZeroInc/excrypto/crypto/internal/fips140/check"
+
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/check/checktest"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140deps/godebug"
+	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
 func TestIntegrityCheck(t *testing.T) {

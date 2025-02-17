@@ -6,13 +6,13 @@ package cipher
 
 import (
 	"errors"
-	"internal/byteorder"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/aes"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/aes/gcm"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/alias"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140only"
 	"github.com/runZeroInc/excrypto/crypto/subtle"
+	"github.com/runZeroInc/excrypto/internal/byteorder"
 )
 
 const (

@@ -16,11 +16,12 @@
 package ed25519
 
 import (
-	"crypto"
 	cryptorand "crypto/rand"
 	"errors"
 	"io"
 	"strconv"
+
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/ed25519"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140only"

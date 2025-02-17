@@ -5,10 +5,9 @@
 package fips140
 
 import (
-	"internal/godebug"
-
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/check"
+	"github.com/runZeroInc/excrypto/internal/godebug"
 )
 
 var fips140GODEBUG = godebug.New("fips140")

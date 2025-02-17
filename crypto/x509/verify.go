@@ -6,7 +6,6 @@ package x509
 
 import (
 	"bytes"
-	"crypto"
 	"errors"
 	"fmt"
 	"iter"
@@ -19,6 +18,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
 )
 

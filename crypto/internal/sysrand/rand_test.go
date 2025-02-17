@@ -7,11 +7,12 @@ package sysrand
 import (
 	"bytes"
 	"compress/flate"
-	"internal/testenv"
 	"os"
 	"runtime"
 	"sync"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
 func TestRead(t *testing.T) {

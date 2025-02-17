@@ -12,8 +12,7 @@ import (
 	"strings"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/hpke"
-
-	"golang.org/x/crypto/cryptobyte"
+	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
 )
 
 // sortedSupportedAEADs is just a sorted version of hpke.SupportedAEADS.

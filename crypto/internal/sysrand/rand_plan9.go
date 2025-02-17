@@ -5,11 +5,11 @@
 package sysrand
 
 import (
-	"internal/byteorder"
-	"internal/chacha8rand"
 	"io"
 	"os"
 	"sync"
+
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140deps/byteorder"
 )
 
 const randomDevice = "/dev/random"

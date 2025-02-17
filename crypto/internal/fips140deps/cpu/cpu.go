@@ -5,8 +5,8 @@
 package cpu
 
 import (
-	"internal/cpu"
-	"internal/goarch"
+	"github.com/runZeroInc/excrypto/internal/cpu"
+	"github.com/runZeroInc/excrypto/internal/goarch"
 )
 
 const BigEndian = goarch.BigEndian

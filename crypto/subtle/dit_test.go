@@ -5,9 +5,10 @@
 package subtle
 
 import (
-	"internal/cpu"
-	"internal/runtime/sys"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/internal/cpu"
+	"github.com/runZeroInc/excrypto/internal/runtime/sys"
 )
 
 func TestWithDataIndependentTiming(t *testing.T) {

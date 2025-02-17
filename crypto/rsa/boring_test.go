@@ -10,13 +10,14 @@
 package rsa
 
 import (
-	"crypto"
 	"encoding/hex"
 	"math/big"
 	"runtime"
 	"runtime/debug"
 	"sync"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"github.com/runZeroInc/excrypto/encoding/asn1"
 

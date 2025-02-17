@@ -8,7 +8,6 @@ import (
 	"bufio"
 	"bytes"
 	"compress/bzip2"
-	"crypto"
 	"encoding/hex"
 	"hash"
 	"io"
@@ -16,6 +15,8 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"crypto/rand"
 

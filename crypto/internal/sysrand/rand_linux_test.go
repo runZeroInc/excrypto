@@ -8,12 +8,14 @@ package sysrand_test
 
 import (
 	"bytes"
-	"internal/syscall/unix"
-	"internal/testenv"
 	"os"
 	"runtime"
 	"syscall"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/internal/testenv"
+
+	"github.com/runZeroInc/excrypto/internalsyscall/unix"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/sysrand/internal/seccomp"
 )

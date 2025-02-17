@@ -5,11 +5,11 @@
 package rsa
 
 import (
-	"crypto"
 	"errors"
 	"hash"
 	"io"
 
+	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/rsa"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140hash"

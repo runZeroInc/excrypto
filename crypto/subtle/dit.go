@@ -5,8 +5,9 @@
 package subtle
 
 import (
-	"internal/runtime/sys"
 	"runtime"
+
+	"github.com/runZeroInc/excrypto/internal/runtime/sys"
 )
 
 // WithDataIndependentTiming enables architecture specific features which ensure

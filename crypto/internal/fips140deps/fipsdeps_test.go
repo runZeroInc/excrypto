@@ -5,9 +5,10 @@
 package fipsdeps
 
 import (
-	"internal/testenv"
 	"strings"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
 // AllowedInternalPackages are internal packages that can be imported from the

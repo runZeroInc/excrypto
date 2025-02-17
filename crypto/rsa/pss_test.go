@@ -7,8 +7,6 @@ package rsa_test
 import (
 	"bufio"
 	"compress/bzip2"
-	"crypto"
-	. "crypto/rsa"
 	"encoding/hex"
 	"math/big"
 	"os"
@@ -18,7 +16,9 @@ import (
 
 	"crypto/rand"
 
+	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140"
+	. "github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/sha256"
 	"github.com/runZeroInc/excrypto/crypto/sha512"
 )

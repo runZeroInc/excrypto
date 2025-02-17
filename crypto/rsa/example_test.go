@@ -5,12 +5,13 @@
 package rsa_test
 
 import (
-	"crypto"
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"crypto/rand"
 

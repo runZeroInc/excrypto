@@ -8,10 +8,11 @@ package sysrand
 
 import (
 	"errors"
-	"internal/syscall/unix"
 	"math"
 	"runtime"
 	"syscall"
+
+	"github.com/runZeroInc/excrypto/internalsyscall/unix"
 )
 
 func read(b []byte) error {

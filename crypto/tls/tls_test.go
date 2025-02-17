@@ -7,12 +7,10 @@ package tls
 import (
 	"bytes"
 	"context"
-	"crypto"
 	"encoding/json"
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"internal/testenv"
 	"io"
 	"math"
 	"math/big"
@@ -23,6 +21,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/runZeroInc/excrypto/crypto"
 
 	"github.com/runZeroInc/excrypto/encoding/asn1"
 
@@ -36,6 +36,7 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/x509"
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
 	"github.com/runZeroInc/excrypto/internal/godebug"
+	"github.com/runZeroInc/excrypto/internal/testenv"
 
 	"golang.org/x/crypto/cryptobyte"
 )

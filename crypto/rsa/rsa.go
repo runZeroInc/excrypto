@@ -41,13 +41,14 @@
 package rsa
 
 import (
-	"crypto"
 	"errors"
 	"fmt"
-	"internal/godebug"
 	"io"
 	"math"
 	"math/big"
+
+	"github.com/runZeroInc/excrypto/crypto"
+	"github.com/runZeroInc/excrypto/internal/godebug"
 
 	"crypto/rand"
 

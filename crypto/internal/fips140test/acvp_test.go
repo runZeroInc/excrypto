@@ -25,7 +25,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"internal/testenv"
 	"io"
 	"math/big"
 	"os"
@@ -59,6 +58,7 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/tls12"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/tls13"
 	"github.com/runZeroInc/excrypto/crypto/internal/impl"
+	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
 var noPAAPAI = os.Getenv("GONOPAAPAI") == "1"

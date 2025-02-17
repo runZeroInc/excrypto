@@ -12,7 +12,6 @@ package cipher_test
 
 import (
 	"bytes"
-	fipsaes "crypto/internal/fips140/aes"
 	"encoding/hex"
 	"fmt"
 	"math/rand"
@@ -24,6 +23,7 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
+	fipsaes "github.com/runZeroInc/excrypto/crypto/internal/fips140/aes"
 )
 
 var commonCounter = []byte{0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff}

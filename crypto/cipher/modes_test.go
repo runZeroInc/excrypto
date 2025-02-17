@@ -5,9 +5,10 @@
 package cipher_test
 
 import (
-	. "crypto/cipher"
 	"reflect"
 	"testing"
+
+	. "github.com/runZeroInc/excrypto/crypto/cipher"
 )
 
 // Historically, crypto/aes's Block would implement some undocumented
