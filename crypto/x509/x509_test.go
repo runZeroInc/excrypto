@@ -25,7 +25,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/runZeroInc/excrypto/encoding/asn1"
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/dsa"
 	"github.com/runZeroInc/excrypto/crypto/ecdh"
@@ -36,7 +35,7 @@ import (
 	_ "github.com/runZeroInc/excrypto/crypto/sha256"
 	_ "github.com/runZeroInc/excrypto/crypto/sha512"
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
-	"github.com/runZeroInc/excrypto/internal/godebug"
+	"github.com/runZeroInc/excrypto/encoding/asn1"
 	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
@@ -4092,7 +4091,6 @@ func TestCertificatePolicies(t *testing.T) {
 		t.Errorf("cert.Policies = %v, want: %v", cert.Policies, expectPolicies)
 	}
 }
-*/
 
 func TestGob(t *testing.T) {
 	// Test that gob does not reject Certificate.
