@@ -25,6 +25,11 @@ const debugHandshake = false
 // quickly.
 const chanSize = 16
 
+// maxPendingPackets sets the maximum number of packets to queue while waiting
+// for KEX to complete. This limits the total pending data to maxPendingPackets
+// * maxPacket bytes, which is ~16.8MB.
+const maxPendingPackets = 64
+
 // keyingTransport is a packet based transport that supports key
 // changes. It need not be thread-safe. It should pass through
 // msgNewKeys in both directions.
@@ -73,7 +78,11 @@ type handshakeTransport struct {
 	incoming  chan []byte
 	readError error
 
-	mu             sync.Mutex
+	mu sync.Mutex
+	// Condition for the above mutex. It is used to notify a completed key
+	// exchange or a write failure. Writes can wait for this condition while a
+	// key exchange is in progress.
+	writeCond      *sync.Cond
 	writeError     error
 	sentInitPacket []byte
 	sentInitMsg    *kexInitMsg
@@ -82,7 +91,11 @@ type handshakeTransport struct {
 	otherInitPacket []byte
 	otherInitMsg    *kexInitMsg
 
-	pendingPackets   [][]byte // Used when a key exchange is in progress.
+	// Used to queue writes when a key exchange is in progress. The length is
+	// limited by pendingPacketsSize. Once full, writes will block until the key
+	// exchange is completed or an error occurs. If not empty, it is emptied
+	// all at once when the key exchange is completed in kexLoop.
+	pendingPackets   [][]byte
 	writePacketsLeft uint32
 	writeBytesLeft   int64
 	userAuthComplete bool // whether the user authentication phase is complete
@@ -139,6 +152,7 @@ func newHandshakeTransport(conn keyingTransport, config *Config, clientVersion, 
 
 		config: config,
 	}
+	t.writeCond = sync.NewCond(&t.mu)
 	t.resetReadThresholds()
 	t.resetWriteThresholds()
 
@@ -265,6 +279,7 @@ func (t *handshakeTransport) recordWriteError(err error) {
 	defer t.mu.Unlock()
 	if t.writeError == nil && err != nil {
 		t.writeError = err
+		t.writeCond.Broadcast()
 	}
 }
 
@@ -367,6 +382,8 @@ write:
 			}
 		}
 		t.pendingPackets = t.pendingPackets[:0]
+		// Unblock writePacket if waiting for KEX.
+		t.writeCond.Broadcast()
 		t.mu.Unlock()
 	}
 
@@ -581,11 +598,20 @@ func (t *handshakeTransport) writePacket(p []byte) error {
 	}
 
 	if t.sentInitMsg != nil {
-		// Copy the packet so the writer can reuse the buffer.
-		cp := make([]byte, len(p))
-		copy(cp, p)
-		t.pendingPackets = append(t.pendingPackets, cp)
-		return nil
+		if len(t.pendingPackets) < maxPendingPackets {
+			// Copy the packet so the writer can reuse the buffer.
+			cp := make([]byte, len(p))
+			copy(cp, p)
+			t.pendingPackets = append(t.pendingPackets, cp)
+			return nil
+		}
+		for t.sentInitMsg != nil {
+			// Block and wait for KEX to complete or an error.
+			t.writeCond.Wait()
+			if t.writeError != nil {
+				return t.writeError
+			}
+		}
 	}
 
 	if t.writeBytesLeft > 0 {
@@ -602,6 +628,7 @@ func (t *handshakeTransport) writePacket(p []byte) error {
 
 	if err := t.pushPacket(p); err != nil {
 		t.writeError = err
+		t.writeCond.Broadcast()
 	}
 
 	return nil
