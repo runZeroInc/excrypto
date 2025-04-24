@@ -214,6 +214,43 @@ func (uac *UnauthClientConn) WriteMsgUserAuthSuccess() error {
 	return nil
 }
 
+func (uac *UnauthClientConn) WriteRaw(raw []byte, readReply bool) (res []byte, err error) {
+	c := uac.c
+	if err = c.transport.writePacket(raw); err != nil {
+		return nil, err
+	}
+	if readReply {
+		res, err = c.transport.readPacket()
+	}
+	return
+}
+
+func (uac *UnauthClientConn) ReadRaw() ([]byte, error) {
+	c := uac.c
+	return c.transport.readPacket()
+}
+
+func (uac *UnauthClientConn) BuildChannelOpen(id uint32, name string, payload []byte) []byte {
+	msg := &channelOpenMsg{
+		ChanType:         name,
+		PeersWindow:      65536,
+		MaxPacketSize:    425984,
+		TypeSpecificData: payload,
+		PeersID:          id,
+	}
+	return Marshal(msg)
+}
+
+func (uac *UnauthClientConn) BuildChannelRequest(id uint32, name string, payload []byte, wantReply bool) []byte {
+	msg := channelRequestMsg{
+		PeersID:             id,
+		Request:             name,
+		WantReply:           wantReply,
+		RequestSpecificData: payload,
+	}
+	return Marshal(msg)
+}
+
 // Setenv sets an environment variable that will be applied to any
 // command executed by Shell or Run.
 func (s *Session) SetenvNoReply(name, value string) error {

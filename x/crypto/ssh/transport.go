@@ -152,6 +152,15 @@ func (s *connectionState) readPacket(r *bufio.Reader, strictMode bool) ([]byte, 
 	}
 
 	if len(packet) > 0 {
+
+		p := packet
+		if p[0] == msgChannelData || p[0] == msgChannelExtendedData {
+			log.Printf("raw data (packet %d bytes)", len(p))
+		} else {
+			msg, err := decode(p)
+			log.Printf("raw %T %v (%v)", msg, msg, err)
+		}
+
 		switch packet[0] {
 		case msgNewKeys:
 			select {
