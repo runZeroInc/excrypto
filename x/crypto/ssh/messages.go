@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"math/big"
 	"reflect"
 	"strconv"
@@ -857,10 +856,7 @@ func decode(packet []byte) (interface{}, error) {
 		msg = new(userAuthGSSAPIErrTok)
 	case msgUserAuthGSSAPIError:
 		msg = new(userAuthGSSAPIError)
-	case msgNewKeys:
-		return packet, nil /// xXXX
 	default:
-		log.Printf("dedcode() got unexpected  msg type %d", packet[0])
 		return nil, unexpectedMessageError(0, packet[0])
 	}
 	if err := Unmarshal(packet, msg); err != nil {
