@@ -310,7 +310,10 @@ func (m *mux) handleChannelOpen(packet []byte) error {
 
 func (m *mux) OpenChannel(chanType string, extra []byte) (Channel, <-chan *Request, error) {
 	ch, err := m.openChannel(chanType, extra)
-	_ = err
+	if err != nil {
+		return nil, nil, err
+	}
+
 	return ch, ch.incomingRequests, nil
 }
 
@@ -329,7 +332,6 @@ func (m *mux) openChannel(chanType string, extra []byte) (*channel, error) {
 	if err := m.sendMessage(open); err != nil {
 		return nil, err
 	}
-
 	if m.timeout == 0 {
 		m.timeout = time.Hour * 4
 	}
