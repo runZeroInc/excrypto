@@ -181,9 +181,10 @@ func (uac *UnauthClientConn) Authenticate(authMethod AuthMethod, extensions map[
 	return ExpAuthResult(ares), methods, err
 }
 
-func (uac *UnauthClientConn) Mux() (Conn, <-chan NewChannel, <-chan *Request) {
+func (uac *UnauthClientConn) Mux(ignoreChannelOpenReply bool) (Conn, <-chan NewChannel, <-chan *Request) {
 	uac.c.mux = newMux(uac.c.transport)
 	uac.c.mux.timeout = uac.Config.Timeout
+	uac.c.mux.ignoreChannelOpenReply = ignoreChannelOpenReply
 	return uac.c, uac.c.mux.incomingChannels, uac.c.mux.incomingRequests
 }
 

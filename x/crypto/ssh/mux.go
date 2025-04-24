@@ -99,6 +99,9 @@ type mux struct {
 	errCond *sync.Cond
 	err     error
 	timeout time.Duration
+
+	// Research
+	ignoreChannelOpenReply bool
 }
 
 // When debugging, each new chanList instantiation has a different
@@ -233,6 +236,9 @@ func (m *mux) onePacket() error {
 		return m.handleChannelOpen(packet)
 	case msgGlobalRequest, msgRequestSuccess, msgRequestFailure:
 		return m.handleGlobalPacket(packet)
+	case msgExtInfo:
+		// Research: drop these for now
+		return nil
 	case msgPing:
 		var msg pingMsg
 		if err := Unmarshal(packet, &msg); err != nil {
@@ -328,6 +334,12 @@ func (m *mux) openChannel(chanType string, extra []byte) (*channel, error) {
 	}
 	if m.timeout == 0 {
 		m.timeout = time.Hour * 4
+	}
+
+	// Research: enable skipping of the channel open reply
+	if m.ignoreChannelOpenReply {
+		ch.decided = true
+		return ch, nil
 	}
 
 	t := time.NewTimer(m.timeout)
