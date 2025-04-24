@@ -218,6 +218,11 @@ func (t *handshakeTransport) printPacket(p []byte, write bool) {
 		action = "sent"
 	}
 
+	if len(p) == 0 {
+		log.Printf("%s %s empty packet", t.id(), action)
+		return
+	}
+
 	if p[0] == msgChannelData || p[0] == msgChannelExtendedData {
 		log.Printf("%s %s data (packet %d bytes)", t.id(), action, len(p))
 	} else {
@@ -238,6 +243,13 @@ func (t *handshakeTransport) readLoop() {
 	first := true
 	for {
 		p, err := t.readOnePacket(first)
+
+		if err != nil {
+			log.Printf("%s readLoop error: %v", t.id(), err)
+		}
+
+		t.printPacket(p, false)
+
 		first = false
 		if err != nil {
 			t.readError = err
@@ -766,6 +778,7 @@ func (t *handshakeTransport) enterKeyExchange(otherInitPacket []byte) error {
 	if packet, err := t.conn.readPacket(); err != nil {
 		return err
 	} else if packet[0] != msgNewKeys {
+		log.Printf("wanted message type %d, got %d", msgNewKeys, packet[0])
 		return unexpectedMessageError(msgNewKeys, packet[0])
 	}
 

@@ -408,6 +408,15 @@ func (ch *channel) responseMessageReceived() error {
 }
 
 func (ch *channel) handlePacket(packet []byte) error {
+
+	p := packet
+	if p[0] == msgChannelData || p[0] == msgChannelExtendedData {
+		log.Printf("channel %s data (packet %d bytes)", ch.chanType, len(p))
+	} else {
+		msg, err := decode(p)
+		log.Printf("channel %s %T %v (%v)", ch.chanType, msg, msg, err)
+	}
+
 	switch packet[0] {
 	case msgChannelData, msgChannelExtendedData:
 		return ch.handleData(packet)
