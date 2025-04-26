@@ -242,6 +242,7 @@ func (uac *UnauthClientConn) BuildChannelOpen(id uint32, name string, payload []
 }
 
 func (uac *UnauthClientConn) BuildChannelRequest(id uint32, name string, payload []byte, wantReply bool) []byte {
+
 	msg := channelRequestMsg{
 		PeersID:             id,
 		Request:             name,
@@ -249,6 +250,14 @@ func (uac *UnauthClientConn) BuildChannelRequest(id uint32, name string, payload
 		RequestSpecificData: payload,
 	}
 	return Marshal(msg)
+}
+
+func (uac *UnauthClientConn) BuildChannelRequestString(id uint32, name string, payload string, wantReply bool) []byte {
+	req := execMsg{ // Struct with a single string field
+		Command: payload,
+	}
+	raw := Marshal(&req)
+	return uac.BuildChannelRequest(id, name, raw, wantReply)
 }
 
 // Setenv sets an environment variable that will be applied to any
