@@ -20,7 +20,7 @@ import (
 
 	"github.com/runZeroInc/excrypto/crypto/ssl3/rc2"
 	"github.com/runZeroInc/excrypto/crypto/x509"
-	"golang.org/x/crypto/chacha20poly1305"
+	"github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305"
 )
 
 // a keyAgreement implements the client and server side of a TLS key agreement

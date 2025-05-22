@@ -10,6 +10,7 @@ import (
 
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/encoding/asn1"
+	"github.com/runZeroInc/excrypto/internal/godebug"
 )
 
 // pkcs1PrivateKey is a structure which mirrors the PKCS #1 ASN.1 for an RSA private key.
@@ -20,10 +21,9 @@ type pkcs1PrivateKey struct {
 	D       *big.Int
 	P       *big.Int
 	Q       *big.Int
-	// We ignore these values, if present, because rsa will calculate them.
-	Dp   *big.Int `asn1:"optional"`
-	Dq   *big.Int `asn1:"optional"`
-	Qinv *big.Int `asn1:"optional"`
+	Dp      *big.Int `asn1:"optional"`
+	Dq      *big.Int `asn1:"optional"`
+	Qinv    *big.Int `asn1:"optional"`
 
 	AdditionalPrimes []pkcs1AdditionalRSAPrime `asn1:"optional,omitempty"`
 }
@@ -42,9 +42,16 @@ type pkcs1PublicKey struct {
 	E int
 }
 
+// x509rsacrt, if zero, makes ParsePKCS1PrivateKey ignore and recompute invalid
+// CRT values in the RSA private key.
+var x509rsacrt = godebug.New("x509rsacrt")
+
 // ParsePKCS1PrivateKey parses an [RSA] private key in PKCS #1, ASN.1 DER form.
 //
 // This kind of key is commonly encoded in PEM blocks of type "RSA PRIVATE KEY".
+//
+// Before Go 1.24, the CRT parameters were ignored and recomputed. To restore
+// the old behavior, use the GODEBUG=x509rsacrt=0 environment variable.
 func ParsePKCS1PrivateKey(der []byte) (*rsa.PrivateKey, error) {
 	var priv pkcs1PrivateKey
 	rest, err := asn1.Unmarshal(der, &priv)
@@ -65,7 +72,10 @@ func ParsePKCS1PrivateKey(der []byte) (*rsa.PrivateKey, error) {
 		return nil, errors.New("x509: unsupported private key version")
 	}
 
-	if priv.N.Sign() <= 0 || priv.D.Sign() <= 0 || priv.P.Sign() <= 0 || priv.Q.Sign() <= 0 {
+	if priv.N.Sign() <= 0 || priv.D.Sign() <= 0 || priv.P.Sign() <= 0 || priv.Q.Sign() <= 0 ||
+		priv.Dp != nil && priv.Dp.Sign() <= 0 ||
+		priv.Dq != nil && priv.Dq.Sign() <= 0 ||
+		priv.Qinv != nil && priv.Qinv.Sign() <= 0 {
 		return nil, errors.New("x509: private key contains zero or negative value")
 	}
 
@@ -79,6 +89,9 @@ func ParsePKCS1PrivateKey(der []byte) (*rsa.PrivateKey, error) {
 	key.Primes = make([]*big.Int, 2+len(priv.AdditionalPrimes))
 	key.Primes[0] = priv.P
 	key.Primes[1] = priv.Q
+	key.Precomputed.Dp = priv.Dp
+	key.Precomputed.Dq = priv.Dq
+	key.Precomputed.Qinv = priv.Qinv
 	for i, a := range priv.AdditionalPrimes {
 		if a.Prime.Sign() <= 0 {
 			return nil, errors.New("x509: private key contains zero or negative prime")
@@ -88,11 +101,23 @@ func ParsePKCS1PrivateKey(der []byte) (*rsa.PrivateKey, error) {
 		// them as needed.
 	}
 
-	err = key.Validate()
-	if err != nil {
+	key.Precompute()
+	if err := key.Validate(); err != nil {
+		// If x509rsacrt=0 is set, try dropping the CRT values and
+		// rerunning precomputation and key validation.
+		if x509rsacrt.Value() == "0" {
+			key.Precomputed.Dp = nil
+			key.Precomputed.Dq = nil
+			key.Precomputed.Qinv = nil
+			key.Precompute()
+			if err := key.Validate(); err == nil {
+				x509rsacrt.IncNonDefault()
+				return key, nil
+			}
+		}
+
 		return nil, err
 	}
-	key.Precompute()
 
 	return key, nil
 }
@@ -102,6 +127,10 @@ func ParsePKCS1PrivateKey(der []byte) (*rsa.PrivateKey, error) {
 // This kind of key is commonly encoded in PEM blocks of type "RSA PRIVATE KEY".
 // For a more flexible key format which is not [RSA] specific, use
 // [MarshalPKCS8PrivateKey].
+//
+// The key must have passed validation by calling [rsa.PrivateKey.Validate]
+// first. MarshalPKCS1PrivateKey calls [rsa.PrivateKey.Precompute], which may
+// modify the key if not already precomputed.
 func MarshalPKCS1PrivateKey(key *rsa.PrivateKey) []byte {
 	key.Precompute()
 

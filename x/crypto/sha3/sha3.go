@@ -5,10 +5,11 @@
 package sha3
 
 import (
-	"crypto/subtle"
 	"encoding/binary"
 	"errors"
 	"unsafe"
+
+	"github.com/runZeroInc/excrypto/crypto/subtle"
 
 	"golang.org/x/sys/cpu"
 )

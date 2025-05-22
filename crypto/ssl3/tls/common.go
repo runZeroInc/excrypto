@@ -17,7 +17,7 @@ import (
 	"sync"
 	"time"
 
-	rtls "crypto/tls"
+	rtls "github.com/runZeroInc/excrypto/crypto/tls"
 
 	"github.com/runZeroInc/excrypto/crypto"
 

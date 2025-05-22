@@ -952,6 +952,8 @@ type Certificate struct {
 	// cannot be represented by asn1.ObjectIdentifier, it will not be included in
 	// PolicyIdentifiers, but will be present in Policies, which contains all parsed
 	// policy OIDs.
+	// See CreateCertificate for context about how this field and the Policies field
+	// interact.
 	PolicyIdentifiers []asn1.ObjectIdentifier
 	ValidationLevel   CertValidationLevel
 
@@ -989,8 +991,74 @@ type Certificate struct {
 	TorServiceDescriptors []*TorServiceDescriptorHash
 
 	// Policies contains all policy identifiers included in the certificate.
+	// See CreateCertificate for context about how this field and the PolicyIdentifiers field
+	// interact.
 	// In Go 1.22, encoding/gob cannot handle and ignores this field.
 	Policies []OID
+
+	// InhibitAnyPolicy and InhibitAnyPolicyZero indicate the presence and value
+	// of the inhibitAnyPolicy extension.
+	//
+	// The value of InhibitAnyPolicy indicates the number of additional
+	// certificates in the path after this certificate that may use the
+	// anyPolicy policy OID to indicate a match with any other policy.
+	//
+	// When parsing a certificate, a positive non-zero InhibitAnyPolicy means
+	// that the field was specified, -1 means it was unset, and
+	// InhibitAnyPolicyZero being true mean that the field was explicitly set to
+	// zero. The case of InhibitAnyPolicy==0 with InhibitAnyPolicyZero==false
+	// should be treated equivalent to -1 (unset).
+	InhibitAnyPolicy int
+	// InhibitAnyPolicyZero indicates that InhibitAnyPolicy==0 should be
+	// interpreted as an actual maximum path length of zero. Otherwise, that
+	// combination is interpreted as InhibitAnyPolicy not being set.
+	InhibitAnyPolicyZero bool
+
+	// InhibitPolicyMapping and InhibitPolicyMappingZero indicate the presence
+	// and value of the inhibitPolicyMapping field of the policyConstraints
+	// extension.
+	//
+	// The value of InhibitPolicyMapping indicates the number of additional
+	// certificates in the path after this certificate that may use policy
+	// mapping.
+	//
+	// When parsing a certificate, a positive non-zero InhibitPolicyMapping
+	// means that the field was specified, -1 means it was unset, and
+	// InhibitPolicyMappingZero being true mean that the field was explicitly
+	// set to zero. The case of InhibitPolicyMapping==0 with
+	// InhibitPolicyMappingZero==false should be treated equivalent to -1
+	// (unset).
+	InhibitPolicyMapping int
+	// InhibitPolicyMappingZero indicates that InhibitPolicyMapping==0 should be
+	// interpreted as an actual maximum path length of zero. Otherwise, that
+	// combination is interpreted as InhibitAnyPolicy not being set.
+	InhibitPolicyMappingZero bool
+
+	// RequireExplicitPolicy and RequireExplicitPolicyZero indicate the presence
+	// and value of the requireExplicitPolicy field of the policyConstraints
+	// extension.
+	//
+	// The value of RequireExplicitPolicy indicates the number of additional
+	// certificates in the path after this certificate before an explicit policy
+	// is required for the rest of the path. When an explicit policy is required,
+	// each subsequent certificate in the path must contain a required policy OID,
+	// or a policy OID which has been declared as equivalent through the policy
+	// mapping extension.
+	//
+	// When parsing a certificate, a positive non-zero RequireExplicitPolicy
+	// means that the field was specified, -1 means it was unset, and
+	// RequireExplicitPolicyZero being true mean that the field was explicitly
+	// set to zero. The case of RequireExplicitPolicy==0 with
+	// RequireExplicitPolicyZero==false should be treated equivalent to -1
+	// (unset).
+	RequireExplicitPolicy int
+	// RequireExplicitPolicyZero indicates that RequireExplicitPolicy==0 should be
+	// interpreted as an actual maximum path length of zero. Otherwise, that
+	// combination is interpreted as InhibitAnyPolicy not being set.
+	RequireExplicitPolicyZero bool
+
+	// PolicyMappings contains a list of policy mappings included in the certificate.
+	PolicyMappings []PolicyMapping
 
 	// PermissiveErrors is a list of errors encountered that were ignored
 	PermissiveErrors []error
@@ -1049,24 +1117,26 @@ func (c *Certificate) GetParsedSubjectCommonName(invalidateCache bool) ParsedDom
 	return *c.parsedCommonName
 }
 
+// PolicyMapping represents a policy mapping entry in the policyMappings extension.
+type PolicyMapping struct {
+	// IssuerDomainPolicy contains a policy OID the issuing certificate considers
+	// equivalent to SubjectDomainPolicy in the subject certificate.
+	IssuerDomainPolicy OID
+	// SubjectDomainPolicy contains a OID the issuing certificate considers
+	// equivalent to IssuerDomainPolicy in the subject certificate.
+	SubjectDomainPolicy OID
+}
+
 // ErrUnsupportedAlgorithm results from attempting to perform an operation that
 // involves algorithms that are not currently implemented.
 var ErrUnsupportedAlgorithm = errors.New("x509: cannot verify signature: algorithm unimplemented")
 
 // An InsecureAlgorithmError indicates that the [SignatureAlgorithm] used to
 // generate the signature is not secure, and the signature has been rejected.
-//
-// To temporarily restore support for SHA-1 signatures, include the value
-// "x509sha1=1" in the GODEBUG environment variable. Note that this option will
-// be removed in a future release.
 type InsecureAlgorithmError SignatureAlgorithm
 
 func (e InsecureAlgorithmError) Error() string {
-	var override string
-	if SignatureAlgorithm(e) == SHA1WithRSA || SignatureAlgorithm(e) == ECDSAWithSHA1 {
-		override = " (temporarily override with GODEBUG=x509sha1=1)"
-	}
-	return fmt.Sprintf("x509: cannot verify signature: insecure algorithm %v", SignatureAlgorithm(e)) + override
+	return fmt.Sprintf("x509: cannot verify signature: insecure algorithm %v", SignatureAlgorithm(e))
 }
 
 // ConstraintViolationError results when a requested usage is not permitted by
@@ -1162,7 +1232,7 @@ func checkSignature(algo SignatureAlgorithm, signed, signature []byte, publicKey
 	switch hashType {
 	case crypto.Hash(0):
 		if pubKeyAlgo != Ed25519 {
-			return fmt.Errorf("pubkey is not Ed25519 and has zero hash: %d: %w", pubKeyAlgo, ErrUnsupportedAlgorithm)
+			return ErrUnsupportedAlgorithm
 		}
 	// zcrypto
 	/*
@@ -1180,7 +1250,7 @@ func checkSignature(algo SignatureAlgorithm, signed, signature []byte, publicKey
 	*/
 	default:
 		if !hashType.Available() {
-			return fmt.Errorf("hashtype is not available: %s: %w", hashType.String(), ErrUnsupportedAlgorithm)
+			return ErrUnsupportedAlgorithm
 		}
 		h := hashType.New()
 		h.Write(signed)
@@ -1619,7 +1689,7 @@ func buildCertExtensions(template *Certificate, subjectIsEmpty bool, authorityKe
 	}
 
 	// zcrypto
-	// usePolicies := x509usepolicies.Value() == "1"
+	// 	usePolicies := x509usepolicies.Value() != "0"
 	usePolicies := false
 
 	if ((!usePolicies && len(template.PolicyIdentifiers) > 0) || (usePolicies && len(template.Policies) > 0)) &&
@@ -1817,7 +1887,7 @@ func marshalCertificatePolicies(policies []OID, policyIdentifiers []asn1.ObjectI
 	b := cryptobyte.NewBuilder(make([]byte, 0, 128))
 	b.AddASN1(cryptobyte_asn1.SEQUENCE, func(child *cryptobyte.Builder) {
 		// zcrypto
-		if x509usepolicies.Value() == "1" && false { // Disable for zcrypto
+		if x509usepolicies.Value() != "0" && false { // Disable for zcrypto
 			x509usepolicies.IncNonDefault()
 			for _, v := range policies {
 				child.AddASN1(cryptobyte_asn1.SEQUENCE, func(child *cryptobyte.Builder) {
@@ -1929,13 +1999,7 @@ func signingParamsForKey(key crypto.Signer, sigAlgo SignatureAlgorithm) (Signatu
 }
 
 func signTBS(tbs []byte, key crypto.Signer, sigAlg SignatureAlgorithm, rand io.Reader) ([]byte, error) {
-	signed := tbs
 	hashFunc := sigAlg.hashFunc()
-	if hashFunc != 0 {
-		h := hashFunc.New()
-		h.Write(signed)
-		signed = h.Sum(nil)
-	}
 
 	var signerOpts crypto.SignerOpts = hashFunc
 	if sigAlg.isRSAPSS() {
@@ -1945,7 +2009,7 @@ func signTBS(tbs []byte, key crypto.Signer, sigAlg SignatureAlgorithm, rand io.R
 		}
 	}
 
-	signature, err := key.Sign(rand, signed, signerOpts)
+	signature, err := crypto.SignMessage(key, rand, tbs, signerOpts)
 	if err != nil {
 		return nil, err
 	}
@@ -2007,7 +2071,7 @@ var emptyASN1Subject = []byte{0x30, 0}
 //
 // The currently supported key types are *rsa.PublicKey, *ecdsa.PublicKey and
 // ed25519.PublicKey. pub must be a supported key type, and priv must be a
-// crypto.Signer with a supported public key.
+// crypto.Signer or crypto.MessageSigner with a supported public key.
 //
 // The AuthorityKeyId will be taken from the SubjectKeyId of parent, if any,
 // unless the resulting certificate is self-signed. Otherwise the value from
@@ -2016,10 +2080,13 @@ var emptyASN1Subject = []byte{0x30, 0}
 // If SubjectKeyId from template is empty and the template is a CA, SubjectKeyId
 // will be generated from the hash of the public key.
 //
-// The PolicyIdentifier and Policies fields are both used to marshal certificate
-// policy OIDs. By default, only the PolicyIdentifier is marshaled, but if the
-// GODEBUG setting "x509usepolicies" has the value "1", the Policies field will
-// be marshaled instead of the PolicyIdentifier field. The Policies field can
+// If template.SerialNumber is nil, a serial number will be generated which
+// conforms to RFC 5280, Section 4.1.2.2 using entropy from rand.
+//
+// The PolicyIdentifier and Policies fields can both be used to marshal certificate
+// policy OIDs. By default, only the Policies is marshaled, but if the
+// GODEBUG setting "x509usepolicies" has the value "0", the PolicyIdentifiers field will
+// be marshaled instead of the Policies field. This changed in Go 1.24. The Policies field can
 // be used to marshal policy OIDs which have components that are larger than 31
 // bits.
 func CreateCertificate(rand io.Reader, template, parent *Certificate, pub, priv any) ([]byte, error) {
@@ -2027,9 +2094,21 @@ func CreateCertificate(rand io.Reader, template, parent *Certificate, pub, priv 
 	if !ok {
 		return nil, errors.New("x509: certificate private key does not implement crypto.Signer")
 	}
-
-	if template.SerialNumber == nil {
-		return nil, errors.New("x509: no SerialNumber given")
+	serialNumber := template.SerialNumber
+	if serialNumber == nil {
+		// Generate a serial number following RFC 5280, Section 4.1.2.2 if one
+		// is not provided. The serial number must be positive and at most 20
+		// octets *when encoded*.
+		serialBytes := make([]byte, 20)
+		if _, err := io.ReadFull(rand, serialBytes); err != nil {
+			return nil, err
+		}
+		// If the top bit is set, the serial will be padded with a leading zero
+		// byte during encoding, so that it's not interpreted as a negative
+		// integer. This padding would make the serial 21 octets so we clear the
+		// top bit to ensure the correct length in all cases.
+		serialBytes[0] &= 0b0111_1111
+		serialNumber = new(big.Int).SetBytes(serialBytes)
 	}
 
 	// zcrypto
@@ -2104,7 +2183,7 @@ func CreateCertificate(rand io.Reader, template, parent *Certificate, pub, priv 
 	encodedPublicKey := asn1.BitString{BitLength: len(publicKeyBytes) * 8, Bytes: publicKeyBytes}
 	c := tbsCertificate{
 		Version:            2,
-		SerialNumber:       template.SerialNumber,
+		SerialNumber:       serialNumber,
 		SignatureAlgorithm: algorithmIdentifier,
 		Issuer:             asn1.RawValue{FullBytes: asn1Issuer},
 		Validity:           validity{template.NotBefore.UTC(), template.NotAfter.UTC()},
@@ -2379,10 +2458,10 @@ func parseCSRExtensions(rawAttributes []asn1.RawValue) ([]pkix.Extension, error)
 //   - Attributes (deprecated)
 //
 // priv is the private key to sign the CSR with, and the corresponding public
-// key will be included in the CSR. It must implement crypto.Signer and its
-// Public() method must return a *rsa.PublicKey or a *ecdsa.PublicKey or a
-// ed25519.PublicKey. (A *rsa.PrivateKey, *ecdsa.PrivateKey or
-// ed25519.PrivateKey satisfies this.)
+// key will be included in the CSR. It must implement crypto.Signer or
+// crypto.MessageSigner and its Public() method must return a *rsa.PublicKey or
+// a *ecdsa.PublicKey or a ed25519.PublicKey. (A *rsa.PrivateKey,
+// *ecdsa.PrivateKey or ed25519.PrivateKey satisfies this.)
 //
 // The returned slice is the certificate request in DER encoding.
 func CreateCertificateRequest(rand io.Reader, template *CertificateRequest, priv any) (csr []byte, err error) {
@@ -2724,8 +2803,9 @@ type tbsCertificateList struct {
 // CreateRevocationList creates a new X.509 v2 [Certificate] Revocation List,
 // according to RFC 5280, based on template.
 //
-// The CRL is signed by priv which should be the private key associated with
-// the public key in the issuer certificate.
+// The CRL is signed by priv which should be a crypto.Signer or
+// crypto.MessageSigner associated with the public key in the issuer
+// certificate.
 //
 // The issuer may not be nil, and the crlSign bit must be set in [KeyUsage] in
 // order to use it as a CRL issuer.

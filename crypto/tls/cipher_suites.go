@@ -16,27 +16,28 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/des"
 	"github.com/runZeroInc/excrypto/crypto/hmac"
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
+	fipsaes "github.com/runZeroInc/excrypto/crypto/internal/fips140/aes"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140/aes/gcm"
 	"github.com/runZeroInc/excrypto/crypto/rc4"
 	"github.com/runZeroInc/excrypto/crypto/sha1"
 	"github.com/runZeroInc/excrypto/crypto/sha256"
 	"github.com/runZeroInc/excrypto/internal/cpu"
-
 	"github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305"
 )
 
 // CipherSuite is a TLS cipher suite. Note that most functions in this package
 // accept and expose cipher suite IDs instead of this type.
 type CipherSuite struct {
-	ID   uint16 `json:"id"`
-	Name string `json:"name"`
+	ID   uint16
+	Name string
 
 	// Supported versions is the list of TLS protocol versions that can
 	// negotiate this cipher suite.
-	SupportedVersions []uint16 `json:"supported_versions"`
+	SupportedVersions []uint16
 
 	// Insecure is true if the cipher suite has known security issues
 	// due to its primitives, design, or implementation.
-	Insecure bool `json:"insecure"`
+	Insecure bool
 }
 
 var (
@@ -77,8 +78,8 @@ func CipherSuites() []*CipherSuite {
 // Most applications should not use the cipher suites in this list, and should
 // only use those returned by [CipherSuites].
 func InsecureCipherSuites() []*CipherSuite {
-	// This list includes RC4, CBC_SHA256, and 3DES cipher suites. See
-	// cipherSuitesPreferenceOrder for details.
+	// This list includes legacy RSA kex, RC4, CBC_SHA256, and 3DES cipher
+	// suites. See cipherSuitesPreferenceOrder for details.
 	return []*CipherSuite{
 		{TLS_RSA_WITH_RC4_128_SHA, "TLS_RSA_WITH_RC4_128_SHA", supportedUpToTLS12, true},
 		{TLS_RSA_WITH_3DES_EDE_CBC_SHA, "TLS_RSA_WITH_3DES_EDE_CBC_SHA", supportedUpToTLS12, true},
@@ -234,7 +235,7 @@ var cipherSuitesTLS13 = []*cipherSuiteTLS13{ // TODO: replace with a map.
 //   - Anything else comes before CBC_SHA256
 //
 //     SHA-256 variants of the CBC ciphersuites don't implement any Lucky13
-//     countermeasures. See http://www.isg.rhul.ac.uk/tls/Lucky13.html and
+//     countermeasures. See https://www.isg.rhul.ac.uk/tls/Lucky13.html and
 //     https://www.imperialviolet.org/2013/02/04/luckythirteen.html.
 //
 //   - Anything else comes before 3DES
@@ -366,15 +367,13 @@ var tdesCiphers = map[uint16]bool{
 }
 
 var (
-	hasGCMAsmAMD64 = cpu.X86.HasAES && cpu.X86.HasPCLMULQDQ
+	// Keep in sync with crypto/internal/fips140/aes/gcm.supportsAESGCM.
+	hasGCMAsmAMD64 = cpu.X86.HasAES && cpu.X86.HasPCLMULQDQ && cpu.X86.HasSSE41 && cpu.X86.HasSSSE3
 	hasGCMAsmARM64 = cpu.ARM64.HasAES && cpu.ARM64.HasPMULL
-	// Keep in sync with crypto/aes/cipher_s390x.go.
-	hasGCMAsmS390X = cpu.S390X.HasAES && cpu.S390X.HasAESCBC && cpu.S390X.HasAESCTR &&
-		(cpu.S390X.HasGHASH || cpu.S390X.HasAESGCM)
+	hasGCMAsmS390X = cpu.S390X.HasAES && cpu.S390X.HasAESCTR && cpu.S390X.HasGHASH
+	hasGCMAsmPPC64 = runtime.GOARCH == "ppc64" || runtime.GOARCH == "ppc64le"
 
-	hasAESGCMHardwareSupport = runtime.GOARCH == "amd64" && hasGCMAsmAMD64 ||
-		runtime.GOARCH == "arm64" && hasGCMAsmARM64 ||
-		runtime.GOARCH == "s390x" && hasGCMAsmS390X
+	hasAESGCMHardwareSupport = hasGCMAsmAMD64 || hasGCMAsmARM64 || hasGCMAsmS390X || hasGCMAsmPPC64
 )
 
 var aesgcmCiphers = map[uint16]bool{
@@ -388,9 +387,13 @@ var aesgcmCiphers = map[uint16]bool{
 	TLS_AES_256_GCM_SHA384: true,
 }
 
-// aesgcmPreferred returns whether the first known cipher in the preference list
-// is an AES-GCM cipher, implying the peer has hardware support for it.
-func aesgcmPreferred(ciphers []uint16) bool {
+// isAESGCMPreferred returns whether we have hardware support for AES-GCM, and the
+// first known cipher in the peer's preference list is an AES-GCM cipher,
+// implying the peer also has hardware support for it.
+func isAESGCMPreferred(ciphers []uint16) bool {
+	if !hasAESGCMHardwareSupport {
+		return false
+	}
 	for _, cID := range ciphers {
 		if c := cipherSuiteByID(cID); c != nil {
 			return aesgcmCiphers[cID]
@@ -524,7 +527,7 @@ func aeadAESGCM(key, noncePrefix []byte) aead {
 		aead, err = boring.NewGCMTLS(aes)
 	} else {
 		boring.Unreachable()
-		aead, err = cipher.NewGCM(aes)
+		aead, err = gcm.NewGCMForTLS12(aes.(*fipsaes.Block))
 	}
 	if err != nil {
 		panic(err)
@@ -558,7 +561,7 @@ func aeadAESGCMTLS13(key, nonceMask []byte) aead {
 		aead, err = boring.NewGCMTLS13(aes)
 	} else {
 		boring.Unreachable()
-		aead, err = cipher.NewGCM(aes)
+		aead, err = gcm.NewGCMForTLS13(aes.(*fipsaes.Block))
 	}
 	if err != nil {
 		panic(err)

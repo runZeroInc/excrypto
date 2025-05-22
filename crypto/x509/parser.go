@@ -61,7 +61,21 @@ func isPrintable(b byte) bool {
 func parseASN1String(tag cryptobyte_asn1.Tag, value []byte) (string, error) {
 	switch tag {
 	case cryptobyte_asn1.T61String:
-		return string(value), nil
+		// T.61 is a defunct ITU 8-bit character encoding which preceded Unicode.
+		// T.61 uses a code page layout that _almost_ exactly maps to the code
+		// page layout of the ISO 8859-1 (Latin-1) character encoding, with the
+		// exception that a number of characters in Latin-1 are not present
+		// in T.61.
+		//
+		// Instead of mapping which characters are present in Latin-1 but not T.61,
+		// we just treat these strings as being encoded using Latin-1. This matches
+		// what most of the world does, including BoringSSL.
+		buf := make([]byte, 0, len(value))
+		for _, v := range value {
+			// All the 1-byte UTF-8 runes map 1-1 with Latin-1.
+			buf = utf8.AppendRune(buf, rune(v))
+		}
+		return string(buf), nil
 	case cryptobyte_asn1.PrintableString:
 		for _, b := range value {
 			if !isPrintable(b) {
@@ -75,6 +89,14 @@ func parseASN1String(tag cryptobyte_asn1.Tag, value []byte) (string, error) {
 		}
 		return string(value), nil
 	case cryptobyte_asn1.Tag(asn1.TagBMPString):
+		// BMPString uses the defunct UCS-2 16-bit character encoding, which
+		// covers the Basic Multilingual Plane (BMP). UTF-16 was an extension of
+		// UCS-2, containing all of the same code points, but also including
+		// multi-code point characters (by using surrogate code points). We can
+		// treat a UCS-2 encoded string as a UTF-16 encoded string, as long as
+		// we reject out the UTF-16 specific code points. This matches the
+		// BoringSSL behavior.
+
 		if len(value)%2 != 0 {
 			return "", errors.New("invalid BMPString")
 		}
@@ -86,7 +108,16 @@ func parseASN1String(tag cryptobyte_asn1.Tag, value []byte) (string, error) {
 
 		s := make([]uint16, 0, len(value)/2)
 		for len(value) > 0 {
-			s = append(s, uint16(value[0])<<8+uint16(value[1]))
+			point := uint16(value[0])<<8 + uint16(value[1])
+			// Reject UTF-16 code points that are permanently reserved
+			// noncharacters (0xfffe, 0xffff, and 0xfdd0-0xfdef) and surrogates
+			// (0xd800-0xdfff).
+			if point == 0xfffe || point == 0xffff ||
+				(point >= 0xfdd0 && point <= 0xfdef) ||
+				(point >= 0xd800 && point <= 0xdfff) {
+				return "", errors.New("invalid BMPString")
+			}
+			s = append(s, point)
 			value = value[2:]
 		}
 
@@ -450,6 +481,8 @@ func parseExtKeyUsageExtension(der cryptobyte.String) ([]ExtKeyUsage, []asn1.Obj
 	return extKeyUsages, unknownUsages, nil
 }
 
+// parseCertificatePoliciesExtension parses the certificate policies extension.
+// excrypto: This intentionally differs from stdlib which uses ReadASN1 vs Unmarshal and is more stringent on allowed policies.
 func parseCertificatePoliciesExtension(out *Certificate, der cryptobyte.String) error {
 	var err error
 	// RFC 5280 4.2.1.4: Certificate Policies
@@ -928,6 +961,36 @@ func processExtensions(out *Certificate) error {
 						out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
 					}
 				}
+			case 36:
+				// excrypto: enable permissive parsing
+				val := cryptobyte.String(e.Value)
+				if !val.ReadASN1(&val, cryptobyte_asn1.SEQUENCE) {
+					return errors.New("x509: invalid policy constraints extension")
+				}
+				if val.PeekASN1Tag(cryptobyte_asn1.Tag(0).ContextSpecific()) {
+					var v int64
+					if !val.ReadASN1Int64WithTag(&v, cryptobyte_asn1.Tag(0).ContextSpecific()) {
+						return errors.New("x509: invalid policy constraints extension")
+					}
+					out.RequireExplicitPolicy = int(v)
+					// Check for overflow.
+					if int64(out.RequireExplicitPolicy) != v {
+						return errors.New("x509: policy constraints requireExplicitPolicy field overflows int")
+					}
+					out.RequireExplicitPolicyZero = out.RequireExplicitPolicy == 0
+				}
+				if val.PeekASN1Tag(cryptobyte_asn1.Tag(1).ContextSpecific()) {
+					var v int64
+					if !val.ReadASN1Int64WithTag(&v, cryptobyte_asn1.Tag(1).ContextSpecific()) {
+						return errors.New("x509: invalid policy constraints extension")
+					}
+					out.InhibitPolicyMapping = int(v)
+					// Check for overflow.
+					if int64(out.InhibitPolicyMapping) != v {
+						return errors.New("x509: policy constraints inhibitPolicyMapping field overflows int")
+					}
+					out.InhibitPolicyMappingZero = out.InhibitPolicyMapping == 0
+				}
 			case 37:
 				out.ExtKeyUsage, out.UnknownExtKeyUsage, err = parseExtKeyUsageExtension(e.Value)
 				if err != nil {
@@ -958,6 +1021,28 @@ func processExtensions(out *Certificate) error {
 						out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
 					}
 				}
+			case 33:
+				// excrypto: enable permissive parsing
+				val := cryptobyte.String(e.Value)
+				if !val.ReadASN1(&val, cryptobyte_asn1.SEQUENCE) {
+					return errors.New("x509: invalid policy mappings extension")
+				}
+				for !val.Empty() {
+					var s cryptobyte.String
+					var issuer, subject cryptobyte.String
+					if !val.ReadASN1(&s, cryptobyte_asn1.SEQUENCE) ||
+						!s.ReadASN1(&issuer, cryptobyte_asn1.OBJECT_IDENTIFIER) ||
+						!s.ReadASN1(&subject, cryptobyte_asn1.OBJECT_IDENTIFIER) {
+						return errors.New("x509: invalid policy mappings extension")
+					}
+					out.PolicyMappings = append(out.PolicyMappings, PolicyMapping{OID{issuer}, OID{subject}})
+				}
+			case 54:
+				val := cryptobyte.String(e.Value)
+				if !val.ReadASN1Integer(&out.InhibitAnyPolicy) {
+					return errors.New("x509: invalid inhibit any policy extension")
+				}
+				out.InhibitAnyPolicyZero = out.InhibitAnyPolicy == 0
 			default:
 				// Unknown extensions are recorded if critical.
 				unhandled = true

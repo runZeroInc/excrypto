@@ -6,7 +6,7 @@ package cpu_test
 
 import (
 	"errors"
-	. "github.com/runZeroInc/excrypto/internal/cpu"
+	. "internal/cpu"
 	"os"
 	"regexp"
 	"testing"

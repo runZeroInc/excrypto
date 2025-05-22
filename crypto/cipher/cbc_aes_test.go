@@ -12,9 +12,11 @@ package cipher_test
 
 import (
 	"bytes"
+	"testing"
+
 	"github.com/runZeroInc/excrypto/crypto/aes"
 	"github.com/runZeroInc/excrypto/crypto/cipher"
-	"testing"
+	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
 )
 
 var cbcAESTests = []struct {
@@ -64,6 +66,10 @@ var cbcAESTests = []struct {
 }
 
 func TestCBCEncrypterAES(t *testing.T) {
+	cryptotest.TestAllImplementations(t, "aes", testCBCEncrypterAES)
+}
+
+func testCBCEncrypterAES(t *testing.T) {
 	for _, test := range cbcAESTests {
 		c, err := aes.NewCipher(test.key)
 		if err != nil {
@@ -84,6 +90,10 @@ func TestCBCEncrypterAES(t *testing.T) {
 }
 
 func TestCBCDecrypterAES(t *testing.T) {
+	cryptotest.TestAllImplementations(t, "aes", testCBCDecrypterAES)
+}
+
+func testCBCDecrypterAES(t *testing.T) {
 	for _, test := range cbcAESTests {
 		c, err := aes.NewCipher(test.key)
 		if err != nil {

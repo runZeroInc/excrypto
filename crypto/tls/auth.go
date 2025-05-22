@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"hash"
 	"io"
+	"slices"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
@@ -168,9 +169,6 @@ var rsaSignatureSchemes = []struct {
 // signatureSchemesForCertificate returns the list of supported SignatureSchemes
 // for a given certificate, based on the public key and the protocol version,
 // and optionally filtered by its explicit SupportedSignatureAlgorithms.
-//
-// This function must be kept in sync with supportedSignatureAlgorithms.
-// FIPS filtering is applied in the caller, selectSignatureScheme.
 func signatureSchemesForCertificate(version uint16, cert *Certificate) []SignatureScheme {
 	priv, ok := cert.PrivateKey.(crypto.Signer)
 	if !ok {
@@ -217,14 +215,18 @@ func signatureSchemesForCertificate(version uint16, cert *Certificate) []Signatu
 	}
 
 	if cert.SupportedSignatureAlgorithms != nil {
-		var filteredSigAlgs []SignatureScheme
-		for _, sigAlg := range sigAlgs {
-			if isSupportedSignatureAlgorithm(sigAlg, cert.SupportedSignatureAlgorithms) {
-				filteredSigAlgs = append(filteredSigAlgs, sigAlg)
-			}
-		}
-		return filteredSigAlgs
+		sigAlgs = slices.DeleteFunc(sigAlgs, func(sigAlg SignatureScheme) bool {
+			return !isSupportedSignatureAlgorithm(sigAlg, cert.SupportedSignatureAlgorithms)
+		})
 	}
+
+	// Filter out any unsupported signature algorithms, for example due to
+	// FIPS 140-3 policy, or any downstream changes to defaults.go.
+	supportedAlgs := supportedSignatureAlgorithms()
+	sigAlgs = slices.DeleteFunc(sigAlgs, func(sigAlg SignatureScheme) bool {
+		return !isSupportedSignatureAlgorithm(sigAlg, supportedAlgs)
+	})
+
 	return sigAlgs
 }
 
@@ -244,9 +246,6 @@ func selectSignatureScheme(vers uint16, c *Certificate, peerAlgs []SignatureSche
 	// Pick signature scheme in the peer's preference order, as our
 	// preference order is not configurable.
 	for _, preferredAlg := range peerAlgs {
-		if needFIPS() && !isSupportedSignatureAlgorithm(preferredAlg, defaultSupportedSignatureAlgorithmsFIPS) {
-			continue
-		}
 		if isSupportedSignatureAlgorithm(preferredAlg, supportedAlgs) {
 			return preferredAlg, nil
 		}

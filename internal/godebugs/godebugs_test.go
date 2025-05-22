@@ -5,8 +5,6 @@
 package godebugs_test
 
 import (
-	"github.com/runZeroInc/excrypto/internal/godebugs"
-	"github.com/runZeroInc/excrypto/internal/testenv"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -14,6 +12,9 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/internal/godebugs"
+	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
 func TestAll(t *testing.T) {
@@ -60,7 +61,7 @@ var incNonDefaultRE = regexp.MustCompile(`([\pL\p{Nd}_]+)\.IncNonDefault\(\)`)
 func incNonDefaults(t *testing.T) map[string]bool {
 	// Build list of all files importing internal/godebug.
 	// Tried a more sophisticated search in go list looking for
-	// imports containing "github.com/runZeroInc/excrypto/internal/godebug", but that turned
+	// imports containing "internal/godebug", but that turned
 	// up a bug in go list instead. #66218
 	out, err := exec.Command("go", "list", "-f={{.Dir}}", "std", "cmd").CombinedOutput()
 	if err != nil {

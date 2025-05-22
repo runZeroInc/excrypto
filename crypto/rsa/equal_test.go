@@ -7,15 +7,17 @@ package rsa_test
 import (
 	"testing"
 
-	"crypto/rand"
-
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/x509"
+	"github.com/runZeroInc/excrypto/internal/godebug"
 )
 
 func TestEqual(t *testing.T) {
-	private, _ := rsa.GenerateKey(rand.Reader, 512)
+	godebug.SetEnv("GODEBUG", "rsa1024min=0")
+	defer godebug.ResetEnv()
+
+	private := test512Key
 	public := &private.PublicKey
 
 	if !public.Equal(public) {
@@ -43,7 +45,7 @@ func TestEqual(t *testing.T) {
 		t.Errorf("private key is not equal to itself after decoding: %v", private)
 	}
 
-	other, _ := rsa.GenerateKey(rand.Reader, 512)
+	other := test512KeyTwo
 	if public.Equal(other.Public()) {
 		t.Errorf("different public keys are Equal")
 	}

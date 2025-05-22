@@ -14,6 +14,7 @@ import (
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140only"
 	"github.com/runZeroInc/excrypto/internal/byteorder"
 )
 
@@ -103,7 +104,7 @@ func (d *digest) Reset() {
 	d.len = 0
 }
 
-// New512_224 returns a new [hash.Hash] computing the SHA1 checksum. The Hash
+// New returns a new [hash.Hash] computing the SHA1 checksum. The Hash
 // also implements [encoding.BinaryMarshaler], [encoding.BinaryAppender] and
 // [encoding.BinaryUnmarshaler] to marshal and unmarshal the internal
 // state of the hash.
@@ -121,6 +122,9 @@ func (d *digest) Size() int { return Size }
 func (d *digest) BlockSize() int { return BlockSize }
 
 func (d *digest) Write(p []byte) (nn int, err error) {
+	if fips140only.Enabled {
+		return 0, errors.New("crypto/sha1: use of SHA-1 is not allowed in FIPS 140-only mode")
+	}
 	boring.Unreachable()
 	nn = len(p)
 	d.len += uint64(nn)
@@ -153,6 +157,10 @@ func (d *digest) Sum(in []byte) []byte {
 }
 
 func (d *digest) checkSum() [Size]byte {
+	if fips140only.Enabled {
+		panic("crypto/sha1: use of SHA-1 is not allowed in FIPS 140-only mode")
+	}
+
 	len := d.len
 	// Padding.  Add a 1 bit and 0 bits until 56 bytes mod 64.
 	var tmp [64 + 8]byte // padding + length buffer
@@ -193,6 +201,10 @@ func (d *digest) ConstantTimeSum(in []byte) []byte {
 }
 
 func (d *digest) constSum() [Size]byte {
+	if fips140only.Enabled {
+		panic("crypto/sha1: use of SHA-1 is not allowed in FIPS 140-only mode")
+	}
+
 	var length [8]byte
 	l := d.len << 3
 	for i := uint(0); i < 8; i++ {
@@ -257,6 +269,9 @@ func (d *digest) constSum() [Size]byte {
 func Sum(data []byte) [Size]byte {
 	if boring.Enabled {
 		return boring.SHA1(data)
+	}
+	if fips140only.Enabled {
+		panic("crypto/sha1: use of SHA-1 is not allowed in FIPS 140-only mode")
 	}
 	var d digest
 	d.Reset()

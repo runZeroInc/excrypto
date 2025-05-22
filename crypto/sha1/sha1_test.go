@@ -8,12 +8,11 @@ package sha1
 
 import (
 	"bytes"
+	"crypto/rand"
 	"fmt"
 	"hash"
 	"io"
 	"testing"
-
-	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
@@ -233,9 +232,8 @@ func TestLargeHashes(t *testing.T) {
 }
 
 func TestAllocations(t *testing.T) {
-	if boring.Enabled {
-		t.Skip("BoringCrypto doesn't allocate the same way as stdlib")
-	}
+	// excrypto
+	// cryptotest.SkipTestAllocations(t)
 	in := []byte("hello, world!")
 	out := make([]byte, 0, Size)
 	h := New()
@@ -251,6 +249,12 @@ func TestAllocations(t *testing.T) {
 
 func TestSHA1Hash(t *testing.T) {
 	cryptotest.TestHash(t, New)
+}
+
+func TestExtraMethods(t *testing.T) {
+	h := New()
+	cryptotest.NoExtraMethods(t, &h, "ConstantTimeSum",
+		"MarshalBinary", "UnmarshalBinary", "AppendBinary")
 }
 
 var bench = New()

@@ -496,10 +496,11 @@ func (m *clientHandshakeState) MakeLog() *KeyMaterial {
 func (m *clientHandshakeStateTLS13) MakeLog() *KeyMaterial {
 	keymat := new(KeyMaterial)
 
+	rawSecret := m.masterSecret.RawSecret()
 	keymat.MasterSecret = new(MasterSecret)
-	keymat.MasterSecret.Length = len(m.masterSecret)
-	keymat.MasterSecret.Value = make([]byte, len(m.masterSecret))
-	copy(keymat.MasterSecret.Value, m.masterSecret)
+	keymat.MasterSecret.Length = len(rawSecret)
+	keymat.MasterSecret.Value = make([]byte, len(rawSecret))
+	copy(keymat.MasterSecret.Value, rawSecret)
 
 	return keymat
 }

@@ -11,7 +11,7 @@
 //
 // Deprecated: any new system should use AES (from crypto/aes, if necessary in
 // an AEAD mode like crypto/cipher.NewGCM) or XChaCha20-Poly1305 (from
-// github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305).
+// github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305)."
 package xtea
 
 // For details, see http://www.cix.co.uk/~klockstone/xtea.pdf
