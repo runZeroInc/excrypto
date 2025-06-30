@@ -4,6 +4,10 @@
 
 package byteorder
 
+import (
+	"github.com/runZeroInc/excrypto/internal/byteorder"
+)
+
 func LEUint16(b []byte) uint16 {
 	return byteorder.LEUint16(b)
 }

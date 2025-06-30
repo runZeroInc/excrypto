@@ -890,11 +890,11 @@ func (c *Certificate) Verify(opts VerifyOptions) (current, expired, never [][]*C
 		if eku == ExtKeyUsageAny {
 			// If any key usage is acceptable, no need to check the chain for
 			// key usages.
-			return candidateChains, nil
+			return candidateChains, nil, nil, nil
 		}
 	}
 
-	chains = make([][]*Certificate, 0, len(candidateChains))
+	chains := make([][]*Certificate, 0, len(candidateChains))
 	var incompatibleKeyUsageChains, invalidPoliciesChains int
 	for _, candidate := range candidateChains {
 		if !checkChainForKeyUsage(candidate, opts.KeyUsages) {
@@ -911,7 +911,7 @@ func (c *Certificate) Verify(opts VerifyOptions) (current, expired, never [][]*C
 		var details []string
 		if incompatibleKeyUsageChains > 0 {
 			if invalidPoliciesChains == 0 {
-				return nil, CertificateInvalidError{c, IncompatibleUsage, ""}
+				return nil, nil, nil, CertificateInvalidError{c, IncompatibleUsage, ""}
 			}
 			details = append(details, fmt.Sprintf("%d chains with incompatible key usage", incompatibleKeyUsageChains))
 		}
@@ -919,10 +919,11 @@ func (c *Certificate) Verify(opts VerifyOptions) (current, expired, never [][]*C
 			details = append(details, fmt.Sprintf("%d chains with invalid policies", invalidPoliciesChains))
 		}
 		err = CertificateInvalidError{c, NoValidChains, strings.Join(details, ", ")}
-		return nil, err
+		return nil, nil, nil, err
 	}
 
-	return chains, nil
+	// TODO: Split the chains into current, expired, and never.
+	return chains, nil, nil, nil
 }
 
 func appendToFreshChain(chain []*Certificate, cert *Certificate) []*Certificate {

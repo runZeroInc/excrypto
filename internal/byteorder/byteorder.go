@@ -10,11 +10,17 @@ func LeUint16(b []byte) uint16 {
 	_ = b[1] // bounds check hint to compiler; see golang.org/issue/14808
 	return uint16(b[0]) | uint16(b[1])<<8
 }
+func LEUint16(b []byte) uint16 {
+	return LeUint16(b)
+}
 
 func LePutUint16(b []byte, v uint16) {
 	_ = b[1] // early bounds check to guarantee safety of writes below
 	b[0] = byte(v)
 	b[1] = byte(v >> 8)
+}
+func LEPutUint16(b []byte, v uint16) {
+	LePutUint16(b, v)
 }
 
 func LeAppendUint16(b []byte, v uint16) []byte {
@@ -23,10 +29,16 @@ func LeAppendUint16(b []byte, v uint16) []byte {
 		byte(v>>8),
 	)
 }
+func LEAppendPutUint16(b []byte, v uint16) []byte {
+	return LeAppendUint16(b, v)
+}
 
 func LeUint32(b []byte) uint32 {
 	_ = b[3] // bounds check hint to compiler; see golang.org/issue/14808
 	return uint32(b[0]) | uint32(b[1])<<8 | uint32(b[2])<<16 | uint32(b[3])<<24
+}
+func LEUint32(b []byte) uint32 {
+	return LeUint32(b)
 }
 
 func LePutUint32(b []byte, v uint32) {
@@ -35,6 +47,9 @@ func LePutUint32(b []byte, v uint32) {
 	b[1] = byte(v >> 8)
 	b[2] = byte(v >> 16)
 	b[3] = byte(v >> 24)
+}
+func LEPutUint32(b []byte, v uint32) {
+	LePutUint32(b, v)
 }
 
 func LeAppendUint32(b []byte, v uint32) []byte {
@@ -45,11 +60,17 @@ func LeAppendUint32(b []byte, v uint32) []byte {
 		byte(v>>24),
 	)
 }
+func LEAppendUint32(b []byte, v uint32) []byte {
+	return LeAppendUint32(b, v)
+}
 
 func LeUint64(b []byte) uint64 {
 	_ = b[7] // bounds check hint to compiler; see golang.org/issue/14808
 	return uint64(b[0]) | uint64(b[1])<<8 | uint64(b[2])<<16 | uint64(b[3])<<24 |
 		uint64(b[4])<<32 | uint64(b[5])<<40 | uint64(b[6])<<48 | uint64(b[7])<<56
+}
+func LEUint64(b []byte) uint64 {
+	return LeUint64(b)
 }
 
 func LePutUint64(b []byte, v uint64) {
@@ -62,6 +83,9 @@ func LePutUint64(b []byte, v uint64) {
 	b[5] = byte(v >> 40)
 	b[6] = byte(v >> 48)
 	b[7] = byte(v >> 56)
+}
+func LEPutUint64(b []byte, v uint64) {
+	LePutUint64(b, v)
 }
 
 func LeAppendUint64(b []byte, v uint64) []byte {
@@ -76,16 +100,25 @@ func LeAppendUint64(b []byte, v uint64) []byte {
 		byte(v>>56),
 	)
 }
+func LEAppendUint64(b []byte, v uint64) []byte {
+	return LeAppendUint64(b, v)
+}
 
 func BeUint16(b []byte) uint16 {
 	_ = b[1] // bounds check hint to compiler; see golang.org/issue/14808
 	return uint16(b[1]) | uint16(b[0])<<8
+}
+func BEUint16(b []byte) uint16 {
+	return BeUint16(b)
 }
 
 func BePutUint16(b []byte, v uint16) {
 	_ = b[1] // early bounds check to guarantee safety of writes below
 	b[0] = byte(v >> 8)
 	b[1] = byte(v)
+}
+func BEPutUint16(b []byte, v uint16) {
+	BePutUint16(b, v)
 }
 
 func BeAppendUint16(b []byte, v uint16) []byte {
@@ -94,10 +127,16 @@ func BeAppendUint16(b []byte, v uint16) []byte {
 		byte(v),
 	)
 }
+func BEAppendUint16(b []byte, v uint16) []byte {
+	return BeAppendUint16(b, v)
+}
 
 func BeUint32(b []byte) uint32 {
 	_ = b[3] // bounds check hint to compiler; see golang.org/issue/14808
 	return uint32(b[3]) | uint32(b[2])<<8 | uint32(b[1])<<16 | uint32(b[0])<<24
+}
+func BEUint32(b []byte) uint32 {
+	return BeUint32(b)
 }
 
 func BePutUint32(b []byte, v uint32) {
@@ -106,6 +145,9 @@ func BePutUint32(b []byte, v uint32) {
 	b[1] = byte(v >> 16)
 	b[2] = byte(v >> 8)
 	b[3] = byte(v)
+}
+func BEPutUint32(b []byte, v uint32) {
+	BePutUint32(b, v)
 }
 
 func BeAppendUint32(b []byte, v uint32) []byte {
@@ -116,11 +158,17 @@ func BeAppendUint32(b []byte, v uint32) []byte {
 		byte(v),
 	)
 }
+func BEAppendUint32(b []byte, v uint32) []byte {
+	return BeAppendUint32(b, v)
+}
 
 func BeUint64(b []byte) uint64 {
 	_ = b[7] // bounds check hint to compiler; see golang.org/issue/14808
 	return uint64(b[7]) | uint64(b[6])<<8 | uint64(b[5])<<16 | uint64(b[4])<<24 |
 		uint64(b[3])<<32 | uint64(b[2])<<40 | uint64(b[1])<<48 | uint64(b[0])<<56
+}
+func BEUint64(b []byte) uint64 {
+	return BeUint64(b)
 }
 
 func BePutUint64(b []byte, v uint64) {
@@ -134,6 +182,9 @@ func BePutUint64(b []byte, v uint64) {
 	b[6] = byte(v >> 8)
 	b[7] = byte(v)
 }
+func BEPutUint64(b []byte, v uint64) {
+	BePutUint64(b, v)
+}
 
 func BeAppendUint64(b []byte, v uint64) []byte {
 	return append(b,
@@ -146,4 +197,7 @@ func BeAppendUint64(b []byte, v uint64) []byte {
 		byte(v>>8),
 		byte(v),
 	)
+}
+func BEAppendUint64(b []byte, v uint64) []byte {
+	return BeAppendUint64(b, v)
 }
