@@ -9,13 +9,13 @@
 package drbg
 
 import (
+	"crypto/rand"
 	"io"
 	"sync"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/entropy"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140"
 	"github.com/runZeroInc/excrypto/crypto/internal/randutil"
-	"github.com/runZeroInc/excrypto/crypto/internal/sysrand"
 )
 
 var drbgs = sync.Pool{
@@ -33,7 +33,7 @@ var drbgs = sync.Pool{
 // Otherwise, it uses the operating system's random number generator.
 func Read(b []byte) {
 	if !fips140.Enabled {
-		sysrand.Read(b)
+		rand.Read(b)
 		return
 	}
 
@@ -43,7 +43,7 @@ func Read(b []byte) {
 	// 8.7.2: "Note that a DRBG does not rely on additional input to provide
 	// entropy, even though entropy could be provided in the additional input".
 	additionalInput := new([SeedSize]byte)
-	sysrand.Read(additionalInput[:16])
+	rand.Read(additionalInput[:16])
 
 	drbg := drbgs.Get().(*Counter)
 	defer drbgs.Put(drbg)

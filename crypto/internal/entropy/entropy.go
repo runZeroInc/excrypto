@@ -17,12 +17,12 @@
 // [earlier version]: https://csrc.nist.gov/CSRC/media/Projects/cryptographic-module-validation-program/documents/IG%209.3.A%20Resolution%202b%5BMarch%2026%202024%5D.pdf
 package entropy
 
-import "github.com/runZeroInc/excrypto/crypto/internal/sysrand"
+import "crypto/rand"
 
 // Depleted notifies the entropy source that the entropy in the module is
 // "depleted" and provides the callback for the LOAD command.
 func Depleted(LOAD func(*[48]byte)) {
 	var entropy [48]byte
-	sysrand.Read(entropy[:])
+	rand.Read(entropy[:])
 	LOAD(&entropy)
 }
