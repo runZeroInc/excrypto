@@ -4,12 +4,7 @@
 
 package subtle
 
-import (
-	"runtime"
-
-	"github.com/runZeroInc/excrypto/internal/runtime/sys"
-)
-
+/* excrypto
 // WithDataIndependentTiming enables architecture specific features which ensure
 // that the timing of specific instructions is independent of their inputs
 // before executing f. On f returning it disables these features.
@@ -49,3 +44,4 @@ func WithDataIndependentTiming(f func()) {
 
 	f()
 }
+*/

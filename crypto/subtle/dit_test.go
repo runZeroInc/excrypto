@@ -4,13 +4,7 @@
 
 package subtle
 
-import (
-	"testing"
-
-	"github.com/runZeroInc/excrypto/internal/cpu"
-	"github.com/runZeroInc/excrypto/internal/runtime/sys"
-)
-
+/* excrypto
 func TestWithDataIndependentTiming(t *testing.T) {
 	if !cpu.ARM64.HasDIT {
 		t.Skip("CPU does not support DIT")
@@ -64,3 +58,4 @@ func TestDITPanic(t *testing.T) {
 		panic("bad")
 	})
 }
+*/
