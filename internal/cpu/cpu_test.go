@@ -5,12 +5,12 @@
 package cpu_test
 
 import (
+	"os/exec"
+	"testing"
+
 	. "github.com/runZeroInc/excrypto/internal/cpu"
 	"github.com/runZeroInc/excrypto/internal/godebug"
 	"github.com/runZeroInc/excrypto/internal/testenv"
-	"os"
-	"os/exec"
-	"testing"
 )
 
 func MustHaveDebugOptionsSupport(t *testing.T) {
@@ -26,11 +26,9 @@ func MustSupportFeatureDetection(t *testing.T) {
 func runDebugOptionsTest(t *testing.T, test string, options string) {
 	MustHaveDebugOptionsSupport(t)
 
-	testenv.MustHaveExec(t)
-
 	env := "GODEBUG=" + options
 
-	cmd := exec.Command(os.Args[0], "-test.run=^"+test+"$")
+	cmd := exec.Command(testenv.Executable(t), "-test.run=^"+test+"$")
 	cmd.Env = append(cmd.Env, env)
 
 	output, err := cmd.CombinedOutput()
