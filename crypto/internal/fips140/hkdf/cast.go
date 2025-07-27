@@ -8,9 +8,8 @@ import (
 	"bytes"
 	"errors"
 
-	_ "github.com/runZeroInc/excrypto/crypto/internal/fips140/check"
-
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140"
+	_ "github.com/runZeroInc/excrypto/crypto/internal/fips140/check"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/sha256"
 )
 

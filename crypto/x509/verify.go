@@ -20,6 +20,7 @@ import (
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
+	"github.com/sirupsen/logrus"
 )
 
 type InvalidReason int
@@ -1191,6 +1192,8 @@ func toLowerCaseASCII(in string) string {
 //
 // Note that the legacy Common Name field is ignored.
 func (c *Certificate) VerifyHostname(h string) error {
+	logrus.Errorf("trying to match cert to %q", h)
+
 	// IP addresses may be written in [ ].
 	candidateIP := h
 	if len(h) >= 3 && h[0] == '[' && h[len(h)-1] == ']' {
@@ -1203,6 +1206,8 @@ func (c *Certificate) VerifyHostname(h string) error {
 			if ip.Equal(candidate) {
 				return nil
 			}
+			logrus.Errorf("failed to match cert ip %q against %q", candidateIP, candidate)
+
 		}
 		return HostnameError{c, candidateIP}
 	}
@@ -1211,6 +1216,7 @@ func (c *Certificate) VerifyHostname(h string) error {
 	validCandidateName := validHostnameInput(candidateName)
 
 	for _, match := range c.DNSNames {
+		logrus.Errorf("matching cert dns name %q against %q", candidateName, match)
 		// Ideally, we'd only match valid hostnames according to RFC 6125 like
 		// browsers (more or less) do, but in practice Go is used in a wider
 		// array of contexts and can't even assume DNS resolution. Instead,
@@ -1226,6 +1232,8 @@ func (c *Certificate) VerifyHostname(h string) error {
 			}
 		}
 	}
+
+	logrus.Errorf("failed to match %s", candidateName)
 
 	return HostnameError{c, h}
 }

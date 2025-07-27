@@ -1,11 +1,10 @@
 module blake2b/_asm/AVX2
 
-go 1.23
+go 1.24
 
 require (
 	github.com/mmcloughlin/avo v0.6.0
 	github.com/runZeroInc/excrypto/x/crypto v0.33.0
-
 )
 
 require (

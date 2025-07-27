@@ -418,7 +418,6 @@ func (aux *auxExtendedKeyUsage) populateFromASN1(oid asn1.ObjectIdentifier) {
 		aux.Any = true
 	default:
 	}
-	return
 }
 
 func (aux *auxExtendedKeyUsage) populateFromExtKeyUsage(eku ExtKeyUsage) {

@@ -14,8 +14,8 @@ import (
 
 	"github.com/runZeroInc/excrypto/crypto"
 
+	"github.com/runZeroInc/excrypto/crypto/hkdf"
 	"github.com/runZeroInc/excrypto/crypto/hmac"
-	"github.com/runZeroInc/excrypto/crypto/internal/fips140/hkdf"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/mlkem"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/tls13"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
@@ -92,12 +92,13 @@ func (hs *clientHandshakeStateTLS13) handshake() error {
 		confTranscript.Write(hs.serverHello.original[:30])
 		confTranscript.Write(make([]byte, 8))
 		confTranscript.Write(hs.serverHello.original[38:])
-		acceptConfirmation := tls13.ExpandLabel(hs.suite.hash.New,
-			hkdf.Extract(hs.suite.hash.New, hs.echContext.innerHello.random, nil),
-			"ech accept confirmation",
-			confTranscript.Sum(nil),
-			8,
-		)
+		h := hs.suite.hash.New
+		prk, err := hkdf.Extract(h, hs.echContext.innerHello.random, nil)
+		if err != nil {
+			c.sendAlert(alertInternalError)
+			return err
+		}
+		acceptConfirmation := tls13.ExpandLabel(h, prk, "ech accept confirmation", confTranscript.Sum(nil), 8)
 		if subtle.ConstantTimeCompare(acceptConfirmation, hs.serverHello.random[len(hs.serverHello.random)-8:]) == 1 {
 			hs.hello = hs.echContext.innerHello
 			c.serverName = c.config.ServerName
@@ -207,8 +208,8 @@ func (hs *clientHandshakeStateTLS13) checkServerHelloOrHRR() error {
 	}
 
 	if hs.serverHello.compressionMethod != compressionNone {
-		c.sendAlert(alertIllegalParameter)
-		return errors.New("tls: server selected unsupported compression format")
+		c.sendAlert(alertDecodeError)
+		return errors.New("tls: server sent non-zero legacy TLS compression method")
 	}
 
 	selectedSuite := mutualCipherSuiteTLS13(hs.hello.cipherSuites, hs.serverHello.cipherSuite)
@@ -275,12 +276,13 @@ func (hs *clientHandshakeStateTLS13) processHelloRetryRequest() error {
 			copy(hrrHello, hs.serverHello.original)
 			hrrHello = bytes.Replace(hrrHello, hs.serverHello.encryptedClientHello, make([]byte, 8), 1)
 			confTranscript.Write(hrrHello)
-			acceptConfirmation := tls13.ExpandLabel(hs.suite.hash.New,
-				hkdf.Extract(hs.suite.hash.New, hs.echContext.innerHello.random, nil),
-				"hrr ech accept confirmation",
-				confTranscript.Sum(nil),
-				8,
-			)
+			h := hs.suite.hash.New
+			prk, err := hkdf.Extract(h, hs.echContext.innerHello.random, nil)
+			if err != nil {
+				c.sendAlert(alertInternalError)
+				return err
+			}
+			acceptConfirmation := tls13.ExpandLabel(h, prk, "hrr ech accept confirmation", confTranscript.Sum(nil), 8)
 			if subtle.ConstantTimeCompare(acceptConfirmation, hs.serverHello.encryptedClientHello) == 1 {
 				hello = hs.echContext.innerHello
 				c.serverName = c.config.ServerName
@@ -475,7 +477,6 @@ func (hs *clientHandshakeStateTLS13) processServerHello() error {
 	hs.usingPSK = true
 	c.didResume = true
 	c.peerCertificates = hs.session.peerCertificates
-	c.activeCertHandles = hs.session.activeCertHandles
 	c.verifiedChains = hs.session.verifiedChains
 	c.ocspResponse = hs.session.ocspResponse
 	c.scts = hs.session.scts
@@ -712,7 +713,10 @@ func (hs *clientHandshakeStateTLS13) readServerCertificate() error {
 	}
 
 	// See RFC 8446, Section 4.4.3.
-	if !isSupportedSignatureAlgorithm(certVerify.signatureAlgorithm, supportedSignatureAlgorithms()) {
+	// We don't use hs.hello.supportedSignatureAlgorithms because it might
+	// include PKCS#1 v1.5 and SHA-1 if the ClientHello also supported TLS 1.2.
+	if !isSupportedSignatureAlgorithm(certVerify.signatureAlgorithm, supportedSignatureAlgorithms(c.vers)) ||
+		!isSupportedSignatureAlgorithm(certVerify.signatureAlgorithm, signatureSchemesForPublicKey(c.vers, c.peerCertificates[0].PublicKey)) {
 		c.sendAlert(alertIllegalParameter)
 		return errors.New("tls: certificate used with invalid signature algorithm")
 	}
@@ -721,8 +725,7 @@ func (hs *clientHandshakeStateTLS13) readServerCertificate() error {
 		return c.sendAlert(alertInternalError)
 	}
 	if sigType == signaturePKCS1v15 || sigHash == crypto.SHA1 {
-		c.sendAlert(alertIllegalParameter)
-		return errors.New("tls: certificate used with invalid signature algorithm")
+		return c.sendAlert(alertInternalError)
 	}
 	signed := signedMessage(sigHash, serverSignatureContext, hs.transcript)
 	if err := verifyHandshakeSignature(sigType, c.peerCertificates[0].PublicKey,
@@ -730,6 +733,7 @@ func (hs *clientHandshakeStateTLS13) readServerCertificate() error {
 		c.sendAlert(alertDecryptError)
 		return errors.New("tls: invalid signature by the server certificate: " + err.Error())
 	}
+	c.peerSigAlg = certVerify.signatureAlgorithm
 
 	if err := transcriptMsg(certVerify, hs.transcript); err != nil {
 		return err
@@ -908,6 +912,11 @@ func (c *Conn) handleNewSessionTicket(msg *newSessionTicketMsgTLS13) error {
 		return errors.New("tls: received a session ticket with invalid lifetime")
 	}
 
+	if len(msg.label) == 0 {
+		c.sendAlert(alertDecodeError)
+		return errors.New("tls: received a session ticket with empty opaque ticket label")
+	}
+
 	// RFC 9001, Section 4.6.1
 	if c.quic != nil && msg.maxEarlyData != 0 && msg.maxEarlyData != 0xffffffff {
 		c.sendAlert(alertIllegalParameter)
@@ -923,7 +932,6 @@ func (c *Conn) handleNewSessionTicket(msg *newSessionTicketMsgTLS13) error {
 		msg.nonce, cipherSuite.hash.Size())
 
 	session := c.sessionState()
-	session.lifetime = msg.lifetime
 	session.secret = psk
 	session.useBy = uint64(c.config.time().Add(lifetime).Unix())
 	session.ageAdd = msg.ageAdd

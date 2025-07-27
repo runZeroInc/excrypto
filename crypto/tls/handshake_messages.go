@@ -100,7 +100,7 @@ type clientHelloMsg struct {
 	// extensions are only populated on the server-side of a handshake
 	extensions []uint16
 
-	// zcrypto
+	// excrypto
 	heartbeatEnabled            bool
 	heartbeatMode               uint8
 	extendedRandomEnabled       bool
@@ -315,11 +315,6 @@ func (m *clientHelloMsg) marshalMsg(echInner bool) ([]byte, error) {
 					exts.AddBytes(m.cookie)
 				})
 			})
-		}
-	}
-	if len(m.unknownExtensions) > 0 {
-		for _, unkExt := range m.unknownExtensions {
-			exts.AddBytes(unkExt)
 		}
 	}
 	if len(m.keyShares) > 0 {
@@ -781,7 +776,7 @@ func (m *clientHelloMsg) clone() *clientHelloMsg {
 		pskBinders:                       slices.Clone(m.pskBinders),
 		quicTransportParameters:          slices.Clone(m.quicTransportParameters),
 		encryptedClientHello:             slices.Clone(m.encryptedClientHello),
-		// zcrypto
+		// excrypto
 		heartbeatEnabled:      m.heartbeatEnabled,
 		heartbeatMode:         m.heartbeatMode,
 		extendedRandomEnabled: m.extendedRandomEnabled,
@@ -816,7 +811,7 @@ type serverHelloMsg struct {
 	cookie        []byte
 	selectedGroup CurveID
 
-	// zcrypto
+	// excrypto
 	heartbeatEnabled      bool
 	heartbeatMode         uint8
 	extendedRandomEnabled bool
@@ -1119,6 +1114,7 @@ type encryptedExtensionsMsg struct {
 	quicTransportParameters []byte
 	earlyData               bool
 	echRetryConfigs         []byte
+	serverNameAck           bool
 }
 
 func (m *encryptedExtensionsMsg) marshal() ([]byte, error) {
@@ -1154,6 +1150,10 @@ func (m *encryptedExtensionsMsg) marshal() ([]byte, error) {
 					b.AddBytes(m.echRetryConfigs)
 				})
 			}
+			if m.serverNameAck {
+				b.AddUint16(extensionServerName)
+				b.AddUint16(0) // empty extension_data
+			}
 		})
 	})
 
@@ -1170,6 +1170,7 @@ func (m *encryptedExtensionsMsg) unmarshal(data []byte) bool {
 		return false
 	}
 
+	seenExts := make(map[uint16]bool)
 	for !extensions.Empty() {
 		var extension uint16
 		var extData cryptobyte.String
@@ -1177,6 +1178,11 @@ func (m *encryptedExtensionsMsg) unmarshal(data []byte) bool {
 			!extensions.ReadUint16LengthPrefixed(&extData) {
 			return false
 		}
+
+		if seenExts[extension] {
+			return false
+		}
+		seenExts[extension] = true
 
 		switch extension {
 		case extensionALPN:
@@ -1203,6 +1209,11 @@ func (m *encryptedExtensionsMsg) unmarshal(data []byte) bool {
 			if !extData.CopyBytes(m.echRetryConfigs) {
 				return false
 			}
+		case extensionServerName:
+			if len(extData) != 0 {
+				return false
+			}
+			m.serverNameAck = true
 		default:
 			// Ignore unknown extensions.
 			continue
@@ -1912,7 +1923,7 @@ func (m *certificateRequestMsg) unmarshal(data []byte) bool {
 		}
 		sigAndHashLen := uint16(data[0])<<8 | uint16(data[1])
 		data = data[2:]
-		if sigAndHashLen&1 != 0 {
+		if sigAndHashLen&1 != 0 || sigAndHashLen == 0 {
 			return false
 		}
 		if len(data) < int(sigAndHashLen) {
