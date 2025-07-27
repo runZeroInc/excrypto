@@ -12,10 +12,12 @@ import (
 	"io"
 
 	"github.com/runZeroInc/excrypto/crypto"
+
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/ed25519"
 	"github.com/runZeroInc/excrypto/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
+	"github.com/runZeroInc/excrypto/crypto/tls/internal/fips140tls"
 )
 
 // verifyHandshakeSignature verifies a signature against pre-hashed
@@ -244,7 +246,7 @@ func selectSignatureScheme(vers uint16, c *Certificate, peerAlgs []SignatureSche
 	// Pick signature scheme in the peer's preference order, as our
 	// preference order is not configurable.
 	for _, preferredAlg := range peerAlgs {
-		if needFIPS() && !isSupportedSignatureAlgorithm(preferredAlg, defaultSupportedSignatureAlgorithmsFIPS) {
+		if fips140tls.Required() && !isSupportedSignatureAlgorithm(preferredAlg, defaultSupportedSignatureAlgorithmsFIPS) {
 			continue
 		}
 		if isSupportedSignatureAlgorithm(preferredAlg, supportedAlgs) {

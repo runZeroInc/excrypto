@@ -8,12 +8,13 @@
 package ocsp
 
 import (
-	"crypto/rand"
 	"errors"
 	"fmt"
 	"math/big"
 	"strconv"
 	"time"
+
+	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"

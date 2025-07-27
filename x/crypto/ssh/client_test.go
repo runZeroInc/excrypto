@@ -6,12 +6,13 @@ package ssh
 
 import (
 	"bytes"
-	"crypto/rand"
 	"errors"
 	"fmt"
 	"net"
 	"strings"
 	"testing"
+
+	"crypto/rand"
 )
 
 func TestClientVersion(t *testing.T) {

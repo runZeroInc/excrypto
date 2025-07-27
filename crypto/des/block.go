@@ -5,8 +5,9 @@
 package des
 
 import (
-	"github.com/runZeroInc/excrypto/internal/byteorder"
 	"sync"
+
+	"github.com/runZeroInc/excrypto/internal/byteorder"
 )
 
 func cryptBlock(subkeys []uint64, dst, src []byte, decrypt bool) {

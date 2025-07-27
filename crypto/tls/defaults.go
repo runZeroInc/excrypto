@@ -14,14 +14,15 @@ import (
 // Defaults are collected in this file to allow distributions to more easily patch
 // them to apply local policies.
 
-var tlskyber = godebug.New("tlskyber")
+var tlsmlkem = godebug.New("tlsmlkem")
 
+// defaultCurvePreferences is the default set of supported key exchanges, as
+// well as the preference order.
 func defaultCurvePreferences() []CurveID {
-	if tlskyber.Value() == "0" {
+	if tlsmlkem.Value() == "0" {
 		return []CurveID{X25519, CurveP256, CurveP384, CurveP521}
 	}
-	// For now, x25519Kyber768Draft00 must always be followed by X25519.
-	return []CurveID{x25519Kyber768Draft00, X25519, CurveP256, CurveP384, CurveP521}
+	return []CurveID{X25519MLKEM768, X25519, CurveP256, CurveP384, CurveP521}
 }
 
 // defaultSupportedSignatureAlgorithms contains the signature and hash algorithms that
@@ -91,7 +92,9 @@ var defaultCipherSuitesTLS13NoAES = []uint16{
 	TLS_AES_256_GCM_SHA384,
 }
 
-// The FIPS-only policies below match BoringSSL's ssl_policy_fips_202205.
+// The FIPS-only policies below match BoringSSL's
+// ssl_compliance_policy_fips_202205, which is based on NIST SP 800-52r2.
+// https://cs.opensource.google/boringssl/boringssl/+/master:ssl/ssl_lib.cc;l=3289;drc=ea7a88fa
 
 var defaultSupportedVersionsFIPS = []uint16{
 	VersionTLS12,

@@ -6,13 +6,14 @@ package ocsp
 
 import (
 	"bytes"
-	"crypto/rand"
 	"encoding/hex"
 	"encoding/pem"
 	"math/big"
 	"reflect"
 	"testing"
 	"time"
+
+	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/rsa"

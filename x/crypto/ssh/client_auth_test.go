@@ -6,7 +6,6 @@ package ssh
 
 import (
 	"bytes"
-	"crypto/rand"
 	"errors"
 	"fmt"
 	"io"
@@ -16,6 +15,8 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+
+	"crypto/rand"
 )
 
 type keyboardInteractive map[string]string

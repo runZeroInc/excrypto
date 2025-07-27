@@ -6,9 +6,10 @@ package elgamal
 
 import (
 	"bytes"
-	"crypto/rand"
 	"math/big"
 	"testing"
+
+	"crypto/rand"
 )
 
 // This is the 1024-bit MODP group from RFC 5114, section 2.1:

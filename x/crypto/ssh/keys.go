@@ -6,7 +6,6 @@ package ssh
 
 import (
 	"bytes"
-	"crypto/rand"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/hex"
@@ -16,6 +15,8 @@ import (
 	"io"
 	"math/big"
 	"strings"
+
+	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/aes"

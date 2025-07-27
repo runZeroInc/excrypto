@@ -6,7 +6,6 @@ package agent
 
 import (
 	"bytes"
-	"crypto/rand"
 	"errors"
 	"io"
 	"net"
@@ -18,6 +17,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/x/crypto/ssh"
 )

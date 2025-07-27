@@ -5,10 +5,11 @@
 package secretbox_test
 
 import (
-	"crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"io"
+
+	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/x/crypto/nacl/secretbox"
 )

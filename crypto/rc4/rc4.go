@@ -10,9 +10,11 @@
 package rc4
 
 import (
+	"errors"
 	"strconv"
 
-	"github.com/runZeroInc/excrypto/crypto/internal/alias"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140/alias"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140only"
 )
 
 // A Cipher is an instance of RC4 using a particular key.
@@ -30,6 +32,9 @@ func (k KeySizeError) Error() string {
 // NewCipher creates and returns a new [Cipher]. The key argument should be the
 // RC4 key, at least 1 byte and at most 256 bytes.
 func NewCipher(key []byte) (*Cipher, error) {
+	if fips140only.Enabled {
+		return nil, errors.New("crypto/rc4: use of RC4 is not allowed in FIPS 140-only mode")
+	}
 	k := len(key)
 	if k < 1 || k > 256 {
 		return nil, KeySizeError(k)

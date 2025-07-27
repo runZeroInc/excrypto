@@ -7,8 +7,9 @@
 package md5
 
 import (
-	"github.com/runZeroInc/excrypto/internal/byteorder"
 	"math/bits"
+
+	"github.com/runZeroInc/excrypto/internal/byteorder"
 )
 
 func blockGeneric(dig *digest, p []byte) {

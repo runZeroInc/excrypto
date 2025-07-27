@@ -6,7 +6,6 @@ package tls
 
 import (
 	"bytes"
-	"encoding/asn1"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -15,6 +14,8 @@ import (
 	"net"
 	"strconv"
 	"time"
+
+	"github.com/runZeroInc/excrypto/encoding/asn1"
 
 	"github.com/runZeroInc/excrypto/crypto/dsa"
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"

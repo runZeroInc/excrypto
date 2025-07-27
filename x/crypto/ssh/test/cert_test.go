@@ -8,8 +8,9 @@ package test
 
 import (
 	"bytes"
-	"crypto/rand"
 	"testing"
+
+	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/x/crypto/ssh"
 )

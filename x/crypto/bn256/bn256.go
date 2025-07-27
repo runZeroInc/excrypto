@@ -26,9 +26,10 @@
 package bn256
 
 import (
-	"crypto/rand"
 	"io"
 	"math/big"
+
+	"crypto/rand"
 )
 
 // G1 is an abstract cyclic group. The zero value is suitable for use as the

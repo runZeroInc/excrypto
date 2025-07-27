@@ -5,10 +5,12 @@
 package des
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/runZeroInc/excrypto/crypto/cipher"
-	"github.com/runZeroInc/excrypto/crypto/internal/alias"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140/alias"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140only"
 	"github.com/runZeroInc/excrypto/internal/byteorder"
 )
 
@@ -28,6 +30,10 @@ type desCipher struct {
 
 // NewCipher creates and returns a new [cipher.Block].
 func NewCipher(key []byte) (cipher.Block, error) {
+	if fips140only.Enabled {
+		return nil, errors.New("crypto/des: use of DES is not allowed in FIPS 140-only mode")
+	}
+
 	if len(key) != 8 {
 		return nil, KeySizeError(len(key))
 	}
@@ -72,6 +78,10 @@ type tripleDESCipher struct {
 
 // NewTripleDESCipher creates and returns a new [cipher.Block].
 func NewTripleDESCipher(key []byte) (cipher.Block, error) {
+	if fips140only.Enabled {
+		return nil, errors.New("crypto/des: use of TripleDES is not allowed in FIPS 140-only mode")
+	}
+
 	if len(key) != 24 {
 		return nil, KeySizeError(len(key))
 	}
