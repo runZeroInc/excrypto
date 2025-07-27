@@ -550,21 +550,45 @@ func parseCertificatePoliciesExtension(out *Certificate, der cryptobyte.String) 
 	var oids []OID
 	seenOIDs := map[string]bool{}
 	if !der.ReadASN1(&der, cryptobyte_asn1.SEQUENCE) {
-		return nil, errors.New("x509: invalid certificate policies")
+		err := errors.New("x509: invalid certificate policies")
+		if !asn1.AllowPermissiveParsing {
+			return nil, err
+		} else {
+			out.PermissiveErrors = append(out.PermissiveErrors, err)
+			return nil, nil
+		}
 	}
 	for !der.Empty() {
 		var cp cryptobyte.String
 		var OIDBytes cryptobyte.String
 		if !der.ReadASN1(&cp, cryptobyte_asn1.SEQUENCE) || !cp.ReadASN1(&OIDBytes, cryptobyte_asn1.OBJECT_IDENTIFIER) {
-			return nil, errors.New("x509: invalid certificate policies")
+			err := errors.New("x509: invalid certificate policies: malformed OID")
+			if !asn1.AllowPermissiveParsing {
+				return nil, err
+			} else {
+				out.PermissiveErrors = append(out.PermissiveErrors, err)
+				continue
+			}
 		}
 		if seenOIDs[string(OIDBytes)] {
-			return nil, errors.New("x509: invalid certificate policies")
+			err := errors.New("x509: invalid certificate policies: duplicate OID")
+			if !asn1.AllowPermissiveParsing {
+				return nil, err
+			} else {
+				out.PermissiveErrors = append(out.PermissiveErrors, err)
+				continue
+			}
 		}
 		seenOIDs[string(OIDBytes)] = true
 		oid, ok := newOIDFromDER(OIDBytes)
 		if !ok {
-			return nil, errors.New("x509: invalid certificate policies")
+			err := errors.New("x509: invalid certificate policies")
+			if !asn1.AllowPermissiveParsing {
+				return nil, err
+			} else {
+				out.PermissiveErrors = append(out.PermissiveErrors, err)
+				continue
+			}
 		}
 		oids = append(oids, oid)
 	}

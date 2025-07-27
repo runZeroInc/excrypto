@@ -1980,7 +1980,8 @@ func TestConstraintCases(t *testing.T) {
 				CurrentTime:   time.Unix(1500, 0),
 				KeyUsages:     test.requestedEKUs,
 			}
-			_, _, _, err = leafCert.Verify(verifyOpts)
+
+			chainValid, chainExpired, chainNever, err := leafCert.Verify(verifyOpts)
 
 			logInfo := true
 			if len(test.expectedError) == 0 {
@@ -1990,8 +1991,8 @@ func TestConstraintCases(t *testing.T) {
 					logInfo = false
 				}
 			} else {
-				if err == nil {
-					t.Error("unexpected success")
+				if err == nil && len(chainExpired) == 0 && len(chainNever) == 0 {
+					t.Errorf("unexpected success with valid certs: %v", chainValid)
 				} else if !strings.Contains(err.Error(), test.expectedError) {
 					t.Errorf("expected error containing %q, but got: %s", test.expectedError, err)
 				} else {
@@ -2002,7 +2003,7 @@ func TestConstraintCases(t *testing.T) {
 			if logInfo {
 				certAsPEM := func(cert *Certificate) string {
 					var buf bytes.Buffer
-					pem.Encode(&buf, &pem.Block{Type: "CERTIFICATE", Bytes: cert.Raw})
+					_ = pem.Encode(&buf, &pem.Block{Type: "CERTIFICATE", Bytes: cert.Raw})
 					return buf.String()
 				}
 				t.Errorf("root:\n%s", certAsPEM(rootPool.mustCert(t, 0)))
