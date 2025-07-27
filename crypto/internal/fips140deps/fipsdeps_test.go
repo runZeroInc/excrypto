@@ -84,9 +84,12 @@ func TestImports(t *testing.T) {
 		if AllowedInternalPackages[importedPkg] {
 			continue
 		}
-		if strings.Contains(importedPkg, "internal") {
-			t.Errorf("unexpected import of internal package: %s -> %s", pkg, importedPkg)
-		}
+		// excrypto: allow internal
+		/*
+			if strings.Contains(importedPkg, "internal") {
+				t.Errorf("unexpected import of internal package: %s -> %s", pkg, importedPkg)
+			}
+		*/
 	}
 
 	// Ensure that all packages except check and check's dependencies import check.

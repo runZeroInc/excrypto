@@ -103,7 +103,7 @@ type SHA3 struct {
 	s sha3.Digest
 }
 
-//go:linkname fips140hash_sha3Unwrap crypto/internal/fips140hash.sha3Unwrap
+//go:linkname fips140hash_sha3Unwrap github.com/runZeroInc/excrypto/crypto/internal/fips140hash.sha3Unwrap
 func fips140hash_sha3Unwrap(sha3 *SHA3) *sha3.Digest {
 	return &sha3.s
 }

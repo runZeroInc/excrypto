@@ -16,17 +16,21 @@ import _ "unsafe" // for go:linkname
 // negative. Finally, we expose indicatorUnset as negative to the user, so that
 // we don't need to explicitly annotate fully non-approved services.
 
-//go:linkname getIndicator crypto/internal/fips140.getIndicator
-func getIndicator() uint8
+func getIndicator() uint8 {
+	return indicatorVal
+}
 
-//go:linkname setIndicator crypto/internal/fips140.setIndicator
-func setIndicator(uint8)
+func setIndicator(v uint8) {
+	indicatorVal = v
+}
 
 const (
 	indicatorUnset uint8 = iota
 	indicatorFalse
 	indicatorTrue
 )
+
+var indicatorVal uint8
 
 // ResetServiceIndicator clears the service indicator for the running goroutine.
 func ResetServiceIndicator() {
