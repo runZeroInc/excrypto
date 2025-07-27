@@ -12,9 +12,8 @@ import (
 
 	"github.com/runZeroInc/excrypto/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140only"
-
-	"golang.org/x/crypto/cryptobyte"
-	"golang.org/x/crypto/cryptobyte/asn1"
+	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
+	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
 )
 
 // This file contains a math/big implementation of ECDSA that is only used for

@@ -6,14 +6,15 @@ package cipher_test
 
 import (
 	"fmt"
-	"github.com/runZeroInc/excrypto/crypto/aes"
-	"github.com/runZeroInc/excrypto/crypto/cipher"
-	"github.com/runZeroInc/excrypto/crypto/des"
-	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
 	"io"
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/runZeroInc/excrypto/crypto/aes"
+	"github.com/runZeroInc/excrypto/crypto/cipher"
+	"github.com/runZeroInc/excrypto/crypto/des"
+	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
 )
 
 // Test CBC Blockmode against the general cipher.BlockMode interface tester
@@ -49,6 +50,16 @@ func TestCBCBlockMode(t *testing.T) {
 
 		cryptotest.TestBlockMode(t, block, cipher.NewCBCEncrypter, cipher.NewCBCDecrypter)
 	})
+}
+
+func TestCBCExtraMethods(t *testing.T) {
+	block, _ := aes.NewCipher(make([]byte, 16))
+	iv := make([]byte, block.BlockSize())
+	s := cipher.NewCBCEncrypter(block, iv)
+	cryptotest.NoExtraMethods(t, &s, "SetIV")
+
+	s = cipher.NewCBCDecrypter(block, iv)
+	cryptotest.NoExtraMethods(t, &s, "SetIV")
 }
 
 func newRandReader(t *testing.T) io.Reader {

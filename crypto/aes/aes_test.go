@@ -6,8 +6,10 @@ package aes
 
 import (
 	"fmt"
-	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto/internal/boring"
+	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
 )
 
 // Test vectors are from FIPS 197:
@@ -108,6 +110,16 @@ func testAESBlock(t *testing.T) {
 			cryptotest.TestBlock(t, keylen/8, NewCipher)
 		})
 	}
+}
+
+func TestExtraMethods(t *testing.T) {
+	if boring.Enabled {
+		t.Skip("Go+BoringCrypto still uses the interface upgrades in crypto/cipher")
+	}
+	cryptotest.TestAllImplementations(t, "aes", func(t *testing.T) {
+		b, _ := NewCipher(make([]byte, 16))
+		cryptotest.NoExtraMethods(t, &b)
+	})
 }
 
 func BenchmarkEncrypt(b *testing.B) {

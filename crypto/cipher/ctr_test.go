@@ -7,11 +7,12 @@ package cipher_test
 import (
 	"bytes"
 	"fmt"
+	"testing"
+
 	"github.com/runZeroInc/excrypto/crypto/aes"
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"github.com/runZeroInc/excrypto/crypto/des"
 	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
-	"testing"
 )
 
 type noopBlock int
@@ -90,4 +91,11 @@ func TestCTRStream(t *testing.T) {
 
 		cryptotest.TestStreamFromBlock(t, block, cipher.NewCTR)
 	})
+}
+
+func TestCTRExtraMethods(t *testing.T) {
+	block, _ := aes.NewCipher(make([]byte, 16))
+	iv := make([]byte, block.BlockSize())
+	s := cipher.NewCTR(block, iv)
+	cryptotest.NoExtraMethods(t, &s)
 }

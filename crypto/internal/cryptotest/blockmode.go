@@ -6,8 +6,9 @@ package cryptotest
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto/cipher"
 )
 
 // MakeBlockMode returns a cipher.BlockMode instance.

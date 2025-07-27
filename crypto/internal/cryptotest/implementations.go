@@ -10,6 +10,7 @@ import (
 
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/crypto/internal/impl"
+	"github.com/runZeroInc/excrypto/internal/goarch"
 	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
@@ -36,14 +37,13 @@ func TestAllImplementations(t *testing.T, pkg string, f func(t *testing.T)) {
 			t.Run(name, f)
 		} else {
 			t.Run(name, func(t *testing.T) {
-				// Report an error if we're on Linux CI (assumed to be the most
-				// consistent) and the builder can't test this implementation.
-				if testenv.Builder() != "" && runtime.GOOS == "linux" {
+				// Report an error if we're on the most capable builder for the
+				// architecture and the builder can't test this implementation.
+				flagship := runtime.GOOS == "linux" && goarch.GOARCH != "arm64" ||
+					runtime.GOOS == "darwin" && goarch.GOARCH == "arm64"
+				if testenv.Builder() != "" && flagship {
 					if name == "SHA-NI" {
 						t.Skip("known issue, see golang.org/issue/69592")
-					}
-					if name == "Armv8.2" {
-						t.Skip("known issue, see golang.org/issue/69593")
 					}
 					t.Error("builder doesn't support CPU features needed to test this implementation")
 				} else {

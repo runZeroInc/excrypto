@@ -83,7 +83,7 @@ func newGCM(cipher Block, nonceSize, tagSize int) (AEAD, error) {
 
 // NewGCMWithRandomNonce returns the given cipher wrapped in Galois Counter
 // Mode, with randomly-generated nonces. The cipher must have been created by
-// [aes.NewCipher].
+// [crypto/aes.NewCipher].
 //
 // It generates a random 96-bit nonce, which is prepended to the ciphertext by Seal,
 // and is extracted from the ciphertext by Open. The NonceSize of the AEAD is zero,
@@ -326,7 +326,7 @@ func deriveCounter(H, counter *[gcmBlockSize]byte, nonce []byte) {
 		counter[gcmBlockSize-1] = 1
 	} else {
 		lenBlock := make([]byte, 16)
-		byteorder.BePutUint64(lenBlock[8:], uint64(len(nonce))*8)
+		byteorder.BEPutUint64(lenBlock[8:], uint64(len(nonce))*8)
 		J := gcm.GHASH(H, nonce, lenBlock)
 		copy(counter[:], J)
 	}
@@ -351,13 +351,13 @@ func gcmCounterCryptGeneric(b Block, out, src []byte, counter *[gcmBlockSize]byt
 
 func gcmInc32(counterBlock *[gcmBlockSize]byte) {
 	ctr := counterBlock[len(counterBlock)-4:]
-	byteorder.BePutUint32(ctr, byteorder.BeUint32(ctr)+1)
+	byteorder.BEPutUint32(ctr, byteorder.BEUint32(ctr)+1)
 }
 
 func gcmAuth(out []byte, H, tagMask *[gcmBlockSize]byte, ciphertext, additionalData []byte) {
 	lenBlock := make([]byte, 16)
-	byteorder.BePutUint64(lenBlock[:8], uint64(len(additionalData))*8)
-	byteorder.BePutUint64(lenBlock[8:], uint64(len(ciphertext))*8)
+	byteorder.BEPutUint64(lenBlock[:8], uint64(len(additionalData))*8)
+	byteorder.BEPutUint64(lenBlock[8:], uint64(len(ciphertext))*8)
 	S := gcm.GHASH(H, additionalData, ciphertext, lenBlock)
 	subtle.XORBytes(out, S, tagMask[:])
 }

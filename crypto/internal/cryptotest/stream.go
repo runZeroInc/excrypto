@@ -7,10 +7,11 @@ package cryptotest
 import (
 	"bytes"
 	"fmt"
-	"github.com/runZeroInc/excrypto/crypto/cipher"
-	"github.com/runZeroInc/excrypto/crypto/subtle"
 	"strings"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto/cipher"
+	"github.com/runZeroInc/excrypto/crypto/subtle"
 )
 
 // Each test is executed with each of the buffer lengths in bufLens.

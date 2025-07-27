@@ -7,8 +7,9 @@ package cryptotest
 import (
 	"bytes"
 	"fmt"
-	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto/cipher"
 )
 
 var lengths = []int{0, 156, 8192, 8193, 8208}

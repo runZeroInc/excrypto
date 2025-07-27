@@ -6,6 +6,7 @@ package cipher_test
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -13,15 +14,12 @@ import (
 	"reflect"
 	"testing"
 
-	fipsaes "github.com/runZeroInc/excrypto/crypto/internal/fips140/aes"
-
-	"crypto/rand"
-
 	"github.com/runZeroInc/excrypto/crypto/aes"
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140"
+	fipsaes "github.com/runZeroInc/excrypto/crypto/internal/fips140/aes"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/aes/gcm"
 )
 
@@ -737,6 +735,31 @@ func testGCMAEAD(t *testing.T, newCipher func(key []byte) cipher.Block) {
 			})
 		})
 	}
+}
+
+func TestGCMExtraMethods(t *testing.T) {
+	testAllImplementations(t, func(t *testing.T, newCipher func([]byte) cipher.Block) {
+		t.Run("NewGCM", func(t *testing.T) {
+			a, _ := cipher.NewGCM(newCipher(make([]byte, 16)))
+			cryptotest.NoExtraMethods(t, &a)
+		})
+		t.Run("NewGCMWithTagSize", func(t *testing.T) {
+			a, _ := cipher.NewGCMWithTagSize(newCipher(make([]byte, 16)), 12)
+			cryptotest.NoExtraMethods(t, &a)
+		})
+		t.Run("NewGCMWithNonceSize", func(t *testing.T) {
+			a, _ := cipher.NewGCMWithNonceSize(newCipher(make([]byte, 16)), 12)
+			cryptotest.NoExtraMethods(t, &a)
+		})
+		t.Run("NewGCMWithRandomNonce", func(t *testing.T) {
+			block := newCipher(make([]byte, 16))
+			if _, ok := block.(*wrapper); ok || boring.Enabled {
+				t.Skip("NewGCMWithRandomNonce requires an AES block cipher")
+			}
+			a, _ := cipher.NewGCMWithRandomNonce(block)
+			cryptotest.NoExtraMethods(t, &a)
+		})
+	})
 }
 
 func TestFIPSServiceIndicator(t *testing.T) {

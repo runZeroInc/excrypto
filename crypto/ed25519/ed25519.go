@@ -16,14 +16,15 @@
 package ed25519
 
 import (
-	cryptorand "crypto/rand"
 	"errors"
 	"io"
 	"strconv"
 
-	"github.com/runZeroInc/excrypto/crypto"
+	cryptorand "crypto/rand"
 
+	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/ed25519"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140cache"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140only"
 	"github.com/runZeroInc/excrypto/crypto/subtle"
 )
@@ -80,6 +81,10 @@ func (priv PrivateKey) Seed() []byte {
 	return append(make([]byte, 0, SeedSize), priv[:SeedSize]...)
 }
 
+// privateKeyCache uses a pointer to the first byte of underlying storage as a
+// key, because [PrivateKey] is a slice header passed around by value.
+var privateKeyCache fips140cache.Cache[byte, ed25519.PrivateKey]
+
 // Sign signs the given message with priv. rand is ignored and can be nil.
 //
 // If opts.HashFunc() is [crypto.SHA512], the pre-hashed variant Ed25519ph is used
@@ -90,10 +95,11 @@ func (priv PrivateKey) Seed() []byte {
 // A value of type [Options] can be used as opts, or crypto.Hash(0) or
 // crypto.SHA512 directly to select plain Ed25519 or Ed25519ph, respectively.
 func (priv PrivateKey) Sign(rand io.Reader, message []byte, opts crypto.SignerOpts) (signature []byte, err error) {
-	// NewPrivateKey is very slow in FIPS mode because it performs a
-	// Sign+Verify cycle per FIPS 140-3 IG 10.3.A. We should find a way to cache
-	// it or attach it to the PrivateKey.
-	k, err := ed25519.NewPrivateKey(priv)
+	k, err := privateKeyCache.Get(&priv[0], func() (*ed25519.PrivateKey, error) {
+		return ed25519.NewPrivateKey(priv)
+	}, func(k *ed25519.PrivateKey) bool {
+		return subtle.ConstantTimeCompare(priv, k.Bytes()) == 1
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -182,10 +188,11 @@ func Sign(privateKey PrivateKey, message []byte) []byte {
 }
 
 func sign(signature []byte, privateKey PrivateKey, message []byte) {
-	// NewPrivateKey is very slow in FIPS mode because it performs a
-	// Sign+Verify cycle per FIPS 140-3 IG 10.3.A. We should find a way to cache
-	// it or attach it to the PrivateKey.
-	k, err := ed25519.NewPrivateKey(privateKey)
+	k, err := privateKeyCache.Get(&privateKey[0], func() (*ed25519.PrivateKey, error) {
+		return ed25519.NewPrivateKey(privateKey)
+	}, func(k *ed25519.PrivateKey) bool {
+		return subtle.ConstantTimeCompare(privateKey, k.Bytes()) == 1
+	})
 	if err != nil {
 		panic("ed25519: bad private key: " + err.Error())
 	}

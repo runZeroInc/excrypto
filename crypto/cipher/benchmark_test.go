@@ -5,10 +5,11 @@
 package cipher_test
 
 import (
-	"github.com/runZeroInc/excrypto/crypto/aes"
-	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"strconv"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto/aes"
+	"github.com/runZeroInc/excrypto/crypto/cipher"
 )
 
 func benchmarkAESGCMSeal(b *testing.B, buf []byte, keySize int) {

@@ -5,10 +5,11 @@
 package crypto_test
 
 import (
+	"testing"
+
 	"github.com/runZeroInc/excrypto/crypto/aes"
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"github.com/runZeroInc/excrypto/crypto/rc4"
-	"testing"
 )
 
 func TestRC4OutOfBoundsWrite(t *testing.T) {
