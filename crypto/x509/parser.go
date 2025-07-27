@@ -541,6 +541,7 @@ func parseCertificatePoliciesExtension(out *Certificate, der cryptobyte.String) 
 					validationLevel = DV
 				}
 			}
+			out.ValidationLevel = validationLevel
 		}
 	}
 
