@@ -5,20 +5,20 @@
 package x509_test
 
 import (
+	"math/big"
+	"runtime"
 	"testing"
+	"time"
 
+	"github.com/runZeroInc/excrypto/crypto/ecdsa"
+	"github.com/runZeroInc/excrypto/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/crypto/rand"
 	"github.com/runZeroInc/excrypto/crypto/tls"
+	"github.com/runZeroInc/excrypto/crypto/x509"
+	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
-func TestBasicTLS(t *testing.T) {
-	c, err := tls.Dial("tcp", "google.com:443", &tls.Config{})
-	if err != nil {
-		t.Fatalf("tls connection failed: %s", err)
-	}
-	c.Close()
-}
-
-/*
 func TestHybridPool(t *testing.T) {
 	t.Parallel()
 	if !(runtime.GOOS == "windows" || runtime.GOOS == "darwin" || runtime.GOOS == "ios") {
@@ -88,24 +88,18 @@ func TestHybridPool(t *testing.T) {
 	if err != nil {
 		t.Fatalf("SystemCertPool failed: %s", err)
 	}
-
-	subCnt := len(pool.Subjects())
-	if subCnt < 150 {
-		t.Errorf("SystemCertPool has %d subjects, wanted >= 150", subCnt)
-	}
-
 	opts := x509.VerifyOptions{Roots: pool}
 
-	_, err = googChain[0].Verify(opts)
+	_, _, _, err = googChain[0].Verify(opts)
 	if err != nil {
-		t.Errorf("verification failed for google.com chain (system only pool): %s", err)
+		t.Fatalf("verification failed for google.com chain (system only pool): %s", err)
 	}
 
 	pool.AddCert(root)
 
-	_, err = googChain[0].Verify(opts)
+	_, _, _, err = googChain[0].Verify(opts)
 	if err != nil {
-		t.Errorf("verification failed for google.com chain (hybrid pool): %s", err)
+		t.Fatalf("verification failed for google.com chain (hybrid pool): %s", err)
 	}
 
 	certTmpl := &x509.Certificate{
@@ -123,9 +117,8 @@ func TestHybridPool(t *testing.T) {
 		t.Fatalf("failed to parse test cert: %s", err)
 	}
 
-	_, err = cert.Verify(opts)
+	_, _, _, err = cert.Verify(opts)
 	if err != nil {
-		t.Errorf("verification failed for custom chain (hybrid pool): %s", err)
+		t.Fatalf("verification failed for custom chain (hybrid pool): %s", err)
 	}
 }
-*/

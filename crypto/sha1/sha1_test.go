@@ -13,8 +13,6 @@ import (
 	"io"
 	"testing"
 
-	"crypto/rand"
-
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
 	"github.com/runZeroInc/excrypto/encoding"
@@ -62,6 +60,9 @@ var golden = []sha1Test{
 }
 
 func TestGolden(t *testing.T) {
+	cryptotest.TestAllImplementations(t, "sha1", testGolden)
+}
+func testGolden(t *testing.T) {
 	for i := 0; i < len(golden); i++ {
 		g := golden[i]
 		s := fmt.Sprintf("%x", Sum([]byte(g.in)))
@@ -99,6 +100,9 @@ func TestGolden(t *testing.T) {
 }
 
 func TestGoldenMarshal(t *testing.T) {
+	cryptotest.TestAllImplementations(t, "sha1", testGoldenMarshal)
+}
+func testGoldenMarshal(t *testing.T) {
 	h := New()
 	h2 := New()
 	for _, g := range golden {
@@ -158,23 +162,6 @@ func TestBlockSize(t *testing.T) {
 	}
 }
 
-// Tests that blockGeneric (pure Go) and block (in assembly for some architectures) match.
-func TestBlockGeneric(t *testing.T) {
-	if boring.Enabled {
-		t.Skip("BoringCrypto doesn't expose digest")
-	}
-	for i := 1; i < 30; i++ { // arbitrary factor
-		gen, asm := New().(*digest), New().(*digest)
-		buf := make([]byte, BlockSize*i)
-		rand.Read(buf)
-		blockGeneric(gen, buf)
-		block(asm, buf)
-		if *gen != *asm {
-			t.Errorf("For %#v block and blockGeneric resulted in different states", buf)
-		}
-	}
-}
-
 // Tests for unmarshaling hashes that have hashed a large amount of data
 // The initial hash generation is omitted from the test, because it takes a long time.
 // The test contains some already-generated states, and their expected sums
@@ -212,8 +199,10 @@ func safeSum(h hash.Hash) (sum []byte, err error) {
 }
 
 func TestLargeHashes(t *testing.T) {
+	cryptotest.TestAllImplementations(t, "sha1", testLargeHashes)
+}
+func testLargeHashes(t *testing.T) {
 	for i, test := range largeUnmarshalTests {
-
 		h := New()
 		if err := h.(encoding.BinaryUnmarshaler).UnmarshalBinary([]byte(test.state)); err != nil {
 			t.Errorf("test %d could not unmarshal: %v", i, err)
@@ -248,7 +237,22 @@ func TestAllocations(t *testing.T) {
 }
 
 func TestSHA1Hash(t *testing.T) {
-	cryptotest.TestHash(t, New)
+	cryptotest.TestAllImplementations(t, "sha1", func(t *testing.T) {
+		cryptotest.TestHash(t, New)
+	})
+}
+
+func TestExtraMethods(t *testing.T) {
+	h := maybeCloner(New())
+	cryptotest.NoExtraMethods(t, &h, "ConstantTimeSum",
+		"MarshalBinary", "UnmarshalBinary", "AppendBinary")
+}
+
+func maybeCloner(h hash.Hash) any {
+	if c, ok := h.(hash.Cloner); ok {
+		return &c
+	}
+	return &h
 }
 
 var bench = New()
