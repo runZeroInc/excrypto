@@ -966,7 +966,7 @@ func (c *Conn) processCertsFromClient(certificate Certificate) error {
 			opts.Intermediates.AddCert(cert)
 		}
 
-		chains, _, _, err := certs[0].Verify(opts)
+		chains, expired, never, err := certs[0].Verify(opts)
 		if err != nil {
 			var errCertificateInvalid x509.CertificateInvalidError
 			if errors.As(err, &x509.UnknownAuthorityError{}) {
@@ -979,6 +979,8 @@ func (c *Conn) processCertsFromClient(certificate Certificate) error {
 			return &CertificateVerificationError{UnverifiedCertificates: certs, Err: err}
 		}
 
+		chains = append(chains, expired...)
+		chains = append(chains, never...)
 		c.verifiedChains, err = fipsAllowedChains(chains)
 		if err != nil {
 			c.sendAlert(alertBadCertificate)

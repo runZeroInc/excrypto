@@ -11,8 +11,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/runZeroInc/excrypto/crypto/ed25519"
-	"github.com/runZeroInc/excrypto/crypto/x509"
 	"io"
 	"net"
 	"os"
@@ -23,6 +21,9 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/runZeroInc/excrypto/crypto/ed25519"
+	"github.com/runZeroInc/excrypto/crypto/x509"
 )
 
 // TLS reference tests run a connection against a reference implementation
