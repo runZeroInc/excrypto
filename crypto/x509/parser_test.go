@@ -15,6 +15,11 @@ import (
 )
 
 func TestParseASN1String(t *testing.T) {
+	// Disable permissive parsing for this test
+	oValue := asn1.AllowPermissiveParsing
+	asn1.AllowPermissiveParsing = false
+	defer func() { asn1.AllowPermissiveParsing = oValue }()
+
 	tests := []struct {
 		name        string
 		tag         cryptobyte_asn1.Tag
@@ -71,10 +76,10 @@ func TestParseASN1String(t *testing.T) {
 			expected: string("PQ"),
 		},
 		{
-			name:     "IA5String (invalid)",
-			tag:      cryptobyte_asn1.IA5String,
-			value:    []byte{255},
-			expected: string("\xff"), // zcrypto: allow invalid strings
+			name:        "IA5String (invalid)",
+			tag:         cryptobyte_asn1.IA5String,
+			value:       []byte{255},
+			expectedErr: "invalid IA5String",
 		},
 		{
 			name:     "NumericString",
@@ -90,16 +95,16 @@ func TestParseASN1String(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
+	for i, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			out, err := parseASN1String(tc.tag, tc.value)
 			if err != nil && err.Error() != tc.expectedErr {
-				t.Fatalf("parseASN1String returned unexpected error: got %q, want %q", err, tc.expectedErr)
+				t.Fatalf("%d: parseASN1String returned unexpected error: got %q, want %q", i, err, tc.expectedErr)
 			} else if err == nil && tc.expectedErr != "" {
-				t.Fatalf("parseASN1String didn't fail, expected: %s", tc.expectedErr)
+				t.Fatalf("%d: parseASN1String didn't fail, expected: %s", i, tc.expectedErr)
 			}
 			if out != tc.expected {
-				t.Fatalf("parseASN1String returned unexpected value: got %q, want %q", out, tc.expected)
+				t.Fatalf("%d: parseASN1String returned unexpected value: got %q, want %q", i, out, tc.expected)
 			}
 		})
 	}

@@ -242,10 +242,8 @@ var (
 // attributeTypeAndValue for each of the given values. See RFC 5280, A.1, and
 // search for AttributeTypeAndValue.
 func (n Name) appendRDNs(in RDNSequence, values []string, oid asn1.ObjectIdentifier) RDNSequence {
-	// zcrypto
-	// NOTE: stdlib prevents adding if the oid is already present in n.ExtraNames
-	// if len(values) == 0 || oidInAttributeTypeAndValue(oid, n.ExtraNames) {
-	if len(values) == 0 {
+	// TODO: excrypto should enable an override here, this breaks ExtraName replacement of things like Country
+	if len(values) == 0 || oidInAttributeTypeAndValue(oid, n.ExtraNames) {
 		return in
 	}
 
@@ -274,16 +272,13 @@ func (n Name) ToRDNSequence() (ret RDNSequence) {
 	if n.OriginalRDNS != nil {
 		return n.OriginalRDNS
 	}
-	if len(n.CommonName) > 0 {
-		ret = n.appendRDNs(ret, []string{n.CommonName}, oidCommonName)
-	}
-	ret = n.appendRDNs(ret, n.OrganizationalUnit, oidOrganizationalUnit)
-	ret = n.appendRDNs(ret, n.Organization, oidOrganization)
-	ret = n.appendRDNs(ret, n.StreetAddress, oidStreetAddress)
-	ret = n.appendRDNs(ret, n.Locality, oidLocality)
-	ret = n.appendRDNs(ret, n.Province, oidProvince)
-	ret = n.appendRDNs(ret, n.PostalCode, oidPostalCode)
 	ret = n.appendRDNs(ret, n.Country, oidCountry)
+	ret = n.appendRDNs(ret, n.Province, oidProvince)
+	ret = n.appendRDNs(ret, n.Locality, oidLocality)
+	ret = n.appendRDNs(ret, n.StreetAddress, oidStreetAddress)
+	ret = n.appendRDNs(ret, n.PostalCode, oidPostalCode)
+	ret = n.appendRDNs(ret, n.Organization, oidOrganization)
+	ret = n.appendRDNs(ret, n.OrganizationalUnit, oidOrganizationalUnit)
 	ret = n.appendRDNs(ret, n.DomainComponent, oidDomainComponent)
 	// EV Components
 	ret = n.appendRDNs(ret, n.JurisdictionLocality, oidJurisdictionLocality)
@@ -291,6 +286,9 @@ func (n Name) ToRDNSequence() (ret RDNSequence) {
 	ret = n.appendRDNs(ret, n.JurisdictionCountry, oidJurisdictionCountry)
 	// QWACS
 	ret = n.appendRDNs(ret, n.OrganizationIDs, oidOrganizationID)
+	if len(n.CommonName) > 0 {
+		ret = n.appendRDNs(ret, []string{n.CommonName}, oidCommonName)
+	}
 	if len(n.SerialNumber) > 0 {
 		ret = n.appendRDNs(ret, []string{n.SerialNumber}, oidSerialNumber)
 	}

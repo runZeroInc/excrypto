@@ -11,6 +11,7 @@ import (
 	"encoding/gob"
 	"encoding/hex"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -797,9 +798,8 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 			t.Errorf("%s: failed to parse policy identifiers: got:%#v want:%#v", test.name, cert.PolicyIdentifiers, template.Policies)
 		}
 
-		// The leading dot is trimmed
-		if len(cert.PermittedDNSDomains) != 2 || cert.PermittedDNSDomains[0] != "example.com" || cert.PermittedDNSDomains[1] != "example.com" {
-			t.Errorf("%s: failed to parse name constraints: %#v (cert:%#v)", test.name, cert.PermittedDNSDomains, cert)
+		if len(cert.PermittedDNSDomains) != 2 || cert.PermittedDNSDomains[0] != ".example.com" || cert.PermittedDNSDomains[1] != "example.com" {
+			t.Errorf("%s: failed to parse name constraints: %#v", test.name, cert.PermittedDNSDomains)
 		}
 
 		if len(cert.ExcludedDNSDomains) != 1 || cert.ExcludedDNSDomains[0] != "bar.example.com" {
@@ -1756,19 +1756,16 @@ func TestMaxPathLenNotCA(t *testing.T) {
 		t.Errorf("MaxPathLen should be -1 when IsCa is false and MaxPathLen set to -1, got %d", m)
 	}
 
-	// excrypto: support MaxPathlen for non-CA
-	/*
-		template.MaxPathLen = 5
-		if _, err := CreateCertificate(rand.Reader, template, template, &testPrivateKey.PublicKey, testPrivateKey); err == nil {
-			t.Error("specifying a MaxPathLen when IsCA is false should fail")
-		}
+	template.MaxPathLen = 5
+	if _, err := CreateCertificate(rand.Reader, template, template, &testPrivateKey.PublicKey, testPrivateKey); err == nil {
+		t.Error("specifying a MaxPathLen when IsCA is false should fail")
+	}
 
-		template.MaxPathLen = 0
-		template.MaxPathLenZero = true
-		if _, err := CreateCertificate(rand.Reader, template, template, &testPrivateKey.PublicKey, testPrivateKey); err == nil {
-			t.Error("setting MaxPathLenZero when IsCA is false should fail")
-		}
-	*/
+	template.MaxPathLen = 0
+	template.MaxPathLenZero = true
+	if _, err := CreateCertificate(rand.Reader, template, template, &testPrivateKey.PublicKey, testPrivateKey); err == nil {
+		t.Error("setting MaxPathLenZero when IsCA is false should fail")
+	}
 
 	template.BasicConstraintsValid = false
 	if m := serialiseAndParse(t, template).MaxPathLen; m != 0 {
@@ -1904,7 +1901,7 @@ func TestInsecureAlgorithmErrorString(t *testing.T) {
 		{MD5WithRSA, "x509: cannot verify signature: insecure algorithm MD5-RSA"},
 		{SHA1WithRSA, "x509: cannot verify signature: insecure algorithm SHA1-RSA"},
 		{ECDSAWithSHA1, "x509: cannot verify signature: insecure algorithm ECDSA-SHA1"},
-		{MD2WithRSA, "x509: cannot verify signature: insecure algorithm MD2-RSA"},
+		{MD2WithRSA, "x509: cannot verify signature: insecure algorithm 1"},
 		{-1, "x509: cannot verify signature: insecure algorithm -1"},
 		{0, "x509: cannot verify signature: insecure algorithm 0"},
 		{9999, "x509: cannot verify signature: insecure algorithm 9999"},
@@ -1952,7 +1949,7 @@ qViorq4=
 -----END CERTIFICATE-----
 `
 
-func TestMD5Success(t *testing.T) {
+func TestMD5(t *testing.T) {
 	pemBlock, _ := pem.Decode([]byte(md5cert))
 	cert, err := ParseCertificate(pemBlock.Bytes)
 	if err != nil {
@@ -1961,12 +1958,15 @@ func TestMD5Success(t *testing.T) {
 	if sa := cert.SignatureAlgorithm; sa != MD5WithRSA {
 		t.Errorf("signature algorithm is %v, want %v", sa, MD5WithRSA)
 	}
-	if err = cert.CheckSignatureFrom(cert); err != nil {
-		t.Fatalf("certificate verification failed: %v", err)
+	if err = cert.CheckSignatureFrom(cert); err == nil {
+		t.Fatalf("certificate verification succeeded incorrectly")
+	}
+	if _, ok := err.(InsecureAlgorithmError); !ok {
+		t.Fatalf("certificate verification returned %v (%T), wanted InsecureAlgorithmError", err, err)
 	}
 }
 
-func TestSHA1Succes(t *testing.T) {
+func TestSHA1(t *testing.T) {
 	pemBlock, _ := pem.Decode([]byte(ecdsaSHA1CertPem))
 	cert, err := ParseCertificate(pemBlock.Bytes)
 	if err != nil {
@@ -1975,15 +1975,12 @@ func TestSHA1Succes(t *testing.T) {
 	if sa := cert.SignatureAlgorithm; sa != ECDSAWithSHA1 {
 		t.Errorf("signature algorithm is %v, want %v", sa, ECDSAWithSHA1)
 	}
-	// excrypto: support SHA1
-	/*
-		if err = cert.CheckSignatureFrom(cert); err == nil {
-			t.Fatalf("certificate verification succeeded incorrectly")
-		}
-		if _, ok := err.(InsecureAlgorithmError); !ok {
-			t.Fatalf("certificate verification returned %v (%T), wanted InsecureAlgorithmError", err, err)
-		}
-	*/
+	if err = cert.CheckSignatureFrom(cert); err == nil {
+		t.Fatalf("certificate verification succeeded incorrectly")
+	}
+	if _, ok := err.(InsecureAlgorithmError); !ok {
+		t.Fatalf("certificate verification returned %v (%T), wanted InsecureAlgorithmError", err, err)
+	}
 }
 
 // certMissingRSANULL contains an RSA public key where the AlgorithmIdentifier
@@ -2003,10 +2000,12 @@ hB2rXZIxE0/9gzvGnfERYraL7KtnvshksBFQRlgXa5kc0x38BvEO5ZaoDPl4ILdE
 GFGNEH5PlGffo05wc46QkYU=
 -----END CERTIFICATE-----`
 
-func TestRSAMissingNULLParametersSuccess(t *testing.T) {
+func TestRSAMissingNULLParameters(t *testing.T) {
 	block, _ := pem.Decode([]byte(certMissingRSANULL))
-	if _, err := ParseCertificate(block.Bytes); err != nil {
-		t.Errorf("failed parsing certificate with missing RSA NULL parameter: %v", err)
+	if _, err := ParseCertificate(block.Bytes); err == nil {
+		t.Error("unexpected success when parsing certificate with missing RSA NULL parameter")
+	} else if !strings.Contains(err.Error(), "missing NULL") {
+		t.Errorf("unrecognised error when parsing certificate with missing RSA NULL parameter: %s", err)
 	}
 }
 
@@ -2194,7 +2193,7 @@ func TestPKIXNameString(t *testing.T) {
 		dn   pkix.Name
 		want string
 	}{
-		{nn, "1.2.3.4.5=#130a676f6c616e672e6f7267, L=Gophertown"},
+		{nn, "L=Gophertown,1.2.3.4.5=#130a676f6c616e672e6f7267"},
 		{extraNotNil, "L=Gophertown"},
 		{pkix.Name{
 			CommonName:         "Steve Kille",
@@ -2206,30 +2205,30 @@ func TestPKIXNameString(t *testing.T) {
 			PostalCode:         []string{"TW9 1DT"},
 			SerialNumber:       "RFC 2253",
 			Country:            []string{"GB"},
-		}, "SERIALNUMBER=RFC 2253, C=GB, POSTALCODE=TW9 1DT, ST=Surrey, L=Richmond, STREET=The Square, O=Isode Limited, OU=RFCs, CN=Steve Kille"},
+		}, "SERIALNUMBER=RFC 2253,CN=Steve Kille,OU=RFCs,O=Isode Limited,POSTALCODE=TW9 1DT,STREET=The Square,L=Richmond,ST=Surrey,C=GB"},
 		{certs[0].Subject,
-			"CN=mail.google.com, O=Google LLC, L=Mountain View, ST=California, C=US"},
+			"CN=mail.google.com,O=Google LLC,L=Mountain View,ST=California,C=US"},
 		{pkix.Name{
 			Organization: []string{"#Google, Inc. \n-> 'Alphabet\" "},
 			Country:      []string{"US"},
-		}, "C=US, O=\\#Google\\, Inc. \n-\\> 'Alphabet\\\"\\ "},
+		}, "O=\\#Google\\, Inc. \n-\\> 'Alphabet\\\"\\ ,C=US"},
 		{pkix.Name{
 			CommonName:   "foo.com",
 			Organization: []string{"Gopher Industries"},
 			ExtraNames: []pkix.AttributeTypeAndValue{
 				{Type: asn1.ObjectIdentifier([]int{2, 5, 4, 3}), Value: "bar.com"}},
-		}, "CN=bar.com, O=Gopher Industries"},
+		}, "CN=bar.com,O=Gopher Industries"},
 		{pkix.Name{
 			Locality: []string{"Gophertown"},
 			ExtraNames: []pkix.AttributeTypeAndValue{
 				{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "golang.org"}},
-		}, "1.2.3.4.5=#130a676f6c616e672e6f7267, L=Gophertown"},
+		}, "1.2.3.4.5=#130a676f6c616e672e6f7267,L=Gophertown"},
 		// If there are no ExtraNames, the Names are printed instead.
 		{pkix.Name{
 			Locality: []string{"Gophertown"},
 			Names: []pkix.AttributeTypeAndValue{
 				{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "golang.org"}},
-		}, "L=Gophertown, 1.2.3.4.5=#130a676f6c616e672e6f7267"},
+		}, "L=Gophertown,1.2.3.4.5=#130a676f6c616e672e6f7267"},
 		// If there are both, print only the ExtraNames.
 		{pkix.Name{
 			Locality: []string{"Gophertown"},
@@ -2237,7 +2236,7 @@ func TestPKIXNameString(t *testing.T) {
 				{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "golang.org"}},
 			Names: []pkix.AttributeTypeAndValue{
 				{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 6}), Value: "example.com"}},
-		}, "1.2.3.4.5=#130a676f6c616e672e6f7267, L=Gophertown"},
+		}, "1.2.3.4.5=#130a676f6c616e672e6f7267,L=Gophertown"},
 	}
 
 	for i, test := range tests {
@@ -2279,7 +2278,7 @@ func TestRDNSequenceString(t *testing.T) {
 					pkix.AttributeTypeAndValue{Type: oidCommonName, Value: "J. Smith"},
 				},
 			},
-			want: "OU=Sales+CN=J. Smith, O=Widget Inc., C=US",
+			want: "OU=Sales+CN=J. Smith,O=Widget Inc.,C=US",
 		},
 	}
 
@@ -3097,13 +3096,17 @@ func TestUnknownExtKey(t *testing.T) {
 	}
 }
 
-func TestIA5SANNonEnforcement(t *testing.T) {
+func TestIA5SANEnforcement(t *testing.T) {
 	k, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		t.Fatalf("ecdsa.GenerateKey failed: %s", err)
 	}
 
-	testURL := "https://example.com/?∞"
+	testURL, err := url.Parse("https://example.com/")
+	if err != nil {
+		t.Fatalf("url.Parse failed: %s", err)
+	}
+	testURL.RawQuery = "∞"
 
 	marshalTests := []struct {
 		name          string
@@ -3116,6 +3119,7 @@ func TestIA5SANNonEnforcement(t *testing.T) {
 				SerialNumber: big.NewInt(0),
 				DNSNames:     []string{"∞"},
 			},
+			expectedError: "x509: \"∞\" cannot be encoded as an IA5String",
 		},
 		{
 			name: "marshal: unicode rfc822Name",
@@ -3123,21 +3127,25 @@ func TestIA5SANNonEnforcement(t *testing.T) {
 				SerialNumber:   big.NewInt(0),
 				EmailAddresses: []string{"∞"},
 			},
+			expectedError: "x509: \"∞\" cannot be encoded as an IA5String",
 		},
 		{
 			name: "marshal: unicode uniformResourceIdentifier",
 			template: &Certificate{
 				SerialNumber: big.NewInt(0),
-				URIs:         []string{testURL},
+				URIs:         []string{testURL.String()},
 			},
+			expectedError: "x509: \"https://example.com/?∞\" cannot be encoded as an IA5String",
 		},
 	}
 
 	for _, tc := range marshalTests {
 		t.Run(tc.name, func(t *testing.T) {
 			_, err := CreateCertificate(rand.Reader, tc.template, tc.template, k.Public(), k)
-			if err != nil {
-				t.Errorf("CreateCertificate failed with template: %v", tc.template)
+			if err == nil {
+				t.Errorf("expected CreateCertificate to fail with template: %v", tc.template)
+			} else if err.Error() != tc.expectedError {
+				t.Errorf("unexpected error: got %q, want %q", err.Error(), tc.expectedError)
 			}
 		})
 	}
@@ -3170,8 +3178,10 @@ func TestIA5SANNonEnforcement(t *testing.T) {
 			t.Fatalf("failed to decode test cert: %s", err)
 		}
 		_, err = ParseCertificate(der)
-		if err != nil {
-			t.Errorf("CreateCertificate failed with template: %v", tc.name)
+		if err == nil {
+			t.Error("expected CreateCertificate to fail")
+		} else if err.Error() != tc.expectedError {
+			t.Errorf("unexpected error: got %q, want %q", err.Error(), tc.expectedError)
 		}
 	}
 }
@@ -3311,13 +3321,19 @@ func certPoolEqual(a, b *CertPool) bool {
 }
 
 func TestCertificateRequestRoundtripFields(t *testing.T) {
-	urlA := "https://example.com/_"
-	urlB := "https://example.org/_"
+	urlA, err := url.Parse("https://example.com/_")
+	if err != nil {
+		t.Fatal(err)
+	}
+	urlB, err := url.Parse("https://example.org/_")
+	if err != nil {
+		t.Fatal(err)
+	}
 	in := &CertificateRequest{
 		DNSNames:       []string{"example.com", "example.org"},
 		EmailAddresses: []string{"a@example.com", "b@example.com"},
 		IPAddresses:    []net.IP{net.IPv4(192, 0, 2, 0), net.IPv6loopback},
-		URIs:           []string{urlA, urlB},
+		URIs:           []string{urlA.String(), urlB.String()},
 	}
 	out := marshalAndParseCSR(t, in)
 
@@ -3700,7 +3716,8 @@ func TestParseUniqueID(t *testing.T) {
 	}
 }
 
-func TestSHA1ForCertOnlySuccess(t *testing.T) {
+func TestDisableSHA1ForCertOnly(t *testing.T) {
+	t.Setenv("GODEBUG", "")
 
 	tmpl := &Certificate{
 		SerialNumber:          big.NewInt(1),
@@ -3721,8 +3738,10 @@ func TestSHA1ForCertOnlySuccess(t *testing.T) {
 	}
 
 	err = cert.CheckSignatureFrom(cert)
-	if err != nil {
-		t.Errorf("CheckSignatureFrom failed: %v", err)
+	if err == nil {
+		t.Error("expected CheckSignatureFrom to fail")
+	} else if _, ok := err.(InsecureAlgorithmError); !ok {
+		t.Errorf("expected InsecureAlgorithmError error, got %T", err)
 	}
 
 	crlDER, err := CreateRevocationList(rand.Reader, &RevocationList{
@@ -3914,16 +3933,14 @@ A0cAMEQCIBzfBU5eMPT6m5lsR6cXaJILpAaiD9YxOl4v6dT3rzEjAiBHmjnHmAss
 RqUAyJKFzqZxOlK2q4j2IYnuj5+LrLGbQA==
 -----END CERTIFICATE-----`
 
-func TestParseNegativeSerialSuccess(t *testing.T) {
+func TestParseNegativeSerial(t *testing.T) {
 	pemBlock, _ := pem.Decode([]byte(negativeSerialCert))
 	_, err := ParseCertificate(pemBlock.Bytes)
-	if err != nil {
-		t.Fatalf("failed to parse certificate with negative serial: %v", err)
+	if err == nil {
+		t.Fatal("parsed certificate with negative serial")
 	}
 }
 
-// zcrypto
-/*
 func TestCreateNegativeSerial(t *testing.T) {
 	k, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
@@ -3943,7 +3960,6 @@ func TestCreateNegativeSerial(t *testing.T) {
 		t.Errorf("CreateCertificate returned unexpected error: want %q, got %q", expectedErr, err)
 	}
 }
-*/
 
 const dupExtCert = `-----BEGIN CERTIFICATE-----
 MIIBrjCCARegAwIBAgIBATANBgkqhkiG9w0BAQsFADAPMQ0wCwYDVQQDEwR0ZXN0
@@ -4180,5 +4196,71 @@ func TestRejectCriticalSKI(t *testing.T) {
 	_, err = ParseCertificate(certDER)
 	if err == nil || err.Error() != expectedErr {
 		t.Fatalf("ParseCertificate() unexpected error: %v, want: %s", err, expectedErr)
+	}
+}
+
+type messageSigner struct{}
+
+func (ms *messageSigner) Public() crypto.PublicKey { return rsaPrivateKey.Public() }
+
+func (ms *messageSigner) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) (signature []byte, err error) {
+	return nil, errors.New("unimplemented")
+}
+
+func (ms *messageSigner) SignMessage(rand io.Reader, msg []byte, opts crypto.SignerOpts) (signature []byte, err error) {
+	if _, ok := opts.(*rsa.PSSOptions); ok {
+		return nil, errors.New("PSSOptions passed instead of hash")
+	}
+	h := opts.HashFunc().New()
+	h.Write(msg)
+	tbs := h.Sum(nil)
+	return rsa.SignPKCS1v15(rand, rsaPrivateKey, opts.HashFunc(), tbs)
+}
+
+func TestMessageSigner(t *testing.T) {
+	template := Certificate{
+		SignatureAlgorithm:    SHA256WithRSA,
+		SerialNumber:          big.NewInt(1),
+		Subject:               pkix.Name{CommonName: "Cert"},
+		NotBefore:             time.Unix(1000, 0),
+		NotAfter:              time.Unix(100000, 0),
+		BasicConstraintsValid: true,
+		IsCA:                  true,
+	}
+	certDER, err := CreateCertificate(rand.Reader, &template, &template, rsaPrivateKey.Public(), &messageSigner{})
+	if err != nil {
+		t.Fatalf("CreateCertificate failed: %s", err)
+	}
+	cert, err := ParseCertificate(certDER)
+	if err != nil {
+		t.Fatalf("ParseCertificate failed: %s", err)
+	}
+	if err := cert.CheckSignatureFrom(cert); err != nil {
+		t.Fatalf("CheckSignatureFrom failed: %s", err)
+	}
+}
+
+func TestCreateCertificateNegativeMaxPathLength(t *testing.T) {
+	template := Certificate{
+		SerialNumber:          big.NewInt(1),
+		Subject:               pkix.Name{CommonName: "TEST"},
+		NotBefore:             time.Unix(1000, 0),
+		NotAfter:              time.Unix(100000, 0),
+		BasicConstraintsValid: true,
+		IsCA:                  true,
+
+		// CreateCertificate treats -1 in the same way as: MaxPathLen == 0 && MaxPathLenZero == false.
+		MaxPathLen: -1,
+	}
+
+	_, err := CreateCertificate(rand.Reader, &template, &template, rsaPrivateKey.Public(), rsaPrivateKey)
+	if err != nil {
+		t.Fatalf("CreateCertificate() unexpected error: %v", err)
+	}
+
+	template.MaxPathLen = -2
+	_, err = CreateCertificate(rand.Reader, &template, &template, rsaPrivateKey.Public(), rsaPrivateKey)
+	if err == nil || err.Error() != "x509: invalid MaxPathLen, must be greater or equal to -1" {
+		t.Fatalf(`CreateCertificate() = %v; want = "x509: invalid MaxPathLen, must be greater or equal to -1"`, err)
 	}
 }
