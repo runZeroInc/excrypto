@@ -36,13 +36,16 @@ func TestKeyGeneration(t *testing.T) {
 	}
 	for _, size := range sizes {
 		t.Run(fmt.Sprintf("%d", size), func(t *testing.T) {
-			if size < 1024 {
-				_, err := GenerateKey(rand.Reader, size)
-				if err == nil {
-					t.Errorf("GenerateKey(%d) succeeded without GODEBUG", size)
+			// excrypto: allow small keys
+			/*
+				if size < 1024 {
+					_, err := GenerateKey(rand.Reader, size)
+					if err == nil {
+						t.Errorf("GenerateKey(%d) succeeded without GODEBUG", size)
+					}
+					t.Setenv("GODEBUG", "rsa1024min=0")
 				}
-				t.Setenv("GODEBUG", "rsa1024min=0")
-			}
+			*/
 			priv, err := GenerateKey(rand.Reader, size)
 			if err != nil {
 				t.Errorf("GenerateKey(%d): %v", size, err)

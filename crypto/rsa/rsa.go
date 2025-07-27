@@ -42,7 +42,6 @@ package rsa
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"math"
 	"math/big"
@@ -258,7 +257,9 @@ func checkKeySize(size int) error {
 		rsa1024min.IncNonDefault()
 		return nil
 	}
-	return fmt.Errorf("crypto/rsa: %d-bit keys are insecure (see https://go.dev/pkg/crypto/rsa#hdr-Minimum_key_size)", size)
+	// excrypto: disable minimum rsa key size checks
+	// return fmt.Errorf("crypto/rsa: %d-bit keys are insecure (see https://go.dev/pkg/crypto/rsa#hdr-Minimum_key_size)", size)
+	return nil
 }
 
 func checkPublicKeySize(k *PublicKey) error {
