@@ -1194,13 +1194,13 @@ func (c *Conn) verifyServerCertificate(certificates [][]byte) error {
 			for _, cert := range certs[1:] {
 				opts.Intermediates.AddCert(cert)
 			}
-			chains, err := certs[0].Verify(opts)
+			currentChains, _, _, err := certs[0].Verify(opts)
 			if err != nil {
 				c.sendAlert(alertBadCertificate)
 				return &CertificateVerificationError{UnverifiedCertificates: certs, Err: err}
 			}
 
-			c.verifiedChains, err = fipsAllowedChains(chains)
+			c.verifiedChains, err = fipsAllowedChains(currentChains)
 			if err != nil {
 				c.sendAlert(alertBadCertificate)
 				return &CertificateVerificationError{UnverifiedCertificates: certs, Err: err}
@@ -1217,7 +1217,7 @@ func (c *Conn) verifyServerCertificate(certificates [][]byte) error {
 		for _, cert := range certs[1:] {
 			opts.Intermediates.AddCert(cert)
 		}
-		chains, err := certs[0].Verify(opts)
+		chains, _, _, err := certs[0].Verify(opts)
 		if err != nil {
 			c.sendAlert(alertBadCertificate)
 			return &CertificateVerificationError{UnverifiedCertificates: certs, Err: err}

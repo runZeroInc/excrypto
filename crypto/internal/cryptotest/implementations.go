@@ -5,12 +5,12 @@
 package cryptotest
 
 import (
+	"runtime"
 	"testing"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
-	"github.com/runZeroInc/excrypto/crypto/internal/goos"
 	"github.com/runZeroInc/excrypto/crypto/internal/impl"
-	"github.com/runZeroInc/excrypto/crypto/internal/testenv"
+	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
 // TestAllImplementations runs the provided test function with each available
@@ -38,7 +38,7 @@ func TestAllImplementations(t *testing.T, pkg string, f func(t *testing.T)) {
 			t.Run(name, func(t *testing.T) {
 				// Report an error if we're on Linux CI (assumed to be the most
 				// consistent) and the builder can't test this implementation.
-				if testenv.Builder() != "" && goos.GOOS == "linux" {
+				if testenv.Builder() != "" && runtime.GOOS == "linux" {
 					if name == "SHA-NI" {
 						t.Skip("known issue, see golang.org/issue/69592")
 					}

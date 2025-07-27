@@ -210,7 +210,7 @@ func (test *clientTest) connFromCommand() (conn *recordingConn, child *exec.Cmd,
 		var serverInfo bytes.Buffer
 		for _, ext := range test.extensions {
 			pem.Encode(&serverInfo, &pem.Block{
-				Type:  fmt.Sprintf("SERVERINFO FOR EXTENSION %d", byteorder.BEUint16(ext)),
+				Type:  fmt.Sprintf("SERVERINFO FOR EXTENSION %d", byteorder.BeUint16(ext)),
 				Bytes: ext,
 			})
 		}
