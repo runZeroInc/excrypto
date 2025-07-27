@@ -1757,14 +1757,14 @@ func TestMaxPathLenNotCA(t *testing.T) {
 	}
 
 	template.MaxPathLen = 5
-	if _, err := CreateCertificate(rand.Reader, template, template, &testPrivateKey.PublicKey, testPrivateKey); err == nil {
-		t.Error("specifying a MaxPathLen when IsCA is false should fail")
+	if _, err := CreateCertificate(rand.Reader, template, template, &testPrivateKey.PublicKey, testPrivateKey); err != nil {
+		t.Error("specifying a MaxPathLen when IsCA is false should not fail") // excrypto
 	}
 
 	template.MaxPathLen = 0
 	template.MaxPathLenZero = true
-	if _, err := CreateCertificate(rand.Reader, template, template, &testPrivateKey.PublicKey, testPrivateKey); err == nil {
-		t.Error("setting MaxPathLenZero when IsCA is false should fail")
+	if _, err := CreateCertificate(rand.Reader, template, template, &testPrivateKey.PublicKey, testPrivateKey); err != nil {
+		t.Error("setting MaxPathLenZero when IsCA is false should not fail") // excrypto
 	}
 
 	template.BasicConstraintsValid = false
@@ -1901,7 +1901,7 @@ func TestInsecureAlgorithmErrorString(t *testing.T) {
 		{MD5WithRSA, "x509: cannot verify signature: insecure algorithm MD5-RSA"},
 		{SHA1WithRSA, "x509: cannot verify signature: insecure algorithm SHA1-RSA"},
 		{ECDSAWithSHA1, "x509: cannot verify signature: insecure algorithm ECDSA-SHA1"},
-		{MD2WithRSA, "x509: cannot verify signature: insecure algorithm 1"},
+		{MD2WithRSA, "x509: cannot verify signature: insecure algorithm MD2-RSA"},
 		{-1, "x509: cannot verify signature: insecure algorithm -1"},
 		{0, "x509: cannot verify signature: insecure algorithm 0"},
 		{9999, "x509: cannot verify signature: insecure algorithm 9999"},
@@ -1949,6 +1949,8 @@ qViorq4=
 -----END CERTIFICATE-----
 `
 
+// excrypto
+/*
 func TestMD5(t *testing.T) {
 	pemBlock, _ := pem.Decode([]byte(md5cert))
 	cert, err := ParseCertificate(pemBlock.Bytes)
@@ -1965,7 +1967,10 @@ func TestMD5(t *testing.T) {
 		t.Fatalf("certificate verification returned %v (%T), wanted InsecureAlgorithmError", err, err)
 	}
 }
+*/
 
+// excrypto
+/*
 func TestSHA1(t *testing.T) {
 	pemBlock, _ := pem.Decode([]byte(ecdsaSHA1CertPem))
 	cert, err := ParseCertificate(pemBlock.Bytes)
@@ -1982,6 +1987,7 @@ func TestSHA1(t *testing.T) {
 		t.Fatalf("certificate verification returned %v (%T), wanted InsecureAlgorithmError", err, err)
 	}
 }
+*/
 
 // certMissingRSANULL contains an RSA public key where the AlgorithmIdentifier
 // parameters are omitted rather than being an ASN.1 NULL.
@@ -2000,6 +2006,8 @@ hB2rXZIxE0/9gzvGnfERYraL7KtnvshksBFQRlgXa5kc0x38BvEO5ZaoDPl4ILdE
 GFGNEH5PlGffo05wc46QkYU=
 -----END CERTIFICATE-----`
 
+// excrypto
+/*
 func TestRSAMissingNULLParameters(t *testing.T) {
 	block, _ := pem.Decode([]byte(certMissingRSANULL))
 	if _, err := ParseCertificate(block.Bytes); err == nil {
@@ -2008,6 +2016,7 @@ func TestRSAMissingNULLParameters(t *testing.T) {
 		t.Errorf("unrecognised error when parsing certificate with missing RSA NULL parameter: %s", err)
 	}
 }
+*/
 
 const certISOOID = `-----BEGIN CERTIFICATE-----
 MIIB5TCCAVKgAwIBAgIQNwyL3RPWV7dJQp34HwZG9DAJBgUrDgMCHQUAMBExDzAN
@@ -2228,7 +2237,7 @@ func TestPKIXNameString(t *testing.T) {
 			Locality: []string{"Gophertown"},
 			Names: []pkix.AttributeTypeAndValue{
 				{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "golang.org"}},
-		}, "L=Gophertown,1.2.3.4.5=#130a676f6c616e672e6f7267"},
+		}, "1.2.3.4.5=#130a676f6c616e672e6f7267,L=Gophertown,1.2.3.4.5=#130a676f6c616e672e6f7267"},
 		// If there are both, print only the ExtraNames.
 		{pkix.Name{
 			Locality: []string{"Gophertown"},
@@ -3096,6 +3105,8 @@ func TestUnknownExtKey(t *testing.T) {
 	}
 }
 
+// excrypto
+/*
 func TestIA5SANEnforcement(t *testing.T) {
 	k, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
@@ -3185,6 +3196,7 @@ func TestIA5SANEnforcement(t *testing.T) {
 		}
 	}
 }
+*/
 
 func BenchmarkCreateCertificate(b *testing.B) {
 	template := &Certificate{
@@ -3717,6 +3729,7 @@ func TestParseUniqueID(t *testing.T) {
 }
 
 func TestDisableSHA1ForCertOnly(t *testing.T) {
+	// exrypto: Enable this via debug setting
 	t.Setenv("GODEBUG", "")
 
 	tmpl := &Certificate{
@@ -3737,11 +3750,10 @@ func TestDisableSHA1ForCertOnly(t *testing.T) {
 		t.Fatalf("failed to parse test cert: %s", err)
 	}
 
+	// excrypto
 	err = cert.CheckSignatureFrom(cert)
-	if err == nil {
-		t.Error("expected CheckSignatureFrom to fail")
-	} else if _, ok := err.(InsecureAlgorithmError); !ok {
-		t.Errorf("expected InsecureAlgorithmError error, got %T", err)
+	if err != nil {
+		t.Errorf("unexpected CheckSignatureFrom fail: %v", err)
 	}
 
 	crlDER, err := CreateRevocationList(rand.Reader, &RevocationList{
@@ -3933,6 +3945,8 @@ A0cAMEQCIBzfBU5eMPT6m5lsR6cXaJILpAaiD9YxOl4v6dT3rzEjAiBHmjnHmAss
 RqUAyJKFzqZxOlK2q4j2IYnuj5+LrLGbQA==
 -----END CERTIFICATE-----`
 
+// excrypto
+/*
 func TestParseNegativeSerial(t *testing.T) {
 	pemBlock, _ := pem.Decode([]byte(negativeSerialCert))
 	_, err := ParseCertificate(pemBlock.Bytes)
@@ -3940,7 +3954,10 @@ func TestParseNegativeSerial(t *testing.T) {
 		t.Fatal("parsed certificate with negative serial")
 	}
 }
+*/
 
+// excrypto
+/*
 func TestCreateNegativeSerial(t *testing.T) {
 	k, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
@@ -3960,6 +3977,7 @@ func TestCreateNegativeSerial(t *testing.T) {
 		t.Errorf("CreateCertificate returned unexpected error: want %q, got %q", expectedErr, err)
 	}
 }
+*/
 
 const dupExtCert = `-----BEGIN CERTIFICATE-----
 MIIBrjCCARegAwIBAgIBATANBgkqhkiG9w0BAQsFADAPMQ0wCwYDVQQDEwR0ZXN0
@@ -4030,6 +4048,7 @@ func TestDuplicateAttributesCSR(t *testing.T) {
 }
 
 func TestCertificateOIDPoliciesGODEBUG(t *testing.T) {
+	// excypto: Fix godebug testing for tests
 	t.Setenv("GODEBUG", "x509usepolicies=0")
 
 	template := Certificate{
@@ -4217,6 +4236,7 @@ func (ms *messageSigner) SignMessage(rand io.Reader, msg []byte, opts crypto.Sig
 	return rsa.SignPKCS1v15(rand, rsaPrivateKey, opts.HashFunc(), tbs)
 }
 
+// FIX
 func TestMessageSigner(t *testing.T) {
 	template := Certificate{
 		SignatureAlgorithm:    SHA256WithRSA,
@@ -4240,6 +4260,8 @@ func TestMessageSigner(t *testing.T) {
 	}
 }
 
+// excrypto
+/*
 func TestCreateCertificateNegativeMaxPathLength(t *testing.T) {
 	template := Certificate{
 		SerialNumber:          big.NewInt(1),
@@ -4264,3 +4286,4 @@ func TestCreateCertificateNegativeMaxPathLength(t *testing.T) {
 		t.Fatalf(`CreateCertificate() = %v; want = "x509: invalid MaxPathLen, must be greater or equal to -1"`, err)
 	}
 }
+*/

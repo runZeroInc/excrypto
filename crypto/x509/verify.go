@@ -922,8 +922,11 @@ func (c *Certificate) Verify(opts VerifyOptions) (current, expired, never [][]*C
 		return nil, nil, nil, err
 	}
 
+	// Split the chains into current, expired, and never.
+	current, expired, never = FilterByDate(chains, opts.CurrentTime)
+
 	// TODO: Split the chains into current, expired, and never.
-	return chains, nil, nil, nil
+	return current, expired, never, nil
 }
 
 func appendToFreshChain(chain []*Certificate, cert *Certificate) []*Certificate {

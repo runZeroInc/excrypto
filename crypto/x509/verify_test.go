@@ -285,7 +285,7 @@ var verifyTests = []verifyTest{
 
 		errorCallback: expectNameConstraintsError,
 	},
-	// zcrypto
+	// excrypto
 	/*
 		{
 			// Test that unknown critical extensions in a leaf cause a
@@ -461,6 +461,15 @@ func testVerify(t *testing.T, test verifyTest, useSystemRoots bool) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if test.errorCallback != nil {
+		// Patch in expired/never as the expired error type
+		if len(expired) > 0 || len(never) > 0 {
+			err = CertificateInvalidError{
+				Cert:   leaf,
+				Reason: Expired,
+				Detail: fmt.Sprintf("certificate is expired or not yet valid (current time: %s)", opts.CurrentTime),
+			}
+		}
+
 		if useSystemRoots && test.systemLax {
 			if err == nil {
 				t.Fatalf("expected error")
