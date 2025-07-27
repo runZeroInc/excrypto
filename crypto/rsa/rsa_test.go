@@ -25,7 +25,6 @@ import (
 	. "github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/sha1"
 	"github.com/runZeroInc/excrypto/crypto/sha256"
-	"github.com/runZeroInc/excrypto/crypto/sha512"
 	"github.com/runZeroInc/excrypto/crypto/x509"
 )
 
@@ -403,6 +402,8 @@ func testEverything(t *testing.T, priv *PrivateKey) {
 	}
 }
 
+// excrypto: allow small rsa keys
+/*
 func TestKeyTooSmall(t *testing.T) {
 	checkErr := func(err error) {
 		t.Helper()
@@ -433,6 +434,7 @@ func TestKeyTooSmall(t *testing.T) {
 	checkErr2(DecryptOAEP(sha512.New(), nil, test512Key, buf, nil))
 	checkErr(DecryptPKCS1v15SessionKey(nil, test512Key, buf, buf))
 }
+*/
 
 func testingKey(s string) string { return strings.ReplaceAll(s, "TESTING KEY", "PRIVATE KEY") }
 

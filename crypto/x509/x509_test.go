@@ -1756,16 +1756,19 @@ func TestMaxPathLenNotCA(t *testing.T) {
 		t.Errorf("MaxPathLen should be -1 when IsCa is false and MaxPathLen set to -1, got %d", m)
 	}
 
-	template.MaxPathLen = 5
-	if _, err := CreateCertificate(rand.Reader, template, template, &testPrivateKey.PublicKey, testPrivateKey); err == nil {
-		t.Error("specifying a MaxPathLen when IsCA is false should fail")
-	}
+	// excrypto: support MaxPathlen for non-CA
+	/*
+		template.MaxPathLen = 5
+		if _, err := CreateCertificate(rand.Reader, template, template, &testPrivateKey.PublicKey, testPrivateKey); err == nil {
+			t.Error("specifying a MaxPathLen when IsCA is false should fail")
+		}
 
-	template.MaxPathLen = 0
-	template.MaxPathLenZero = true
-	if _, err := CreateCertificate(rand.Reader, template, template, &testPrivateKey.PublicKey, testPrivateKey); err == nil {
-		t.Error("setting MaxPathLenZero when IsCA is false should fail")
-	}
+		template.MaxPathLen = 0
+		template.MaxPathLenZero = true
+		if _, err := CreateCertificate(rand.Reader, template, template, &testPrivateKey.PublicKey, testPrivateKey); err == nil {
+			t.Error("setting MaxPathLenZero when IsCA is false should fail")
+		}
+	*/
 
 	template.BasicConstraintsValid = false
 	if m := serialiseAndParse(t, template).MaxPathLen; m != 0 {
@@ -1901,7 +1904,7 @@ func TestInsecureAlgorithmErrorString(t *testing.T) {
 		{MD5WithRSA, "x509: cannot verify signature: insecure algorithm MD5-RSA"},
 		{SHA1WithRSA, "x509: cannot verify signature: insecure algorithm SHA1-RSA"},
 		{ECDSAWithSHA1, "x509: cannot verify signature: insecure algorithm ECDSA-SHA1"},
-		{MD2WithRSA, "x509: cannot verify signature: insecure algorithm 1"},
+		{MD2WithRSA, "x509: cannot verify signature: insecure algorithm MD2-RSA"},
 		{-1, "x509: cannot verify signature: insecure algorithm -1"},
 		{0, "x509: cannot verify signature: insecure algorithm 0"},
 		{9999, "x509: cannot verify signature: insecure algorithm 9999"},
@@ -1972,12 +1975,15 @@ func TestSHA1Succes(t *testing.T) {
 	if sa := cert.SignatureAlgorithm; sa != ECDSAWithSHA1 {
 		t.Errorf("signature algorithm is %v, want %v", sa, ECDSAWithSHA1)
 	}
-	if err = cert.CheckSignatureFrom(cert); err == nil {
-		t.Fatalf("certificate verification succeeded incorrectly")
-	}
-	if _, ok := err.(InsecureAlgorithmError); !ok {
-		t.Fatalf("certificate verification returned %v (%T), wanted InsecureAlgorithmError", err, err)
-	}
+	// excrypto: support SHA1
+	/*
+		if err = cert.CheckSignatureFrom(cert); err == nil {
+			t.Fatalf("certificate verification succeeded incorrectly")
+		}
+		if _, ok := err.(InsecureAlgorithmError); !ok {
+			t.Fatalf("certificate verification returned %v (%T), wanted InsecureAlgorithmError", err, err)
+		}
+	*/
 }
 
 // certMissingRSANULL contains an RSA public key where the AlgorithmIdentifier
