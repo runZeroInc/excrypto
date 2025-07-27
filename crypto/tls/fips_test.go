@@ -21,6 +21,7 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/x509"
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/internal/obscuretestdata"
 	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
