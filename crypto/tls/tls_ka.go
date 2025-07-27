@@ -78,9 +78,11 @@ func (ka *ecdheKeyAgreement) ECDHParams() *jsonKeys.ECDHKeys {
 	if ka.key != nil {
 		out.ServerPrivateKey = ka.key.Bytes()
 	}
-	if len(ka.pub) > 0 {
-		out.ServerPublicKey = make([]byte, len(ka.pub))
-		copy(out.ServerPublicKey, ka.pub)
+	if ka.key != nil {
+		pk := ka.key.PublicKey()
+		kb := pk.Bytes()
+		out.ServerPublicKey = make([]byte, len(kb))
+		copy(out.ServerPublicKey, kb)
 	}
 	return out
 }
@@ -91,9 +93,11 @@ func (ka *ecdheKeyAgreement) ClientECDHParams() *jsonKeys.ECDHKeys {
 	if ka.key != nil {
 		out.ClientPrivateKey = ka.key.Bytes()
 	}
-	if len(ka.pub) > 0 {
-		out.ClientPublicKey = make([]byte, len(ka.pub))
-		copy(out.ClientPublicKey, ka.pub)
+	if ka.key != nil {
+		pk := ka.key.PublicKey()
+		kb := pk.Bytes()
+		out.ServerPublicKey = make([]byte, len(kb))
+		copy(out.ServerPublicKey, kb)
 	}
 	return out
 }

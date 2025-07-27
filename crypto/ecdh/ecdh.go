@@ -11,7 +11,6 @@ import (
 	"io"
 
 	"github.com/runZeroInc/excrypto/crypto"
-
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/ecdh"
 	"github.com/runZeroInc/excrypto/crypto/subtle"
@@ -145,7 +144,6 @@ func (k *PrivateKey) Equal(x crypto.PrivateKey) bool {
 	if !ok {
 		return false
 	}
-	k.Curve()
 	return k.curve == xx.curve &&
 		subtle.ConstantTimeCompare(k.privateKey, xx.privateKey) == 1
 }

@@ -436,10 +436,8 @@ func (m *serverKeyExchangeMsg) MakeLog(ka keyAgreement) *ServerKeyExchange {
 	switch ka := ka.(type) {
 	case *rsaKeyAgreement:
 		skx.RSAParams = ka.RSAParams()
-		errAuth = ka.verifyError
 	case *ecdheKeyAgreement:
 		skx.ECDHParams = ka.ECDHParams()
-		errAuth = ka.verifyError
 	default:
 		break
 	}

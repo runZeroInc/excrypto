@@ -42,7 +42,10 @@ var errServerKeyExchange = errors.New("tls: invalid ServerKeyExchange message")
 
 // rsaKeyAgreement implements the standard TLS key agreement where the client
 // encrypts the pre-master secret to the server's public key.
-type rsaKeyAgreement struct{}
+type rsaKeyAgreement struct {
+	privateKey *rsa.PrivateKey // nil if the server doesn't use RSA key agreement
+	publicKey  *rsa.PublicKey  // nil if the client doesn't use RSA key agreement
+}
 
 func (ka rsaKeyAgreement) generateServerKeyExchange(config *Config, cert *Certificate, clientHello *clientHelloMsg, hello *serverHelloMsg) (*serverKeyExchangeMsg, error) {
 	return nil, nil
@@ -62,6 +65,10 @@ func (ka rsaKeyAgreement) processClientKeyExchange(config *Config, cert *Certifi
 	if !ok {
 		return nil, errors.New("tls: certificate private key does not implement crypto.Decrypter")
 	}
+	if ka.privateKey, ok = priv.(*rsa.PrivateKey); ok {
+		ka.publicKey = &ka.privateKey.PublicKey
+	}
+
 	// Perform constant time RSA PKCS #1 v1.5 decryption
 	preMasterSecret, err := priv.Decrypt(config.rand(), ciphertext, &rsa.PKCS1v15DecryptOptions{SessionKeyLen: 48})
 	if err != nil {
@@ -184,7 +191,6 @@ func (ka *ecdheKeyAgreement) generateServerKeyExchange(config *Config, cert *Cer
 	if ka.curveID == 0 {
 		return nil, errors.New("tls: no supported elliptic curves offered")
 	}
-
 	if _, ok := curveForCurveID(ka.curveID); !ok {
 		return nil, errors.New("tls: CurvePreferences includes unsupported curve")
 	}
