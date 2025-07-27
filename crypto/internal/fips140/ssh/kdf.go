@@ -7,9 +7,9 @@
 package ssh
 
 import (
-	_ "github.com/runZeroInc/excrypto/crypto/internal/fips140/check"
+	"hash"
 
-	"github.com/runZeroInc/excrypto/crypto/internal/fips140"
+	_ "github.com/runZeroInc/excrypto/crypto/internal/fips140/check"
 )
 
 type Direction struct {
@@ -25,7 +25,7 @@ func init() {
 	ClientKeys = Direction{[]byte{'A'}, []byte{'C'}, []byte{'E'}}
 }
 
-func Keys[Hash fips140.Hash](hash func() Hash, d Direction,
+func Keys[Hash hash.Hash](hash func() Hash, d Direction,
 	K, H, sessionID []byte,
 	ivKeyLen, keyLen, macKeyLen int,
 ) (ivKey, key, macKey []byte) {

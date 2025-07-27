@@ -6,12 +6,11 @@ package mlkem
 
 import (
 	"bytes"
+	"crypto/rand"
 	"math/big"
 	mathrand "math/rand/v2"
 	"strconv"
 	"testing"
-
-	"crypto/rand"
 )
 
 func TestFieldReduce(t *testing.T) {

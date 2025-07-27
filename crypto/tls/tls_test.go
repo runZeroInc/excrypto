@@ -22,12 +22,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/runZeroInc/excrypto/crypto"
-
-	"github.com/runZeroInc/excrypto/encoding/asn1"
-
 	"crypto/rand"
 
+	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/ecdh"
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/elliptic"
@@ -35,9 +32,9 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/tls/internal/fips140tls"
 	"github.com/runZeroInc/excrypto/crypto/x509"
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/encoding/asn1"
 	"github.com/runZeroInc/excrypto/internal/testenv"
-
-	"golang.org/x/crypto/cryptobyte"
+	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
 )
 
 var rsaCertPEM = `-----BEGIN CERTIFICATE-----

@@ -195,6 +195,11 @@ func consumeUint64(b []byte) ([]byte, uint64) {
 	return b[8:], byteorder.BEUint64(b)
 }
 
+func (d *Digest) Clone() (hash.Cloner, error) {
+	r := *d
+	return &r, nil
+}
+
 // New returns a new Digest computing the SHA-512 hash.
 func New() *Digest {
 	d := &Digest{size: size512}

@@ -16,6 +16,7 @@ package fipstest
 import (
 	"bytes"
 	"encoding/hex"
+	"runtime/debug"
 	"strings"
 	"testing"
 
@@ -62,6 +63,32 @@ func moduleStatus(t *testing.T) {
 		t.Log("FIPS 140-3 integrity self-check succeeded")
 	} else {
 		t.Log("FIPS 140-3 integrity self-check not succeeded")
+	}
+}
+
+func TestVersion(t *testing.T) {
+	bi, ok := debug.ReadBuildInfo()
+	if !ok {
+		t.Skip("no build info")
+	}
+	for _, setting := range bi.Settings {
+		if setting.Key != "GOFIPS140" {
+			continue
+		}
+		exp := setting.Value
+		if exp == "v1.0.0" {
+			// Unfortunately we enshrined the version of the first module as
+			// v1.0 before deciding to go for full versions.
+			exp = "v1.0"
+		}
+		if v := fips140.Version(); v != exp {
+			t.Errorf("Version is %q, expected %q", v, exp)
+		}
+		return
+	}
+	// Without GOFIPS140, the Version should be "latest".
+	if v := fips140.Version(); v != "latest" {
+		t.Errorf("Version is %q, expected latest", v)
 	}
 }
 
@@ -240,6 +267,13 @@ func TestFIPS140(t *testing.T) {
 
 		err = rsa.VerifyPSS(rsaKey.PublicKey(), sha256.New(), plaintextSHA256, sig)
 		fatalIfErr(t, err)
+	})
+
+	t.Run("RSA KeyGen w/ small key [NOT APPROVED]", func(t *testing.T) {
+		ensureServiceIndicatorFalse(t)
+		_, err := rsa.GenerateKey(rand.Reader, 512)
+		fatalIfErr(t, err)
+		t.Log("RSA key generated")
 	})
 
 	t.Run("KTS IFC OAEP", func(t *testing.T) {
@@ -421,6 +455,17 @@ func ensureServiceIndicator(t *testing.T) {
 			t.Logf("Service indicator is set")
 		} else {
 			t.Errorf("Service indicator is not set")
+		}
+	})
+}
+
+func ensureServiceIndicatorFalse(t *testing.T) {
+	fips140.ResetServiceIndicator()
+	t.Cleanup(func() {
+		if !fips140.ServiceIndicator() {
+			t.Logf("Service indicator is not set")
+		} else {
+			t.Errorf("Service indicator is set")
 		}
 	})
 }

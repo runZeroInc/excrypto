@@ -8,13 +8,13 @@ package fips140tls
 import (
 	"sync/atomic"
 
-	"github.com/runZeroInc/excrypto/crypto/internal/fips140"
+	"github.com/runZeroInc/excrypto/crypto/fips140"
 )
 
 var required atomic.Bool
 
 func init() {
-	if fips140.Enabled {
+	if fips140.Enabled() {
 		Force()
 	}
 }

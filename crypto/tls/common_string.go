@@ -111,3 +111,10 @@ func _() {
 const _ClientAuthType_name = "NoClientCertRequestClientCertRequireAnyClientCertVerifyClientCertIfGivenRequireAndVerifyClientCert"
 
 var _ClientAuthType_index = [...]uint8{0, 12, 29, 49, 72, 98}
+
+func (i ClientAuthType) String() string {
+	if i < 0 || i >= ClientAuthType(len(_ClientAuthType_index)-1) {
+		return "ClientAuthType(" + strconv.FormatInt(int64(i), 10) + ")"
+	}
+	return _ClientAuthType_name[_ClientAuthType_index[i]:_ClientAuthType_index[i+1]]
+}

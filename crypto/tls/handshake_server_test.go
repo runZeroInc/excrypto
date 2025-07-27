@@ -159,7 +159,7 @@ func TestRejectSNIWithTrailingDot(t *testing.T) {
 		vers:       VersionTLS12,
 		random:     make([]byte, 32),
 		serverName: "foo.com.",
-	}, "unexpected message")
+	}, "decoding message")
 }
 
 func TestDontSelectECDSAWithRSAKey(t *testing.T) {
@@ -238,7 +238,6 @@ func TestRenegotiationExtension(t *testing.T) {
 		n, err := c.Read(buf)
 		if err != nil {
 			t.Errorf("Server read returned error: %s", err)
-			return
 		}
 		c.Close()
 		bufChan <- buf[:n]
@@ -738,7 +737,7 @@ func (test *serverTest) run(t *testing.T, write bool) {
 		t.Fatalf("%s: mismatch on peer list length: %d (wanted) != %d (got)", test.name, len(test.expectedPeerCerts), len(peerCerts))
 	}
 
-	if test.validate != nil {
+	if test.validate != nil && !t.Failed() {
 		if err := test.validate(connState); err != nil {
 			t.Fatalf("validate callback returned error: %s", err)
 		}
@@ -2047,8 +2046,8 @@ func TestServerHandshakeContextCancellation(t *testing.T) {
 	if err != context.Canceled {
 		t.Errorf("Unexpected server handshake error: %v", err)
 	}
-	if runtime.GOARCH == "wasm" {
-		t.Skip("conn.Close does not error as expected when called multiple times on WASM")
+	if runtime.GOOS == "js" || runtime.GOOS == "wasip1" {
+		t.Skip("conn.Close does not error as expected when called multiple times on GOOS=js or GOOS=wasip1")
 	}
 	err = conn.Close()
 	if err == nil {

@@ -40,7 +40,7 @@ func TestImports(t *testing.T) {
 {{end -}}
 {{range .XTestImports -}}
 {{$path}} {{.}}
-{{end -}}`, "crypto/internal/fips140/...")
+{{end -}}`, "github.com/runZeroInc/excrypto/crypto/internal/fips140/...")
 	bout, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("go list: %v\n%s", err, bout)
@@ -49,11 +49,11 @@ func TestImports(t *testing.T) {
 
 	// In a snapshot, all the paths are crypto/internal/fips140/v1.2.3/...
 	// Determine the version number and remove it for the test.
-	_, v, _ := strings.Cut(out, "crypto/internal/fips140/")
+	_, v, _ := strings.Cut(out, "github.com/runZeroInc/excrypto/crypto/internal/fips140/")
 	v, _, _ = strings.Cut(v, "/")
 	v, _, _ = strings.Cut(v, " ")
 	if strings.HasPrefix(v, "v") && strings.Count(v, ".") == 2 {
-		out = strings.ReplaceAll(out, "crypto/internal/fips140/"+v, "crypto/internal/fips140")
+		out = strings.ReplaceAll(out, "github.com/runZeroInc/excrypto/crypto/internal/fips140/"+v, "github.com/runZeroInc/excrypto/crypto/internal/fips140")
 	}
 
 	allPackages := make(map[string]bool)
@@ -69,43 +69,40 @@ func TestImports(t *testing.T) {
 
 		allPackages[pkg] = true
 
-		if importedPkg == "crypto/internal/fips140/check" {
+		if importedPkg == "github.com/runZeroInc/excrypto/crypto/internal/fips140/check" {
 			importCheck[pkg] = true
 		}
 
 		// Ensure we don't import any unexpected internal package from the FIPS
 		// module, since we can't change the module source after it starts
 		// validation. This locks in the API of otherwise internal packages.
-		if importedPkg == "crypto/internal/fips140" ||
-			strings.HasPrefix(importedPkg, "crypto/internal/fips140/") ||
-			strings.HasPrefix(importedPkg, "crypto/internal/fips140deps/") {
+		if importedPkg == "github.com/runZeroInc/excrypto/crypto/internal/fips140" ||
+			strings.HasPrefix(importedPkg, "github.com/runZeroInc/excrypto/crypto/internal/fips140/") ||
+			strings.HasPrefix(importedPkg, "github.com/runZeroInc/excrypto/crypto/internal/fips140deps/") {
 			continue
 		}
 		if AllowedInternalPackages[importedPkg] {
 			continue
 		}
-		// excrypto: allow internal
-		/*
-			if strings.Contains(importedPkg, "internal") {
-				t.Errorf("unexpected import of internal package: %s -> %s", pkg, importedPkg)
-			}
-		*/
+		if strings.Contains(importedPkg, "internal") {
+			t.Errorf("unexpected import of internal package: %s -> %s", pkg, importedPkg)
+		}
 	}
 
 	// Ensure that all packages except check and check's dependencies import check.
 	for pkg := range allPackages {
 		switch pkg {
-		case "crypto/internal/fips140/check":
-		case "crypto/internal/fips140":
-		case "crypto/internal/fips140/alias":
-		case "crypto/internal/fips140/subtle":
-		case "crypto/internal/fips140/hmac":
-		case "crypto/internal/fips140/sha3":
-		case "crypto/internal/fips140/sha256":
-		case "crypto/internal/fips140/sha512":
+		case "github.com/runZeroInc/excrypto/crypto/internal/fips140/check":
+		case "github.com/runZeroInc/excrypto/crypto/internal/fips140":
+		case "github.com/runZeroInc/excrypto/crypto/internal/fips140/alias":
+		case "github.com/runZeroInc/excrypto/crypto/internal/fips140/subtle":
+		case "github.com/runZeroInc/excrypto/crypto/internal/fips140/hmac":
+		case "github.com/runZeroInc/excrypto/crypto/internal/fips140/sha3":
+		case "github.com/runZeroInc/excrypto/crypto/internal/fips140/sha256":
+		case "github.com/runZeroInc/excrypto/crypto/internal/fips140/sha512":
 		default:
 			if !importCheck[pkg] {
-				t.Errorf("package %s does not import crypto/internal/fips140/check", pkg)
+				t.Errorf("package %s does not importgithub.com/runZeroInc/excrypto/crypto/internal/fips140/check", pkg)
 			}
 		}
 	}

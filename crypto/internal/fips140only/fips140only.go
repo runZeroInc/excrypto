@@ -7,6 +7,7 @@ package fips140only
 import (
 	"hash"
 	"io"
+	_ "unsafe"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/drbg"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/sha256"

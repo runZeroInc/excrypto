@@ -6,6 +6,7 @@ package ecdsa
 
 import (
 	"bytes"
+	"hash"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/hmac"
@@ -49,7 +50,7 @@ type personalizationString interface {
 	isPersonalizationString()
 }
 
-func newDRBG[H fips140.Hash](hash func() H, entropy, nonce []byte, s personalizationString) *hmacDRBG {
+func newDRBG[H hash.Hash](hash func() H, entropy, nonce []byte, s personalizationString) *hmacDRBG {
 	// HMAC_DRBG_Instantiate_algorithm, per Section 10.1.2.3.
 	fips140.RecordApproved()
 
@@ -122,7 +123,7 @@ func newDRBG[H fips140.Hash](hash func() H, entropy, nonce []byte, s personaliza
 //
 // This should only be used for ACVP testing. hmacDRBG is not intended to be
 // used directly.
-func TestingOnlyNewDRBG(hash func() fips140.Hash, entropy, nonce []byte, s []byte) *hmacDRBG {
+func TestingOnlyNewDRBG(hash func() hash.Hash, entropy, nonce []byte, s []byte) *hmacDRBG {
 	return newDRBG(hash, entropy, nonce, plainPersonalizationString(s))
 }
 

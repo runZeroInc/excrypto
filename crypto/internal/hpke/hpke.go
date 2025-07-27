@@ -18,7 +18,6 @@ import (
 	"github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305"
 )
 
-// testingOnlyGenerateKey is a function that can be set during tests to
 // testingOnlyGenerateKey is only used during testing, to provide
 // a fixed test key to use when checking the RFC 9180 vectors.
 var testingOnlyGenerateKey func() (*ecdh.PrivateKey, error)
