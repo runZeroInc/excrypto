@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"math"
 	"math/big"
 	"net"
 	"strconv"
@@ -61,8 +62,25 @@ func isPrintable(b byte) bool {
 func parseASN1String(tag cryptobyte_asn1.Tag, value []byte) (string, error) {
 	switch tag {
 	case cryptobyte_asn1.T61String:
-		return string(value), nil
+		// T.61 is a defunct ITU 8-bit character encoding which preceded Unicode.
+		// T.61 uses a code page layout that _almost_ exactly maps to the code
+		// page layout of the ISO 8859-1 (Latin-1) character encoding, with the
+		// exception that a number of characters in Latin-1 are not present
+		// in T.61.
+		//
+		// Instead of mapping which characters are present in Latin-1 but not T.61,
+		// we just treat these strings as being encoded using Latin-1. This matches
+		// what most of the world does, including BoringSSL.
+		buf := make([]byte, 0, len(value))
+		for _, v := range value {
+			// All the 1-byte UTF-8 runes map 1-1 with Latin-1.
+			buf = utf8.AppendRune(buf, rune(v))
+		}
+		return string(buf), nil
 	case cryptobyte_asn1.PrintableString:
+		if asn1.AllowPermissiveParsing {
+			return string(value), nil
+		}
 		for _, b := range value {
 			if !isPrintable(b) {
 				return "", errors.New("invalid PrintableString")
@@ -70,11 +88,22 @@ func parseASN1String(tag cryptobyte_asn1.Tag, value []byte) (string, error) {
 		}
 		return string(value), nil
 	case cryptobyte_asn1.UTF8String:
+		if asn1.AllowPermissiveParsing {
+			return string(value), nil
+		}
 		if !utf8.Valid(value) {
 			return "", errors.New("invalid UTF-8 string")
 		}
 		return string(value), nil
 	case cryptobyte_asn1.Tag(asn1.TagBMPString):
+		// BMPString uses the defunct UCS-2 16-bit character encoding, which
+		// covers the Basic Multilingual Plane (BMP). UTF-16 was an extension of
+		// UCS-2, containing all of the same code points, but also including
+		// multi-code point characters (by using surrogate code points). We can
+		// treat a UCS-2 encoded string as a UTF-16 encoded string, as long as
+		// we reject out the UTF-16 specific code points. This matches the
+		// BoringSSL behavior.
+
 		if len(value)%2 != 0 {
 			return "", errors.New("invalid BMPString")
 		}
@@ -86,18 +115,38 @@ func parseASN1String(tag cryptobyte_asn1.Tag, value []byte) (string, error) {
 
 		s := make([]uint16, 0, len(value)/2)
 		for len(value) > 0 {
-			s = append(s, uint16(value[0])<<8+uint16(value[1]))
+			if asn1.AllowPermissiveParsing {
+				s = append(s, uint16(value[0])<<8+uint16(value[1]))
+				value = value[2:]
+				continue
+			}
+			point := uint16(value[0])<<8 + uint16(value[1])
+			// Reject UTF-16 code points that are permanently reserved
+			// noncharacters (0xfffe, 0xffff, and 0xfdd0-0xfdef) and surrogates
+			// (0xd800-0xdfff).
+			if point == 0xfffe || point == 0xffff ||
+				(point >= 0xfdd0 && point <= 0xfdef) ||
+				(point >= 0xd800 && point <= 0xdfff) {
+				return "", errors.New("invalid BMPString")
+			}
+			s = append(s, point)
 			value = value[2:]
 		}
 
 		return string(utf16.Decode(s)), nil
 	case cryptobyte_asn1.IA5String:
 		s := string(value)
+		if asn1.AllowPermissiveParsing {
+			return string(value), nil
+		}
 		if isIA5String(s) != nil {
 			return "", errors.New("invalid IA5String")
 		}
 		return s, nil
 	case cryptobyte_asn1.Tag(asn1.TagNumericString):
+		if asn1.AllowPermissiveParsing {
+			return string(value), nil
+		}
 		for _, b := range value {
 			if !('0' <= b && b <= '9' || b == ' ') {
 				return "", errors.New("invalid NumericString")
@@ -222,7 +271,7 @@ func parsePublicKey(keyData *publicKeyInfo) (any, error) {
 	der := cryptobyte.String(keyData.PublicKey.RightAlign())
 	switch {
 	case oid.Equal(oidPublicKeyRSA):
-		// zcrypto
+		// excrypto: support RSA public keys with NULL parameters
 		/*
 			// RSA public keys must have a NULL in the parameters.
 			// See RFC 3279, Section 2.3.1.
@@ -241,8 +290,7 @@ func parsePublicKey(keyData *publicKeyInfo) (any, error) {
 		if !der.ReadASN1Integer(&p.E) {
 			return nil, errors.New("x509: invalid RSA public exponent")
 		}
-
-		// zcrypto
+		// excrypto
 		if !asn1.AllowPermissiveParsing {
 			if p.N.Sign() <= 0 {
 				return nil, errors.New("x509: RSA modulus is not a positive number")
@@ -349,14 +397,16 @@ func parseBasicConstraintsExtension(der cryptobyte.String) (bool, int, error) {
 			return false, 0, errors.New("x509: invalid basic constraints")
 		}
 	}
+
 	maxPathLen := -1
 	if der.PeekASN1Tag(cryptobyte_asn1.INTEGER) {
-		if !der.ReadASN1Integer(&maxPathLen) {
+		var mpl uint
+		if !der.ReadASN1Integer(&mpl) || mpl > math.MaxInt {
 			return false, 0, errors.New("x509: invalid basic constraints")
 		}
+		maxPathLen = int(mpl)
 	}
 
-	// TODO: map out.MaxPathLen to 0 if it has the -1 default value? (Issue 19285)
 	return isCA, maxPathLen, nil
 }
 
@@ -394,7 +444,8 @@ func parseSANExtension(der cryptobyte.String) (dnsNames, emailAddresses []string
 			}
 			dnsNames = append(dnsNames, string(name))
 		case nameTypeURI:
-			uris = append(uris, string(data))
+			uriStr := string(data)
+			uris = append(uris, uriStr)
 		case nameTypeIP:
 			switch len(data) {
 			case net.IPv4len, net.IPv6len:

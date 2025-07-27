@@ -42,6 +42,7 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/sha1"
+	"github.com/runZeroInc/excrypto/crypto/sha256"
 	"github.com/runZeroInc/excrypto/crypto/x509/ct"
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
 	"github.com/runZeroInc/excrypto/encoding/asn1"
@@ -2166,12 +2167,22 @@ func CreateCertificate(rand io.Reader, template, parent *Certificate, pub, priv 
 
 	subjectKeyId := template.SubjectKeyId
 	if len(subjectKeyId) == 0 && template.IsCA {
-		// SubjectKeyId generated using method 1 in RFC 5280, Section 4.2.1.2:
-		//   (1) The keyIdentifier is composed of the 160-bit SHA-1 hash of the
-		//   value of the BIT STRING subjectPublicKey (excluding the tag,
-		//   length, and number of unused bits).
-		h := sha1.Sum(publicKeyBytes)
-		subjectKeyId = h[:]
+		if x509sha256skid.Value() == "0" {
+			x509sha256skid.IncNonDefault()
+			// SubjectKeyId generated using method 1 in RFC 5280, Section 4.2.1.2:
+			//   (1) The keyIdentifier is composed of the 160-bit SHA-1 hash of the
+			//   value of the BIT STRING subjectPublicKey (excluding the tag,
+			//   length, and number of unused bits).
+			h := sha1.Sum(publicKeyBytes)
+			subjectKeyId = h[:]
+		} else {
+			// SubjectKeyId generated using method 1 in RFC 7093, Section 2:
+			//    1) The keyIdentifier is composed of the leftmost 160-bits of the
+			//    SHA-256 hash of the value of the BIT STRING subjectPublicKey
+			//    (excluding the tag, length, and number of unused bits).
+			h := sha256.Sum256(publicKeyBytes)
+			subjectKeyId = h[:20]
+		}
 	}
 
 	// Check that the signer's public key matches the private key, if available.
@@ -2218,6 +2229,8 @@ func CreateCertificate(rand io.Reader, template, parent *Certificate, pub, priv 
 		SignatureValue:     asn1.BitString{Bytes: signature, BitLength: len(signature) * 8},
 	})
 }
+
+var x509sha256skid = godebug.New("x509sha256skid")
 
 // pemCRLPrefix is the magic string that indicates that we have a PEM encoded
 // CRL.
@@ -2467,10 +2480,10 @@ func parseCSRExtensions(rawAttributes []asn1.RawValue) ([]pkix.Extension, error)
 //   - Attributes (deprecated)
 //
 // priv is the private key to sign the CSR with, and the corresponding public
-// key will be included in the CSR. It must implement crypto.Signer and its
-// Public() method must return a *rsa.PublicKey or a *ecdsa.PublicKey or a
-// ed25519.PublicKey. (A *rsa.PrivateKey, *ecdsa.PrivateKey or
-// ed25519.PrivateKey satisfies this.)
+// key will be included in the CSR. It must implement crypto.Signer or
+// crypto.MessageSigner and its Public() method must return a *rsa.PublicKey or
+// a *ecdsa.PublicKey or a ed25519.PublicKey. (A *rsa.PrivateKey,
+// *ecdsa.PrivateKey or ed25519.PrivateKey satisfies this.)
 //
 // The returned slice is the certificate request in DER encoding.
 func CreateCertificateRequest(rand io.Reader, template *CertificateRequest, priv any) (csr []byte, err error) {
@@ -2812,8 +2825,9 @@ type tbsCertificateList struct {
 // CreateRevocationList creates a new X.509 v2 [Certificate] Revocation List,
 // according to RFC 5280, based on template.
 //
-// The CRL is signed by priv which should be the private key associated with
-// the public key in the issuer certificate.
+// The CRL is signed by priv which should be a crypto.Signer or
+// crypto.MessageSigner associated with the public key in the issuer
+// certificate.
 //
 // The issuer may not be nil, and the crlSign bit must be set in [KeyUsage] in
 // order to use it as a CRL issuer.
