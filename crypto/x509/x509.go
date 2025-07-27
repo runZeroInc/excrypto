@@ -22,7 +22,6 @@ package x509
 
 import (
 	"bytes"
-	cryptorand "crypto/rand"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -31,6 +30,7 @@ import (
 	"net"
 	"strconv"
 	"time"
+	"unicode"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/weppos/publicsuffix-go/publicsuffix"
@@ -1593,9 +1593,14 @@ func isIA5String(s string) error {
 }
 */
 
-// zcrypto
-// isIA5String is disabled to allow lax parsing
-func isIA5String(_ string) error {
+func isIA5String(s string) error {
+	for _, r := range s {
+		// Per RFC5280 "IA5String is limited to the set of ASCII characters"
+		if r > unicode.MaxASCII {
+			return fmt.Errorf("x509: %q cannot be encoded as an IA5String", s)
+		}
+	}
+
 	return nil
 }
 
@@ -1696,15 +1701,13 @@ func buildCertExtensions(template *Certificate, subjectIsEmpty bool, authorityKe
 		n++
 	}
 
-	// TODO: this can be cleaned up in go1.10
-	if (len(template.PermittedEmailAddresses) > 0 || len(template.PermittedDNSDomains) > 0 || len(template.PermittedDirectoryNames) > 0 ||
-		len(template.PermittedIPRanges) > 0 || len(template.ExcludedEmailAddresses) > 0 || len(template.ExcludedDNSDomains) > 0 ||
-		len(template.ExcludedDirectoryNames) > 0 || len(template.ExcludedIPRanges) > 0) &&
+	if (len(template.PermittedDNSDomains) > 0 || len(template.ExcludedDNSDomains) > 0 ||
+		len(template.PermittedIPRanges) > 0 || len(template.ExcludedIPRanges) > 0 ||
+		len(template.PermittedEmailAddresses) > 0 || len(template.ExcludedEmailAddresses) > 0 ||
+		len(template.PermittedURIDomains) > 0 || len(template.ExcludedURIDomains) > 0) &&
 		!oidInExtensions(oidExtensionNameConstraints, template.ExtraExtensions) {
 		ret[n].Id = oidExtensionNameConstraints
-		if template.PermittedDNSDomainsCritical {
-			ret[n].Critical = true
-		}
+		ret[n].Critical = template.PermittedDNSDomainsCritical
 
 		ipAndMask := func(ipNet *net.IPNet) []byte {
 			maskedIP := ipNet.IP.Mask(ipNet.Mask)
@@ -2097,45 +2100,37 @@ func CreateCertificate(rand io.Reader, template, parent *Certificate, pub, priv 
 
 	serialNumber := template.SerialNumber
 	if serialNumber == nil {
-		// Generate a serial number following RFC 5280 Section 4.1.2.2 if one is not provided.
-		// Requirements:
-		//   - serial number must be positive
-		//   - at most 20 octets when encoded
-		maxSerial := big.NewInt(1).Lsh(big.NewInt(1), 20*8)
-		for {
-			var err error
-			serialNumber, err = cryptorand.Int(rand, maxSerial)
-			if err != nil {
-				return nil, err
-			}
-			// If the serial is exactly 20 octets, check if the high bit of the first byte is set.
-			// If so, generate a new serial, since it will be padded with a leading 0 byte during
-			// encoding so that the serial is not interpreted as a negative integer, making it
-			// 21 octets.
-			if serialBytes := serialNumber.Bytes(); len(serialBytes) > 0 && (len(serialBytes) < 20 || serialBytes[0]&0x80 == 0) {
-				break
-			}
+		// Generate a serial number following RFC 5280, Section 4.1.2.2 if one
+		// is not provided. The serial number must be positive and at most 20
+		// octets *when encoded*.
+		serialBytes := make([]byte, 20)
+		if _, err := io.ReadFull(rand, serialBytes); err != nil {
+			return nil, err
 		}
+		// If the top bit is set, the serial will be padded with a leading zero
+		// byte during encoding, so that it's not interpreted as a negative
+		// integer. This padding would make the serial 21 octets so we clear the
+		// top bit to ensure the correct length in all cases.
+		serialBytes[0] &= 0b0111_1111
+		serialNumber = new(big.Int).SetBytes(serialBytes)
 	}
 
-	// excrypto: disable validation of serial numbers
-	/*
-		// RFC 5280 Section 4.1.2.2: serial number must be positive
-		//
-		// We _should_ also restrict serials to <= 20 octets, but it turns out a lot of people
-		// get this wrong, in part because the encoding can itself alter the length of the
-		// serial. For now we accept these non-conformant serials.
-		if serialNumber.Sign() == -1 {
-			return nil, errors.New("x509: serial number must be positive")
-		}
-	*/
+	// RFC 5280 Section 4.1.2.2: serial number must be positive
+	//
+	// We _should_ also restrict serials to <= 20 octets, but it turns out a lot of people
+	// get this wrong, in part because the encoding can itself alter the length of the
+	// serial. For now we accept these non-conformant serials.
+	if serialNumber.Sign() == -1 {
+		return nil, errors.New("x509: serial number must be positive")
+	}
 
-	// ecrypto: disable validation of max path length
-	/*
-		if template.BasicConstraintsValid && !template.IsCA && template.MaxPathLen != -1 && (template.MaxPathLen != 0 || template.MaxPathLenZero) {
-			return nil, errors.New("x509: only CAs are allowed to specify MaxPathLen")
-		}
-	*/
+	if template.BasicConstraintsValid && template.MaxPathLen < -1 {
+		return nil, errors.New("x509: invalid MaxPathLen, must be greater or equal to -1")
+	}
+
+	if template.BasicConstraintsValid && !template.IsCA && template.MaxPathLen != -1 && (template.MaxPathLen != 0 || template.MaxPathLenZero) {
+		return nil, errors.New("x509: only CAs are allowed to specify MaxPathLen")
+	}
 
 	signatureAlgorithm, algorithmIdentifier, err := signingParamsForKey(key, template.SignatureAlgorithm)
 	if err != nil {
