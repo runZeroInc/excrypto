@@ -753,7 +753,7 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 			DNSNames:       []string{"test.example.com"},
 			EmailAddresses: []string{"gopher@golang.org"},
 			IPAddresses:    []net.IP{net.IPv4(127, 0, 0, 1).To4(), net.ParseIP("2001:4860:0:2001::68")},
-			URIs:           []*url.URL{parseURI("https://foo.com/wibble#foo")},
+			URIs:           []string{"https://foo.com/wibble#foo"},
 
 			Policies:                []OID{mustNewOIDFromInts([]uint64{1, 2, 3, math.MaxUint32, math.MaxUint64})},
 			PermittedDNSDomains:     []string{".example.com", "example.com"},

@@ -450,7 +450,102 @@ func parseExtKeyUsageExtension(der cryptobyte.String) ([]ExtKeyUsage, []asn1.Obj
 	return extKeyUsages, unknownUsages, nil
 }
 
-func parseCertificatePoliciesExtension(der cryptobyte.String) ([]OID, error) {
+func parseCertificatePoliciesExtension(out *Certificate, der cryptobyte.String) ([]OID, error) {
+	var err error
+
+	// excrypto: Implement two-pass parsing to handle zlint requirements and newer crypto stdlib details.
+
+	// Start the first pass for excrypto fields
+
+	// RFC 5280 4.2.1.4: Certificate Policies
+	var policies []policyInformation
+	if _, err = asn1.Unmarshal(der, &policies); err != nil {
+		return nil, err
+	}
+
+	out.PolicyIdentifiers = make([]asn1.ObjectIdentifier, len(policies))
+	out.QualifierId = make([][]asn1.ObjectIdentifier, len(policies))
+	out.ExplicitTexts = make([][]asn1.RawValue, len(policies))
+	out.NoticeRefOrgnization = make([][]asn1.RawValue, len(policies))
+	out.NoticeRefNumbers = make([][]NoticeNumber, len(policies))
+	out.ParsedExplicitTexts = make([][]string, len(policies))
+	out.ParsedNoticeRefOrganization = make([][]string, len(policies))
+	out.CPSuri = make([][]string, len(policies))
+	out.UserNotices = make([][]UserNotice, len(policies))
+
+	for i, policy := range policies {
+		// TODO: Avoid double marshal by adding a conversion function
+		if oidVal, err := ParseOID(policy.Policy.String()); err == nil {
+			out.Policies = append(out.Policies, oidVal)
+		}
+		out.PolicyIdentifiers[i] = policy.Policy
+		// parse optional Qualifier for zlint
+		for _, qualifier := range policy.Qualifiers {
+			out.QualifierId[i] = append(out.QualifierId[i], qualifier.PolicyQualifierId)
+			userNoticeOID := asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 2, 2}
+			cpsURIOID := asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 2, 1}
+
+			if qualifier.PolicyQualifierId.Equal(userNoticeOID) {
+				var un userNotice
+				_, err := asn1.Unmarshal(qualifier.Qualifier.FullBytes, &un)
+				if err != nil && !asn1.AllowPermissiveParsing {
+					return nil, err
+				}
+				if err == nil {
+					groupUserNotice := UserNotice{}
+					if len(un.ExplicitText.Bytes) != 0 {
+						out.ExplicitTexts[i] = append(out.ExplicitTexts[i], un.ExplicitText)
+						parsed := string(un.ExplicitText.Bytes)
+						out.ParsedExplicitTexts[i] = append(out.ParsedExplicitTexts[i], parsed)
+
+						groupUserNotice.ExplicitText = &parsed
+					}
+
+					if un.NoticeRef.Organization.Bytes != nil || un.NoticeRef.NoticeNumbers != nil {
+						out.NoticeRefOrgnization[i] = append(out.NoticeRefOrgnization[i], un.NoticeRef.Organization)
+						out.NoticeRefNumbers[i] = append(out.NoticeRefNumbers[i], un.NoticeRef.NoticeNumbers)
+						out.ParsedNoticeRefOrganization[i] = append(out.ParsedNoticeRefOrganization[i], string(un.NoticeRef.Organization.Bytes))
+
+						groupUserNotice.NoticeReference = &NoticeReference{
+							Organization:  string(un.NoticeRef.Organization.Bytes),
+							NoticeNumbers: un.NoticeRef.NoticeNumbers,
+						}
+					}
+
+					out.UserNotices[i] = append(out.UserNotices[i], groupUserNotice)
+				}
+			}
+			if qualifier.PolicyQualifierId.Equal(cpsURIOID) {
+				var cpsURIRaw asn1.RawValue
+				_, err = asn1.Unmarshal(qualifier.Qualifier.FullBytes, &cpsURIRaw)
+				if err != nil && !asn1.AllowPermissiveParsing {
+					return nil, err
+				}
+				if err == nil {
+					out.CPSuri[i] = append(out.CPSuri[i], string(cpsURIRaw.Bytes))
+				}
+			}
+		}
+
+		if out.SelfSigned {
+			out.ValidationLevel = UnknownValidationLevel
+		} else {
+			// See http://unmitigatedrisk.com/?p=203
+			validationLevel := getMaxCertValidationLevel(out.PolicyIdentifiers)
+			if validationLevel == UnknownValidationLevel {
+				if (len(out.Subject.Organization) > 0 && out.Subject.Organization[0] == out.Subject.CommonName) || (len(out.Subject.OrganizationalUnit) > 0 && strings.Contains(out.Subject.OrganizationalUnit[0], "Domain Control Validated")) {
+					if len(out.Subject.Locality) == 0 && len(out.Subject.Province) == 0 && len(out.Subject.PostalCode) == 0 {
+						validationLevel = DV
+					}
+				} else if len(out.Subject.Organization) > 0 && out.Subject.Organization[0] == "Persona Not Validated" && strings.Contains(out.Issuer.CommonName, "StartCom") {
+					validationLevel = DV
+				}
+			}
+		}
+	}
+
+	// Handle newer crypto stdlib parsing requirements
+	// Start the second pass for stdlib
 	var oids []OID
 	seenOIDs := map[string]bool{}
 	if !der.ReadASN1(&der, cryptobyte_asn1.SEQUENCE) {
@@ -736,7 +831,7 @@ func processExtensions(out *Certificate) error {
 		unhandled := false
 
 		// zcrypto
-		// TODO: Handle additional permissive parsing (skip most returns on error)
+		// TODO: Handle additional permissive parsing (avoid returning early on error)
 
 		if len(e.Id) == 4 && e.Id[0] == 2 && e.Id[1] == 5 && e.Id[2] == 29 {
 			switch e.Id[3] {
@@ -849,13 +944,17 @@ func processExtensions(out *Certificate) error {
 						out.CRLDistributionPoints = append(out.CRLDistributionPoints, string(uri))
 					}
 				}
-
 			case 35:
 				out.AuthorityKeyId, err = parseAuthorityKeyIdentifier(e)
 				if err != nil {
-					return err
+					if !asn1.AllowPermissiveParsing {
+						return err
+					} else {
+						out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
+					}
 				}
 			case 36:
+				// excrypto: TODO: enable permissive parsing
 				val := cryptobyte.String(e.Value)
 				if !val.ReadASN1(&val, cryptobyte_asn1.SEQUENCE) {
 					return errors.New("x509: invalid policy constraints extension")
@@ -887,7 +986,11 @@ func processExtensions(out *Certificate) error {
 			case 37:
 				out.ExtKeyUsage, out.UnknownExtKeyUsage, err = parseExtKeyUsageExtension(e.Value)
 				if err != nil {
-					return err
+					if !asn1.AllowPermissiveParsing {
+						return err
+					} else {
+						out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
+					}
 				}
 			case 14: // RFC 5280, 4.2.1.2
 				if e.Critical {
@@ -901,7 +1004,7 @@ func processExtensions(out *Certificate) error {
 				}
 				out.SubjectKeyId = skid
 			case 32:
-				err = parseCertificatePoliciesExtension(out, e.Value)
+				_, err = parseCertificatePoliciesExtension(out, e.Value)
 				if err != nil {
 					if !asn1.AllowPermissiveParsing {
 						return err
@@ -937,8 +1040,12 @@ func processExtensions(out *Certificate) error {
 		} else if e.Id.Equal(oidExtensionAuthorityInfoAccess) {
 			// RFC 5280 4.2.2.1: Authority Information Access
 			if e.Critical {
-				// Conforming CAs MUST mark this extension as non-critical
-				return errors.New("x509: authority info access incorrectly marked critical")
+				err := errors.New("x509: authority info access incorrectly marked critical")
+				if !asn1.AllowPermissiveParsing {
+					return err
+				} else {
+					out.PermissiveErrors = append(out.PermissiveErrors, fmt.Errorf("extension %d/%s: %w", extIdx, oidStr, err))
+				}
 			}
 			val := cryptobyte.String(e.Value)
 			if !val.ReadASN1(&val, cryptobyte_asn1.SEQUENCE) {

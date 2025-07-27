@@ -33,6 +33,7 @@ import (
 	"time"
 
 	"github.com/runZeroInc/excrypto/crypto"
+	"github.com/weppos/publicsuffix-go/publicsuffix"
 
 	"github.com/runZeroInc/excrypto/crypto/dsa"
 	"github.com/runZeroInc/excrypto/crypto/ecdh"
@@ -1025,6 +1026,97 @@ type Certificate struct {
 
 	// PolicyMappings contains a list of policy mappings included in the certificate.
 	PolicyMappings []PolicyMapping
+
+	ValidationLevel CertValidationLevel
+
+	// Fingerprints
+	FingerprintMD5    CertificateFingerprint
+	FingerprintSHA1   CertificateFingerprint
+	FingerprintSHA256 CertificateFingerprint
+	FingerprintNoCT   CertificateFingerprint
+
+	// SPKI
+	SPKIFingerprint           CertificateFingerprint
+	SPKISubjectFingerprint    CertificateFingerprint
+	TBSCertificateFingerprint CertificateFingerprint
+
+	IsPrecert bool
+
+	// ValidSignature is true if the certificate was signed by any roots or
+	// intermediates given in a call to (*Certificate).Verify().
+	ValidSignature bool
+
+	// CT
+	SignedCertificateTimestampList []*ct.SignedCertificateTimestamp
+
+	// QWACS
+	CABFOrganizationIdentifier *CABFOrganizationIdentifier
+	QCStatements               *QCStatements
+
+	// Used to speed up the zlint checks. Populated by the GetParsedDNSNames method.
+	parsedDNSNames []ParsedDomainName
+	// Used to speed up the zlint checks. Populated by the GetParsedCommonName method
+	parsedCommonName *ParsedDomainName
+
+	// CAB Forum Tor Service Descriptor Hash Extensions (see EV Guidelines
+	// Appendix F)
+	TorServiceDescriptors []*TorServiceDescriptorHash
+
+	// PermissiveErrors is a list of errors encountered that were ignored
+	PermissiveErrors []error
+}
+
+// ParsedDomainName is a structure holding a parsed domain name (CommonName or
+// DNS SAN) and a parsing error.
+type ParsedDomainName struct {
+	DomainString string
+	ParsedDomain *publicsuffix.DomainName
+	ParseError   error
+}
+
+// GetParsedDNSNames returns a list of parsed SAN DNS names. It is used to cache the parsing result and
+// speed up zlint linters. If invalidateCache is true, then the cache is repopulated with current list of string from
+// Certificate.DNSNames. This parameter should always be false, unless the Certificate.DNSNames have been modified
+// after calling GetParsedDNSNames the previous time.
+func (c *Certificate) GetParsedDNSNames(invalidateCache bool) []ParsedDomainName {
+	if c.parsedDNSNames != nil && !invalidateCache {
+		return c.parsedDNSNames
+	}
+	c.parsedDNSNames = make([]ParsedDomainName, len(c.DNSNames))
+
+	for i := range c.DNSNames {
+		parsedDomain, parseError := publicsuffix.ParseFromListWithOptions(publicsuffix.DefaultList,
+			c.DNSNames[i],
+			&publicsuffix.FindOptions{IgnorePrivate: true, DefaultRule: publicsuffix.DefaultRule})
+
+		c.parsedDNSNames[i].DomainString = c.DNSNames[i]
+		c.parsedDNSNames[i].ParsedDomain = parsedDomain
+		c.parsedDNSNames[i].ParseError = parseError
+	}
+
+	return c.parsedDNSNames
+}
+
+// GetParsedCommonName returns parsed subject CommonName. It is used to cache the parsing result and
+// speed up zlint linters. If invalidateCache is true, then the cache is repopulated with current subject CommonName.
+// This parameter should always be false, unless the Certificate.Subject.CommonName have been modified
+// after calling GetParsedSubjectCommonName the previous time.
+func (c *Certificate) GetParsedSubjectCommonName(invalidateCache bool) ParsedDomainName {
+	if c.parsedCommonName != nil && !invalidateCache {
+		return *c.parsedCommonName
+	}
+
+	parsedDomain, parseError := publicsuffix.ParseFromListWithOptions(publicsuffix.DefaultList,
+		c.Subject.CommonName,
+		&publicsuffix.FindOptions{IgnorePrivate: true, DefaultRule: publicsuffix.DefaultRule})
+
+	c.parsedCommonName = &ParsedDomainName{
+		DomainString: c.Subject.CommonName,
+		ParsedDomain: parsedDomain,
+		ParseError:   parseError,
+	}
+
+	return *c.parsedCommonName
 }
 
 // PolicyMapping represents a policy mapping entry in the policyMappings extension.
@@ -1142,14 +1234,17 @@ func checkSignature(algo SignatureAlgorithm, signed, signature []byte, publicKey
 		if pubKeyAlgo != Ed25519 {
 			return ErrUnsupportedAlgorithm
 		}
-	case crypto.MD5:
-		return InsecureAlgorithmError(algo)
-	case crypto.SHA1:
-		// SHA-1 signatures are only allowed for CRLs and CSRs.
-		if !allowSHA1 {
+	// excrypto: enable weak hashing
+	/*
+		case crypto.MD5:
 			return InsecureAlgorithmError(algo)
-		}
-		fallthrough
+		case crypto.SHA1:
+			// SHA-1 signatures are only allowed for CRLs and CSRs.
+			if !allowSHA1 {
+				return InsecureAlgorithmError(algo)
+			}
+			fallthrough
+	*/
 	default:
 		if !hashType.Available() {
 			return ErrUnsupportedAlgorithm
@@ -2022,18 +2117,24 @@ func CreateCertificate(rand io.Reader, template, parent *Certificate, pub, priv 
 		}
 	}
 
-	// RFC 5280 Section 4.1.2.2: serial number must be positive
-	//
-	// We _should_ also restrict serials to <= 20 octets, but it turns out a lot of people
-	// get this wrong, in part because the encoding can itself alter the length of the
-	// serial. For now we accept these non-conformant serials.
-	if serialNumber.Sign() == -1 {
-		return nil, errors.New("x509: serial number must be positive")
-	}
+	// excrypto: disable validation of serial numbers
+	/*
+		// RFC 5280 Section 4.1.2.2: serial number must be positive
+		//
+		// We _should_ also restrict serials to <= 20 octets, but it turns out a lot of people
+		// get this wrong, in part because the encoding can itself alter the length of the
+		// serial. For now we accept these non-conformant serials.
+		if serialNumber.Sign() == -1 {
+			return nil, errors.New("x509: serial number must be positive")
+		}
+	*/
 
-	if template.BasicConstraintsValid && !template.IsCA && template.MaxPathLen != -1 && (template.MaxPathLen != 0 || template.MaxPathLenZero) {
-		return nil, errors.New("x509: only CAs are allowed to specify MaxPathLen")
-	}
+	// ecrypto: disable validation of max path length
+	/*
+		if template.BasicConstraintsValid && !template.IsCA && template.MaxPathLen != -1 && (template.MaxPathLen != 0 || template.MaxPathLenZero) {
+			return nil, errors.New("x509: only CAs are allowed to specify MaxPathLen")
+		}
+	*/
 
 	signatureAlgorithm, algorithmIdentifier, err := signingParamsForKey(key, template.SignatureAlgorithm)
 	if err != nil {

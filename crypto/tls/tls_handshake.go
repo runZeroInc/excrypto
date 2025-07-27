@@ -494,13 +494,15 @@ func (m *clientHandshakeState) MakeLog() *KeyMaterial {
 }
 
 func (m *clientHandshakeStateTLS13) MakeLog() *KeyMaterial {
+	// TODO: excrypto: revisit for correctness
+	ems := m.masterSecret.ExporterMasterSecret(m.transcript)
+	res := ems.Exporter("client finished", nil, 0)
+
 	keymat := new(KeyMaterial)
-
 	keymat.MasterSecret = new(MasterSecret)
-	keymat.MasterSecret.Length = len(m.masterSecret)
-	keymat.MasterSecret.Value = make([]byte, len(m.masterSecret))
-	copy(keymat.MasterSecret.Value, m.masterSecret)
-
+	keymat.MasterSecret.Value = make([]byte, len(res))
+	keymat.MasterSecret.Length = len(res)
+	copy(keymat.MasterSecret.Value, res)
 	return keymat
 }
 

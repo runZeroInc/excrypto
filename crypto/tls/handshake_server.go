@@ -27,19 +27,20 @@ import (
 // serverHandshakeState contains details of a server handshake in progress.
 // It's discarded once the handshake has completed.
 type serverHandshakeState struct {
-	c            *Conn
-	ctx          context.Context
-	clientHello  *clientHelloMsg
-	hello        *serverHelloMsg
-	suite        *cipherSuite
-	ecdheOk      bool
-	ecSignOk     bool
-	rsaDecryptOk bool
-	rsaSignOk    bool
-	sessionState *SessionState
-	finishedHash finishedHash
-	masterSecret []byte
-	cert         *Certificate
+	c               *Conn
+	ctx             context.Context
+	clientHello     *clientHelloMsg
+	hello           *serverHelloMsg
+	suite           *cipherSuite
+	ecdheOk         bool
+	ecSignOk        bool
+	rsaDecryptOk    bool
+	rsaSignOk       bool
+	sessionState    *SessionState
+	finishedHash    finishedHash
+	masterSecret    []byte
+	preMasterSecret PreMasterSecret
+	cert            *Certificate
 }
 
 // serverHandshake performs a TLS handshake as a server.
