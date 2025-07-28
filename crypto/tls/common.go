@@ -579,14 +579,6 @@ const (
 	RequireAndVerifyClientCert
 )
 
-func (authType *ClientAuthType) String() string {
-	if name, ok := clientAuthTypeNames[int(*authType)]; ok {
-		return name
-	}
-
-	return "unknown"
-}
-
 func (authType *ClientAuthType) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + authType.String() + `"`), nil
 }

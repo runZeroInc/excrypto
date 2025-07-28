@@ -6,6 +6,8 @@ package fips140
 
 import (
 	"errors"
+	"fmt"
+	"os"
 	"strings"
 	_ "unsafe" // for go:linkname
 
@@ -13,9 +15,10 @@ import (
 )
 
 // fatal is [runtime.fatal], pushed via linkname.
-//
-//go:linkname fatal crypto/internal/fips140.fatal
-func fatal(string)
+func fatal(n string) {
+	fmt.Fprintf(os.Stderr, "fips fatal: %s\n", n)
+	os.Exit(1)
+}
 
 // failfipscast is a GODEBUG key allowing simulation of a CAST or PCT failure,
 // as required during FIPS 140-3 functional testing. The value is the whole name
