@@ -10,9 +10,10 @@ import (
 	"bytes"
 	"encoding"
 	"fmt"
-	"hash"
 	"io"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
 )

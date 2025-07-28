@@ -11,7 +11,7 @@ package sha3
 // instructions to compute SHA-3 and SHAKE hashes on IBM Z.
 
 import (
-	"hash"
+	"github.com/runZeroInc/excrypto/hash"
 
 	"golang.org/x/sys/cpu"
 )

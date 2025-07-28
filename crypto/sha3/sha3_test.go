@@ -8,11 +8,12 @@ import (
 	"bytes"
 	. "crypto/sha3"
 	"encoding/hex"
-	"hash"
 	"io"
 	"math/rand"
 	"strings"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
 )

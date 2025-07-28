@@ -6,9 +6,10 @@ package tls
 
 import (
 	"fmt"
-	"hash"
 	"runtime"
 	_ "unsafe" // for linkname
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/internal/cpu"

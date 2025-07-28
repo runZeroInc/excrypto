@@ -19,11 +19,12 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"hash"
 	"io"
 	"net/textproto"
 	"strconv"
 	"strings"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/armor"

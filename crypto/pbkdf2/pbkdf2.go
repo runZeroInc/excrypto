@@ -12,7 +12,8 @@ package pbkdf2
 
 import (
 	"errors"
-	"hash"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/pbkdf2"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140hash"

@@ -13,9 +13,10 @@
 package s2k
 
 import (
-	"hash"
 	"io"
 	"strconv"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/errors"

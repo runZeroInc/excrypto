@@ -7,11 +7,12 @@ package packet
 import (
 	"encoding/binary"
 	"fmt"
-	"hash"
 	"io"
 	"math/big"
 	"strconv"
 	"time"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/md5"

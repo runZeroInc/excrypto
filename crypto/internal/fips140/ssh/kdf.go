@@ -7,7 +7,7 @@
 package ssh
 
 import (
-	"hash"
+	"github.com/runZeroInc/excrypto/hash"
 
 	_ "github.com/runZeroInc/excrypto/crypto/internal/fips140/check"
 )

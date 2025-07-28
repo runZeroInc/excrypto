@@ -11,6 +11,7 @@ import (
 
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140deps/byteorder"
+	"github.com/runZeroInc/excrypto/hash"
 )
 
 const (

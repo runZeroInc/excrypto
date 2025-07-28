@@ -7,11 +7,12 @@ package packet
 import (
 	"bytes"
 	"encoding/binary"
-	"hash"
 	"io"
 	"math/big"
 	"strconv"
 	"time"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/dsa"

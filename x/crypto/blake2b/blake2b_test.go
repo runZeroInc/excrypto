@@ -9,9 +9,10 @@ import (
 	"encoding"
 	"encoding/hex"
 	"fmt"
-	"hash"
 	"io"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/hash"
 )
 
 func fromHex(s string) []byte {

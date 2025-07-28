@@ -6,8 +6,9 @@ package pbkdf2
 
 import (
 	"bytes"
-	"hash"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto/sha1"
 	"github.com/runZeroInc/excrypto/crypto/sha256"

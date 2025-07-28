@@ -22,7 +22,7 @@ timing side-channels:
 package hmac
 
 import (
-	"hash"
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/hmac"

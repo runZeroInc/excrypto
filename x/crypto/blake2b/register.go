@@ -5,7 +5,7 @@
 package blake2b
 
 import (
-	"hash"
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 )

@@ -5,11 +5,12 @@
 package cryptotest
 
 import (
-	"hash"
 	"io"
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/runZeroInc/excrypto/hash"
 )
 
 type MakeHash func() hash.Hash

@@ -7,10 +7,11 @@ package md5
 import (
 	"bytes"
 	"fmt"
-	"hash"
 	"io"
 	"testing"
 	"unsafe"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"crypto/rand"
 

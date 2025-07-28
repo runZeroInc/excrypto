@@ -5,7 +5,7 @@
 package tls12
 
 import (
-	"hash"
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/hmac"

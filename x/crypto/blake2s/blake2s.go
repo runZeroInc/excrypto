@@ -21,7 +21,8 @@ package blake2s
 import (
 	"encoding/binary"
 	"errors"
-	"hash"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 )

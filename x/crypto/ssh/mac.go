@@ -7,7 +7,7 @@ package ssh
 // Message authentication support
 
 import (
-	"hash"
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto/hmac"
 	"github.com/runZeroInc/excrypto/crypto/sha1"

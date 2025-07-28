@@ -12,7 +12,8 @@ package md5
 
 import (
 	"errors"
-	"hash"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 

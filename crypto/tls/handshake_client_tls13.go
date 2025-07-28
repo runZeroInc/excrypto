@@ -8,9 +8,10 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"hash"
 	"slices"
 	"time"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 

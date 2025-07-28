@@ -6,8 +6,9 @@ package rsa
 
 import (
 	"errors"
-	"hash"
 	"io"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"

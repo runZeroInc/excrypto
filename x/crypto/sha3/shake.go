@@ -19,9 +19,10 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"hash"
 	"io"
 	"math/bits"
+
+	"github.com/runZeroInc/excrypto/hash"
 )
 
 // ShakeHash defines the interface to hash functions that support

@@ -10,9 +10,10 @@ package boring
 import "C"
 import (
 	"bytes"
-	"hash"
 	"runtime"
 	"unsafe"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 )

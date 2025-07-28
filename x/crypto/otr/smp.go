@@ -12,8 +12,9 @@ package otr
 import (
 	"bytes"
 	"errors"
-	"hash"
 	"math/big"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto/sha256"
 )

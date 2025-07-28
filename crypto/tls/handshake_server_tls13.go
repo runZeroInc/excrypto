@@ -9,11 +9,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"hash"
 	"io"
 	"slices"
 	"sort"
 	"time"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 

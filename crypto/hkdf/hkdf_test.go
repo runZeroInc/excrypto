@@ -6,8 +6,9 @@ package hkdf
 
 import (
 	"bytes"
-	"hash"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140"

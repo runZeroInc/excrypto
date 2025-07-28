@@ -19,7 +19,7 @@ pbkdf2.Key.
 package pbkdf2
 
 import (
-	"hash"
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto/hmac"
 )

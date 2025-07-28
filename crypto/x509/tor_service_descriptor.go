@@ -22,7 +22,7 @@ type TorServiceDescriptorHash struct {
 	Onion         string                   `json:"onion"`
 	Algorithm     pkix.AlgorithmIdentifier `json:"-"`
 	AlgorithmName string                   `json:"algorithm_name"`
-	Hash          CertificateFingerprint   `json:"hash"`
+	Hash          CertificateFingerprint   `json:"github.com/runZeroInc/excrypto/hash"`
 	HashBits      int                      `json:"hash_bits"`
 }
 

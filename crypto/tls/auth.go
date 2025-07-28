@@ -8,9 +8,10 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"hash"
 	"io"
 	"slices"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 

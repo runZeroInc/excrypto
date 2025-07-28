@@ -21,7 +21,8 @@ package blake2b
 import (
 	"encoding/binary"
 	"errors"
-	"hash"
+
+	"github.com/runZeroInc/excrypto/hash"
 )
 
 const (

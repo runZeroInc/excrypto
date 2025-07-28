@@ -5,9 +5,10 @@ package hkdf
 
 import (
 	"bytes"
-	"hash"
 	"io"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto/md5"
 	"github.com/runZeroInc/excrypto/crypto/sha1"

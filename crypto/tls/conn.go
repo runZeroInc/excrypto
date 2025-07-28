@@ -11,12 +11,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"hash"
 	"io"
 	"net"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"github.com/runZeroInc/excrypto/crypto/subtle"

@@ -6,7 +6,8 @@ package argon2
 
 import (
 	"encoding/binary"
-	"hash"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/x/crypto/blake2b"
 )

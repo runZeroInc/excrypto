@@ -6,9 +6,10 @@
 package crypto
 
 import (
-	"hash"
 	"io"
 	"strconv"
+
+	"github.com/runZeroInc/excrypto/hash"
 )
 
 // Hash identifies a cryptographic hash function that is implemented in another

@@ -9,12 +9,13 @@ import (
 	"bytes"
 	"compress/bzip2"
 	"encoding/hex"
-	"hash"
 	"io"
 	"math/big"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"crypto/rand"
 

@@ -25,13 +25,14 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"hash"
 	"io"
 	"math/big"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"crypto/rand"
 

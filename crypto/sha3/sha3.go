@@ -7,8 +7,9 @@
 package sha3
 
 import (
-	"hash"
 	_ "unsafe"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 

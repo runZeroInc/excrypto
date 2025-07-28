@@ -5,8 +5,9 @@
 package fips140hash
 
 import (
-	"hash"
 	_ "unsafe"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	fsha3 "github.com/runZeroInc/excrypto/crypto/internal/fips140/sha3"
 	"github.com/runZeroInc/excrypto/crypto/sha3"

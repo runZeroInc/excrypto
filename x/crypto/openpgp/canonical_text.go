@@ -4,7 +4,7 @@
 
 package openpgp
 
-import "hash"
+import "github.com/runZeroInc/excrypto/hash"
 
 // NewCanonicalTextHash reformats text written to it into the canonical
 // form and then applies the hash h.  See RFC 4880, section 5.2.1.

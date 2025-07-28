@@ -5,10 +5,11 @@
 package openpgp
 
 import (
-	"hash"
 	"io"
 	"strconv"
 	"time"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/x/crypto/openpgp/armor"

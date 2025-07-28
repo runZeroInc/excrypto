@@ -14,6 +14,7 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/sha256"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/sha3"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/sha512"
+	"github.com/runZeroInc/excrypto/hash"
 )
 
 // key is zero padded to the block size of the hash function

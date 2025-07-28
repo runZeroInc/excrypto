@@ -15,10 +15,11 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
-	"hash"
 	"io"
 	"math/big"
 	"strconv"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"crypto/rand"
 

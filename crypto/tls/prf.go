@@ -7,7 +7,8 @@ package tls
 import (
 	"errors"
 	"fmt"
-	"hash"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/hmac"

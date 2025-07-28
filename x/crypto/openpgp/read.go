@@ -12,9 +12,10 @@
 package openpgp
 
 import (
-	"hash"
 	"io"
 	"strconv"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	_ "github.com/runZeroInc/excrypto/crypto/sha256"

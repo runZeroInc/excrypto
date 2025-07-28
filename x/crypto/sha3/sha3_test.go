@@ -17,12 +17,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"hash"
 	"io"
 	"math/rand"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/hash"
 )
 
 const (

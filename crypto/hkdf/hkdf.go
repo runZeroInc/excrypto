@@ -12,7 +12,8 @@ package hkdf
 
 import (
 	"errors"
-	"hash"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/hkdf"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140hash"

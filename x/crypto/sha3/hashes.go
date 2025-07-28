@@ -9,7 +9,7 @@ package sha3
 // bytes.
 
 import (
-	"hash"
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto"
 )

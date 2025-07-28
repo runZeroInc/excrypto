@@ -6,8 +6,9 @@ package fips140
 
 import (
 	"errors"
-	"hash"
 	"runtime"
+
+	"github.com/runZeroInc/excrypto/hash"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140deps/godebug"
 )

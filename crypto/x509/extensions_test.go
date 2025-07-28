@@ -512,7 +512,7 @@ func TestTorServiceDescriptorHashJSON(t *testing.T) {
 	}
 
 	expectedJSON := fmt.Sprintf(
-		`[{"onion":"https://zmap.onion","algorithm_name":"SHA256","hash":%q,"hash_bits":256}]`,
+		`[{"onion":"https://zmap.onion","algorithm_name":"SHA256","github.com/runZeroInc/excrypto/hash":%q,"hash_bits":256}]`,
 		testHash.Hex())
 
 	out, err := json.Marshal(descs)
