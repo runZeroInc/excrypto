@@ -7,7 +7,9 @@
 package rand
 
 import (
+	"fmt"
 	"io"
+	"os"
 	_ "unsafe"
 
 	"crypto/rand"
@@ -54,10 +56,9 @@ func (r *reader) Read(b []byte) (n int, err error) {
 	return len(b), nil
 }
 
-// fatal is [runtime.fatal], pushed via linkname.
-//
-//go:linkname fatal
-func fatal(string)
+func fatal(msg string) {
+	fmt.Fprintf(os.Stderr, "crypto/rand: %s\n", msg)
+}
 
 // Read fills b with cryptographically secure random bytes. It never returns an
 // error, and always fills b entirely.

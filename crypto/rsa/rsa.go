@@ -43,7 +43,6 @@ package rsa
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"math"
 	"math/big"
@@ -251,14 +250,18 @@ func (priv *PrivateKey) Validate() error {
 var rsa1024min = godebug.New("rsa1024min")
 
 func checkKeySize(size int) error {
-	if size >= 1024 {
-		return nil
-	}
-	if rsa1024min.Value() == "0" {
-		rsa1024min.IncNonDefault()
-		return nil
-	}
-	return fmt.Errorf("crypto/rsa: %d-bit keys are insecure (see https://go.dev/pkg/crypto/rsa#hdr-Minimum_key_size)", size)
+	// excrypto: enable all key sizes by default
+	return nil
+	/*
+		if size >= 1024 {
+			return nil
+		}
+		if rsa1024min.Value() == "0" {
+			rsa1024min.IncNonDefault()
+			return nil
+		}
+		return fmt.Errorf("crypto/rsa: %d-bit keys are insecure (see https://go.dev/pkg/crypto/rsa#hdr-Minimum_key_size)", size)
+	*/
 }
 
 func checkPublicKeySize(k *PublicKey) error {

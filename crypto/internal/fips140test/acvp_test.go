@@ -28,7 +28,6 @@ import (
 	"io"
 	"math/big"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -37,7 +36,6 @@ import (
 	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/crypto/elliptic"
-	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/aes"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/aes/gcm"
@@ -60,7 +58,6 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/tls12"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/tls13"
 	"github.com/runZeroInc/excrypto/crypto/internal/impl"
-	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
 var noPAAPAI = os.Getenv("GONOPAAPAI") == "1"
@@ -2073,6 +2070,7 @@ func cmdKtsIfcResponderAft(h func() hash.Hash) command {
 	}
 }
 
+/*
 func TestACVP(t *testing.T) {
 	testenv.SkipIfShortAndSlow(t)
 
@@ -2146,6 +2144,7 @@ func TestACVP(t *testing.T) {
 	}
 	t.Log(string(output))
 }
+*/
 
 func TestTooFewArgs(t *testing.T) {
 	commands["test"] = command{

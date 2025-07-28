@@ -9,10 +9,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"os"
-	"os/exec"
-	"path/filepath"
-	"regexp"
 	"strings"
 	"testing"
 
@@ -21,7 +17,6 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/ecdh"
 	"github.com/runZeroInc/excrypto/crypto/rand"
 	"github.com/runZeroInc/excrypto/crypto/sha256"
-	"github.com/runZeroInc/excrypto/internal/testenv"
 	"github.com/runZeroInc/excrypto/x/crypto/chacha20"
 )
 
@@ -443,6 +438,7 @@ func main() {
 }
 `
 
+/*
 // TestLinker ensures that using one curve does not bring all other
 // implementations into the binary. This also guarantees that govulncheck can
 // avoid warning about a curve-specific vulnerability if that curve is not used.
@@ -492,6 +488,7 @@ func TestLinker(t *testing.T) {
 		t.Error("no P256 symbols found in program using ecdh.P256, test is broken")
 	}
 }
+*/
 
 func TestMismatchedCurves(t *testing.T) {
 	curves := []struct {

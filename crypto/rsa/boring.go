@@ -11,7 +11,6 @@ import (
 
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/crypto/internal/boring/bbig"
-	"github.com/runZeroInc/excrypto/crypto/internal/boring/bcache"
 )
 
 // Cached conversions from Go PublicKey/PrivateKey to BoringCrypto.
@@ -32,20 +31,7 @@ type boringPub struct {
 	orig PublicKey
 }
 
-var pubCache bcache.Cache[PublicKey, boringPub]
-var privCache bcache.Cache[PrivateKey, boringPriv]
-
-func init() {
-	pubCache.Register()
-	privCache.Register()
-}
-
 func boringPublicKey(pub *PublicKey) (*boring.PublicKeyRSA, error) {
-	b := pubCache.Get(pub)
-	if b != nil && publicKeyEqual(&b.orig, pub) {
-		return b.key, nil
-	}
-
 	b = new(boringPub)
 	b.orig = copyPublicKey(pub)
 	key, err := boring.NewPublicKeyRSA(bbig.Enc(b.orig.N), bbig.Enc(big.NewInt(int64(b.orig.E))))
@@ -53,7 +39,6 @@ func boringPublicKey(pub *PublicKey) (*boring.PublicKeyRSA, error) {
 		return nil, err
 	}
 	b.key = key
-	pubCache.Put(pub, b)
 	return key, nil
 }
 
@@ -63,11 +48,6 @@ type boringPriv struct {
 }
 
 func boringPrivateKey(priv *PrivateKey) (*boring.PrivateKeyRSA, error) {
-	b := privCache.Get(priv)
-	if b != nil && privateKeyEqual(&b.orig, priv) {
-		return b.key, nil
-	}
-
 	b = new(boringPriv)
 	b.orig = copyPrivateKey(priv)
 
@@ -87,7 +67,6 @@ func boringPrivateKey(priv *PrivateKey) (*boring.PrivateKeyRSA, error) {
 		return nil, err
 	}
 	b.key = key
-	privCache.Put(priv, b)
 	return key, nil
 }
 

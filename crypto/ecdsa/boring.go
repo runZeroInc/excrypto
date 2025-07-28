@@ -11,29 +11,7 @@ import (
 
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/crypto/internal/boring/bbig"
-	"github.com/runZeroInc/excrypto/crypto/internal/boring/bcache"
 )
-
-// Cached conversions from Go PublicKey/PrivateKey to BoringCrypto.
-//
-// The first operation on a PublicKey or PrivateKey makes a parallel
-// BoringCrypto key and saves it in pubCache or privCache.
-//
-// We could just assume that once used in a Sign or Verify operation,
-// a particular key is never again modified, but that has not been a
-// stated assumption before. Just in case there is any existing code that
-// does modify the key between operations, we save the original values
-// alongside the cached BoringCrypto key and check that the real key
-// still matches before using the cached key. The theory is that the real
-// operations are significantly more expensive than the comparison.
-
-var pubCache bcache.Cache[PublicKey, boringPub]
-var privCache bcache.Cache[PrivateKey, boringPriv]
-
-func init() {
-	pubCache.Register()
-	privCache.Register()
-}
 
 type boringPub struct {
 	key  *boring.PublicKeyECDSA
@@ -41,11 +19,6 @@ type boringPub struct {
 }
 
 func boringPublicKey(pub *PublicKey) (*boring.PublicKeyECDSA, error) {
-	b := pubCache.Get(pub)
-	if b != nil && publicKeyEqual(&b.orig, pub) {
-		return b.key, nil
-	}
-
 	b = new(boringPub)
 	b.orig = copyPublicKey(pub)
 	key, err := boring.NewPublicKeyECDSA(b.orig.Curve.Params().Name, bbig.Enc(b.orig.X), bbig.Enc(b.orig.Y))
@@ -53,7 +26,6 @@ func boringPublicKey(pub *PublicKey) (*boring.PublicKeyECDSA, error) {
 		return nil, err
 	}
 	b.key = key
-	pubCache.Put(pub, b)
 	return key, nil
 }
 
@@ -63,11 +35,6 @@ type boringPriv struct {
 }
 
 func boringPrivateKey(priv *PrivateKey) (*boring.PrivateKeyECDSA, error) {
-	b := privCache.Get(priv)
-	if b != nil && privateKeyEqual(&b.orig, priv) {
-		return b.key, nil
-	}
-
 	b = new(boringPriv)
 	b.orig = copyPrivateKey(priv)
 	key, err := boring.NewPrivateKeyECDSA(b.orig.Curve.Params().Name, bbig.Enc(b.orig.X), bbig.Enc(b.orig.Y), bbig.Enc(b.orig.D))
@@ -75,7 +42,6 @@ func boringPrivateKey(priv *PrivateKey) (*boring.PrivateKeyECDSA, error) {
 		return nil, err
 	}
 	b.key = key
-	privCache.Put(priv, b)
 	return key, nil
 }
 
