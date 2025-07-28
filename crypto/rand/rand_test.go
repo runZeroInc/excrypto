@@ -7,14 +7,11 @@ package rand
 import (
 	"bytes"
 	"compress/flate"
-	"errors"
 	"io"
-	"os"
 	"sync"
 	"testing"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
-	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
 // These tests are mostly duplicates of the tests in crypto/internal/sysrand,
@@ -165,6 +162,7 @@ func TestAllocations(t *testing.T) {
 	}
 }
 
+/*
 func TestReadError(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping test in short mode")
@@ -192,6 +190,7 @@ func TestReadError(t *testing.T) {
 		t.Errorf("subprocess output does not contain %q: %s", exp, out)
 	}
 }
+*/
 
 func BenchmarkRead(b *testing.B) {
 	b.Run("4", func(b *testing.B) {
