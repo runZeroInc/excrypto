@@ -629,7 +629,7 @@ func parseNameConstraintsExtension(out *Certificate, e pkix.Extension) (unhandle
 				ipTag        = cryptobyte_asn1.Tag(7).ContextSpecific()
 				uriTag       = cryptobyte_asn1.Tag(6).ContextSpecific()
 				x400Tag      = cryptobyte_asn1.Tag(3).ContextSpecific()
-				dirNameTag   = cryptobyte_asn1.Tag(4).ContextSpecific()
+				dirNameTag   = cryptobyte_asn1.Tag(4).ContextSpecific().Constructed()
 				partyNameTag = cryptobyte_asn1.Tag(5).ContextSpecific()
 				permitOidTag = cryptobyte_asn1.Tag(8).ContextSpecific()
 			)
