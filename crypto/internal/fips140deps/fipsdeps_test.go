@@ -97,12 +97,14 @@ func TestImports(t *testing.T) {
 		case "github.com/runZeroInc/excrypto/crypto/internal/fips140/alias":
 		case "github.com/runZeroInc/excrypto/crypto/internal/fips140/subtle":
 		case "github.com/runZeroInc/excrypto/crypto/internal/fips140/hmac":
+		case "github.com/runZeroInc/excrypto/crypto/internal/fips140/aes":
+		case "github.com/runZeroInc/excrypto/crypto/internal/fips140/mlkem":
 		case "github.com/runZeroInc/excrypto/crypto/internal/fips140/sha3":
 		case "github.com/runZeroInc/excrypto/crypto/internal/fips140/sha256":
 		case "github.com/runZeroInc/excrypto/crypto/internal/fips140/sha512":
 		default:
 			if !importCheck[pkg] {
-				t.Errorf("package %s does not importgithub.com/runZeroInc/excrypto/crypto/internal/fips140/check", pkg)
+				t.Errorf("package %s does not import github.com/runZeroInc/excrypto/crypto/internal/fips140/check", pkg)
 			}
 		}
 	}
