@@ -8,8 +8,8 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/weppos/publicsuffix-go v0.50.0
 	golang.org/x/crypto v0.42.0
-	golang.org/x/sys v0.38.0
-	golang.org/x/term v0.35.0
+	golang.org/x/sys v0.39.0
+	golang.org/x/term v0.38.0
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127
 )
 
