@@ -247,7 +247,7 @@ func parsePublicKey(keyData *publicKeyInfo) (any, error) {
 			if p.N.Sign() <= 0 {
 				return nil, errors.New("x509: RSA modulus is not a positive number")
 			}
-			if p.E <= 0 {
+			if p.E.Cmp(big.NewInt(0)) <= 0 {
 				return nil, errors.New("x509: RSA public exponent is not a positive number")
 			}
 		}
@@ -834,7 +834,6 @@ func processExtensions(out *Certificate) error {
 				out.OtherNames, out.DNSNames, out.EmailAddresses,
 					out.URIs, out.DirectoryNames, out.EDIPartyNames,
 					out.IPAddresses, out.RegisteredIDs, out.FailedToParseNames, err = parseGeneralNames(e.Value)
-
 				// TODO: verify that parseGeneralNames handles the same cases as parseSANExtension
 				// out.DNSNames, out.EmailAddresses, out.IPAddresses, out.URIs, err = parseSANExtension(e.Value)
 				if err != nil {

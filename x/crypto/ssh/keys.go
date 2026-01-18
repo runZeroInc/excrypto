@@ -458,13 +458,13 @@ func parseRSA(in []byte) (out PublicKey, rest []byte, err error) {
 	}
 
 	var key rsa.PublicKey
-	key.E = int(e)
+	key.E = w.E
 	key.N = w.N
 	return (*rsaPublicKey)(&key), w.Rest, nil
 }
 
 func (r *rsaPublicKey) Marshal() []byte {
-	e := new(big.Int).SetInt64(int64(r.E))
+	e := new(big.Int).Set(r.E)
 	// RSA publickey struct layout should match the struct used by
 	// parseRSACert in the x/crypto/ssh/agent package.
 	wirekey := struct {
@@ -472,9 +472,9 @@ func (r *rsaPublicKey) Marshal() []byte {
 		E    *big.Int
 		N    *big.Int
 	}{
-		KeyAlgoRSA,
-		e,
-		r.N,
+		Name: KeyAlgoRSA,
+		E:    e,
+		N:    r.N,
 	}
 	return Marshal(&wirekey)
 }
@@ -1441,8 +1441,10 @@ func passphraseProtectedOpenSSHMarshaler(passphrase []byte) openSSHEncryptFunc {
 
 const privateKeyAuthMagic = "openssh-key-v1\x00"
 
-type openSSHDecryptFunc func(CipherName, KdfName, KdfOpts string, PrivKeyBlock []byte) ([]byte, error)
-type openSSHEncryptFunc func(PrivKeyBlock []byte) (ProtectedKeyBlock []byte, cipherName, kdfName, kdfOptions string, err error)
+type (
+	openSSHDecryptFunc func(CipherName, KdfName, KdfOpts string, PrivKeyBlock []byte) ([]byte, error)
+	openSSHEncryptFunc func(PrivKeyBlock []byte) (ProtectedKeyBlock []byte, cipherName, kdfName, kdfOptions string, err error)
+)
 
 type openSSHEncryptedPrivateKey struct {
 	CipherName   string
@@ -1540,7 +1542,7 @@ func parseOpenSSHPrivateKey(key []byte, decrypt openSSHDecryptFunc) (crypto.Priv
 		pk := &rsa.PrivateKey{
 			PublicKey: rsa.PublicKey{
 				N: key.N,
-				E: int(key.E.Int64()),
+				E: key.E,
 			},
 			D:      key.D,
 			Primes: []*big.Int{key.P, key.Q},
@@ -1640,7 +1642,7 @@ func marshalOpenSSHPrivateKey(key crypto.PrivateKey, comment string, encrypt ope
 
 	switch k := key.(type) {
 	case *rsa.PrivateKey:
-		E := new(big.Int).SetInt64(int64(k.PublicKey.E))
+		E := k.PublicKey.E
 		// Marshal public key:
 		// E and N are in reversed order in the public and private key.
 		pubKey := struct {

@@ -25,13 +25,12 @@
 package rsa
 
 import (
+	"crypto/rand"
 	"errors"
 	"hash"
 	"io"
 	"math"
 	"math/big"
-
-	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/internal/bigmod"
@@ -50,7 +49,7 @@ var bigOne = big.NewInt(1)
 // exponent E nor the precise bit size of N are similarly protected.
 type PublicKey struct {
 	N *big.Int // modulus
-	E int      // public exponent
+	E *big.Int // public exponent
 }
 
 // Any methods implemented on PublicKey might need to also be implemented on
@@ -68,7 +67,7 @@ func (pub *PublicKey) Equal(x crypto.PublicKey) bool {
 	if !ok {
 		return false
 	}
-	return bigIntEqual(pub.N, xx.N) && pub.E == xx.E
+	return bigIntEqual(pub.N, xx.N) && bigIntEqual(pub.E, xx.E)
 }
 
 // OAEPOptions is an interface for passing options to OAEP decryption using the
@@ -92,6 +91,8 @@ var (
 	errPublicExponentLarge = errors.New("crypto/rsa: public exponent too large")
 )
 
+/*
+// The original checkPub() is disabled to enable wild values for E
 // checkPub sanity checks the public key before we use it.
 // We require pub.E to fit into a 32-bit integer so that we
 // do not have different behavior depending on whether
@@ -101,11 +102,22 @@ func checkPub(pub *PublicKey) error {
 	if pub.N == nil {
 		return errPublicModulus
 	}
+
 	if pub.E < 2 {
 		return errPublicExponentSmall
 	}
 	if pub.E > 1<<31-1 {
 		return errPublicExponentLarge
+	}
+
+	return nil
+}
+*/
+
+// checkPub provides minimal checks on the public key.
+func checkPub(pub *PublicKey) error {
+	if pub.N == nil {
+		return errPublicModulus
 	}
 	return nil
 }
@@ -256,7 +268,7 @@ func (priv *PrivateKey) Validate() error {
 	// exponent(ℤ/nℤ). It also implies that a^de ≡ a mod p as a^(p-1) ≡ 1
 	// mod p. Thus a^de ≡ a mod n for all a coprime to n, as required.
 	congruence := new(big.Int)
-	de := new(big.Int).SetInt64(int64(priv.E))
+	de := new(big.Int).Set(priv.E)
 	de.Mul(de, priv.D)
 	for _, prime := range priv.Primes {
 		pminus1 := new(big.Int).Sub(prime, bigOne)
@@ -313,10 +325,6 @@ func GenerateMultiPrimeKey(random io.Reader, nprimes int, bits int) (*PrivateKey
 		Dp := bbig.Dec(bDp)
 		Dq := bbig.Dec(bDq)
 		Qinv := bbig.Dec(bQinv)
-		e64 := E.Int64()
-		if !E.IsInt64() || int64(int(e64)) != e64 {
-			return nil, errors.New("crypto/rsa: generated key exponent too large")
-		}
 
 		mn, err := bigmod.NewModulusFromBig(N)
 		if err != nil {
@@ -334,7 +342,7 @@ func GenerateMultiPrimeKey(random io.Reader, nprimes int, bits int) (*PrivateKey
 		key := &PrivateKey{
 			PublicKey: PublicKey{
 				N: N,
-				E: int(e64),
+				E: new(big.Int).Set(E),
 			},
 			D:      D,
 			Primes: []*big.Int{P, Q},
@@ -352,7 +360,7 @@ func GenerateMultiPrimeKey(random io.Reader, nprimes int, bits int) (*PrivateKey
 	}
 
 	priv := new(PrivateKey)
-	priv.E = 65537
+	priv.E = big.NewInt(65537)
 
 	if nprimes < 2 {
 		return nil, errors.New("crypto/rsa: GenerateMultiPrimeKey: nprimes must be >= 2")
@@ -426,7 +434,7 @@ NextSetOfPrimes:
 		}
 
 		priv.D = new(big.Int)
-		e := big.NewInt(int64(priv.E))
+		e := new(big.Int).Set(priv.E)
 		ok := priv.D.ModInverse(e, totient)
 
 		if ok != nil {
@@ -491,8 +499,7 @@ func encrypt(pub *PublicKey, plaintext []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	e := uint(pub.E)
-
+	e := new(big.Int).Set(pub.E)
 	return bigmod.NewNat().ExpShortVarTime(m, e, N).Bytes(N), nil
 }
 
@@ -633,8 +640,10 @@ func (priv *PrivateKey) Precompute() {
 	}
 }
 
-const withCheck = true
-const noCheck = false
+const (
+	withCheck = true
+	noCheck   = false
+)
 
 // decrypt performs an RSA decryption of ciphertext into out. If check is true,
 // m^e is calculated and compared with ciphertext, in order to defend against
@@ -687,7 +696,7 @@ func decrypt(priv *PrivateKey, ciphertext []byte, check bool) ([]byte, error) {
 	}
 
 	if check {
-		c1 := bigmod.NewNat().ExpShortVarTime(m, uint(priv.E), N)
+		c1 := bigmod.NewNat().ExpShortVarTime(m, priv.E, N)
 		if c1.Equal(c) != 1 {
 			return nil, ErrDecryption
 		}

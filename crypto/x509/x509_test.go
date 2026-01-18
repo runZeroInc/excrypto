@@ -49,7 +49,7 @@ func TestParsePKCS1PrivateKey(t *testing.T) {
 		return
 	}
 	if priv.PublicKey.N.Cmp(rsaPrivateKey.PublicKey.N) != 0 ||
-		priv.PublicKey.E != rsaPrivateKey.PublicKey.E ||
+		priv.PublicKey.E.Cmp(rsaPrivateKey.PublicKey.E) != 0 ||
 		priv.D.Cmp(rsaPrivateKey.D) != 0 ||
 		priv.Primes[0].Cmp(rsaPrivateKey.Primes[0]) != 0 ||
 		priv.Primes[1].Cmp(rsaPrivateKey.Primes[1]) != 0 {
@@ -65,7 +65,6 @@ func TestParsePKCS1PrivateKey(t *testing.T) {
 }
 
 func TestPKCS1MismatchPublicKeyFormat(t *testing.T) {
-
 	const pkixPublicKey = "30820122300d06092a864886f70d01010105000382010f003082010a0282010100dd5a0f37d3ca5232852ccc0e81eebec270e2f2c6c44c6231d852971a0aad00aa7399e9b9de444611083c59ea919a9d76c20a7be131a99045ec19a7bb452d647a72429e66b87e28be9e8187ed1d2a2a01ef3eb2360706bd873b07f2d1f1a72337aab5ec94e983e39107f52c480d404915e84d75a3db2cfd601726a128cb1d7f11492d4bdb53272e652276667220795c709b8a9b4af6489cbf48bb8173b8fb607c834a71b6e8bf2d6aab82af3c8ad7ce16d8dcf58373a6edc427f7484d09744d4c08f4e19ed07adbf6cb31243bc5d0d1145e77a08a6fc5efd208eca67d6abf2d6f38f58b6fdd7c28774fb0cc03fc4935c6e074842d2e1479d3d8787249258719f90203010001"
 	const errorContains = "use ParsePKIXPublicKey instead"
 	derBytes, _ := hex.DecodeString(pkixPublicKey)
@@ -175,7 +174,6 @@ MCowBQYDK2VuAyEA5yGXrH/6OzxuWEhEWS01/f4OP+Of3Yrddy6/J1kDTVM=
 `
 
 func TestPKIXMismatchPublicKeyFormat(t *testing.T) {
-
 	const pkcs1PublicKey = "308201080282010100817cfed98bcaa2e2a57087451c7674e0c675686dc33ff1268b0c2a6ee0202dec710858ee1c31bdf5e7783582e8ca800be45f3275c6576adc35d98e26e95bb88ca5beb186f853b8745d88bc9102c5f38753bcda519fb05948d5c77ac429255ff8aaf27d9f45d1586e95e2e9ba8a7cb771b8a09dd8c8fed3f933fd9b439bc9f30c475953418ef25f71a2b6496f53d94d39ce850aa0cc75d445b5f5b4f4ee4db78ab197a9a8d8a852f44529a007ac0ac23d895928d60ba538b16b0b087a7f903ed29770e215019b77eaecc360f35f7ab11b6d735978795b2c4a74e5bdea4dc6594cd67ed752a108e666729a753ab36d6c4f606f8760f507e1765be8cd744007e629020103"
 	const errorContains = "use ParsePKCS1PublicKey instead"
 	derBytes, _ := hex.DecodeString(pkcs1PublicKey)
@@ -217,7 +215,7 @@ func bigFromHexString(s string) *big.Int {
 var rsaPrivateKey = &rsa.PrivateKey{
 	PublicKey: rsa.PublicKey{
 		N: bigFromString("124737666279038955318614287965056875799409043964547386061640914307192830334599556034328900586693254156136128122194531292927142396093148164407300419162827624945636708870992355233833321488652786796134504707628792159725681555822420087112284637501705261187690946267527866880072856272532711620639179596808018872997"),
-		E: 65537,
+		E: big.NewInt(65537),
 	},
 	D: bigFromString("69322600686866301945688231018559005300304807960033948687567105312977055197015197977971637657636780793670599180105424702854759606794705928621125408040473426339714144598640466128488132656829419518221592374964225347786430566310906679585739468938549035854760501049443920822523780156843263434219450229353270690889"),
 	Primes: []*big.Int{
@@ -230,7 +228,7 @@ func TestMarshalRSAPrivateKey(t *testing.T) {
 	priv := &rsa.PrivateKey{
 		PublicKey: rsa.PublicKey{
 			N: fromBase10("16346378922382193400538269749936049106320265317511766357599732575277382844051791096569333808598921852351577762718529818072849191122419410612033592401403764925096136759934497687765453905884149505175426053037420486697072448609022753683683718057795566811401938833367954642951433473337066311978821180526439641496973296037000052546108507805269279414789035461158073156772151892452251106173507240488993608650881929629163465099476849643165682709047462010581308719577053905787496296934240246311806555924593059995202856826239801816771116902778517096212527979497399966526283516447337775509777558018145573127308919204297111496233"),
-			E: 3,
+			E: big.NewInt(3),
 		},
 		D: fromBase10("10897585948254795600358846499957366070880176878341177571733155050184921896034527397712889205732614568234385175145686545381899460748279607074689061600935843283397424506622998458510302603922766336783617368686090042765718290914099334449154829375179958369993407724946186243249568928237086215759259909861748642124071874879861299389874230489928271621259294894142840428407196932444474088857746123104978617098858619445675532587787023228852383149557470077802718705420275739737958953794088728369933811184572620857678792001136676902250566845618813972833750098806496641114644760255910789397593428910198080271317419213080834885003"),
 		Primes: []*big.Int{
@@ -248,7 +246,7 @@ func TestMarshalRSAPrivateKey(t *testing.T) {
 		return
 	}
 	if priv.PublicKey.N.Cmp(priv2.PublicKey.N) != 0 ||
-		priv.PublicKey.E != priv2.PublicKey.E ||
+		priv.PublicKey.E.Cmp(priv2.PublicKey.E) != 0 ||
 		priv.D.Cmp(priv2.D) != 0 ||
 		len(priv2.Primes) != 3 ||
 		priv.Primes[0].Cmp(priv2.Primes[0]) != 0 ||
@@ -261,14 +259,13 @@ func TestMarshalRSAPrivateKey(t *testing.T) {
 func TestMarshalRSAPublicKey(t *testing.T) {
 	pub := &rsa.PublicKey{
 		N: fromBase10("16346378922382193400538269749936049106320265317511766357599732575277382844051791096569333808598921852351577762718529818072849191122419410612033592401403764925096136759934497687765453905884149505175426053037420486697072448609022753683683718057795566811401938833367954642951433473337066311978821180526439641496973296037000052546108507805269279414789035461158073156772151892452251106173507240488993608650881929629163465099476849643165682709047462010581308719577053905787496296934240246311806555924593059995202856826239801816771116902778517096212527979497399966526283516447337775509777558018145573127308919204297111496233"),
-		E: 3,
 	}
 	derBytes := MarshalPKCS1PublicKey(pub)
 	pub2, err := ParsePKCS1PublicKey(derBytes)
 	if err != nil {
-		t.Errorf("ParsePKCS1PublicKey: %s", err)
+		t.Fatalf("ParsePKCS1PublicKey: %s", err)
 	}
-	if pub.N.Cmp(pub2.N) != 0 || pub.E != pub2.E {
+	if pub.N.Cmp(pub2.N) != 0 || pub.E.Cmp(pub2.E) != 0 {
 		t.Errorf("ParsePKCS1PublicKey = %+v, want %+v", pub, pub2)
 	}
 
@@ -286,7 +283,7 @@ func TestMarshalRSAPublicKey(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unmarshal(rsa.PublicKey): %v", err)
 	}
-	if len(rest) != 0 || pub.N.Cmp(pub3.N) != 0 || pub.E != pub3.E {
+	if len(rest) != 0 || pub.N.Cmp(pub3.N) != 0 || pub.E.Cmp(pub3.E) != 0 {
 		t.Errorf("Unmarshal(rsa.PublicKey) = %+v, %q want %+v, %q", pub, rest, pub2, []byte(nil))
 	}
 
@@ -351,7 +348,8 @@ func TestMarshalRSAPublicKey(t *testing.T) {
 			// an error. On 32-bit systems, encoding/asn1 will
 			// return the error. The common substring of both error
 			// is the word “large”.
-			expectedErrSubstr: "large",
+			// expectedErrSubstr: "large",
+			// We support big E now!
 		},
 	}
 
@@ -2096,19 +2094,22 @@ func TestPKIXNameString(t *testing.T) {
 	rdns := pkix.Name{
 		Locality: []string{"Gophertown"},
 		ExtraNames: []pkix.AttributeTypeAndValue{
-			{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "golang.org"}},
+			{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "golang.org"},
+		},
 	}.ToRDNSequence()
 	nn := pkix.Name{}
 	nn.FillFromRDNSequence(&rdns)
 
 	// Check that zero-length non-nil ExtraNames hide Names.
 	extra := []pkix.AttributeTypeAndValue{
-		{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "backing array"}}
+		{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "backing array"},
+	}
 	extraNotNil := pkix.Name{
 		Locality:   []string{"Gophertown"},
 		ExtraNames: extra[:0],
 		Names: []pkix.AttributeTypeAndValue{
-			{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "golang.org"}},
+			{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "golang.org"},
+		},
 	}
 
 	tests := []struct {
@@ -2128,8 +2129,10 @@ func TestPKIXNameString(t *testing.T) {
 			SerialNumber:       "RFC 2253",
 			Country:            []string{"GB"},
 		}, "SERIALNUMBER=RFC 2253, C=GB, POSTALCODE=TW9 1DT, ST=Surrey, L=Richmond, STREET=The Square, O=Isode Limited, OU=RFCs, CN=Steve Kille"},
-		{certs[0].Subject,
-			"CN=mail.google.com, O=Google LLC, L=Mountain View, ST=California, C=US"},
+		{
+			certs[0].Subject,
+			"CN=mail.google.com, O=Google LLC, L=Mountain View, ST=California, C=US",
+		},
 		{pkix.Name{
 			Organization: []string{"#Google, Inc. \n-> 'Alphabet\" "},
 			Country:      []string{"US"},
@@ -2138,26 +2141,31 @@ func TestPKIXNameString(t *testing.T) {
 			CommonName:   "foo.com",
 			Organization: []string{"Gopher Industries"},
 			ExtraNames: []pkix.AttributeTypeAndValue{
-				{Type: asn1.ObjectIdentifier([]int{2, 5, 4, 3}), Value: "bar.com"}},
+				{Type: asn1.ObjectIdentifier([]int{2, 5, 4, 3}), Value: "bar.com"},
+			},
 		}, "CN=bar.com, O=Gopher Industries"},
 		{pkix.Name{
 			Locality: []string{"Gophertown"},
 			ExtraNames: []pkix.AttributeTypeAndValue{
-				{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "golang.org"}},
+				{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "golang.org"},
+			},
 		}, "1.2.3.4.5=#130a676f6c616e672e6f7267, L=Gophertown"},
 		// If there are no ExtraNames, the Names are printed instead.
 		{pkix.Name{
 			Locality: []string{"Gophertown"},
 			Names: []pkix.AttributeTypeAndValue{
-				{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "golang.org"}},
+				{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "golang.org"},
+			},
 		}, "L=Gophertown, 1.2.3.4.5=#130a676f6c616e672e6f7267"},
 		// If there are both, print only the ExtraNames.
 		{pkix.Name{
 			Locality: []string{"Gophertown"},
 			ExtraNames: []pkix.AttributeTypeAndValue{
-				{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "golang.org"}},
+				{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 5}), Value: "golang.org"},
+			},
 			Names: []pkix.AttributeTypeAndValue{
-				{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 6}), Value: "example.com"}},
+				{Type: asn1.ObjectIdentifier([]int{1, 2, 3, 4, 6}), Value: "example.com"},
+			},
 		}, "1.2.3.4.5=#130a676f6c616e672e6f7267, L=Gophertown"},
 	}
 
@@ -2411,8 +2419,10 @@ func TestMultipleURLsInCRLDP(t *testing.T) {
 	}
 }
 
-const hexPKCS1TestPKCS8Key = "30820278020100300d06092a864886f70d0101010500048202623082025e02010002818100cfb1b5bf9685ffa97b4f99df4ff122b70e59ac9b992f3bc2b3dde17d53c1a34928719b02e8fd17839499bfbd515bd6ef99c7a1c47a239718fe36bfd824c0d96060084b5f67f0273443007a24dfaf5634f7772c9346e10eb294c2306671a5a5e719ae24b4de467291bc571014b0e02dec04534d66a9bb171d644b66b091780e8d020301000102818100b595778383c4afdbab95d2bfed12b3f93bb0a73a7ad952f44d7185fd9ec6c34de8f03a48770f2009c8580bcd275e9632714e9a5e3f32f29dc55474b2329ff0ebc08b3ffcb35bc96e6516b483df80a4a59cceb71918cbabf91564e64a39d7e35dce21cb3031824fdbc845dba6458852ec16af5dddf51a8397a8797ae0337b1439024100ea0eb1b914158c70db39031dd8904d6f18f408c85fbbc592d7d20dee7986969efbda081fdf8bc40e1b1336d6b638110c836bfdc3f314560d2e49cd4fbde1e20b024100e32a4e793b574c9c4a94c8803db5152141e72d03de64e54ef2c8ed104988ca780cd11397bc359630d01b97ebd87067c5451ba777cf045ca23f5912f1031308c702406dfcdbbd5a57c9f85abc4edf9e9e29153507b07ce0a7ef6f52e60dcfebe1b8341babd8b789a837485da6c8d55b29bbb142ace3c24a1f5b54b454d01b51e2ad03024100bd6a2b60dee01e1b3bfcef6a2f09ed027c273cdbbaf6ba55a80f6dcc64e4509ee560f84b4f3e076bd03b11e42fe71a3fdd2dffe7e0902c8584f8cad877cdc945024100aa512fa4ada69881f1d8bb8ad6614f192b83200aef5edf4811313d5ef30a86cbd0a90f7b025c71ea06ec6b34db6306c86b1040670fd8654ad7291d066d06d031"
-const hexPKCS1TestECKey = "3081a40201010430bdb9839c08ee793d1157886a7a758a3c8b2a17a4df48f17ace57c72c56b4723cf21dcda21d4e1ad57ff034f19fcfd98ea00706052b81040022a16403620004feea808b5ee2429cfcce13c32160e1c960990bd050bb0fdf7222f3decd0a55008e32a6aa3c9062051c4cba92a7a3b178b24567412d43cdd2f882fa5addddd726fe3e208d2c26d733a773a597abb749714df7256ead5105fa6e7b3650de236b50"
+const (
+	hexPKCS1TestPKCS8Key = "30820278020100300d06092a864886f70d0101010500048202623082025e02010002818100cfb1b5bf9685ffa97b4f99df4ff122b70e59ac9b992f3bc2b3dde17d53c1a34928719b02e8fd17839499bfbd515bd6ef99c7a1c47a239718fe36bfd824c0d96060084b5f67f0273443007a24dfaf5634f7772c9346e10eb294c2306671a5a5e719ae24b4de467291bc571014b0e02dec04534d66a9bb171d644b66b091780e8d020301000102818100b595778383c4afdbab95d2bfed12b3f93bb0a73a7ad952f44d7185fd9ec6c34de8f03a48770f2009c8580bcd275e9632714e9a5e3f32f29dc55474b2329ff0ebc08b3ffcb35bc96e6516b483df80a4a59cceb71918cbabf91564e64a39d7e35dce21cb3031824fdbc845dba6458852ec16af5dddf51a8397a8797ae0337b1439024100ea0eb1b914158c70db39031dd8904d6f18f408c85fbbc592d7d20dee7986969efbda081fdf8bc40e1b1336d6b638110c836bfdc3f314560d2e49cd4fbde1e20b024100e32a4e793b574c9c4a94c8803db5152141e72d03de64e54ef2c8ed104988ca780cd11397bc359630d01b97ebd87067c5451ba777cf045ca23f5912f1031308c702406dfcdbbd5a57c9f85abc4edf9e9e29153507b07ce0a7ef6f52e60dcfebe1b8341babd8b789a837485da6c8d55b29bbb142ace3c24a1f5b54b454d01b51e2ad03024100bd6a2b60dee01e1b3bfcef6a2f09ed027c273cdbbaf6ba55a80f6dcc64e4509ee560f84b4f3e076bd03b11e42fe71a3fdd2dffe7e0902c8584f8cad877cdc945024100aa512fa4ada69881f1d8bb8ad6614f192b83200aef5edf4811313d5ef30a86cbd0a90f7b025c71ea06ec6b34db6306c86b1040670fd8654ad7291d066d06d031"
+	hexPKCS1TestECKey    = "3081a40201010430bdb9839c08ee793d1157886a7a758a3c8b2a17a4df48f17ace57c72c56b4723cf21dcda21d4e1ad57ff034f19fcfd98ea00706052b81040022a16403620004feea808b5ee2429cfcce13c32160e1c960990bd050bb0fdf7222f3decd0a55008e32a6aa3c9062051c4cba92a7a3b178b24567412d43cdd2f882fa5addddd726fe3e208d2c26d733a773a597abb749714df7256ead5105fa6e7b3650de236b50"
+)
 
 var pkcs1MismatchKeyTests = []struct {
 	hexKey        string
@@ -3595,7 +3605,6 @@ func TestParseUniqueID(t *testing.T) {
 }
 
 func TestSHA1ForCertOnlySuccess(t *testing.T) {
-
 	tmpl := &Certificate{
 		SerialNumber:          big.NewInt(1),
 		NotBefore:             time.Now().Add(-time.Hour),
@@ -3916,11 +3925,11 @@ func TestCertificateOIDPolicies(t *testing.T) {
 		PolicyIdentifiers: []asn1.ObjectIdentifier{[]int{1, 2, 3}},
 	}
 
-	var expectPolicyIdentifiers = []asn1.ObjectIdentifier{
+	expectPolicyIdentifiers := []asn1.ObjectIdentifier{
 		[]int{1, 2, 3},
 	}
 
-	var expectPolicies = []OID{
+	expectPolicies := []OID{
 		mustNewOIDFromInts(t, []uint64{1, 2, 3}),
 	}
 

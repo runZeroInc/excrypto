@@ -43,7 +43,7 @@ func newRSAPublicKeyV3(creationTime time.Time, pub *rsa.PublicKey) *PublicKeyV3 
 		CreationTime: creationTime,
 		PublicKey:    pub,
 		n:            fromBig(pub.N),
-		e:            fromBig(big.NewInt(int64(pub.E))),
+		e:            fromBig(pub.E),
 	}
 
 	pk.setFingerPrintAndKeyId()
@@ -82,7 +82,11 @@ func (pk *PublicKeyV3) setFingerPrintAndKeyId() {
 	fingerPrint.Write(pk.n.bytes)
 	fingerPrint.Write(pk.e.bytes)
 	fingerPrint.Sum(pk.Fingerprint[:0])
-	pk.KeyId = binary.BigEndian.Uint64(pk.n.bytes[len(pk.n.bytes)-8:])
+	keyIDBytes := pk.n.bytes
+	if len(keyIDBytes) < 8 {
+		keyIDBytes = append(make([]byte, 8-len(keyIDBytes)), keyIDBytes...)
+	}
+	pk.KeyId = binary.BigEndian.Uint64(keyIDBytes[len(keyIDBytes)-8:])
 }
 
 // parseRSA parses RSA public key material from the given Reader. See RFC 4880,
@@ -95,19 +99,20 @@ func (pk *PublicKeyV3) parseRSA(r io.Reader) (err error) {
 		return
 	}
 
-	// RFC 4880 Section 12.2 requires the low 8 bytes of the
-	// modulus to form the key id.
-	if len(pk.n.bytes) < 8 {
-		return errors.StructuralError("v3 public key modulus is too short")
-	}
-	if len(pk.e.bytes) > 3 {
-		err = errors.UnsupportedError("large public exponent")
-		return
-	}
-	rsa := &rsa.PublicKey{N: new(big.Int).SetBytes(pk.n.bytes)}
-	for i := 0; i < len(pk.e.bytes); i++ {
-		rsa.E <<= 8
-		rsa.E |= int(pk.e.bytes[i])
+	/*
+		// RFC 4880 Section 12.2 requires the low 8 bytes of the
+		// modulus to form the key id.
+		if len(pk.n.bytes) < 8 {
+			return errors.StructuralError("v3 public key modulus is too short")
+		}
+		if len(pk.e.bytes) > 3 {
+			err = errors.UnsupportedError("large public exponent")
+			return
+		}
+	*/
+	rsa := &rsa.PublicKey{
+		N: new(big.Int).SetBytes(pk.n.bytes),
+		E: new(big.Int).SetBytes(pk.e.bytes),
 	}
 	pk.PublicKey = rsa
 	return

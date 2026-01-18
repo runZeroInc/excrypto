@@ -280,7 +280,7 @@ func (s *String) ReadASN1Integer(out interface{}) bool {
 			return s.readASN1BigInt(out.(*big.Int))
 		}
 	}
-	panic("out does not point to an integer type")
+	panic("out does not point to an integer type: " + reflect.TypeOf(out).Elem().String())
 }
 
 func checkASN1Integer(bytes []byte) bool {
