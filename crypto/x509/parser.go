@@ -25,7 +25,6 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/sha256"
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
 	"github.com/runZeroInc/excrypto/encoding/asn1"
-	"github.com/runZeroInc/excrypto/internal/godebug"
 
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
 	cryptobyte_asn1 "github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
@@ -1078,7 +1077,8 @@ func processExtensions(out *Certificate) error {
 	return nil
 }
 
-var x509negativeserial = godebug.New("x509negativeserial")
+/// zcrypto: always allow negative serials for compatibility
+// var x509negativeserial = godebug.New("x509negativeserial")
 
 func parseCertificate(in *certificate) (*Certificate, error) {
 	var err error
@@ -1335,10 +1335,6 @@ func parseCertificate(in *certificate) (*Certificate, error) {
 }
 
 // ParseCertificate parses a single certificate from the given ASN.1 DER data.
-//
-// Before Go 1.23, ParseCertificate accepted certificates with negative serial
-// numbers. This behavior can be restored by including "x509negativeserial=1" in
-// the GODEBUG environment variable.
 func ParseCertificate(der []byte) (*Certificate, error) {
 	var cert certificate
 	rest, err := asn1.Unmarshal(der, &cert)
