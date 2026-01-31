@@ -8,14 +8,13 @@ import (
 	"bufio"
 	"bytes"
 	"compress/bzip2"
+	"crypto/rand"
 	"encoding/hex"
 	"math/big"
 	"os"
 	"strconv"
 	"strings"
 	"testing"
-
-	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	. "github.com/runZeroInc/excrypto/crypto/rsa"
@@ -145,7 +144,7 @@ func TestPSSGolden(t *testing.T) {
 				continue
 			}
 			key.N = bigFromHex(nHex)
-			key.E = intFromHex(<-values)
+			key.E = bigFromHex(<-values)
 			// We don't care for d, p, q, dP, dQ or qInv.
 			for i := 0; i < 6; i++ {
 				<-values
@@ -202,7 +201,7 @@ func TestPSSNilOpts(t *testing.T) {
 }
 
 func TestPSSSigning(t *testing.T) {
-	var saltLengthCombinations = []struct {
+	saltLengthCombinations := []struct {
 		signSaltLength, verifySaltLength int
 		good                             bool
 	}{

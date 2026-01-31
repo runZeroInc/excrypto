@@ -6,9 +6,10 @@ package bigmod
 
 import (
 	"errors"
-	"github.com/runZeroInc/excrypto/internal/byteorder"
 	"math/big"
 	"math/bits"
+
+	"github.com/runZeroInc/excrypto/internal/byteorder"
 )
 
 const (
@@ -25,8 +26,10 @@ type choice uint
 
 func not(c choice) choice { return 1 ^ c }
 
-const yes = choice(1)
-const no = choice(0)
+const (
+	yes = choice(1)
+	no  = choice(0)
+)
 
 // ctMask is all 1s if on is yes, and all 0s otherwise.
 func ctMask(on choice) uint { return -uint(on) }
@@ -53,8 +56,10 @@ type Nat struct {
 // preallocTarget is the size in bits of the numbers used to implement the most
 // common and most performant RSA key size. It's also enough to cover some of
 // the operations of key sizes up to 4096.
-const preallocTarget = 2048
-const preallocLimbs = (preallocTarget + _W - 1) / _W
+const (
+	preallocTarget = 2048
+	preallocLimbs  = (preallocTarget + _W - 1) / _W
+)
 
 // NewNat returns a new nat with a size of zero, just like new(Nat), but with
 // the preallocated capacity to hold a number of up to preallocTarget bits.
@@ -771,7 +776,43 @@ func (out *Nat) Exp(x *Nat, e []byte, m *Modulus) *Nat {
 //
 // The output will be resized to the size of m and overwritten. x must already
 // be reduced modulo m. This leaks the exponent through timing side-channels.
-func (out *Nat) ExpShortVarTime(x *Nat, e uint, m *Modulus) *Nat {
+func (out *Nat) ExpShortVarTime(x *Nat, e *big.Int, m *Modulus) *Nat {
+	// For short exponents, precomputing a table and using a window like in Exp
+	// doesn't pay off. Instead, we do a simple conditional square-and-multiply
+	// chain, skipping the initial run of zeroes.
+	xR := NewNat().set(x).montgomeryRepresentation(m)
+	out.set(xR)
+
+	// Convert the big.Int exponent to binary representation
+	expBits := e.Bytes()
+	for i := 0; i < len(expBits); i++ {
+		byteVal := expBits[i]
+		for j := 7; j >= 0; j-- {
+			// Square the result
+			out.montgomeryMul(out, out, m)
+
+			// Multiply if the current bit is set
+			if (byteVal>>j)&1 == 1 {
+				out.montgomeryMul(out, xR, m)
+			}
+		}
+	}
+
+	resNew := out.montgomeryReduction(m)
+	resOld := out.ExpShortVarTimeOrig(x, uint(e.Uint64()), m)
+	if resNew.Equal(resOld) == no {
+		panic("XXX: bigmod: ExpShortVarTime produced different result than ExpShortVarTimeOrig")
+	}
+	return resNew
+}
+
+// ExpShortVarTime calculates out = x^e mod m.
+//
+// The output will be resized to the size of m and overwritten. x must already
+// be reduced modulo m. This leaks the exponent through timing side-channels.
+//
+// m must be odd, or ExpShortVarTime will panic.
+func (out *Nat) ExpShortVarTimeOrig(x *Nat, e uint, m *Modulus) *Nat {
 	// For short exponents, precomputing a table and using a window like in Exp
 	// doesn't pay off. Instead, we do a simple conditional square-and-multiply
 	// chain, skipping the initial run of zeroes.

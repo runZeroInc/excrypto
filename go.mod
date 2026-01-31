@@ -5,6 +5,7 @@ go 1.24.0
 require (
 	github.com/google/go-cmp v0.7.0
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
+	github.com/sirupsen/logrus v1.9.4
 	github.com/stretchr/testify v1.11.1
 	github.com/weppos/publicsuffix-go v0.50.2
 	golang.org/x/crypto v0.47.0

@@ -5,9 +5,8 @@
 package rsa_test
 
 import (
-	"testing"
-
 	"crypto/rand"
+	"testing"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
@@ -37,10 +36,10 @@ func TestEqual(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !public.Equal(decoded.(crypto.Signer).Public()) {
-		t.Errorf("public key is not equal to itself after decoding: %v", public)
+		t.Errorf("public key is not equal to itself after decoding: pre: %#v. post: %#v", public, decoded.(crypto.Signer).Public())
 	}
 	if !private.Equal(decoded) {
-		t.Errorf("private key is not equal to itself after decoding: %v", private)
+		t.Errorf("private key is not equal to itself after decoding: pre: %#v. post: %#v", private, decoded)
 	}
 
 	other, _ := rsa.GenerateKey(rand.Reader, 512)

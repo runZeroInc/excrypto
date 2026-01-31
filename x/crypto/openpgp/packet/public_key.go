@@ -102,8 +102,10 @@ func (f *ecdsaKey) byteLen() int {
 	return 1 + len(f.oid) + 2 + len(f.p.bytes)
 }
 
-type kdfHashFunction byte
-type kdfAlgorithm byte
+type (
+	kdfHashFunction byte
+	kdfAlgorithm    byte
+)
 
 // ecdhKdf stores key derivation function parameters
 // used for ECDH encryption. See RFC 6637, Section 9.
@@ -186,7 +188,7 @@ func NewRSAPublicKey(creationTime time.Time, pub *rsa.PublicKey) *PublicKey {
 		PubKeyAlgo:   PubKeyAlgoRSA,
 		PublicKey:    pub,
 		n:            fromBig(pub.N),
-		e:            fromBig(big.NewInt(int64(pub.E))),
+		e:            fromBig(pub.E),
 	}
 
 	pk.setFingerPrintAndKeyId()
@@ -329,11 +331,7 @@ func (pk *PublicKey) parseRSA(r io.Reader) (err error) {
 	}
 	rsa := &rsa.PublicKey{
 		N: new(big.Int).SetBytes(pk.n.bytes),
-		E: 0,
-	}
-	for i := 0; i < len(pk.e.bytes); i++ {
-		rsa.E <<= 8
-		rsa.E |= int(pk.e.bytes[i])
+		E: new(big.Int).SetBytes(pk.e.bytes),
 	}
 	pk.PublicKey = rsa
 	return
