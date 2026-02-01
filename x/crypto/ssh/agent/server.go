@@ -247,7 +247,7 @@ func parseRSAKey(req []byte) (*AddedKey, error) {
 	}
 	priv := &rsa.PrivateKey{
 		PublicKey: rsa.PublicKey{
-			E: k.E,
+			E: int(k.E.Int64()),
 			N: k.N,
 		},
 		D:      k.D,
@@ -396,7 +396,7 @@ func parseRSACert(req []byte) (*AddedKey, error) {
 
 	priv := rsa.PrivateKey{
 		PublicKey: rsa.PublicKey{
-			E: rsaPub.E,
+			E: int(rsaPub.E.Int64()),
 			N: rsaPub.N,
 		},
 		D:      k.D,
