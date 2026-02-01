@@ -10,18 +10,16 @@ import (
 
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/encoding/asn1"
-	"github.com/sirupsen/logrus"
 )
 
 // pkcs1PrivateKey is a structure which mirrors the PKCS #1 ASN.1 for an RSA private key.
 type pkcs1PrivateKey struct {
 	Version int
 	N       *big.Int
-	// E       int
-	E *big.Int
-	D *big.Int
-	P *big.Int
-	Q *big.Int
+	E       int
+	D       *big.Int
+	P       *big.Int
+	Q       *big.Int
 	// We ignore these values, if present, because rsa will calculate them.
 	Dp   *big.Int `asn1:"optional"`
 	Dq   *big.Int `asn1:"optional"`
@@ -41,13 +39,7 @@ type pkcs1AdditionalRSAPrime struct {
 // pkcs1PublicKey reflects the ASN.1 structure of a PKCS #1 public key.
 type pkcs1PublicKey struct {
 	N *big.Int
-	E *big.Int
-}
-
-// pkcs1PublicKeyOld reflects the ASN.1 structure of a PKCS #1 public key.
-type pkcs1PublicKeyOld struct {
-	N *big.Int
-	E uint
+	E int
 }
 
 // ParsePKCS1PrivateKey parses an [RSA] private key in PKCS #1, ASN.1 DER form.
@@ -121,7 +113,7 @@ func MarshalPKCS1PrivateKey(key *rsa.PrivateKey) []byte {
 	priv := pkcs1PrivateKey{
 		Version: version,
 		N:       key.N,
-		E:       new(big.Int).Set(key.PublicKey.E),
+		E:       key.PublicKey.E,
 		D:       key.D,
 		P:       key.Primes[0],
 		Q:       key.Primes[1],
@@ -146,34 +138,24 @@ func MarshalPKCS1PrivateKey(key *rsa.PrivateKey) []byte {
 // This kind of key is commonly encoded in PEM blocks of type "RSA PUBLIC KEY".
 func ParsePKCS1PublicKey(der []byte) (*rsa.PublicKey, error) {
 	var pub pkcs1PublicKey
-	var pubOld pkcs1PublicKeyOld
 	rest, err := asn1.Unmarshal(der, &pub)
 	if err != nil {
-		logrus.Errorf("failed to decode pkcs1PublicKey: %v", err)
 		if _, err := asn1.Unmarshal(der, &publicKeyInfo{}); err == nil {
 			return nil, errors.New("x509: failed to parse public key (use ParsePKIXPublicKey instead for this key format)")
 		}
-		logrus.Errorf("failed to decode pkcs1PublicKeyInfo: %v", err)
-		if _, err := asn1.Unmarshal(der, &pubOld); err == nil {
-			return nil, errors.New("x509: failed to parse public key (use ParsePKCS1PublicKeyOld instead for this key format)")
-		}
-		logrus.Errorf("failed to decode pkcs1PublicKeyOld: %v", err)
-
 		return nil, err
 	}
 	if len(rest) > 0 {
 		return nil, asn1.SyntaxError{Msg: "trailing data"}
 	}
 
-	// excrypto
-	/*
-		if pub.N.Sign() <= 0 || pub.E <= 0 {
-			return nil, errors.New("x509: public key contains zero or negative value")
-		}
-		if pub.E > 1<<31-1 {
-			return nil, errors.New("x509: public key contains large public exponent")
-		}
-	*/
+	if pub.N.Sign() <= 0 || pub.E <= 0 {
+		return nil, errors.New("x509: public key contains zero or negative value")
+	}
+	if pub.E > 1<<31-1 {
+		return nil, errors.New("x509: public key contains large public exponent")
+	}
+
 	return &rsa.PublicKey{
 		E: pub.E,
 		N: pub.N,

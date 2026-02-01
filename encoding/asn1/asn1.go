@@ -25,7 +25,6 @@ import (
 	"math"
 	"math/big"
 	"reflect"
-	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
@@ -104,9 +103,7 @@ func parseInt64(bytes []byte) (ret int64, err error) {
 	}
 	if len(bytes) > 8 {
 		// We'll overflow an int64 in this case.
-		err = StructuralError{"integer too large for 64-bit: " + strconv.Itoa(len(bytes)) + " bytes"}
-		fmt.Printf("unsupported int size: %d from caller: %s\n\n", len(bytes), debug.Stack())
-
+		err = StructuralError{"integer too large"}
 		return
 	}
 	for bytesRead := 0; bytesRead < len(bytes); bytesRead++ {
@@ -131,7 +128,7 @@ func parseInt32(bytes []byte) (int32, error) {
 		return 0, err
 	}
 	if ret64 != int64(int32(ret64)) {
-		return 0, StructuralError{"integer too large for 32-bit: " + strconv.Itoa(len(bytes)) + " bytes"}
+		return 0, StructuralError{"integer too large"}
 	}
 	return int32(ret64), nil
 }
@@ -429,10 +426,8 @@ func parsePrintableString(bytes []byte) (ret string, err error) {
 	return
 }
 
-type (
-	asteriskFlag  bool
-	ampersandFlag bool
-)
+type asteriskFlag bool
+type ampersandFlag bool
 
 const (
 	allowAsterisk  asteriskFlag = true
@@ -703,9 +698,8 @@ func parseField(v reflect.Value, bytes []byte, initOffset int, params fieldParam
 
 	// If we have run out of data, it may be that there are optional elements at the end.
 	if offset == len(bytes) {
-
 		if !setDefaultValue(v, params) {
-			err = SyntaxError{fmt.Sprintf("sequence truncated (type=%#v for params %#v, offset=%d, len=%d)", v, params, offset, len(bytes))}
+			err = SyntaxError{"sequence truncated"}
 		}
 		return
 	}
@@ -721,8 +715,6 @@ func parseField(v reflect.Value, bytes []byte, initOffset int, params fieldParam
 			err = SyntaxError{"data truncated"}
 			return
 		}
-		// logrus.Errorf("parseField called for type: %v with tag=%x and %d bytes", fieldType, t.tag, len(bytes)-offset)
-
 		var result any
 		if !t.isCompound && t.class == ClassUniversal {
 			innerBytes := bytes[offset : offset+t.length]
@@ -739,13 +731,6 @@ func parseField(v reflect.Value, bytes []byte, initOffset int, params fieldParam
 				result, err = parseUTF8String(innerBytes)
 			case TagInteger:
 				result, err = parseInt64(innerBytes)
-				if errors.Is(err, StructuralError{}) {
-					var bigIntResult *big.Int
-					bigIntResult, err = parseBigInt(innerBytes)
-					if err == nil {
-						result = bigIntResult
-					}
-				}
 			case TagBitString:
 				result, err = parseBitString(innerBytes)
 			case TagOID:
@@ -940,12 +925,6 @@ func parseField(v reflect.Value, bytes []byte, initOffset int, params fieldParam
 			parsedInt, err1 := parseInt64(innerBytes)
 			if err1 == nil {
 				val.SetInt(parsedInt)
-			} else {
-				// Try big.Int parsing if int64 parsing failed.
-				parsedInt, err1 := parseBigInt(innerBytes)
-				if err1 == nil {
-					val.Set(reflect.ValueOf(parsedInt))
-				}
 			}
 			err = err1
 		}

@@ -5,10 +5,11 @@
 package tls
 
 import (
-	"crypto/rand"
 	"errors"
 	"io"
 	"math/big"
+
+	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/dsa"
@@ -23,11 +24,9 @@ import (
 	"github.com/runZeroInc/excrypto/encoding/asn1"
 )
 
-var (
-	errClientKeyExchange           = errors.New("tls: invalid ClientKeyExchange message")
-	errServerKeyExchange           = errors.New("tls: invalid ServerKeyExchange message")
-	errUnexpectedServerKeyExchange = errors.New("tls: unexpected ServerKeyExchange message")
-)
+var errClientKeyExchange = errors.New("tls: invalid ClientKeyExchange message")
+var errServerKeyExchange = errors.New("tls: invalid ServerKeyExchange message")
+var errUnexpectedServerKeyExchange = errors.New("tls: unexpected ServerKeyExchange message")
 
 // rsaKeyAgreement implements the standard TLS key agreement where the client
 // encrypts the pre-master secret to the server's public key.
@@ -63,7 +62,7 @@ func (ka *rsaKeyAgreement) generateServerKeyExchange(config *Config, cert *Certi
 	// Serialize the key parameters to a nice byte array. The byte array can be
 	// positioned later.
 	modulus := ka.privateKey.N.Bytes()
-	exponent := new(big.Int).SetBytes(ka.privateKey.E.Bytes()).Bytes()
+	exponent := big.NewInt(int64(ka.privateKey.E)).Bytes()
 	serverRSAParams := make([]byte, 0, 2+len(modulus)+2+len(exponent))
 	serverRSAParams = append(serverRSAParams, byte(len(modulus)>>8), byte(len(modulus)))
 	serverRSAParams = append(serverRSAParams, modulus...)
@@ -139,7 +138,11 @@ func (ka *rsaKeyAgreement) processServerKeyExchange(config *Config, clientHello 
 		return errServerKeyExchange
 	}
 	rawExponent := k[0:exponentLength]
-	exponent := new(big.Int).SetBytes(rawExponent)
+	exponent := 0
+	for _, b := range rawExponent {
+		exponent <<= 8
+		exponent |= int(b)
+	}
 	ka.publicKey = new(rsa.PublicKey)
 	ka.publicKey.E = exponent
 	ka.publicKey.N = modulus

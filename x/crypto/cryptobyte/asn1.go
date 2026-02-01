@@ -6,7 +6,6 @@ package cryptobyte
 
 import (
 	"fmt"
-	"log"
 	"math/big"
 	"reflect"
 	"time"
@@ -289,18 +288,10 @@ func (s *String) ReadASN1Integer(out interface{}) bool {
 		return true
 	case *big.Int:
 		return s.readASN1BigInt(out)
-	case **big.Int:
-		bigInt := new(big.Int)
-		if !s.readASN1BigInt(bigInt) {
-			return false
-		}
-		*out = bigInt
-		return true
 	case *[]byte:
 		return s.readASN1Bytes(out)
 	default:
-		log.Printf("unsupported type: %T (%#v)", out, out)
-		panic("out does not point to an integer type: " + reflect.TypeOf(out).Elem().String())
+		panic("out does not point to an integer type")
 	}
 }
 

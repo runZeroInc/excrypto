@@ -28,9 +28,9 @@ type RSAPublicKey struct {
 }
 
 type auxRSAPublicKey struct {
-	Exponent *big.Int `json:"exponent"`
-	Modulus  []byte   `json:"modulus"`
-	Length   int      `json:"length"`
+	Exponent int    `json:"exponent"`
+	Modulus  []byte `json:"modulus"`
+	Length   int    `json:"length"`
 }
 
 // RSAClientParams are the TLS key exchange parameters for RSA keys.
