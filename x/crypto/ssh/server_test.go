@@ -312,7 +312,6 @@ func TestPublicKeyCallbackLastSeen(t *testing.T) {
 	serverConf := &ServerConfig{
 		PublicKeyCallback: func(conn ConnMetadata, key PublicKey) (*Permissions, error) {
 			lastSeenKey = key
-			fmt.Printf("seen %#v\n", key)
 			if _, ok := key.(*dsaPublicKey); !ok {
 				return nil, errors.New("nope")
 			}
