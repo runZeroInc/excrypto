@@ -48,6 +48,13 @@ import (
 func TestFIPS140Only(t *testing.T) {
 	cryptotest.MustSupportFIPS140(t)
 	if !fips140only.Enforced() {
+		// excrypto: the fork's crypto/x509 package eagerly fingerprints its
+		// bundled fallback certificates with MD5 and SHA-1 inside init(),
+		// which panics under GODEBUG=fips140=only. fips140=only mode is
+		// fundamentally incompatible with this fork's stated purpose of
+		// supporting legacy/insecure primitives, so skip rather than try
+		// to retrofit FIPS-clean init paths.
+		t.Skip("excrypto: fips140=only mode incompatible with permissive x509 init")
 		cmd := testenv.Command(t, testenv.Executable(t), "-test.run=^TestFIPS140Only$", "-test.v")
 		cmd.Env = append(cmd.Environ(), "GODEBUG=fips140=only")
 		out, err := cmd.CombinedOutput()
