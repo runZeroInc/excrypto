@@ -1,6 +1,6 @@
 module github.com/runZeroInc/excrypto
 
-go 1.26.0
+go 1.26
 
 require (
 	github.com/google/go-cmp v0.7.0
