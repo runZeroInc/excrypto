@@ -233,7 +233,7 @@ type NameConstraintsJSON struct {
 	PermittedDNSDomains     []string            `json:"permitted_names,omitempty"`
 	PermittedEmailAddresses []string            `json:"permitted_email_addresses,omitempty"`
 	PermittedURIDomains     []string            `json:"permitted_uris,omitempty"`
-	PermittedIPRanges       []*net.IPNet        `json:"permitted_ip_addresses,omitempty"`
+	PermittedIPRanges       []jsonIPNet         `json:"permitted_ip_addresses,omitempty"`
 	PermittedDirectoryNames []pkix.Name         `json:"permitted_directory_names,omitempty"`
 	PermittedEdiPartyNames  []pkix.EDIPartyName `json:"permitted_edi_party_names,omitempty"`
 	PermittedRegisteredIDs  []string            `json:"permitted_registred_id,omitempty"`
@@ -241,7 +241,7 @@ type NameConstraintsJSON struct {
 	ExcludedDNSDomains     []string            `json:"excluded_names,omitempty"`
 	ExcludedEmailAddresses []string            `json:"excluded_email_addresses,omitempty"`
 	ExcludedURIDomains     []string            `json:"excluded_uris,omitempty"`
-	ExcludedIPRanges       []*net.IPNet        `json:"excluded_ip_addresses,omitempty"`
+	ExcludedIPRanges       []jsonIPNet         `json:"excluded_ip_addresses,omitempty"`
 	ExcludedDirectoryNames []pkix.Name         `json:"excluded_directory_names,omitempty"`
 	ExcludedEdiPartyNames  []pkix.EDIPartyName `json:"excluded_edi_party_names,omitempty"`
 	ExcludedRegisteredIDs  []string            `json:"excluded_registred_id,omitempty"`
@@ -256,7 +256,9 @@ func (nc *NameConstraints) UnmarshalJSON(b []byte) error {
 	nc.PermittedDNSDomains = append(nc.PermittedDNSDomains, ncJson.PermittedDNSDomains...)
 	nc.PermittedEmailAddresses = append(nc.PermittedEmailAddresses, ncJson.PermittedEmailAddresses...)
 	nc.PermittedURIDomains = append(nc.PermittedURIDomains, ncJson.PermittedURIDomains...)
-	nc.PermittedIPRanges = append(nc.PermittedIPRanges, ncJson.PermittedIPRanges...)
+	for _, ipn := range ncJson.PermittedIPRanges {
+		nc.PermittedIPRanges = append(nc.PermittedIPRanges, ipn.IPNet)
+	}
 	nc.PermittedDirectoryNames = append(nc.PermittedDirectoryNames, ncJson.PermittedDirectoryNames...)
 	nc.PermittedEdiPartyNames = append(nc.PermittedEdiPartyNames, ncJson.PermittedEdiPartyNames...)
 
@@ -277,7 +279,9 @@ func (nc *NameConstraints) UnmarshalJSON(b []byte) error {
 	nc.ExcludedDNSDomains = append(nc.ExcludedDNSDomains, ncJson.ExcludedDNSDomains...)
 	nc.ExcludedEmailAddresses = append(nc.ExcludedEmailAddresses, ncJson.ExcludedEmailAddresses...)
 	nc.ExcludedURIDomains = append(nc.ExcludedURIDomains, ncJson.ExcludedURIDomains...)
-	nc.ExcludedIPRanges = append(nc.ExcludedIPRanges, ncJson.ExcludedIPRanges...)
+	for _, ipn := range ncJson.ExcludedIPRanges {
+		nc.ExcludedIPRanges = append(nc.ExcludedIPRanges, ipn.IPNet)
+	}
 	nc.ExcludedDirectoryNames = append(nc.ExcludedDirectoryNames, ncJson.ExcludedDirectoryNames...)
 	nc.ExcludedEdiPartyNames = append(nc.ExcludedEdiPartyNames, ncJson.ExcludedEdiPartyNames...)
 
@@ -304,7 +308,9 @@ func (nc NameConstraints) MarshalJSON() ([]byte, error) {
 	out.PermittedURIDomains = append(out.PermittedURIDomains, nc.PermittedURIDomains...)
 	out.PermittedDirectoryNames = append(out.PermittedDirectoryNames, nc.PermittedDirectoryNames...)
 	out.PermittedEdiPartyNames = append(out.PermittedEdiPartyNames, nc.PermittedEdiPartyNames...)
-	out.PermittedIPRanges = nc.PermittedIPRanges
+	for _, ipn := range nc.PermittedIPRanges {
+		out.PermittedIPRanges = append(out.PermittedIPRanges, jsonIPNet{ipn})
+	}
 
 	for _, id := range nc.PermittedRegisteredIDs {
 		out.PermittedRegisteredIDs = append(out.PermittedRegisteredIDs, id.String())
@@ -313,7 +319,9 @@ func (nc NameConstraints) MarshalJSON() ([]byte, error) {
 	out.ExcludedDNSDomains = append(out.ExcludedDNSDomains, nc.ExcludedDNSDomains...)
 	out.ExcludedEmailAddresses = append(out.ExcludedEmailAddresses, nc.ExcludedEmailAddresses...)
 	out.ExcludedURIDomains = append(out.ExcludedURIDomains, nc.ExcludedURIDomains...)
-	out.ExcludedIPRanges = append(out.ExcludedIPRanges, nc.ExcludedIPRanges...)
+	for _, ipn := range nc.ExcludedIPRanges {
+		out.ExcludedIPRanges = append(out.ExcludedIPRanges, jsonIPNet{ipn})
+	}
 	out.ExcludedDirectoryNames = append(out.ExcludedDirectoryNames, nc.ExcludedDirectoryNames...)
 	out.ExcludedEdiPartyNames = append(out.ExcludedEdiPartyNames, nc.ExcludedEdiPartyNames...)
 
@@ -324,6 +332,56 @@ func (nc NameConstraints) MarshalJSON() ([]byte, error) {
 }
 
 type CRLDistributionPoints []string
+
+// jsonIPNet wraps net.IPNet to produce the legacy excrypto JSON shape
+// {"cidr":..., "begin":..., "end":..., "mask":...} that downstream
+// consumers (notably zgrab2/zcrypto) expect.
+type jsonIPNet struct {
+	*net.IPNet
+}
+
+func (j jsonIPNet) MarshalJSON() ([]byte, error) {
+	if j.IPNet == nil {
+		return []byte("null"), nil
+	}
+	type aux struct {
+		CIDR  string `json:"cidr"`
+		Begin string `json:"begin"`
+		End   string `json:"end"`
+		Mask  string `json:"mask"`
+	}
+	begin := j.IP.Mask(j.Mask)
+	end := make(net.IP, len(begin))
+	copy(end, begin)
+	for i := range end {
+		end[i] |= ^j.Mask[i]
+	}
+	maskIP := net.IP(j.Mask)
+	return json.Marshal(aux{
+		CIDR:  j.IPNet.String(),
+		Begin: begin.String(),
+		End:   end.String(),
+		Mask:  maskIP.String(),
+	})
+}
+
+func (j *jsonIPNet) UnmarshalJSON(data []byte) error {
+	var aux struct {
+		CIDR string `json:"cidr"`
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	if aux.CIDR == "" {
+		return nil
+	}
+	_, ipn, err := net.ParseCIDR(aux.CIDR)
+	if err != nil {
+		return err
+	}
+	j.IPNet = ipn
+	return nil
+}
 
 type SubjAuthKeyId []byte
 

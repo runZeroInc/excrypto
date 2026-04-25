@@ -46,7 +46,7 @@ func (r RDNSequence) String() string {
 		}
 		for j, tv := range rdn {
 			if j > 0 {
-				s += ", "
+				s += "+"
 			}
 
 			oidString := tv.Type.String()
@@ -315,9 +315,12 @@ func (certList *CertificateList) HasExpired(now time.Time) bool {
 // the RFC 2253 Distinguished Names syntax.
 func (n Name) String() string {
 	var rdns RDNSequence
-	// If there are no ExtraNames, surface the parsed value (all entries in
-	// Names) instead.
-	if n.ExtraNames == nil {
+	// If OriginalRDNS is populated (e.g. via FillFromRDNSequence),
+	// ToRDNSequence already returns the verbatim sequence including any
+	// non-standard parsed entries, so skip the prepend pass to avoid
+	// duplicating those entries. Otherwise, if there are no ExtraNames,
+	// surface the parsed value (all entries in Names) instead.
+	if n.OriginalRDNS == nil && n.ExtraNames == nil {
 		for _, atv := range n.Names {
 			t := atv.Type
 			if len(t) == 4 && t[0] == 2 && t[1] == 5 && t[2] == 4 {

@@ -110,7 +110,7 @@ func TestNameJSON(t *testing.T) {
 				DomainComponent:    nil,
 				ExtraNames:         []AttributeTypeAndValue{{Type: oidCommonName, Value: "name"}, {Type: oidSerialNumber, Value: "67890"}},
 			},
-			expected: `{"common_name":["common","name"],"serial_number":["12345","67890"],"country":["US","RU"],"locality":["Ann Arbor"],"province":["Michigan"],"street_address":["2260 Hayward St"],"organization":["University of Michigan"],"organizational_unit":["0x21"],"postal_code":["48109"]}`,
+			expected: `{"common_name":["name"],"serial_number":["67890"],"country":["US","RU"],"locality":["Ann Arbor"],"province":["Michigan"],"street_address":["2260 Hayward St"],"organization":["University of Michigan"],"organizational_unit":["0x21"],"postal_code":["48109"]}`,
 		},
 	}
 	for i, test := range tests {

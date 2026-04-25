@@ -16,6 +16,11 @@ import (
 )
 
 func TestGoToolLocation(t *testing.T) {
+	// excrypto: the test computes the expected go binary location relative
+	// to GOROOT, which only matches when running inside the standard library
+	// source tree. As an out-of-tree module the go tool lives elsewhere
+	// (e.g. /usr/local/go/bin/go on CI runners).
+	t.Skip("excrypto: GOROOT-relative go binary path only valid inside stdlib")
 	testenv.MustHaveGoBuild(t)
 
 	var exeSuffix string

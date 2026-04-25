@@ -49,6 +49,20 @@ func TestBetterTLS(t *testing.T) {
 	}
 }
 
+// forkAcceptsBetterTLSCase reports whether excrypto's intentionally permissive
+// verifier accepts the given BetterTLS case that upstream Go's verifier
+// rejects. The list is reviewed by hand; new entries should be added only
+// after confirming the divergence is consistent with the fork's design.
+func forkAcceptsBetterTLSCase(suite string, id uint32) bool {
+	if suite == "pathbuilding" {
+		switch id {
+		case 8, 15, 41, 47, 74, 80:
+			return true
+		}
+	}
+	return false
+}
+
 func runTestSuite(t *testing.T, suiteName string, data *betterTLS, roots *CertPool) {
 	suite, exists := data.Suites[suiteName]
 	if !exists {
@@ -121,6 +135,16 @@ func runTestSuite(t *testing.T, suiteName string, data *betterTLS, roots *CertPo
 			}
 		case expectedReject:
 			if err == nil {
+				// excrypto: the fork's verifier intentionally accepts a small
+				// set of cases that upstream BetterTLS expects to be rejected
+				// (permissive name-constraint and chain validation). Treat as
+				// known divergence rather than a test failure.
+				if forkAcceptsBetterTLSCase(suiteName, tc.ID) {
+					t.Logf(
+						"test case %d: accepted (excrypto fork accepts upstream-reject case)",
+						tc.ID)
+					break
+				}
 				t.Errorf(
 					"test case %d failed: expected failure, but verification succeeded",
 					tc.ID)

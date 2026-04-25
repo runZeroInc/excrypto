@@ -48,6 +48,11 @@ func TestGet(t *testing.T) {
 }
 
 func TestMetrics(t *testing.T) {
+	// excrypto: the godebug NonDefault metric is plumbed through runtime
+	// hooks that only exist when this package is the standard library's
+	// internal/godebug. Outside of GOROOT (i.e. when imported as a module
+	// dependency), IncNonDefault is a no-op and metrics.Read returns 0.
+	t.Skip("excrypto: requires runtime hooks only available inside GOROOT")
 	const name = "http2client" // must be a real name so runtime will accept it
 
 	var m [1]metrics.Sample

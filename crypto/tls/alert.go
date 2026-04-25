@@ -82,7 +82,7 @@ var alertText = map[alert]string{
 	alertExportRestriction:            "export restriction",
 	alertProtocolVersion:              "protocol version not supported",
 	alertInsufficientSecurity:         "insufficient security level",
-	alertInternalError:                "github.com/runZeroInc/excrypto/crypto/internal error",
+	alertInternalError:                "internal error",
 	alertInappropriateFallback:        "inappropriate fallback",
 	alertUserCanceled:                 "user canceled",
 	alertNoRenegotiation:              "no renegotiation",

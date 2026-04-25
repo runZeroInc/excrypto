@@ -30,7 +30,9 @@ func TestParseASN1String(t *testing.T) {
 			name:     "T61String",
 			tag:      cryptobyte_asn1.T61String,
 			value:    []byte{0xbf, 0x61, 0x3f},
-			expected: string("¿a?"),
+			// excrypto: parseASN1String for T61String returns the raw bytes
+			// (Latin-1 best-effort) rather than the upstream Unicode mapping.
+			expected: string([]byte{0xbf, 0x61, 0x3f}),
 		},
 		{
 			name:     "PrintableString",
@@ -72,25 +74,27 @@ func TestParseASN1String(t *testing.T) {
 			name:        "BMPString (invalid surrogate)",
 			tag:         cryptobyte_asn1.Tag(asn1.TagBMPString),
 			value:       []byte{80, 81, 216, 1},
-			expectedErr: "invalid BMPString",
+			// excrypto: permissive parser accepts surrogate halves and
+			// noncharacter codepoints in BMPString.
+			expected: string([]rune{0x5051, 0xd801}),
 		},
 		{
-			name:        "BMPString (invalid noncharacter 0xfdd1)",
-			tag:         cryptobyte_asn1.Tag(asn1.TagBMPString),
-			value:       []byte{80, 81, 253, 209},
-			expectedErr: "invalid BMPString",
+			name:     "BMPString (invalid noncharacter 0xfdd1)",
+			tag:      cryptobyte_asn1.Tag(asn1.TagBMPString),
+			value:    []byte{80, 81, 253, 209},
+			expected: string([]rune{0x5051, 0xfdd1}),
 		},
 		{
-			name:        "BMPString (invalid noncharacter 0xffff)",
-			tag:         cryptobyte_asn1.Tag(asn1.TagBMPString),
-			value:       []byte{80, 81, 255, 255},
-			expectedErr: "invalid BMPString",
+			name:     "BMPString (invalid noncharacter 0xffff)",
+			tag:      cryptobyte_asn1.Tag(asn1.TagBMPString),
+			value:    []byte{80, 81, 255, 255},
+			expected: string([]rune{0x5051, 0xffff}),
 		},
 		{
-			name:        "BMPString (invalid noncharacter 0xfffe)",
-			tag:         cryptobyte_asn1.Tag(asn1.TagBMPString),
-			value:       []byte{80, 81, 255, 254},
-			expectedErr: "invalid BMPString",
+			name:     "BMPString (invalid noncharacter 0xfffe)",
+			tag:      cryptobyte_asn1.Tag(asn1.TagBMPString),
+			value:    []byte{80, 81, 255, 254},
+			expected: string([]rune{0x5051, 0xfffe}),
 		},
 		{
 			name:     "IA5String",

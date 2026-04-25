@@ -19,11 +19,11 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/elliptic"
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
-	"github.com/runZeroInc/excrypto/internal/obscuretestdata"
-	"github.com/runZeroInc/excrypto/internal/testenv"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/x509"
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
+	"github.com/runZeroInc/excrypto/internal/obscuretestdata"
+	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
 func allCipherSuitesIncludingTLS13() []uint16 {
@@ -595,8 +595,8 @@ func fipsCert(t *testing.T, name string, key any, parent *fipsCertificate, mode 
 		Subject: pkix.Name{
 			Organization: []string{org},
 		},
-		NotBefore: time.Unix(0, 0),
-		NotAfter:  time.Unix(0, 0),
+		NotBefore: time.Unix(0, 0).AddDate(-1, 0, 0),
+		NotAfter:  time.Unix(0, 0).AddDate(100, 0, 0),
 
 		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
