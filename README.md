@@ -84,7 +84,8 @@ over the years to refuse anything weak, excrypto re-opens those doors.
 
 ### TLS / SSL stacks
 
-excrypto ships **two parallel TLS stacks**:
+excrypto ships **three parallel SSL/TLS stacks** spanning every wire
+version from SSL 2.0 to TLS 1.3:
 
 * [`crypto/tls`](crypto/tls) tracks modern upstream Go (TLS 1.0–1.3, TLS 1.3
   primary). It re-enables MD5/SHA-1 signature schemes and weak key
@@ -94,6 +95,15 @@ excrypto ships **two parallel TLS stacks**:
   `HandshakeLog` (`ServerHandshake`, `ClientHello`, `ServerHello`,
   `ServerKeyExchange`, `Heartbleed`, etc.) for capturing wire-level state
   during a handshake and is what zgrab2 / sshamble consume today.
+* [`crypto/ssl2`](crypto/ssl2) implements the obsolete **SSL 2.0** protocol
+  (Hickman 1995, deprecated by RFC 6176) end-to-end: client `Probe` and
+  full `Handshake`, RSA-encrypted master key exchange, MD5 record MACs,
+  and bulk encryption with RC4-128, RC2-128 (incl. 40-bit export),
+  DES-CBC, and 3DES-EDE-CBC. A matching `Server` type accepts CLIENT-HELLO
+  messages, runs the full handshake, and exposes the resulting connection
+  via `Read` / `Write`. Intended exclusively for security testing,
+  inventory, and DROWN-style research against legacy systems — see the
+  package doc.
 * [`crypto/ssl3/cryptobyte`](crypto/ssl3/cryptobyte) is a frozen-API copy of
   cryptobyte for use by the SSL 3 stack so the legacy code is decoupled
   from upstream API churn.
@@ -138,6 +148,7 @@ behavior may differ from upstream Go:
 | [`crypto/...`](crypto)                  | Modern Go crypto, with weak-primitive gates removed  |
 | [`crypto/tls`](crypto/tls)              | Modern TLS 1.0–1.3 with permissive sig schemes       |
 | [`crypto/ssl3/tls`](crypto/ssl3/tls)    | Legacy SSL 3.0 / TLS 1.0–1.2 with `HandshakeLog`     |
+| [`crypto/ssl2`](crypto/ssl2)            | Obsolete SSL 2.0 client + server (research only)     |
 | [`crypto/ssl3/rc2`](crypto/ssl3/rc2)    | RC2 block cipher (40/56/64/128-bit)                  |
 | [`crypto/x509`](crypto/x509)            | ZCrypto-style permissive parser + 3-set `Verify()`   |
 | [`crypto/x509/ct`](crypto/x509/ct)      | ZCrypto fork of Google CT                            |
