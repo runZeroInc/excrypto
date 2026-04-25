@@ -160,6 +160,11 @@ var verifyTests = []verifyTest{
 		currentTime:   1302726541,
 		keyUsages:     []ExtKeyUsage{ExtKeyUsageAny},
 
+		// excrypto: like the dnssec-exp test above, the StartCom root has
+		// been removed from the Windows system trust store, so the system
+		// verifier returns "certificate signed by unknown authority".
+		systemSkip: true,
+
 		expectedChains: [][]string{
 			{"dnssec-exp", "StartCom Class 1", "StartCom Certification Authority"},
 		},
