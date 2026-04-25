@@ -451,6 +451,11 @@ func TestLinker(t *testing.T) {
 	if testing.Short() {
 		t.Skip("test requires running 'go build'")
 	}
+	// excrypto: this test writes a hello.go importing crypto/ecdh into a
+	// throwaway temp dir and runs `go build` there. In stdlib that resolves
+	// against GOROOT, but our fork is a third-party module so the temp dir
+	// has no go.mod and the import fails. Skip out-of-tree.
+	t.Skip("excrypto: linker dead-code test requires stdlib import resolution")
 
 	dir := t.TempDir()
 	hello := filepath.Join(dir, "hello.go")

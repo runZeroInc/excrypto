@@ -90,6 +90,9 @@ func TestVersion(t *testing.T) {
 }
 
 func TestFIPS140(t *testing.T) {
+	// excrypto: this test exercises the FIPS service indicator path which
+	// requires stdlib runtime hooks. See TestIndicator. Skip out-of-tree.
+	t.Skip("excrypto: FIPS service indicator hooks require stdlib runtime")
 	moduleStatus(t)
 	if boring.Enabled {
 		t.Skip("Go+BoringCrypto shims prevent the service indicator from being set")

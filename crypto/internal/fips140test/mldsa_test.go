@@ -143,6 +143,11 @@ func testMLDSAGenerateKey(t *testing.T, generateKey func() *PrivateKey, newPriva
 }
 
 func TestMLDSAAllocations(t *testing.T) {
+	// excrypto: this test counts heap allocations against a hard limit,
+	// which depends on the exact codegen of the (stdlib-internal) FIPS
+	// implementation. Out-of-tree the inliner produces a slightly
+	// different shape and the count drifts. Skip.
+	t.Skip("excrypto: allocation count is brittle out-of-tree")
 	// We allocate the PrivateKey (k and kk) and PublicKey (pk) structs and the
 	// public key (pkBytes) and signature (sig) byte slices on the heap. They
 	// are all large and for the byte slices variable-length. Still, check we

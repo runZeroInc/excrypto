@@ -220,6 +220,11 @@ func TestEntropyAdaptiveProportionTest(t *testing.T) {
 }
 
 func TestEntropyUnchanged(t *testing.T) {
+	// excrypto: this test pins the SHA-256 of crypto/internal/entropy/entropy.go
+	// to detect drift from the FIPS-validated source. The fork tracks upstream
+	// but the file lives at a different import path, so the hash baseline is
+	// not meaningful here. Skip.
+	t.Skip("excrypto: entropy source hash baseline applies to GOROOT")
 	testenv.MustHaveSource(t)
 
 	h := sha256.New()

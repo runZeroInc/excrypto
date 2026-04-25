@@ -19,6 +19,12 @@ import (
 )
 
 func TestNoGetrandom(t *testing.T) {
+	// excrypto: this test re-execs itself under a seccomp filter to assert
+	// the getrandom(2) ENOSYS fallback path. The fork's sysrand uses panic
+	// stubs in place of runtime.fatal, so the inner subprocess fails for
+	// reasons unrelated to the seccomp behaviour. Skip out-of-tree.
+	t.Skip("excrypto: seccomp/getrandom test requires stdlib runtime hooks")
+
 	if os.Getenv("GO_GETRANDOM_DISABLED") == "1" {
 		// We are running under seccomp, the rest of the test suite will take
 		// care of actually testing the implementation, we check that getrandom

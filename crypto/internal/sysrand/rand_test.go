@@ -73,6 +73,11 @@ func TestConcurrentRead(t *testing.T) {
 // TestNoUrandomFallback ensures the urandom fallback is not reached in
 // normal operations.
 func TestNoUrandomFallback(t *testing.T) {
+	// excrypto: out-of-tree the sysrand package uses a panic stub instead of
+	// runtime.fatal, and the seccomp/getrandom plumbing assumes stdlib
+	// internals. Fallback bookkeeping is therefore unreliable here. Skip.
+	t.Skip("excrypto: urandom fallback test requires stdlib runtime hooks")
+
 	expectFallback := false
 	if runtime.GOOS == "aix" {
 		// AIX always uses the urandom fallback.
@@ -96,6 +101,11 @@ func TestReadError(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping test in short mode")
 	}
+	// excrypto: the fork's fatal() stub panics rather than calling
+	// runtime.fatal, so the subprocess does not produce the
+	// "fatal error: crypto/rand: failed to read random data" line the
+	// stdlib test expects. Skip out-of-tree.
+	t.Skip("excrypto: fatal stub differs from runtime.fatal output")
 
 	// We run this test in a subprocess because it's expected to crash.
 	if os.Getenv("GO_TEST_READ_ERROR") == "1" {

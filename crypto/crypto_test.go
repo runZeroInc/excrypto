@@ -97,6 +97,12 @@ UjmopwKBgAqB2KYYMUqAOvYcBnEfLDmyZv9BTVNHbR2lKkMYqv5LlvDaBxVfilE0
 }
 
 func TestDisallowedAssemblyInstructions(t *testing.T) {
+	// excrypto: this test walks GOROOT/src/crypto, which is the upstream
+	// stdlib tree, not this fork. The boring sig stub it expects to skip
+	// lives at our forked import path, and the rest of stdlib's allowed
+	// BYTE/WORD usage is irrelevant to what we ship. Skip out-of-tree.
+	t.Skip("excrypto: assembly policy check applies to GOROOT, not this fork")
+
 	// This test enforces the cryptography assembly policy rule that we do not
 	// use BYTE or WORD instructions, since these instructions can obscure what
 	// the assembly is actually doing. If we do not support specific

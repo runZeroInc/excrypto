@@ -11,6 +11,11 @@ import (
 )
 
 func TestIndicator(t *testing.T) {
+	// excrypto: the FIPS 140 service indicator is implemented via a
+	// goroutine-local hook patched into the runtime. That hook is only
+	// available when this package lives under GOROOT, so out-of-tree the
+	// indicator state never updates and the test fails. Skip.
+	t.Skip("excrypto: FIPS service indicator hooks require stdlib runtime")
 	fips140.ResetServiceIndicator()
 	if fips140.ServiceIndicator() {
 		t.Error("indicator should be false if no calls are made")
