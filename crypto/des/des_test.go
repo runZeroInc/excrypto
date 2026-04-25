@@ -6,10 +6,11 @@ package des_test
 
 import (
 	"bytes"
+	"testing"
+
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"github.com/runZeroInc/excrypto/crypto/des"
 	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
-	"testing"
 )
 
 type CryptTest struct {

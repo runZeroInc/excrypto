@@ -2028,8 +2028,16 @@ func CreateCertificate(rand io.Reader, template, parent *Certificate, pub, priv 
 		return nil, errors.New("x509: certificate private key does not implement crypto.Signer")
 	}
 
-	if template.SerialNumber == nil {
-		return nil, errors.New("x509: no SerialNumber given")
+	serialNumber := template.SerialNumber
+	if serialNumber == nil {
+		// excrypto: match Go 1.26 upstream — auto-generate a 20-octet serial
+		// when the template doesn't specify one (RFC 5280 §4.1.2.2).
+		serialBytes := make([]byte, 20)
+		if _, err := io.ReadFull(rand, serialBytes); err != nil {
+			return nil, err
+		}
+		serialBytes[0] &= 0b0111_1111
+		serialNumber = new(big.Int).SetBytes(serialBytes)
 	}
 
 	// zcrypto
@@ -2104,7 +2112,7 @@ func CreateCertificate(rand io.Reader, template, parent *Certificate, pub, priv 
 	encodedPublicKey := asn1.BitString{BitLength: len(publicKeyBytes) * 8, Bytes: publicKeyBytes}
 	c := tbsCertificate{
 		Version:            2,
-		SerialNumber:       template.SerialNumber,
+		SerialNumber:       serialNumber,
 		SignatureAlgorithm: algorithmIdentifier,
 		Issuer:             asn1.RawValue{FullBytes: asn1Issuer},
 		Validity:           validity{template.NotBefore.UTC(), template.NotAfter.UTC()},

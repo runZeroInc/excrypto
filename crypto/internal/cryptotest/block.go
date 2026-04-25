@@ -6,8 +6,9 @@ package cryptotest
 
 import (
 	"bytes"
-	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/crypto/cipher"
 )
 
 type MakeBlock func(key []byte) (cipher.Block, error)

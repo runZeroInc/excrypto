@@ -5,9 +5,10 @@
 package bbig
 
 import (
-	"github.com/runZeroInc/excrypto/crypto/internal/boring"
 	"math/big"
 	"unsafe"
+
+	"github.com/runZeroInc/excrypto/crypto/internal/boring"
 )
 
 func Enc(b *big.Int) boring.BigInt {

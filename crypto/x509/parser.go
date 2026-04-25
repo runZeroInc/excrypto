@@ -764,8 +764,25 @@ func parseNameConstraintsExtension(out *Certificate, e pkix.Extension) (unhandle
 				partyNames = append(partyNames, ediName)
 
 			case permitOidTag:
+				// excrypto: cryptobyte.ReadAnyASN1 returns only the inner
+				// content bytes, but asn1.UnmarshalWithParams "tag:8" expects
+				// the original tag header. Re-prepend a UNIVERSAL OBJECT
+				// IDENTIFIER (0x06) tag so asn1 can decode the contents.
+				wrapped := make([]byte, 0, len(value)+2)
+				wrapped = append(wrapped, 0x06)
+				if len(value) >= 0x80 {
+					// long-form length not expected for OIDs, but be safe
+					perr := errors.New("x509: registeredID OID too long")
+					if asn1.AllowPermissiveParsing {
+						continue
+					}
+					err = perr
+					return
+				}
+				wrapped = append(wrapped, byte(len(value)))
+				wrapped = append(wrapped, value...)
 				var id asn1.ObjectIdentifier
-				_, perr := asn1.UnmarshalWithParams(value, &id, "tag:8")
+				_, perr := asn1.Unmarshal(wrapped, &id)
 				if perr != nil {
 					if asn1.AllowPermissiveParsing {
 						continue
@@ -784,8 +801,8 @@ func parseNameConstraintsExtension(out *Certificate, e pkix.Extension) (unhandle
 	}
 
 	if out.PermittedDNSDomains, out.PermittedIPRanges, out.PermittedEmailAddresses,
-		out.PermittedURIDomains, out.PermittedX400Addresses, out.DirectoryNames,
-		out.EDIPartyNames, out.PermittedRegisteredIDs, err = getValues(permitted); err != nil {
+		out.PermittedURIDomains, out.PermittedX400Addresses, out.PermittedDirectoryNames,
+		out.PermittedEdiPartyNames, out.PermittedRegisteredIDs, err = getValues(permitted); err != nil {
 		return false, err
 	}
 	if out.ExcludedDNSDomains, out.ExcludedIPRanges, out.ExcludedEmailAddresses,

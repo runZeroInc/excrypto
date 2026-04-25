@@ -7,22 +7,22 @@ package rsa_test
 import (
 	"testing"
 
-	"crypto/rand"
-
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/x509"
 )
 
 func TestEqual(t *testing.T) {
-	private, _ := rsa.GenerateKey(rand.Reader, 512)
+	t.Setenv("GODEBUG", "rsa1024min=0")
+
+	private := test512Key
 	public := &private.PublicKey
 
 	if !public.Equal(public) {
 		t.Errorf("public key is not equal to itself: %v", public)
 	}
 	if !public.Equal(crypto.Signer(private).Public().(*rsa.PublicKey)) {
-		t.Errorf("private.Public() is not Equal to public: %q", public)
+		t.Errorf("private.Public() is not Equal to public: %v", public)
 	}
 	if !private.Equal(private) {
 		t.Errorf("private key is not equal to itself: %v", private)
@@ -43,11 +43,17 @@ func TestEqual(t *testing.T) {
 		t.Errorf("private key is not equal to itself after decoding: %v", private)
 	}
 
-	other, _ := rsa.GenerateKey(rand.Reader, 512)
+	other := test512KeyTwo
 	if public.Equal(other.Public()) {
 		t.Errorf("different public keys are Equal")
 	}
 	if private.Equal(other) {
 		t.Errorf("different private keys are Equal")
+	}
+
+	noPrecomp := *private
+	noPrecomp.Precomputed = rsa.PrecomputedValues{}
+	if !private.Equal(&noPrecomp) {
+		t.Errorf("private key with no precomputation is not equal to itself: %v", private)
 	}
 }

@@ -242,10 +242,7 @@ var (
 // attributeTypeAndValue for each of the given values. See RFC 5280, A.1, and
 // search for AttributeTypeAndValue.
 func (n Name) appendRDNs(in RDNSequence, values []string, oid asn1.ObjectIdentifier) RDNSequence {
-	// zcrypto
-	// NOTE: stdlib prevents adding if the oid is already present in n.ExtraNames
-	// if len(values) == 0 || oidInAttributeTypeAndValue(oid, n.ExtraNames) {
-	if len(values) == 0 {
+	if len(values) == 0 || oidInAttributeTypeAndValue(oid, n.ExtraNames) {
 		return in
 	}
 

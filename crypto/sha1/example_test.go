@@ -6,10 +6,11 @@ package sha1_test
 
 import (
 	"fmt"
-	"github.com/runZeroInc/excrypto/crypto/sha1"
 	"io"
 	"log"
 	"os"
+
+	"github.com/runZeroInc/excrypto/crypto/sha1"
 )
 
 func ExampleNew() {

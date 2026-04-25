@@ -154,7 +154,7 @@ func TestRandom(t *testing.T) {
 	t.Run("X", func(t *testing.T) { f(t, NonceSizeX) })
 }
 
-func benchamarkChaCha20Poly1305Seal(b *testing.B, buf []byte, nonceSize int) {
+func benchmarkChaCha20Poly1305Seal(b *testing.B, buf []byte, nonceSize int) {
 	b.ReportAllocs()
 	b.SetBytes(int64(len(buf)))
 
@@ -177,7 +177,7 @@ func benchamarkChaCha20Poly1305Seal(b *testing.B, buf []byte, nonceSize int) {
 	}
 }
 
-func benchamarkChaCha20Poly1305Open(b *testing.B, buf []byte, nonceSize int) {
+func benchmarkChaCha20Poly1305Open(b *testing.B, buf []byte, nonceSize int) {
 	b.ReportAllocs()
 	b.SetBytes(int64(len(buf)))
 
@@ -205,17 +205,17 @@ func benchamarkChaCha20Poly1305Open(b *testing.B, buf []byte, nonceSize int) {
 func BenchmarkChacha20Poly1305(b *testing.B) {
 	for _, length := range []int{64, 1350, 8 * 1024} {
 		b.Run("Open-"+strconv.Itoa(length), func(b *testing.B) {
-			benchamarkChaCha20Poly1305Open(b, make([]byte, length), NonceSize)
+			benchmarkChaCha20Poly1305Open(b, make([]byte, length), NonceSize)
 		})
 		b.Run("Seal-"+strconv.Itoa(length), func(b *testing.B) {
-			benchamarkChaCha20Poly1305Seal(b, make([]byte, length), NonceSize)
+			benchmarkChaCha20Poly1305Seal(b, make([]byte, length), NonceSize)
 		})
 
 		b.Run("Open-"+strconv.Itoa(length)+"-X", func(b *testing.B) {
-			benchamarkChaCha20Poly1305Open(b, make([]byte, length), NonceSizeX)
+			benchmarkChaCha20Poly1305Open(b, make([]byte, length), NonceSizeX)
 		})
 		b.Run("Seal-"+strconv.Itoa(length)+"-X", func(b *testing.B) {
-			benchamarkChaCha20Poly1305Seal(b, make([]byte, length), NonceSizeX)
+			benchmarkChaCha20Poly1305Seal(b, make([]byte, length), NonceSizeX)
 		})
 	}
 }

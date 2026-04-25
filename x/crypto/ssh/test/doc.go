@@ -4,4 +4,6 @@
 
 // Package test contains integration tests for the
 // github.com/runZeroInc/excrypto/x/crypto/ssh package.
+//
+// Deprecated: this package is for internal use only.
 package test

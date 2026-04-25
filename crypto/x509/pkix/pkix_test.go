@@ -71,4 +71,5 @@ func TestNameString(t *testing.T) {
 		s := test.name.String()
 		assert.Equal(t, test.legacy, s)
 	}
+	LegacyNameString = false
 }

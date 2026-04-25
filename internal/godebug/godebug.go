@@ -50,7 +50,6 @@ package godebug
 // We keep imports to the absolute bare minimum.
 import (
 	"os"
-	"strings"
 	"sync"
 	"sync/atomic"
 	"unsafe"
@@ -127,7 +126,10 @@ func (s *Setting) IncNonDefault() {
 }
 
 func (s *Setting) register() {
-
+	if s.info == nil || s.info.Opaque {
+		panic("godebug: unexpected IncNonDefault of " + s.name)
+	}
+	registerMetric("/godebug/non-default-behavior/"+s.Name()+":events", s.nonDefault.Load)
 }
 
 // cache is a cache of all the GODEBUG settings,
@@ -145,6 +147,16 @@ func (s *Setting) register() {
 // Once entered into the map, the name is never removed.
 var cache sync.Map // name string -> value *atomic.Pointer[string]
 
+// lastEnv tracks the GODEBUG env value we last applied via update(); used by
+// Setting.Value() to re-parse on change. This is an excrypto extension.
+var lastEnv atomic.Value // string
+
+func init0() {
+	lastEnv.Store(os.Getenv("GODEBUG"))
+}
+
+var _ = func() bool { init0(); return true }()
+
 var empty value
 
 // Value returns the current value for the GODEBUG setting s.
@@ -161,6 +173,14 @@ func (s *Setting) Value() string {
 			panic("godebug: Value of name not listed in godebugs.All: " + s.name)
 		}
 	})
+	// excrypto: stdlib relies on a runtime hook to re-parse $GODEBUG when it
+	// changes via os.Setenv. Out-of-tree we don't have that hook, so re-read
+	// the environment on every Value() call. This is slow but only matters
+	// for tests; production binaries set GODEBUG once at startup.
+	if env := os.Getenv("GODEBUG"); env != lastEnv.Load().(string) {
+		lastEnv.Store(env)
+		update("", env)
+	}
 	v := *s.value.Load()
 	if v.bisect != nil && !v.bisect.Stack(&stderr) {
 		return ""
@@ -184,45 +204,47 @@ func lookup(name string) *setting {
 	return s
 }
 
-var goDebugDefaults string
-var goDebugDefaultCalc sync.Once
-
-func goDebugCalcDefaults() {
-	def := []string{}
-	for _, v := range godebugs.All {
-		if v.Old == "" {
-			continue
-		}
-		if v.Old == "0" {
-			def = append(def, v.Name+"=1")
-		} else {
-			def = append(def, v.Name+"=0")
-		}
+// In stdlib these are pulled from runtime via go:linkname so the runtime can
+// notify godebug of $GODEBUG changes and forward metrics. excrypto operates
+// outside the runtime, so they are no-ops; godebug values come from process
+// environment at startup only.
+func setUpdate(update func(string, string)) {
+	if env := os.Getenv("GODEBUG"); env != "" {
+		update("", env)
 	}
-	goDebugDefaults = strings.Join(def, ",")
 }
 
-// SetEnv is a wrapper that updates our stdlib GODEBUG parameters
-func SetEnv(key, value string) error {
-	goDebugDefaultCalc.Do(goDebugCalcDefaults)
-	os.Setenv(key, value)
-	if key != "GODEBUG" {
-		return nil
+func registerMetric(name string, read func() uint64) {}
+
+func setNewIncNonDefault(newIncNonDefault func(string) func()) {}
+
+// SetEnv mutates the named environment variable and re-applies its value to
+// the godebug machinery. This is an excrypto extension used by tests that need
+// to flip GODEBUG values at runtime; the upstream stdlib relies on
+// runtime-internal hooks that are not accessible from an out-of-tree fork.
+func SetEnv(name, value string) {
+	_ = os.Setenv(name, value)
+	if name == "GODEBUG" {
+		update("", value)
 	}
-	update(goDebugDefaults, value)
-	return nil
 }
 
-// ResetEnv restores GODEBUG to the binary defaults
+// ResetEnv clears any test-time GODEBUG override and re-reads the value from
+// the process environment. Excrypto extension; mirror of SetEnv used in
+// upstream tests via t.Cleanup.
 func ResetEnv() {
-	goDebugDefaultCalc.Do(goDebugCalcDefaults)
-	os.Setenv("GODEBUG", goDebugDefaults)
-	update(goDebugDefaults, goDebugDefaults)
+	update("", os.Getenv("GODEBUG"))
 }
 
-func GetGODEBUGDefaults() string {
-	goDebugDefaultCalc.Do(goDebugCalcDefaults)
-	return goDebugDefaults
+func init() {
+	setUpdate(update)
+	setNewIncNonDefault(newIncNonDefault)
+}
+
+func newIncNonDefault(name string) func() {
+	s := New(name)
+	s.Value()
+	return s.IncNonDefault
 }
 
 var updateMu sync.Mutex
@@ -237,8 +259,14 @@ func update(def, env string) {
 	// Update all the cached values, creating new ones as needed.
 	// We parse the environment variable first, so that any settings it has
 	// are already locked in place (did[name] = true) before we consider
-	// the defaults.
+	// the defaults. Existing immutable settings are always locked.
 	did := make(map[string]bool)
+	cache.Range(func(name, s any) bool {
+		if info := s.(*setting).info; info != nil && info.Immutable {
+			did[name.(string)] = true
+		}
+		return true
+	})
 	parse(did, env)
 	parse(did, def)
 

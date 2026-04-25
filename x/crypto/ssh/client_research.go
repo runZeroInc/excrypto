@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"slices"
 	"strconv"
 )
 
@@ -447,7 +448,7 @@ func (cb badSigPublicKeyCallback) auth(session []byte, user string, c packetConn
 		// the key try to use the obtained algorithm as if "server-sig-algs" had
 		// not been implemented if supported from the algorithm signer.
 		if !ok && idx < origSignersLen && isRSACert(algo) && algo != CertAlgoRSAv01 {
-			if contains(as.Algorithms(), KeyAlgoRSA) {
+			if slices.Contains(as.Algorithms(), KeyAlgoRSA) {
 				// We retry using the compat algorithm after all signers have
 				// been tried normally.
 				signers = append(signers, &multiAlgorithmSigner{
@@ -513,7 +514,7 @@ func (cb badSigPublicKeyCallback) auth(session []byte, user string, c packetConn
 		// contain the "publickey" method, do not attempt to authenticate with any
 		// other keys.  According to RFC 4252 Section 7, the latter can occur when
 		// additional authentication methods are required.
-		if success == authSuccess || !contains(methods, cb.method()) {
+		if success == authSuccess || !slices.Contains(methods, cb.method()) {
 			return success, methods, err
 		}
 	}

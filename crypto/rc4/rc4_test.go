@@ -7,9 +7,10 @@ package rc4
 import (
 	"bytes"
 	"fmt"
+	"testing"
+
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
-	"testing"
 )
 
 type rc4Test struct {

@@ -297,7 +297,7 @@ func TestCertTypes(t *testing.T) {
 		{"legacyRSASigner", &legacyRSASigner{testSigners["rsa"]}, KeyAlgoRSA},
 		{"multiAlgoRSASignerSHA256", multiAlgoSignerSHA256, KeyAlgoRSASHA256},
 		{"multiAlgoRSASignerSHA512", multiAlgoSignerSHA512, KeyAlgoRSASHA512},
-		{CertAlgoDSAv01, testSigners["dsa"], ""},
+		{InsecureCertAlgoDSAv01, testSigners["dsa"], ""},
 	}
 
 	k, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
@@ -330,15 +330,13 @@ func TestCertTypes(t *testing.T) {
 			go NewServerConn(c1, conf)
 
 			priv := m.signer
-			if err != nil {
-				t.Fatalf("error generating ssh pubkey: %v", err)
-			}
-
 			cert := &Certificate{
 				CertType: UserCert,
 				Key:      priv.PublicKey(),
 			}
-			cert.SignCert(rand.Reader, priv)
+			if err := cert.SignCert(rand.Reader, priv); err != nil {
+				t.Fatalf("error signing certificate: %v", err)
+			}
 
 			certSigner, err := NewCertSigner(cert, priv)
 			if err != nil {
@@ -402,5 +400,34 @@ func TestCertSignWithMultiAlgorithmSigner(t *testing.T) {
 				t.Fatalf("got signature format %q, want %q", cert.Signature.Format, c.sigAlgo)
 			}
 		})
+	}
+}
+
+func TestCertSignWithCertificate(t *testing.T) {
+	cert := &Certificate{
+		Key:         testPublicKeys["rsa"],
+		ValidBefore: CertTimeInfinity,
+		CertType:    UserCert,
+	}
+	if err := cert.SignCert(rand.Reader, testSigners["ecdsa"]); err != nil {
+		t.Fatalf("SignCert: %v", err)
+	}
+	signer, err := NewSignerWithAlgorithms(testSigners["rsa"].(AlgorithmSigner), []string{KeyAlgoRSASHA256})
+	if err != nil {
+		t.Fatal(err)
+	}
+	certSigner, err := NewCertSigner(cert, signer)
+	if err != nil {
+		t.Fatalf("NewCertSigner: %v", err)
+	}
+
+	cert1 := &Certificate{
+		Key:         testPublicKeys["ecdsa"],
+		ValidBefore: CertTimeInfinity,
+		CertType:    UserCert,
+	}
+
+	if err := cert1.SignCert(rand.Reader, certSigner); err == nil {
+		t.Fatal("successfully signed a certificate using another certificate, it is expected to fail")
 	}
 }

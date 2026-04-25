@@ -7,9 +7,10 @@
 package cpu_test
 
 import (
+	"testing"
+
 	. "github.com/runZeroInc/excrypto/internal/cpu"
 	"github.com/runZeroInc/excrypto/internal/godebug"
-	"testing"
 )
 
 func TestX86ifAVX2hasAVX(t *testing.T) {

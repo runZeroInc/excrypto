@@ -6,10 +6,11 @@ package cpu_test
 
 import (
 	"errors"
-	. "github.com/runZeroInc/excrypto/internal/cpu"
 	"os"
 	"regexp"
 	"testing"
+
+	. "github.com/runZeroInc/excrypto/internal/cpu"
 )
 
 func getFeatureList() ([]string, error) {
