@@ -37,12 +37,11 @@ type recordHeader struct {
 	isEscape   bool // "security escape" bit (rarely used)
 }
 
-// readRecord reads a single SSL 2.0 record from r and returns the payload.
-// The padding (if any) is stripped off and discarded.
-//
-// It returns the parsed header so callers can distinguish 2-byte and 3-byte
-// records on the wire — useful for tests and forensics.
-func readRecord(r io.Reader) (recordHeader, []byte, error) {
+// readRecordRaw reads a single SSL 2.0 record from r and returns the full
+// body (length octets, including any trailing padding). Padding is NOT
+// stripped, since post-handshake records carry encrypted padding that must
+// be passed to the bulk cipher before being trimmed.
+func readRecordRaw(r io.Reader) (recordHeader, []byte, error) {
 	var hdr [3]byte
 	if _, err := io.ReadFull(r, hdr[:2]); err != nil {
 		return recordHeader{}, nil, err
@@ -74,10 +73,17 @@ func readRecord(r io.Reader) (recordHeader, []byte, error) {
 	if _, err := io.ReadFull(r, buf); err != nil {
 		return h, nil, err
 	}
-	// In SSL 2.0 the *length* field counts ciphertext (data + padding);
-	// for unencrypted handshake records padLen is always zero. We trim any
-	// trailing pad in the unlikely event a server sent a padded clear-text
-	// record.
+	return h, buf, nil
+}
+
+// readRecord reads a single clear-text SSL 2.0 record. Padding (if any) is
+// stripped before returning. Use readRecordRaw + a cipherState for encrypted
+// records.
+func readRecord(r io.Reader) (recordHeader, []byte, error) {
+	h, buf, err := readRecordRaw(r)
+	if err != nil {
+		return h, nil, err
+	}
 	return h, buf[:len(buf)-h.padLen], nil
 }
 

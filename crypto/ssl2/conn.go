@@ -5,11 +5,13 @@
 package ssl2
 
 import (
+	"bytes"
 	"crypto/rand"
 	"errors"
 	"fmt"
 	"io"
 	"net"
+	"sync"
 	"time"
 
 	"github.com/runZeroInc/excrypto/crypto/x509"
@@ -17,12 +19,22 @@ import (
 
 // Conn is a thin wrapper over a net.Conn that speaks SSL 2.0 records.
 //
-// It is intentionally simple: it provides synchronous read/write of single
-// records, a high-level [Conn.Probe] that performs CLIENT-HELLO →
-// SERVER-HELLO, and nothing else. It does NOT perform key exchange or
-// bulk-data encryption.
+// Before [Conn.Handshake] runs (or after a probe-only [Conn.Probe]) the
+// connection carries clear-text records via [Conn.ReadRecord] /
+// [Conn.WriteRecord]. After a successful handshake the connection is
+// encrypted and [Conn.Read] / [Conn.Write] carry application data.
 type Conn struct {
 	conn net.Conn
+
+	// Post-handshake state. Nil before/until Handshake() succeeds.
+	mu       sync.Mutex
+	read     *cipherState
+	write    *cipherState
+	finished bool
+
+	// readBuf holds plaintext that has been decrypted but not yet consumed
+	// by Read.
+	readBuf bytes.Buffer
 }
 
 // NewConn wraps c in an SSL 2.0 [Conn]. The caller retains ownership of c
@@ -70,6 +82,12 @@ type ProbeResult struct {
 	// PeerError is populated if the peer responded with an SSL 2.0 ERROR
 	// message instead of a SERVER-HELLO.
 	PeerError *ServerError
+
+	// challenge and clientHello are retained so a subsequent
+	// [Conn.Handshake] call can finish the handshake using the same
+	// CLIENT-HELLO that produced this SERVER-HELLO.
+	challenge   []byte
+	clientHello *ClientHello
 }
 
 // SupportsSSL2 reports whether the peer responded with a well-formed
@@ -118,7 +136,7 @@ func (c *Conn) Probe(challenge []byte) (*ProbeResult, error) {
 	if len(payload) == 0 {
 		return nil, errors.New("ssl2: empty server response")
 	}
-	res := &ProbeResult{}
+	res := &ProbeResult{challenge: challenge, clientHello: hello}
 	switch MessageType(payload[0]) {
 	case MsgServerHello:
 		sh, err := ParseServerHello(payload)
@@ -201,7 +219,64 @@ func (c *Conn) SendError(code ErrorCode) error {
 	return c.WriteRecord((&ServerError{Code: code}).Marshal())
 }
 
-// Compile-time check that *Conn does not accidentally implement io.ReadWriter
-// (we deliberately do NOT expose Read/Write of plaintext, since SSL 2.0
-// application data would be encrypted and we don't implement the cipher).
-var _ = func() io.ReadWriter { return nil }
+// Read returns plaintext application data. It must only be called after a
+// successful [Conn.Handshake]; otherwise it returns an error.
+func (c *Conn) Read(p []byte) (int, error) {
+	c.mu.Lock()
+	if c.read == nil {
+		c.mu.Unlock()
+		return 0, errors.New("ssl2: Read before Handshake")
+	}
+	c.mu.Unlock()
+	if c.readBuf.Len() == 0 {
+		if err := c.fillReadBuf(); err != nil {
+			return 0, err
+		}
+	}
+	return c.readBuf.Read(p)
+}
+
+func (c *Conn) fillReadBuf() error {
+	hdr, body, err := readRecordRaw(c.conn)
+	if err != nil {
+		return err
+	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	data, err := c.read.openRecord(hdr, body)
+	if err != nil {
+		return err
+	}
+	c.readBuf.Write(data)
+	return nil
+}
+
+// Write encrypts and sends p as one or more SSL 2.0 application-data records.
+func (c *Conn) Write(p []byte) (int, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.write == nil {
+		return 0, errors.New("ssl2: Write before Handshake")
+	}
+	written := 0
+	for len(p) > 0 {
+		chunk := p
+		// Cap each record to a comfortable plaintext size; encrypted record
+		// adds MAC + padding which must still fit MaxRecordPayload.
+		if len(chunk) > 16384 {
+			chunk = chunk[:16384]
+		}
+		rec, err := c.write.sealRecord(chunk)
+		if err != nil {
+			return written, err
+		}
+		if _, err := c.conn.Write(rec); err != nil {
+			return written, err
+		}
+		written += len(chunk)
+		p = p[len(chunk):]
+	}
+	return written, nil
+}
+
+var _ io.ReadWriter = (*Conn)(nil)
