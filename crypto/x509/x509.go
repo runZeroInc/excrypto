@@ -1914,9 +1914,9 @@ func signingParamsForKey(key crypto.Signer, sigAlgo SignatureAlgorithm) (Signatu
 			if details.pubKeyAlgo != pubType {
 				return 0, ai, errors.New("x509: requested SignatureAlgorithm does not match private key type")
 			}
-			if details.hash == crypto.MD5 {
-				return 0, ai, errors.New("x509: signing with MD5 is not supported")
-			}
+			// excrypto: fork allows signing with MD5 to support generating
+			// legacy/test certificates and round-tripping certs found in the
+			// wild. Upstream rejects this here.
 
 			return sigAlgo, pkix.AlgorithmIdentifier{
 				Algorithm:  details.oid,
