@@ -23,10 +23,10 @@ import (
 //	    opaque challenge[challenge_length];
 //	} ClientHello;
 type ClientHello struct {
-	Version      uint16
-	CipherSpecs  []CipherKind
-	SessionID    []byte
-	Challenge    []byte
+	Version     uint16
+	CipherSpecs []CipherKind
+	SessionID   []byte
+	Challenge   []byte
 }
 
 // Marshal returns the wire encoding (excluding the record header) of the

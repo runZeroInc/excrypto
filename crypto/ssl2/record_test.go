@@ -84,11 +84,11 @@ func TestRecordReadErrors(t *testing.T) {
 		wire []byte
 		want string
 	}{
-		{"empty", []byte{}, ""},                                     // io.EOF
-		{"truncated 2-byte hdr", []byte{0x80}, ""},                  // unexpected EOF
+		{"empty", []byte{}, ""},                    // io.EOF
+		{"truncated 2-byte hdr", []byte{0x80}, ""}, // unexpected EOF
 		{"zero length", []byte{0x80, 0x00}, "zero-length record"},
-		{"truncated body", []byte{0x80, 0x05, 0x01, 0x02}, ""},      // unexpected EOF
-		{"truncated 3-byte hdr", []byte{0x00, 0x05}, ""},            // unexpected EOF
+		{"truncated body", []byte{0x80, 0x05, 0x01, 0x02}, ""}, // unexpected EOF
+		{"truncated 3-byte hdr", []byte{0x00, 0x05}, ""},       // unexpected EOF
 		{"pad bigger than length", []byte{0x00, 0x02, 0x05, 0x01, 0x02}, "pad length 5 exceeds record length 2"},
 	}
 	for _, tc := range cases {
