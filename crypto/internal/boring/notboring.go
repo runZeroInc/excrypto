@@ -5,10 +5,11 @@
 package boring
 
 import (
+	"hash"
+
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"github.com/runZeroInc/excrypto/crypto/internal/boring/sig"
-	"hash"
 )
 
 const available = false

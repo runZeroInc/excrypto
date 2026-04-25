@@ -6,10 +6,11 @@ package sha256_test
 
 import (
 	"fmt"
-	"github.com/runZeroInc/excrypto/crypto/sha256"
 	"io"
 	"log"
 	"os"
+
+	"github.com/runZeroInc/excrypto/crypto/sha256"
 )
 
 func ExampleSum256() {

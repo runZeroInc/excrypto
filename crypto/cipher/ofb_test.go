@@ -13,11 +13,12 @@ package cipher_test
 import (
 	"bytes"
 	"fmt"
+	"testing"
+
 	"github.com/runZeroInc/excrypto/crypto/aes"
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"github.com/runZeroInc/excrypto/crypto/des"
 	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
-	"testing"
 )
 
 type ofbTest struct {

@@ -9,11 +9,12 @@ package godebugs
 
 // An Info describes a single known GODEBUG setting.
 type Info struct {
-	Name    string // name of the setting ("panicnil")
-	Package string // package that uses the setting ("runtime")
-	Changed int    // minor version when default changed, if any; 21 means Go 1.21
-	Old     string // value that restores behavior prior to Changed
-	Opaque  bool   // setting does not export information to runtime/metrics using [internal/godebug.Setting.IncNonDefault]
+	Name      string // name of the setting ("panicnil")
+	Package   string // package that uses the setting ("runtime")
+	Changed   int    // minor version when default changed, if any; 21 means Go 1.21
+	Old       string // value that restores behavior prior to Changed
+	Opaque    bool   // setting does not export information to runtime/metrics using [internal/godebug.Setting.IncNonDefault]
+	Immutable bool   // setting cannot be changed after program start
 }
 
 // All is the table of known settings, sorted by Name.
@@ -25,15 +26,25 @@ type Info struct {
 // Note: After adding entries to this table, update the list in doc/godebug.md as well.
 // (Otherwise the test in this package will fail.)
 var All = []Info{
+	{Name: "allowmultiplevcs", Package: "cmd/go"},
 	{Name: "asynctimerchan", Package: "time", Changed: 23, Old: "1"},
+	{Name: "containermaxprocs", Package: "runtime", Changed: 25, Old: "0"},
+	{Name: "cryptocustomrand", Package: "github.com/runZeroInc/excrypto/crypto", Changed: 26, Old: "1"},
+	{Name: "dataindependenttiming", Package: "github.com/runZeroInc/excrypto/crypto/subtle", Opaque: true},
+	{Name: "decoratemappings", Package: "runtime", Opaque: true, Changed: 25, Old: "0"},
+	{Name: "embedfollowsymlinks", Package: "cmd/go"},
 	{Name: "execerrdot", Package: "os/exec"},
-	{Name: "gocachehash", Package: "github.com/runZeroInc/excrypto/cmd/go"},
-	{Name: "gocachetest", Package: "github.com/runZeroInc/excrypto/cmd/go"},
-	{Name: "gocacheverify", Package: "github.com/runZeroInc/excrypto/cmd/go"},
+	{Name: "fips140", Package: "github.com/runZeroInc/excrypto/crypto/fips140", Opaque: true, Immutable: true},
+	{Name: "gocachehash", Package: "cmd/go"},
+	{Name: "gocachetest", Package: "cmd/go"},
+	{Name: "gocacheverify", Package: "cmd/go"},
+	{Name: "gotestjsonbuildtext", Package: "cmd/go", Changed: 24, Old: "1"},
 	{Name: "gotypesalias", Package: "go/types", Changed: 23, Old: "0"},
+	{Name: "htmlmetacontenturlescape", Package: "html/template"},
 	{Name: "http2client", Package: "net/http"},
 	{Name: "http2debug", Package: "net/http", Opaque: true},
 	{Name: "http2server", Package: "net/http"},
+	{Name: "httpcookiemaxnum", Package: "net/http", Changed: 24, Old: "0"},
 	{Name: "httplaxcontentlength", Package: "net/http", Changed: 22, Old: "1"},
 	{Name: "httpmuxgo121", Package: "net/http", Changed: 22, Old: "1"},
 	{Name: "httpservecontentkeepheaders", Package: "net/http", Changed: 23, Old: "1"},
@@ -48,21 +59,38 @@ var All = []Info{
 	{Name: "panicnil", Package: "runtime", Changed: 21, Old: "1"},
 	{Name: "randautoseed", Package: "math/rand"},
 	{Name: "randseednop", Package: "math/rand", Changed: 24, Old: "0"},
+	{Name: "rsa1024min", Package: "github.com/runZeroInc/excrypto/crypto/rsa", Changed: 24, Old: "0"},
 	{Name: "tarinsecurepath", Package: "archive/tar"},
 	{Name: "tls10server", Package: "github.com/runZeroInc/excrypto/crypto/tls", Changed: 22, Old: "1"},
 	{Name: "tls3des", Package: "github.com/runZeroInc/excrypto/crypto/tls", Changed: 23, Old: "1"},
-	{Name: "tlskyber", Package: "github.com/runZeroInc/excrypto/crypto/tls", Changed: 23, Old: "0", Opaque: true},
 	{Name: "tlsmaxrsasize", Package: "github.com/runZeroInc/excrypto/crypto/tls"},
+	{Name: "tlsmlkem", Package: "github.com/runZeroInc/excrypto/crypto/tls", Changed: 24, Old: "0", Opaque: true},
 	{Name: "tlsrsakex", Package: "github.com/runZeroInc/excrypto/crypto/tls", Changed: 22, Old: "1"},
+	{Name: "tlssecpmlkem", Package: "github.com/runZeroInc/excrypto/crypto/tls", Changed: 26, Old: "0", Opaque: true},
+	{Name: "tlssha1", Package: "github.com/runZeroInc/excrypto/crypto/tls", Changed: 25, Old: "1"},
 	{Name: "tlsunsafeekm", Package: "github.com/runZeroInc/excrypto/crypto/tls", Changed: 22, Old: "1"},
-	{Name: "winreadlinkvolume", Package: "os", Changed: 22, Old: "0"},
-	{Name: "winsymlink", Package: "os", Changed: 22, Old: "0"},
+	{Name: "updatemaxprocs", Package: "runtime", Changed: 25, Old: "0"},
+	{Name: "urlmaxqueryparams", Package: "net/url", Changed: 24, Old: "0"},
+	{Name: "urlstrictcolons", Package: "net/url", Changed: 26, Old: "0"},
+	{Name: "winreadlinkvolume", Package: "os", Changed: 23, Old: "0"},
+	{Name: "winsymlink", Package: "os", Changed: 23, Old: "0"},
 	{Name: "x509keypairleaf", Package: "github.com/runZeroInc/excrypto/crypto/tls", Changed: 23, Old: "0"},
 	{Name: "x509negativeserial", Package: "github.com/runZeroInc/excrypto/crypto/x509", Changed: 23, Old: "1"},
-	{Name: "x509sha1", Package: "github.com/runZeroInc/excrypto/crypto/x509"},
+	{Name: "x509rsacrt", Package: "github.com/runZeroInc/excrypto/crypto/x509", Changed: 24, Old: "0"},
+	{Name: "x509sha256skid", Package: "github.com/runZeroInc/excrypto/crypto/x509", Changed: 25, Old: "0"},
 	{Name: "x509usefallbackroots", Package: "github.com/runZeroInc/excrypto/crypto/x509"},
-	{Name: "x509usepolicies", Package: "github.com/runZeroInc/excrypto/crypto/x509"},
+	{Name: "x509usepolicies", Package: "github.com/runZeroInc/excrypto/crypto/x509", Changed: 24, Old: "0"},
 	{Name: "zipinsecurepath", Package: "archive/zip"},
+}
+
+type RemovedInfo struct {
+	Name    string // name of the removed GODEBUG setting.
+	Removed int    // minor version of Go, when the removal happened
+}
+
+// Removed contains all GODEBUGs that we have removed.
+var Removed = []RemovedInfo{
+	{Name: "x509sha1", Removed: 24},
 }
 
 // Lookup returns the Info with the given name.

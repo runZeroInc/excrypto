@@ -110,7 +110,6 @@ package x509
 import (
 	"github.com/runZeroInc/excrypto/encoding/asn1"
 )
-
 `
 	out.Write([]byte(s))
 }

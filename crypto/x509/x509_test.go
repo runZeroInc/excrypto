@@ -676,7 +676,7 @@ func TestCreateSelfSignedCertificate(t *testing.T) {
 			IPAddresses:         []net.IP{net.IPv4(127, 0, 0, 1).To4(), net.ParseIP("2001:4860:0:2001::68")},
 			URIs:                []string{"https://foo.com/wibble#foo"},
 			PolicyIdentifiers:   []asn1.ObjectIdentifier{[]int{1, 2, 3}},
-			Policies:            []OID{mustNewOIDFromInts(t, []uint64{1, 2, 3, math.MaxUint32, math.MaxUint64})},
+			Policies:            []OID{mustNewOIDFromInts([]uint64{1, 2, 3, math.MaxUint32, math.MaxUint64})},
 			PermittedDNSDomains: []string{".example.com", "example.com"},
 			ExcludedDNSDomains:  []string{"bar.example.com"},
 
@@ -3921,7 +3921,7 @@ func TestCertificateOIDPolicies(t *testing.T) {
 	}
 
 	var expectPolicies = []OID{
-		mustNewOIDFromInts(t, []uint64{1, 2, 3}),
+		mustNewOIDFromInts([]uint64{1, 2, 3}),
 	}
 
 	certDER, err := CreateCertificate(rand.Reader, &template, &template, rsaPrivateKey.Public(), rsaPrivateKey)
@@ -3951,10 +3951,10 @@ func TestCertificatePoliciesGODEBUG(t *testing.T) {
 		NotBefore:         time.Unix(1000, 0),
 		NotAfter:          time.Unix(100000, 0),
 		PolicyIdentifiers: []asn1.ObjectIdentifier{[]int{1, 2, 3}},
-		Policies:          []OID{mustNewOIDFromInts(t, []uint64{1, 2, math.MaxUint32 + 1})},
+		Policies:          []OID{mustNewOIDFromInts([]uint64{1, 2, math.MaxUint32 + 1})},
 	}
 
-	expectPolicies := []OID{mustNewOIDFromInts(t, []uint64{1, 2, 3})}
+	expectPolicies := []OID{mustNewOIDFromInts([]uint64{1, 2, 3})}
 	certDER, err := CreateCertificate(rand.Reader, &template, &template, rsaPrivateKey.Public(), rsaPrivateKey)
 	if err != nil {
 		t.Fatalf("CreateCertificate() unexpected error: %v", err)
@@ -3972,7 +3972,7 @@ func TestCertificatePoliciesGODEBUG(t *testing.T) {
 	godebug.SetEnv("GODEBUG", "x509usepolicies=1")
 	t.Cleanup(func() { godebug.ResetEnv() })
 
-	expectPolicies = []OID{mustNewOIDFromInts(t, []uint64{1, 2, math.MaxUint32 + 1})}
+	expectPolicies = []OID{mustNewOIDFromInts([]uint64{1, 2, math.MaxUint32 + 1})}
 
 	certDER, err = CreateCertificate(rand.Reader, &template, &template, rsaPrivateKey.Public(), rsaPrivateKey)
 	if err != nil {

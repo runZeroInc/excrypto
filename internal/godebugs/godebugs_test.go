@@ -5,8 +5,6 @@
 package godebugs_test
 
 import (
-	"github.com/runZeroInc/excrypto/internal/godebugs"
-	"github.com/runZeroInc/excrypto/internal/testenv"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -14,6 +12,9 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+
+	"github.com/runZeroInc/excrypto/internal/godebugs"
+	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
 func TestAll(t *testing.T) {
@@ -46,7 +47,8 @@ func TestAll(t *testing.T) {
 		if info.Old != "" && info.Changed == 0 {
 			t.Errorf("Name=%s has Old, missing Changed", info.Name)
 		}
-		if !strings.Contains(doc, "`"+info.Name+"`") {
+		if !strings.Contains(doc, "`"+info.Name+"`") &&
+			!strings.Contains(doc, "`"+info.Name+"=") {
 			t.Errorf("Name=%s not documented in doc/godebug.md", info.Name)
 		}
 		if !info.Opaque && !incs[info.Name] {
@@ -60,7 +62,7 @@ var incNonDefaultRE = regexp.MustCompile(`([\pL\p{Nd}_]+)\.IncNonDefault\(\)`)
 func incNonDefaults(t *testing.T) map[string]bool {
 	// Build list of all files importing internal/godebug.
 	// Tried a more sophisticated search in go list looking for
-	// imports containing "github.com/runZeroInc/excrypto/internal/godebug", but that turned
+	// imports containing "github.com/runZeroInc/excrypto/crypto/internal/godebug", but that turned
 	// up a bug in go list instead. #66218
 	out, err := exec.Command("go", "list", "-f={{.Dir}}", "std", "cmd").CombinedOutput()
 	if err != nil {
@@ -91,4 +93,12 @@ func incNonDefaults(t *testing.T) map[string]bool {
 		}
 	}
 	return seen
+}
+
+func TestRemoved(t *testing.T) {
+	for _, info := range godebugs.Removed {
+		if godebugs.Lookup(info.Name) != nil {
+			t.Fatalf("GODEBUG: %v exists in both Removed and All", info.Name)
+		}
+	}
 }

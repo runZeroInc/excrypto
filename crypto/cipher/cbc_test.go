@@ -6,34 +6,36 @@ package cipher_test
 
 import (
 	"fmt"
-	"github.com/runZeroInc/excrypto/crypto/aes"
-	"github.com/runZeroInc/excrypto/crypto/cipher"
-	"github.com/runZeroInc/excrypto/crypto/des"
-	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
 	"io"
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/runZeroInc/excrypto/crypto/aes"
+	"github.com/runZeroInc/excrypto/crypto/cipher"
+	"github.com/runZeroInc/excrypto/crypto/des"
+	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
 )
 
 // Test CBC Blockmode against the general cipher.BlockMode interface tester
 func TestCBCBlockMode(t *testing.T) {
-	for _, keylen := range []int{128, 192, 256} {
+	cryptotest.TestAllImplementations(t, "aes", func(t *testing.T) {
+		for _, keylen := range []int{128, 192, 256} {
+			t.Run(fmt.Sprintf("AES-%d", keylen), func(t *testing.T) {
+				rng := newRandReader(t)
 
-		t.Run(fmt.Sprintf("AES-%d", keylen), func(t *testing.T) {
-			rng := newRandReader(t)
+				key := make([]byte, keylen/8)
+				rng.Read(key)
 
-			key := make([]byte, keylen/8)
-			rng.Read(key)
+				block, err := aes.NewCipher(key)
+				if err != nil {
+					panic(err)
+				}
 
-			block, err := aes.NewCipher(key)
-			if err != nil {
-				panic(err)
-			}
-
-			cryptotest.TestBlockMode(t, block, cipher.NewCBCEncrypter, cipher.NewCBCDecrypter)
-		})
-	}
+				cryptotest.TestBlockMode(t, block, cipher.NewCBCEncrypter, cipher.NewCBCDecrypter)
+			})
+		}
+	})
 
 	t.Run("DES", func(t *testing.T) {
 		rng := newRandReader(t)
@@ -48,6 +50,16 @@ func TestCBCBlockMode(t *testing.T) {
 
 		cryptotest.TestBlockMode(t, block, cipher.NewCBCEncrypter, cipher.NewCBCDecrypter)
 	})
+}
+
+func TestCBCExtraMethods(t *testing.T) {
+	block, _ := aes.NewCipher(make([]byte, 16))
+	iv := make([]byte, block.BlockSize())
+	s := cipher.NewCBCEncrypter(block, iv)
+	cryptotest.NoExtraMethods(t, &s, "SetIV")
+
+	s = cipher.NewCBCDecrypter(block, iv)
+	cryptotest.NoExtraMethods(t, &s, "SetIV")
 }
 
 func newRandReader(t *testing.T) io.Reader {

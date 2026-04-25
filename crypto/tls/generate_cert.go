@@ -10,6 +10,7 @@
 package main
 
 import (
+	"crypto/rand"
 	"encoding/pem"
 	"flag"
 	"log"
@@ -18,8 +19,6 @@ import (
 	"os"
 	"strings"
 	"time"
-
-	"crypto/rand"
 
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/ed25519"

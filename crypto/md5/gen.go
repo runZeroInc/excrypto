@@ -204,7 +204,6 @@ import (
 	"github.com/runZeroInc/excrypto/internal/byteorder"
 	"math/bits"
 )
-
 func blockGeneric(dig *digest, p []byte) {
 	// load state
 	a, b, c, d := dig.s[0], dig.s[1], dig.s[2], dig.s[3]
@@ -219,7 +218,7 @@ func blockGeneric(dig *digest, p []byte) {
 
 		// load input block
 		{{range $i := seq 16 -}}
-			{{printf "x%x := byteorder.LeUint32(q[4*%#x:])" $i $i}}
+			{{printf "x%x := byteorder.LEUint32(q[4*%#x:])" $i $i}}
 		{{end}}
 
 		// round 1

@@ -1914,9 +1914,9 @@ func signingParamsForKey(key crypto.Signer, sigAlgo SignatureAlgorithm) (Signatu
 			if details.pubKeyAlgo != pubType {
 				return 0, ai, errors.New("x509: requested SignatureAlgorithm does not match private key type")
 			}
-			if details.hash == crypto.MD5 {
-				return 0, ai, errors.New("x509: signing with MD5 is not supported")
-			}
+			// excrypto: fork allows signing with MD5 to support generating
+			// legacy/test certificates and round-tripping certs found in the
+			// wild. Upstream rejects this here.
 
 			return sigAlgo, pkix.AlgorithmIdentifier{
 				Algorithm:  details.oid,
@@ -2028,8 +2028,16 @@ func CreateCertificate(rand io.Reader, template, parent *Certificate, pub, priv 
 		return nil, errors.New("x509: certificate private key does not implement crypto.Signer")
 	}
 
-	if template.SerialNumber == nil {
-		return nil, errors.New("x509: no SerialNumber given")
+	serialNumber := template.SerialNumber
+	if serialNumber == nil {
+		// excrypto: match Go 1.26 upstream — auto-generate a 20-octet serial
+		// when the template doesn't specify one (RFC 5280 §4.1.2.2).
+		serialBytes := make([]byte, 20)
+		if _, err := io.ReadFull(rand, serialBytes); err != nil {
+			return nil, err
+		}
+		serialBytes[0] &= 0b0111_1111
+		serialNumber = new(big.Int).SetBytes(serialBytes)
 	}
 
 	// zcrypto
@@ -2104,7 +2112,7 @@ func CreateCertificate(rand io.Reader, template, parent *Certificate, pub, priv 
 	encodedPublicKey := asn1.BitString{BitLength: len(publicKeyBytes) * 8, Bytes: publicKeyBytes}
 	c := tbsCertificate{
 		Version:            2,
-		SerialNumber:       template.SerialNumber,
+		SerialNumber:       serialNumber,
 		SignatureAlgorithm: algorithmIdentifier,
 		Issuer:             asn1.RawValue{FullBytes: asn1Issuer},
 		Validity:           validity{template.NotBefore.UTC(), template.NotAfter.UTC()},
