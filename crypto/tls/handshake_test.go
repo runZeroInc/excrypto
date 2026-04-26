@@ -583,6 +583,41 @@ func TestClientAuthFailuresReturnBadCertificate(t *testing.T) {
 	}
 }
 
+func TestClientCertificateRequestedConnectionState(t *testing.T) {
+	skipFIPS(t) // Test certificates not FIPS compatible.
+
+	for _, version := range []uint16{VersionTLS12, VersionTLS13} {
+		t.Run(fmt.Sprintf("%x", version), func(t *testing.T) {
+			clientConfig := testConfig.Clone()
+			clientConfig.MinVersion = version
+			clientConfig.MaxVersion = version
+			clientConfig.Time = testTime
+			clientConfig.InsecureSkipVerify = true
+			clientConfig.Certificates = nil
+
+			serverConfig := testConfig.Clone()
+			serverConfig.MinVersion = version
+			serverConfig.MaxVersion = version
+			serverConfig.Time = testTime
+			serverConfig.ClientAuth = RequestClientCert
+
+			_, clientState, err := testHandshake(t, clientConfig, serverConfig)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !clientState.ClientCertificateRequested {
+				t.Fatal("ClientCertificateRequested = false, want true")
+			}
+			if clientState.ClientCertificateRequest == nil {
+				t.Fatal("ClientCertificateRequest = nil")
+			}
+			if len(clientState.ClientCertificateRequest.Raw) == 0 {
+				t.Fatal("ClientCertificateRequest.Raw is empty")
+			}
+		})
+	}
+}
+
 func clientAuthFailureClientError(t *testing.T, clientConfig, serverConfig *Config) error {
 	t.Helper()
 	c, s := localPipe(t)

@@ -22,11 +22,11 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/ed25519"
 	"github.com/runZeroInc/excrypto/crypto/hpke"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/tls13"
-	"github.com/runZeroInc/excrypto/internal/godebug"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/subtle"
 	"github.com/runZeroInc/excrypto/crypto/tls/internal/fips140tls"
 	"github.com/runZeroInc/excrypto/crypto/x509"
+	"github.com/runZeroInc/excrypto/internal/godebug"
 )
 
 type clientHandshakeState struct {
@@ -724,6 +724,7 @@ func (hs *clientHandshakeState) doFullHandshake() error {
 	certReq, ok := msg.(*certificateRequestMsg)
 	if ok {
 		certRequested = true
+		c.setClientCertificateRequest(certReq)
 
 		cri := certificateRequestInfoFromMsg(hs.ctx, c.vers, certReq)
 		if chainToSend, err = c.getClientCertificate(cri); err != nil {

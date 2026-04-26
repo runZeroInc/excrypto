@@ -19,9 +19,9 @@ import (
 	"time"
 
 	"github.com/runZeroInc/excrypto/crypto/cipher"
-	"github.com/runZeroInc/excrypto/internal/godebug"
 	"github.com/runZeroInc/excrypto/crypto/subtle"
 	"github.com/runZeroInc/excrypto/crypto/x509"
+	"github.com/runZeroInc/excrypto/internal/godebug"
 )
 
 // A Conn represents a secured connection.
@@ -56,6 +56,10 @@ type Conn struct {
 	ocspResponse     []byte   // stapled OCSP response
 	scts             [][]byte // signed certificate timestamps from server
 	peerCertificates []*x509.Certificate
+	// ClientCertificateRequested indicates that the server requested a certificate.
+	ClientCertificateRequested bool
+	// ClientCertificateRequest stores the full certificate request.
+	ClientCertificateRequest *ClientCertificateRequest
 	// verifiedChains contains the certificate chains that we built, as
 	// opposed to the ones presented by the server.
 	verifiedChains [][]*x509.Certificate
@@ -1627,6 +1631,8 @@ func (c *Conn) connectionStateLocked() ConnectionState {
 	state.ServerName = c.serverName
 	state.CipherSuite = c.cipherSuite
 	state.PeerCertificates = c.peerCertificates
+	state.ClientCertificateRequested = c.ClientCertificateRequested
+	state.ClientCertificateRequest = c.ClientCertificateRequest
 	state.VerifiedChains = c.verifiedChains
 	state.SignedCertificateTimestamps = c.scts
 	state.OCSPResponse = c.ocspResponse

@@ -613,6 +613,7 @@ func (hs *clientHandshakeStateTLS13) readServerCertificate() error {
 	certReq, ok := msg.(*certificateRequestMsgTLS13)
 	if ok {
 		hs.certReq = certReq
+		c.setClientCertificateRequestTLS13(certReq)
 
 		msg, err = c.readHandshake(hs.transcript)
 		if err != nil {

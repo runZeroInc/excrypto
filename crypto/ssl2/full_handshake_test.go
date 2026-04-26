@@ -205,6 +205,9 @@ func TestHandshakeWithClientCertificate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("HandshakeWithConfig: %v", err)
 	}
+	if !hr.ClientCertificateRequested {
+		t.Fatal("ClientCertificateRequested = false, want true")
+	}
 	if hr.Cipher != CK_RC4_128_WITH_MD5 {
 		t.Fatalf("client negotiated %s, want %s", hr.Cipher.Name(), CK_RC4_128_WITH_MD5.Name())
 	}

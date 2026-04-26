@@ -29,8 +29,9 @@ type ClientConfig struct {
 
 // HandshakeResult captures the outcome of a successful SSL 2.0 handshake.
 type HandshakeResult struct {
-	ServerHello *ServerHello
-	Certificate *x509.Certificate
+	ServerHello                *ServerHello
+	Certificate                *x509.Certificate
+	ClientCertificateRequested bool
 	// Cipher is the cipher kind negotiated by the client (i.e. selected
 	// from the intersection of CLIENT-HELLO and SERVER-HELLO).
 	Cipher CipherKind
@@ -203,6 +204,7 @@ func (c *Conn) HandshakeWithConfig(res *ProbeResult, cfg *ClientConfig) (*Handsh
 	// Read phase-2 server messages until SERVER-FINISHED. Servers may request
 	// a client certificate after SERVER-VERIFY; the client has already sent
 	// CLIENT-FINISHED and must keep listening until the server finishes too.
+	clientCertificateRequested := false
 	for {
 		hdr, body, err = readRecordRaw(c.conn)
 		if err != nil {
@@ -225,6 +227,7 @@ func (c *Conn) HandshakeWithConfig(res *ProbeResult, cfg *ClientConfig) (*Handsh
 			}
 			goto finished
 		case MsgRequestCertificate:
+			clientCertificateRequested = true
 			req, err := ParseRequestCertificate(plain)
 			if err != nil {
 				return nil, err
@@ -249,9 +252,10 @@ finished:
 	c.mu.Unlock()
 
 	return &HandshakeResult{
-		ServerHello: sh,
-		Certificate: res.Certificate,
-		Cipher:      kind,
+		ServerHello:                sh,
+		Certificate:                res.Certificate,
+		ClientCertificateRequested: clientCertificateRequested,
+		Cipher:                     kind,
 	}, nil
 }
 

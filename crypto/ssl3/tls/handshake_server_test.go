@@ -236,6 +236,55 @@ func TestClientAuthFailuresReturnBadCertificate(t *testing.T) {
 	}
 }
 
+func TestClientCertificateRequestedConnectionState(t *testing.T) {
+	clientConfig := testConfig.Clone()
+	clientConfig.InsecureSkipVerify = true
+	clientConfig.Certificates = nil
+
+	serverConfig := testConfig.Clone()
+	serverConfig.ClientAuth = RequestClientCert
+
+	state, err := clientConnectionState(clientConfig, serverConfig)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !state.ClientCertificateRequested {
+		t.Fatal("ClientCertificateRequested = false, want true")
+	}
+	if state.ClientCertificateRequest == nil {
+		t.Fatal("ClientCertificateRequest = nil")
+	}
+	if len(state.ClientCertificateRequest.Raw) == 0 {
+		t.Fatal("ClientCertificateRequest.Raw is empty")
+	}
+}
+
+func clientConnectionState(clientConfig, serverConfig *Config) (ConnectionState, error) {
+	c, s := net.Pipe()
+	errChan := make(chan error, 1)
+	stateChan := make(chan ConnectionState, 1)
+	go func() {
+		cli := Client(c, clientConfig)
+		err := cli.Handshake()
+		if err == nil {
+			stateChan <- cli.ConnectionState()
+		} else {
+			stateChan <- ConnectionState{}
+		}
+		_ = cli.Close()
+		errChan <- err
+	}()
+	server := Server(s, serverConfig)
+	serverErr := server.Handshake()
+	_ = server.Close()
+	clientState := <-stateChan
+	clientErr := <-errChan
+	if serverErr != nil {
+		return ConnectionState{}, serverErr
+	}
+	return clientState, clientErr
+}
+
 func clientAuthFailureClientError(clientConfig, serverConfig *Config) error {
 	c, s := net.Pipe()
 	errChan := make(chan error, 1)
