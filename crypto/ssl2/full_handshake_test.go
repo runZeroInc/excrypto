@@ -140,7 +140,16 @@ func TestHandshakeCertificateRequestReturnsBadCertificate(t *testing.T) {
 	der, priv := rsaSelfSignedCert(t)
 	errc := make(chan error, 1)
 	go func() {
-		errc <- runServerRequestingClientCertificate(NewConn(serverNC), der, priv)
+		_, err := NewConn(serverNC).ServerHandshake(&Config{
+			Certificate:              der,
+			PrivateKey:               priv,
+			CipherSpecs:              []CipherKind{CK_RC4_128_WITH_MD5},
+			RequireClientCertificate: true,
+			CertificateChallengeSource: func() ([]byte, error) {
+				return bytes.Repeat([]byte{0x99}, 16), nil
+			},
+		})
+		errc <- err
 	}()
 
 	c := NewConn(clientNC)
@@ -155,8 +164,58 @@ func TestHandshakeCertificateRequestReturnsBadCertificate(t *testing.T) {
 	if !strings.Contains(err.Error(), "bad certificate") {
 		t.Fatalf("Handshake error = %q, want bad certificate", err)
 	}
-	if serverErr := <-errc; serverErr != nil {
-		t.Fatalf("server: %v", serverErr)
+	serverErr := <-errc
+	if serverErr == nil {
+		t.Fatal("server handshake unexpectedly succeeded")
+	}
+	if !strings.Contains(serverErr.Error(), "bad certificate") {
+		t.Fatalf("server error = %q, want bad certificate", serverErr)
+	}
+}
+
+func TestHandshakeWithClientCertificate(t *testing.T) {
+	clientNC, serverNC := net.Pipe()
+	defer clientNC.Close()
+	defer serverNC.Close()
+
+	serverDER, serverKey := rsaSelfSignedCert(t)
+	clientDER, clientKey := rsaSelfSignedCert(t)
+	errc := make(chan error, 1)
+	var srvRes *ServerHandshakeResult
+	go func() {
+		var err error
+		srvRes, err = NewConn(serverNC).ServerHandshake(&Config{
+			Certificate:              serverDER,
+			PrivateKey:               serverKey,
+			CipherSpecs:              []CipherKind{CK_RC4_128_WITH_MD5},
+			RequireClientCertificate: true,
+			CertificateChallengeSource: func() ([]byte, error) {
+				return bytes.Repeat([]byte{0x42}, 16), nil
+			},
+		})
+		errc <- err
+	}()
+
+	c := NewConn(clientNC)
+	res, err := c.Probe(nil)
+	if err != nil {
+		t.Fatalf("Probe: %v", err)
+	}
+	hr, err := c.HandshakeWithConfig(res, &ClientConfig{Certificate: clientDER, PrivateKey: clientKey})
+	if err != nil {
+		t.Fatalf("HandshakeWithConfig: %v", err)
+	}
+	if hr.Cipher != CK_RC4_128_WITH_MD5 {
+		t.Fatalf("client negotiated %s, want %s", hr.Cipher.Name(), CK_RC4_128_WITH_MD5.Name())
+	}
+	if err := <-errc; err != nil {
+		t.Fatalf("server: %v", err)
+	}
+	if srvRes == nil || srvRes.ClientCertificate == nil {
+		t.Fatal("server did not record client certificate")
+	}
+	if got := srvRes.ClientCertificate.Subject.CommonName; got != "ssl2.fullhandshake.test" {
+		t.Fatalf("client certificate CN = %q", got)
 	}
 }
 
@@ -254,57 +313,4 @@ func runServerWithCiphers(srv *Conn, der []byte, priv *rsa.PrivateKey, ciphers [
 		return err
 	}
 	return nil
-}
-
-func runServerRequestingClientCertificate(srv *Conn, der []byte, priv *rsa.PrivateKey) error {
-	ch, err := srv.AcceptClientHello()
-	if err != nil {
-		return err
-	}
-	connID := bytes.Repeat([]byte{0xC0}, 16)
-	sh := &ServerHello{
-		CertificateType: CertTypeX509,
-		Version:         Version,
-		Certificate:     der,
-		CipherSpecs:     []CipherKind{CK_RC4_128_WITH_MD5},
-		ConnectionID:    connID,
-	}
-	if err := srv.SendServerHello(sh); err != nil {
-		return err
-	}
-	cmkBytes, err := srv.ReadRecord()
-	if err != nil {
-		return err
-	}
-	cmk, err := ParseClientMasterKey(cmkBytes)
-	if err != nil {
-		return err
-	}
-	params, ok := cmk.CipherKind.Params()
-	if !ok {
-		return errors.New("server: unknown cipher kind")
-	}
-	secret, err := rsa.DecryptPKCS1v15(rand.Reader, priv, cmk.EncryptedKey)
-	if err != nil {
-		return err
-	}
-	master := append(append([]byte{}, cmk.ClearKey...), secret...)
-	if len(secret) != params.SecretKeyBytes || len(cmk.ClearKey) != params.ClearKeyBytes {
-		return errors.New("server: bad key material lengths")
-	}
-	_, sw, err := deriveKeyMaterial(master, ch.Challenge, connID, params.TotalKeyBytes())
-	if err != nil {
-		return err
-	}
-	write, err := newCipherState(cmk.CipherKind, sw, cmk.KeyArg)
-	if err != nil {
-		return err
-	}
-	write.seq = 1
-	rec, err := write.sealRecord([]byte{byte(MsgRequestCertificate), 1})
-	if err != nil {
-		return err
-	}
-	_, err = srv.conn.Write(rec)
-	return err
 }

@@ -282,3 +282,38 @@ func TestSimpleMessagesRoundTrip(t *testing.T) {
 		t.Error("expected wrong-type error from ParseServerFinished")
 	}
 }
+
+func TestCertificateAuthMessagesRoundTrip(t *testing.T) {
+	req := &RequestCertificate{
+		AuthType:  AuthTypeMD5WithRSAEncryption,
+		Challenge: bytes.Repeat([]byte{0x44}, 16),
+	}
+	reqWire, err := req.Marshal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	parsedReq, err := ParseRequestCertificate(reqWire)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if parsedReq.AuthType != req.AuthType || !bytes.Equal(parsedReq.Challenge, req.Challenge) {
+		t.Fatalf("RequestCertificate round trip = %+v, want %+v", parsedReq, req)
+	}
+
+	cert := &ClientCertificate{
+		CertificateType: CertTypeX509,
+		Certificate:     []byte{0x30, 0x03, 0x02, 0x01, 0x00},
+		Response:        bytes.Repeat([]byte{0x55}, 64),
+	}
+	certWire, err := cert.Marshal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	parsedCert, err := ParseClientCertificate(certWire)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if parsedCert.CertificateType != cert.CertificateType || !bytes.Equal(parsedCert.Certificate, cert.Certificate) || !bytes.Equal(parsedCert.Response, cert.Response) {
+		t.Fatalf("ClientCertificate round trip = %+v, want %+v", parsedCert, cert)
+	}
+}

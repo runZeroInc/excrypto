@@ -100,10 +100,22 @@ func deriveKeyMaterial(masterKey, challenge, connID []byte, n int) (clientWrite,
 		return nil, nil, errors.New("ssl2: zero-length key derivation")
 	}
 	total := 2 * n
-	out := make([]byte, 0, ((total+15)/16)*16)
+	out, err := deriveKeyMaterialRaw(masterKey, challenge, connID, total)
+	if err != nil {
+		return nil, nil, err
+	}
+	// First N bytes = server write / client read; next N = client write.
+	return out[n : 2*n], out[:n], nil
+}
+
+func deriveKeyMaterialRaw(masterKey, challenge, connID []byte, total int) ([]byte, error) {
+	if total <= 0 {
+		return nil, errors.New("ssl2: zero-length key derivation")
+	}
+	out := make([]byte, 0, ((total+md5.Size-1)/md5.Size)*md5.Size)
 	for i := 0; len(out) < total; i++ {
 		if i > 9 {
-			return nil, nil, fmt.Errorf("ssl2: key material too long (%d bytes)", total)
+			return nil, fmt.Errorf("ssl2: key material too long (%d bytes)", total)
 		}
 		h := md5.New()
 		h.Write(masterKey)
@@ -112,6 +124,5 @@ func deriveKeyMaterial(masterKey, challenge, connID []byte, n int) (clientWrite,
 		h.Write(connID)
 		out = h.Sum(out)
 	}
-	// First N bytes = server write / client read; next N = client write.
-	return out[n : 2*n], out[:n], nil
+	return out[:total], nil
 }

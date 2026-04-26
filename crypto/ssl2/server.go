@@ -13,7 +13,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
+	"github.com/runZeroInc/excrypto/crypto/x509"
 )
 
 // Config configures an SSL 2.0 [Server]. The zero value is not useful;
@@ -44,6 +46,18 @@ type Config struct {
 	// ConnectionIDSource, if non-nil, is called to generate the server's
 	// CONNECTION-ID. The default is 16 bytes from crypto/rand.
 	ConnectionIDSource func() ([]byte, error)
+
+	// RequestClientCertificate asks the client to send a CLIENT-CERTIFICATE
+	// during phase 2. If RequireClientCertificate is true, this is implied.
+	RequestClientCertificate bool
+
+	// RequireClientCertificate fails the handshake if the client does not send a
+	// valid certificate response.
+	RequireClientCertificate bool
+
+	// CertificateChallengeSource, if non-nil, is called to generate the
+	// REQUEST-CERTIFICATE challenge. The default is 16 bytes from crypto/rand.
+	CertificateChallengeSource func() ([]byte, error)
 }
 
 // DefaultServerCipherSpecs is the default SERVER-HELLO cipher list:
@@ -89,6 +103,21 @@ func (cfg *Config) newConnectionID() ([]byte, error) {
 	return b, nil
 }
 
+func (cfg *Config) newCertificateChallenge() ([]byte, error) {
+	if cfg.CertificateChallengeSource != nil {
+		return cfg.CertificateChallengeSource()
+	}
+	b := make([]byte, 16)
+	if _, err := rand.Read(b); err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func (cfg *Config) requestClientCertificate() bool {
+	return cfg.RequestClientCertificate || cfg.RequireClientCertificate
+}
+
 // negotiateServerCipher returns the server-preference-ordered cipher kind
 // that also appears in the client's offered list and is supported here for
 // bulk encryption.
@@ -108,8 +137,9 @@ func negotiateServerCipher(server, client []CipherKind) (CipherKind, error) {
 // ServerHandshakeResult captures what the server learned during the
 // handshake.
 type ServerHandshakeResult struct {
-	ClientHello *ClientHello
-	Cipher      CipherKind
+	ClientHello       *ClientHello
+	Cipher            CipherKind
+	ClientCertificate *x509.Certificate
 }
 
 // ServerHandshake drives the server side of an SSL 2.0 handshake on c using
@@ -231,22 +261,67 @@ func (c *Conn) ServerHandshake(cfg *Config) (*ServerHandshakeResult, error) {
 	if _, err := c.conn.Write(rec); err != nil {
 		return nil, fmt.Errorf("ssl2: writing SERVER-VERIFY: %w", err)
 	}
-
-	// Read encrypted CLIENT-FINISHED.
-	hdr, body, err := readRecordRaw(c.conn)
-	if err != nil {
-		return nil, fmt.Errorf("ssl2: reading CLIENT-FINISHED: %w", err)
-	}
-	plain, err := readCS.openRecord(hdr, body)
-	if err != nil {
-		return nil, fmt.Errorf("ssl2: decrypting CLIENT-FINISHED: %w", err)
-	}
-	cf, err := ParseClientFinished(plain)
-	if err != nil {
-		return nil, err
-	}
-	if !bytes.Equal(cf.ConnectionID, connID) {
-		return nil, errors.New("ssl2: CLIENT-FINISHED connection id mismatch")
+	var clientCert *x509.Certificate
+	gotClientFinished := false
+	requestSent := false
+	clientCertificateResponseReceived := false
+	var certChallenge []byte
+	for !gotClientFinished || (cfg.requestClientCertificate() && !clientCertificateResponseReceived) || (cfg.RequireClientCertificate && clientCert == nil) {
+		hdr, body, err := readRecordRaw(c.conn)
+		if err != nil {
+			return nil, fmt.Errorf("ssl2: reading encrypted client handshake message: %w", err)
+		}
+		plain, err := readCS.openRecord(hdr, body)
+		if err != nil {
+			return nil, fmt.Errorf("ssl2: decrypting client handshake message: %w", err)
+		}
+		if len(plain) == 0 {
+			return nil, errors.New("ssl2: empty encrypted client message")
+		}
+		switch MessageType(plain[0]) {
+		case MsgClientFinished:
+			cf, err := ParseClientFinished(plain)
+			if err != nil {
+				return nil, err
+			}
+			if !bytes.Equal(cf.ConnectionID, connID) {
+				return nil, errors.New("ssl2: CLIENT-FINISHED connection id mismatch")
+			}
+			gotClientFinished = true
+			if cfg.requestClientCertificate() && !requestSent {
+				certChallenge, err = cfg.newCertificateChallenge()
+				if err != nil {
+					return nil, err
+				}
+				if err := c.sendRequestCertificate(writeCS, certChallenge); err != nil {
+					return nil, err
+				}
+				requestSent = true
+			}
+		case MsgClientCertificate:
+			if !cfg.requestClientCertificate() {
+				_ = c.sendEncryptedError(writeCS, ErrBadCertificate)
+				return nil, errors.New("ssl2: unexpected CLIENT-CERTIFICATE")
+			}
+			clientCert, err = verifyClientCertificate(plain, kind, master, ch.Challenge, connID, certChallenge, cfg.Certificate)
+			if err != nil {
+				_ = c.sendEncryptedError(writeCS, ErrBadCertificate)
+				return nil, err
+			}
+			clientCertificateResponseReceived = true
+		case MsgError:
+			peerErr, err := ParseError(plain)
+			if err != nil {
+				return nil, err
+			}
+			if peerErr.Code == ErrNoCertificate && !cfg.RequireClientCertificate {
+				clientCertificateResponseReceived = true
+				break
+			}
+			return nil, peerErr.Code
+		default:
+			return nil, fmt.Errorf("ssl2: unexpected encrypted client message %s", MessageType(plain[0]))
+		}
 	}
 
 	// Encrypted SERVER-FINISHED with a fresh session id.
@@ -266,7 +341,49 @@ func (c *Conn) ServerHandshake(cfg *Config) (*ServerHandshakeResult, error) {
 	c.finished = true
 	c.mu.Unlock()
 
-	return &ServerHandshakeResult{ClientHello: ch, Cipher: kind}, nil
+	return &ServerHandshakeResult{ClientHello: ch, Cipher: kind, ClientCertificate: clientCert}, nil
+}
+
+func (c *Conn) sendRequestCertificate(writeCS *cipherState, challenge []byte) error {
+	req := &RequestCertificate{AuthType: AuthTypeMD5WithRSAEncryption, Challenge: challenge}
+	wire, err := req.Marshal()
+	if err != nil {
+		return err
+	}
+	rec, err := writeCS.sealRecord(wire)
+	if err != nil {
+		return err
+	}
+	if _, err := c.conn.Write(rec); err != nil {
+		return fmt.Errorf("ssl2: writing REQUEST-CERTIFICATE: %w", err)
+	}
+	return nil
+}
+
+func verifyClientCertificate(payload []byte, kind CipherKind, master, challenge, connID, certChallenge, serverCertificate []byte) (*x509.Certificate, error) {
+	msg, err := ParseClientCertificate(payload)
+	if err != nil {
+		return nil, err
+	}
+	if msg.CertificateType != CertTypeX509 {
+		return nil, ErrUnsupportedCert
+	}
+	cert, err := x509.ParseCertificate(msg.Certificate)
+	if err != nil {
+		return nil, fmt.Errorf("ssl2: parsing client certificate: %w", err)
+	}
+	pub, ok := cert.PublicKey.(*rsa.PublicKey)
+	if !ok {
+		return nil, fmt.Errorf("ssl2: client certificate public key is %T, want RSA", cert.PublicKey)
+	}
+	digest, err := clientCertificateDigest(kind, master, challenge, connID, certChallenge, serverCertificate)
+	if err != nil {
+		return nil, err
+	}
+	if err := rsa.VerifyPKCS1v15(pub, crypto.MD5, digest, msg.Response); err != nil {
+		return nil, fmt.Errorf("ssl2: verifying client certificate response: %w", err)
+	}
+	return cert, nil
 }
 
 func intersect(a, b []CipherKind) []CipherKind {

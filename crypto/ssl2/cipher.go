@@ -67,6 +67,14 @@ const (
 	CertTypeX509 CertType = 1
 )
 
+// AuthType identifies the client authentication method requested by an SSL 2.0
+// server in a REQUEST-CERTIFICATE message.
+type AuthType uint8
+
+const (
+	AuthTypeMD5WithRSAEncryption AuthType = 1
+)
+
 // CipherKind is a 3-octet SSL 2.0 cipher specification (often called a
 // "CIPHER-KIND" in the Netscape draft). The high octet identifies the
 // algorithm family; the low two octets carry the effective key size in bits

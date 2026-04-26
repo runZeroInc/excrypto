@@ -5,15 +5,27 @@
 package ssl2
 
 import (
+	"crypto/md5"
 	"crypto/rand"
 	"errors"
 	"fmt"
 	"net"
 	"time"
 
+	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/x509"
 )
+
+// ClientConfig configures optional SSL 2.0 client authentication.
+type ClientConfig struct {
+	// Certificate is the DER-encoded X.509 certificate to send if the server
+	// requests client authentication.
+	Certificate []byte
+
+	// PrivateKey is the RSA private key matching Certificate.
+	PrivateKey *rsa.PrivateKey
+}
 
 // HandshakeResult captures the outcome of a successful SSL 2.0 handshake.
 type HandshakeResult struct {
@@ -55,6 +67,12 @@ func pickCipher(offered []CipherKind) (CipherKind, error) {
 // res is the value returned by Probe. The probe must have observed a
 // SERVER-HELLO carrying an X.509 RSA certificate.
 func (c *Conn) Handshake(res *ProbeResult) (*HandshakeResult, error) {
+	return c.HandshakeWithConfig(res, nil)
+}
+
+// HandshakeWithConfig is like [Conn.Handshake], but it can answer SSL 2.0
+// REQUEST-CERTIFICATE messages using cfg.
+func (c *Conn) HandshakeWithConfig(res *ProbeResult, cfg *ClientConfig) (*HandshakeResult, error) {
 	if res == nil || res.ServerHello == nil {
 		return nil, errors.New("ssl2: Handshake requires a successful Probe result")
 	}
@@ -182,25 +200,50 @@ func (c *Conn) Handshake(res *ProbeResult) (*HandshakeResult, error) {
 		return nil, fmt.Errorf("ssl2: writing CLIENT-FINISHED: %w", err)
 	}
 
-	// Read SERVER-FINISHED (encrypted) carrying a fresh session id.
-	hdr, body, err = readRecordRaw(c.conn)
-	if err != nil {
-		return nil, fmt.Errorf("ssl2: reading SERVER-FINISHED: %w", err)
-	}
-	if peerErr, ok := peerErrorFromClearRecord(body); ok {
-		return nil, peerErr
-	}
-	plain, err = readCS.openRecord(hdr, body)
-	if err != nil {
-		return nil, fmt.Errorf("ssl2: decrypting SERVER-FINISHED: %w", err)
-	}
-	if err := rejectClientCertificateRequest(plain); err != nil {
-		return nil, err
-	}
-	if _, err := ParseServerFinished(plain); err != nil {
-		return nil, err
+	// Read phase-2 server messages until SERVER-FINISHED. Servers may request
+	// a client certificate after SERVER-VERIFY; the client has already sent
+	// CLIENT-FINISHED and must keep listening until the server finishes too.
+	for {
+		hdr, body, err = readRecordRaw(c.conn)
+		if err != nil {
+			return nil, fmt.Errorf("ssl2: reading SERVER-FINISHED: %w", err)
+		}
+		if peerErr, ok := peerErrorFromClearRecord(body); ok {
+			return nil, peerErr
+		}
+		plain, err = readCS.openRecord(hdr, body)
+		if err != nil {
+			return nil, fmt.Errorf("ssl2: decrypting server handshake message: %w", err)
+		}
+		if len(plain) == 0 {
+			return nil, errors.New("ssl2: empty encrypted server message")
+		}
+		switch MessageType(plain[0]) {
+		case MsgServerFinished:
+			if _, err := ParseServerFinished(plain); err != nil {
+				return nil, err
+			}
+			goto finished
+		case MsgRequestCertificate:
+			req, err := ParseRequestCertificate(plain)
+			if err != nil {
+				return nil, err
+			}
+			if err := c.sendClientCertificate(req, cfg, writeCS, kind, master, res.challenge, sh.ConnectionID, sh.Certificate); err != nil {
+				return nil, err
+			}
+		case MsgError:
+			peerErr, err := ParseError(plain)
+			if err != nil {
+				return nil, err
+			}
+			return nil, peerErr.Code
+		default:
+			return nil, fmt.Errorf("ssl2: unexpected encrypted server message %s", MessageType(plain[0]))
+		}
 	}
 
+finished:
 	c.mu.Lock()
 	c.finished = true
 	c.mu.Unlock()
@@ -230,6 +273,62 @@ func rejectClientCertificateRequest(payload []byte) error {
 	return nil
 }
 
+func (c *Conn) sendClientCertificate(req *RequestCertificate, cfg *ClientConfig, writeCS *cipherState, kind CipherKind, master, challenge, connID, serverCertificate []byte) error {
+	if req.AuthType != AuthTypeMD5WithRSAEncryption {
+		return c.sendEncryptedError(writeCS, ErrUnsupportedCert)
+	}
+	if cfg == nil || len(cfg.Certificate) == 0 || cfg.PrivateKey == nil {
+		return c.sendEncryptedError(writeCS, ErrNoCertificate)
+	}
+	digest, err := clientCertificateDigest(kind, master, challenge, connID, req.Challenge, serverCertificate)
+	if err != nil {
+		return err
+	}
+	sig, err := rsa.SignPKCS1v15(rand.Reader, cfg.PrivateKey, crypto.MD5, digest)
+	if err != nil {
+		return fmt.Errorf("ssl2: signing client certificate response: %w", err)
+	}
+	msg := &ClientCertificate{CertificateType: CertTypeX509, Certificate: cfg.Certificate, Response: sig}
+	wire, err := msg.Marshal()
+	if err != nil {
+		return err
+	}
+	rec, err := writeCS.sealRecord(wire)
+	if err != nil {
+		return err
+	}
+	_, err = c.conn.Write(rec)
+	return err
+}
+
+func (c *Conn) sendEncryptedError(writeCS *cipherState, code ErrorCode) error {
+	rec, err := writeCS.sealRecord((&ServerError{Code: code}).Marshal())
+	if err != nil {
+		return err
+	}
+	if _, err := c.conn.Write(rec); err != nil {
+		return err
+	}
+	return code
+}
+
+func clientCertificateDigest(kind CipherKind, master, challenge, connID, certificateChallenge, serverCertificate []byte) ([]byte, error) {
+	params, ok := kind.Params()
+	if !ok {
+		return nil, fmt.Errorf("ssl2: unknown cipher kind %s", kind.Name())
+	}
+	blocks := (2*params.TotalKeyBytes() + md5.Size - 1) / md5.Size
+	keyMaterial, err := deriveKeyMaterialRaw(master, challenge, connID, blocks*md5.Size)
+	if err != nil {
+		return nil, err
+	}
+	h := md5.New()
+	h.Write(keyMaterial)
+	h.Write(certificateChallenge)
+	h.Write(serverCertificate)
+	return h.Sum(nil), nil
+}
+
 func equalBytes(a, b []byte) bool {
 	if len(a) != len(b) {
 		return false
@@ -246,6 +345,12 @@ func equalBytes(a, b []byte) bool {
 // then runs Handshake. It returns the connection (encrypted, ready for I/O)
 // and the HandshakeResult.
 func DialAndHandshake(addr string, timeout time.Duration) (*Conn, *HandshakeResult, error) {
+	return DialAndHandshakeWithConfig(addr, timeout, nil)
+}
+
+// DialAndHandshakeWithConfig is a convenience wrapper that dials addr, runs
+// Probe, and then runs HandshakeWithConfig.
+func DialAndHandshakeWithConfig(addr string, timeout time.Duration, cfg *ClientConfig) (*Conn, *HandshakeResult, error) {
 	dialer := net.Dialer{Timeout: timeout}
 	nc, err := dialer.Dial("tcp", addr)
 	if err != nil {
@@ -264,7 +369,7 @@ func DialAndHandshake(addr string, timeout time.Duration) (*Conn, *HandshakeResu
 		_ = nc.Close()
 		return nil, nil, res.PeerError.Code
 	}
-	hr, err := c.Handshake(res)
+	hr, err := c.HandshakeWithConfig(res, cfg)
 	if err != nil {
 		_ = nc.Close()
 		return nil, nil, err

@@ -312,3 +312,72 @@ func ParseServerFinished(payload []byte) (*ServerFinished, error) {
 	}
 	return &ServerFinished{SessionID: append([]byte(nil), payload[1:]...)}, nil
 }
+
+// RequestCertificate is REQUEST-CERTIFICATE (msg_type 7). It asks the client
+// to authenticate with the requested method and a fresh challenge.
+type RequestCertificate struct {
+	AuthType  AuthType
+	Challenge []byte
+}
+
+func (m *RequestCertificate) Marshal() ([]byte, error) {
+	if len(m.Challenge) < 16 || len(m.Challenge) > 32 {
+		return nil, fmt.Errorf("ssl2: REQUEST-CERTIFICATE challenge length %d outside [16,32]", len(m.Challenge))
+	}
+	return append([]byte{byte(MsgRequestCertificate), byte(m.AuthType)}, m.Challenge...), nil
+}
+
+func ParseRequestCertificate(payload []byte) (*RequestCertificate, error) {
+	if len(payload) < 2 || MessageType(payload[0]) != MsgRequestCertificate {
+		return nil, errors.New("ssl2: not a REQUEST-CERTIFICATE")
+	}
+	challenge := payload[2:]
+	if len(challenge) < 16 || len(challenge) > 32 {
+		return nil, fmt.Errorf("ssl2: REQUEST-CERTIFICATE challenge length %d outside [16,32]", len(challenge))
+	}
+	return &RequestCertificate{AuthType: AuthType(payload[1]), Challenge: append([]byte(nil), challenge...)}, nil
+}
+
+// ClientCertificate is CLIENT-CERTIFICATE (msg_type 8), sent encrypted in
+// response to REQUEST-CERTIFICATE.
+type ClientCertificate struct {
+	CertificateType CertType
+	Certificate     []byte
+	Response        []byte
+}
+
+func (m *ClientCertificate) Marshal() ([]byte, error) {
+	if len(m.Certificate) > 0xffff {
+		return nil, fmt.Errorf("ssl2: CLIENT-CERTIFICATE certificate length %d exceeds 65535", len(m.Certificate))
+	}
+	if len(m.Response) > 0xffff {
+		return nil, fmt.Errorf("ssl2: CLIENT-CERTIFICATE response length %d exceeds 65535", len(m.Response))
+	}
+	out := make([]byte, 0, 6+len(m.Certificate)+len(m.Response))
+	out = append(out, byte(MsgClientCertificate), byte(m.CertificateType))
+	out = binary.BigEndian.AppendUint16(out, uint16(len(m.Certificate)))
+	out = binary.BigEndian.AppendUint16(out, uint16(len(m.Response)))
+	out = append(out, m.Certificate...)
+	out = append(out, m.Response...)
+	return out, nil
+}
+
+func ParseClientCertificate(payload []byte) (*ClientCertificate, error) {
+	if len(payload) < 6 {
+		return nil, errors.New("ssl2: CLIENT-CERTIFICATE truncated")
+	}
+	if MessageType(payload[0]) != MsgClientCertificate {
+		return nil, fmt.Errorf("ssl2: not a CLIENT-CERTIFICATE (msg type %d)", payload[0])
+	}
+	certLen := int(binary.BigEndian.Uint16(payload[2:4]))
+	responseLen := int(binary.BigEndian.Uint16(payload[4:6]))
+	if 6+certLen+responseLen > len(payload) {
+		return nil, errors.New("ssl2: CLIENT-CERTIFICATE body shorter than declared")
+	}
+	off := 6
+	msg := &ClientCertificate{CertificateType: CertType(payload[1])}
+	msg.Certificate = append([]byte(nil), payload[off:off+certLen]...)
+	off += certLen
+	msg.Response = append([]byte(nil), payload[off:off+responseLen]...)
+	return msg, nil
+}
