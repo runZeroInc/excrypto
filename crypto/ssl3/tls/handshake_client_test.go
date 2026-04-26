@@ -35,6 +35,49 @@ func (b blockingSource) Read([]byte) (n int, err error) {
 	return 0, io.EOF
 }
 
+func TestValidateNextProtos(t *testing.T) {
+	if err := validateNextProtos([]string{"h2", "http/1.1"}); err != nil {
+		t.Fatalf("validateNextProtos(valid) = %v", err)
+	}
+
+	for _, test := range []struct {
+		name   string
+		protos []string
+		want   string
+	}{
+		{"empty", []string{""}, "tls: invalid NextProtos value"},
+		{"too-long", []string{string(bytes.Repeat([]byte{'a'}, 256))}, "tls: invalid NextProtos value"},
+		{"too-large", repeatString(string(bytes.Repeat([]byte{'a'}, 255)), 256), "tls: NextProtos values too large"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			err := validateNextProtos(test.protos)
+			if err == nil || err.Error() != test.want {
+				t.Fatalf("validateNextProtos() = %v, want %q", err, test.want)
+			}
+		})
+	}
+}
+
+func TestCheckALPN(t *testing.T) {
+	if err := checkALPN([]string{"h2", "http/1.1"}, "h2"); err != nil {
+		t.Fatalf("checkALPN(valid) = %v", err)
+	}
+	if err := checkALPN([]string{"h2"}, "http/1.1"); err == nil || err.Error() != "tls: server selected unadvertised ALPN protocol" {
+		t.Fatalf("checkALPN(unadvertised) = %v", err)
+	}
+	if err := checkALPN(nil, "h2"); err == nil || err.Error() != "tls: server advertised unrequested ALPN extension" {
+		t.Fatalf("checkALPN(unrequested) = %v", err)
+	}
+}
+
+func repeatString(s string, n int) []string {
+	out := make([]string, n)
+	for i := range out {
+		out[i] = s
+	}
+	return out
+}
+
 // clientTest represents a test of the TLS client handshake against a reference
 // implementation.
 type clientTest struct {

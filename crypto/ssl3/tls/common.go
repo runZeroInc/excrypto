@@ -44,6 +44,7 @@ const (
 	tlsRecordHeaderLen  = 5            // record header length
 	dtlsRecordHeaderLen = 13
 	maxHandshake        = 65536 // maximum handshake we support (protocol max is 16 MB)
+	maxUselessRecords   = 16    // maximum number of consecutive non-advancing records
 
 	minVersion = VersionSSL30
 	maxVersion = VersionTLS12

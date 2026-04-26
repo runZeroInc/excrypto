@@ -5,8 +5,28 @@
 package tls
 
 import (
+	"bytes"
+	"net"
+	"strings"
 	"testing"
+	"time"
 )
+
+type discardConn struct {
+	*bytes.Reader
+}
+
+func (c discardConn) Write(b []byte) (int, error) { return len(b), nil }
+func (c discardConn) Close() error                { return nil }
+func (c discardConn) LocalAddr() net.Addr         { return nil }
+func (c discardConn) RemoteAddr() net.Addr        { return nil }
+func (c discardConn) SetDeadline(time.Time) error { return nil }
+func (c discardConn) SetReadDeadline(time.Time) error {
+	return nil
+}
+func (c discardConn) SetWriteDeadline(time.Time) error {
+	return nil
+}
 
 func TestRoundUp(t *testing.T) {
 	if roundUp(0, 16) != 0 ||
@@ -48,6 +68,20 @@ func TestRemovePadding(t *testing.T) {
 		if good == 255 && len(payload) != test.expectedLen {
 			t.Errorf("#%d: got %d, want %d", i, len(payload), test.expectedLen)
 		}
+	}
+}
+
+func TestReadRecordTooManyIgnoredWarnings(t *testing.T) {
+	var records bytes.Buffer
+	warningRecord := []byte{byte(recordTypeAlert), 0x03, 0x01, 0x00, 0x02, alertLevelWarning, byte(alertNoRenegotiation)}
+	for i := 0; i < maxUselessRecords+1; i++ {
+		records.Write(warningRecord)
+	}
+
+	c := &Conn{conn: discardConn{Reader: bytes.NewReader(records.Bytes())}}
+	err := c.readRecord(recordTypeHandshake)
+	if err == nil || !strings.Contains(err.Error(), "too many ignored records") {
+		t.Fatalf("readRecord error = %v, want too many ignored records", err)
 	}
 }
 

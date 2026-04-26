@@ -318,6 +318,9 @@ func (c *Conn) clientHandshake() error {
 		if len(c.config.ServerName) == 0 && !c.config.InsecureSkipVerify {
 			return errors.New("tls: either ServerName or InsecureSkipVerify must be specified in the tls.Config")
 		}
+		if err := validateNextProtos(c.config.NextProtos); err != nil {
+			return err
+		}
 
 		supportedPoints := []uint8{pointFormatUncompressed}
 		if c.config.SupportedPoints != nil {
@@ -978,6 +981,10 @@ func (hs *clientHandshakeState) processServerHello() (bool, error) {
 		c.sendAlert(alertHandshakeFailure)
 		return false, errors.New("tls: server advertised unrequested ALPN extension")
 	}
+	if err := checkALPN(hs.hello.alpnProtocols, hs.serverHello.alpnProtocol); err != nil {
+		c.sendAlert(alertHandshakeFailure)
+		return false, err
+	}
 
 	if serverHasNPN && serverHasALPN {
 		c.sendAlert(alertHandshakeFailure)
@@ -997,6 +1004,36 @@ func (hs *clientHandshakeState) processServerHello() (bool, error) {
 		return true, nil
 	}
 	return false, nil
+}
+
+func validateNextProtos(protos []string) error {
+	nextProtosLength := 0
+	for _, proto := range protos {
+		if l := len(proto); l == 0 || l > 255 {
+			return errors.New("tls: invalid NextProtos value")
+		} else {
+			nextProtosLength += 1 + l
+		}
+	}
+	if nextProtosLength > 0xffff {
+		return errors.New("tls: NextProtos values too large")
+	}
+	return nil
+}
+
+func checkALPN(clientProtos []string, serverProto string) error {
+	if serverProto == "" {
+		return nil
+	}
+	if len(clientProtos) == 0 {
+		return errors.New("tls: server advertised unrequested ALPN extension")
+	}
+	for _, proto := range clientProtos {
+		if proto == serverProto {
+			return nil
+		}
+	}
+	return errors.New("tls: server selected unadvertised ALPN protocol")
 }
 
 func (hs *clientHandshakeState) readFinished() error {

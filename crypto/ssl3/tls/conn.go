@@ -52,12 +52,13 @@ type Conn struct {
 	clientProtocolFallback bool
 
 	// input/output
-	in, out   halfConn     // in.Mutex < out.Mutex
-	rawInput  *block       // raw input, right off the wire
-	input     *block       // application data waiting to be read
-	hand      bytes.Buffer // handshake data waiting to be read
-	buffering bool         // whether records are buffered in sendBuf
-	sendBuf   []byte       // a buffer of records waiting to be sent
+	in, out    halfConn     // in.Mutex < out.Mutex
+	rawInput   *block       // raw input, right off the wire
+	input      *block       // application data waiting to be read
+	hand       bytes.Buffer // handshake data waiting to be read
+	buffering  bool         // whether records are buffered in sendBuf
+	sendBuf    []byte       // a buffer of records waiting to be sent
+	retryCount int          // consecutive records that did not advance state
 
 	tmp [16]byte
 
@@ -669,6 +670,9 @@ Again:
 		c.in.freeBlock(b)
 		return c.in.setErrorLocked(err)
 	}
+	if typ != recordTypeAlert && typ != recordTypeChangeCipherSpec && len(data) > 0 {
+		c.retryCount = 0
+	}
 
 	switch typ {
 	default:
@@ -687,6 +691,11 @@ Again:
 		case alertLevelWarning:
 			// drop on the floor
 			c.in.freeBlock(b)
+			c.retryCount++
+			if c.retryCount > maxUselessRecords {
+				c.sendAlert(alertUnexpectedMessage)
+				return c.in.setErrorLocked(errors.New("tls: too many ignored records"))
+			}
 			goto Again
 		case alertLevelError:
 			c.in.setErrorLocked(&net.OpError{Op: "remote error", Err: alert(data[1])})
