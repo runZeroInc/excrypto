@@ -537,6 +537,72 @@ func testHandshake(t *testing.T, clientConfig, serverConfig *Config) (serverStat
 	return
 }
 
+func TestClientAuthFailuresReturnBadCertificate(t *testing.T) {
+	skipFIPS(t) // Test certificates not FIPS compatible.
+	clientCert := Certificate{
+		Certificate: [][]byte{testRSACertificate},
+		PrivateKey:  testRSAPrivateKey,
+	}
+
+	for _, version := range []uint16{VersionTLS12, VersionTLS13} {
+		for _, test := range []struct {
+			name       string
+			clientCert bool
+		}{
+			{name: "missing"},
+			{name: "untrusted", clientCert: true},
+		} {
+			t.Run(fmt.Sprintf("%x/%s", version, test.name), func(t *testing.T) {
+				clientConfig := testConfig.Clone()
+				clientConfig.MinVersion = version
+				clientConfig.MaxVersion = version
+				clientConfig.Time = testTime
+				clientConfig.InsecureSkipVerify = true
+				if test.clientCert {
+					clientConfig.Certificates = []Certificate{clientCert}
+				} else {
+					clientConfig.Certificates = nil
+				}
+
+				serverConfig := testConfig.Clone()
+				serverConfig.MinVersion = version
+				serverConfig.MaxVersion = version
+				serverConfig.Time = testTime
+				serverConfig.ClientAuth = RequireAndVerifyClientCert
+				serverConfig.ClientCAs = x509.NewCertPool()
+
+				err := clientAuthFailureClientError(t, clientConfig, serverConfig)
+				if err == nil {
+					t.Fatal("handshake unexpectedly succeeded")
+				}
+				if !strings.Contains(err.Error(), "bad certificate") {
+					t.Fatalf("handshake error = %q, want bad certificate", err)
+				}
+			})
+		}
+	}
+}
+
+func clientAuthFailureClientError(t *testing.T, clientConfig, serverConfig *Config) error {
+	t.Helper()
+	c, s := localPipe(t)
+	errChan := make(chan error, 1)
+	go func() {
+		cli := Client(c, clientConfig)
+		err := cli.Handshake()
+		if err == nil {
+			var buf [1]byte
+			_, err = cli.Read(buf[:])
+		}
+		_ = cli.Close()
+		errChan <- err
+	}()
+	server := Server(s, serverConfig)
+	_ = server.Handshake()
+	_ = server.Close()
+	return <-errChan
+}
+
 func fromHex(s string) []byte {
 	b, _ := hex.DecodeString(s)
 	return b

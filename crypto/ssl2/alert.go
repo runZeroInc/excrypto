@@ -35,5 +35,8 @@ func (e ErrorCode) String() string {
 // Error implements the error interface so an [ErrorCode] returned from a
 // peer can be propagated directly.
 func (e ErrorCode) Error() string {
+	if e == ErrNoCertificate {
+		return "ssl2: peer sent " + e.String() + " (bad certificate)"
+	}
 	return "ssl2: peer sent " + e.String()
 }

@@ -11,6 +11,7 @@ import (
 	"io"
 	"math/big"
 	"net"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -131,6 +132,40 @@ func TestFullHandshakeOverNetPipe(t *testing.T) {
 	}
 }
 
+func TestHandshakeCertificateRequestReturnsBadCertificate(t *testing.T) {
+	clientNC, serverNC := net.Pipe()
+	defer clientNC.Close()
+	defer serverNC.Close()
+
+	der, priv := rsaSelfSignedCert(t)
+	errc := make(chan error, 1)
+	go func() {
+		errc <- runServerRequestingClientCertificate(NewConn(serverNC), der, priv)
+	}()
+
+	c := NewConn(clientNC)
+	res, err := c.Probe(nil)
+	if err != nil {
+		t.Fatalf("Probe: %v", err)
+	}
+	_, err = c.Handshake(res)
+	if err == nil {
+		t.Fatal("Handshake unexpectedly succeeded")
+	}
+	if !strings.Contains(err.Error(), "bad certificate") {
+		t.Fatalf("Handshake error = %q, want bad certificate", err)
+	}
+	if serverErr := <-errc; serverErr != nil {
+		t.Fatalf("server: %v", serverErr)
+	}
+}
+
+func TestNoCertificateErrorContainsBadCertificate(t *testing.T) {
+	if got := ErrNoCertificate.Error(); !strings.Contains(got, "bad certificate") {
+		t.Fatalf("ErrNoCertificate.Error() = %q, want bad certificate", got)
+	}
+}
+
 // runServerWithCiphers replicates the inline server but accepts a custom
 // cipher list. We factor it out so the table-driven test can vary it.
 func runServerWithCiphers(srv *Conn, der []byte, priv *rsa.PrivateKey, ciphers []CipherKind) error {
@@ -219,4 +254,57 @@ func runServerWithCiphers(srv *Conn, der []byte, priv *rsa.PrivateKey, ciphers [
 		return err
 	}
 	return nil
+}
+
+func runServerRequestingClientCertificate(srv *Conn, der []byte, priv *rsa.PrivateKey) error {
+	ch, err := srv.AcceptClientHello()
+	if err != nil {
+		return err
+	}
+	connID := bytes.Repeat([]byte{0xC0}, 16)
+	sh := &ServerHello{
+		CertificateType: CertTypeX509,
+		Version:         Version,
+		Certificate:     der,
+		CipherSpecs:     []CipherKind{CK_RC4_128_WITH_MD5},
+		ConnectionID:    connID,
+	}
+	if err := srv.SendServerHello(sh); err != nil {
+		return err
+	}
+	cmkBytes, err := srv.ReadRecord()
+	if err != nil {
+		return err
+	}
+	cmk, err := ParseClientMasterKey(cmkBytes)
+	if err != nil {
+		return err
+	}
+	params, ok := cmk.CipherKind.Params()
+	if !ok {
+		return errors.New("server: unknown cipher kind")
+	}
+	secret, err := rsa.DecryptPKCS1v15(rand.Reader, priv, cmk.EncryptedKey)
+	if err != nil {
+		return err
+	}
+	master := append(append([]byte{}, cmk.ClearKey...), secret...)
+	if len(secret) != params.SecretKeyBytes || len(cmk.ClearKey) != params.ClearKeyBytes {
+		return errors.New("server: bad key material lengths")
+	}
+	_, sw, err := deriveKeyMaterial(master, ch.Challenge, connID, params.TotalKeyBytes())
+	if err != nil {
+		return err
+	}
+	write, err := newCipherState(cmk.CipherKind, sw, cmk.KeyArg)
+	if err != nil {
+		return err
+	}
+	write.seq = 1
+	rec, err := write.sealRecord([]byte{byte(MsgRequestCertificate), 1})
+	if err != nil {
+		return err
+	}
+	_, err = srv.conn.Write(rec)
+	return err
 }

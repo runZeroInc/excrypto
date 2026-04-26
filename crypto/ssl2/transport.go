@@ -154,9 +154,15 @@ func (c *Conn) Handshake(res *ProbeResult) (*HandshakeResult, error) {
 	if err != nil {
 		return nil, fmt.Errorf("ssl2: reading SERVER-VERIFY: %w", err)
 	}
+	if peerErr, ok := peerErrorFromClearRecord(body); ok {
+		return nil, peerErr
+	}
 	plain, err := readCS.openRecord(hdr, body)
 	if err != nil {
 		return nil, fmt.Errorf("ssl2: decrypting SERVER-VERIFY: %w", err)
+	}
+	if err := rejectClientCertificateRequest(plain); err != nil {
+		return nil, err
 	}
 	sv, err := ParseServerVerify(plain)
 	if err != nil {
@@ -181,9 +187,15 @@ func (c *Conn) Handshake(res *ProbeResult) (*HandshakeResult, error) {
 	if err != nil {
 		return nil, fmt.Errorf("ssl2: reading SERVER-FINISHED: %w", err)
 	}
+	if peerErr, ok := peerErrorFromClearRecord(body); ok {
+		return nil, peerErr
+	}
 	plain, err = readCS.openRecord(hdr, body)
 	if err != nil {
 		return nil, fmt.Errorf("ssl2: decrypting SERVER-FINISHED: %w", err)
+	}
+	if err := rejectClientCertificateRequest(plain); err != nil {
+		return nil, err
 	}
 	if _, err := ParseServerFinished(plain); err != nil {
 		return nil, err
@@ -198,6 +210,24 @@ func (c *Conn) Handshake(res *ProbeResult) (*HandshakeResult, error) {
 		Certificate: res.Certificate,
 		Cipher:      kind,
 	}, nil
+}
+
+func peerErrorFromClearRecord(payload []byte) (error, bool) {
+	if len(payload) == 0 || MessageType(payload[0]) != MsgError {
+		return nil, false
+	}
+	peerErr, err := ParseError(payload)
+	if err != nil {
+		return err, true
+	}
+	return peerErr.Code, true
+}
+
+func rejectClientCertificateRequest(payload []byte) error {
+	if len(payload) > 0 && MessageType(payload[0]) == MsgRequestCertificate {
+		return ErrNoCertificate
+	}
+	return nil
 }
 
 func equalBytes(a, b []byte) bool {

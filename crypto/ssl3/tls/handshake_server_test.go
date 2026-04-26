@@ -199,6 +199,62 @@ func testHandshake(clientConfig, serverConfig *Config) (state ConnectionState, e
 	return
 }
 
+func TestClientAuthFailuresReturnBadCertificate(t *testing.T) {
+	clientCert := Certificate{
+		Certificate: [][]byte{testRSACertificate},
+		PrivateKey:  testRSAPrivateKey,
+	}
+
+	for _, test := range []struct {
+		name       string
+		clientCert bool
+	}{
+		{name: "missing"},
+		{name: "untrusted", clientCert: true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			clientConfig := testConfig.Clone()
+			clientConfig.InsecureSkipVerify = true
+			if test.clientCert {
+				clientConfig.Certificates = []Certificate{clientCert}
+			} else {
+				clientConfig.Certificates = nil
+			}
+
+			serverConfig := testConfig.Clone()
+			serverConfig.ClientAuth = RequireAndVerifyClientCert
+			serverConfig.ClientCAs = x509.NewCertPool()
+
+			err := clientAuthFailureClientError(clientConfig, serverConfig)
+			if err == nil {
+				t.Fatal("handshake unexpectedly succeeded")
+			}
+			if !strings.Contains(err.Error(), "bad certificate") {
+				t.Fatalf("handshake error = %q, want bad certificate", err)
+			}
+		})
+	}
+}
+
+func clientAuthFailureClientError(clientConfig, serverConfig *Config) error {
+	c, s := net.Pipe()
+	errChan := make(chan error, 1)
+	go func() {
+		cli := Client(c, clientConfig)
+		err := cli.Handshake()
+		if err == nil {
+			var buf [1]byte
+			_, err = cli.Read(buf[:])
+		}
+		_ = cli.Close()
+		errChan <- err
+	}()
+	server := Server(s, serverConfig)
+	_ = server.Handshake()
+	_ = server.Close()
+	return <-errChan
+}
+
 func TestVersion(t *testing.T) {
 	serverConfig := &Config{
 		Certificates: testConfig.Certificates,

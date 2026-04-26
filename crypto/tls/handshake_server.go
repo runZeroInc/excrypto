@@ -957,11 +957,7 @@ func (c *Conn) processCertsFromClient(certificate Certificate) error {
 	}
 
 	if len(certs) == 0 && requiresClientCert(c.config.ClientAuth) {
-		if c.vers == VersionTLS13 {
-			c.sendAlert(alertCertificateRequired)
-		} else {
-			c.sendAlert(alertHandshakeFailure)
-		}
+		c.sendAlert(alertBadCertificate)
 		return errors.New("tls: client didn't provide a certificate")
 	}
 
@@ -979,13 +975,7 @@ func (c *Conn) processCertsFromClient(certificate Certificate) error {
 
 		chains, _, _, err := certs[0].Verify(opts)
 		if err != nil {
-			if _, ok := errors.AsType[x509.UnknownAuthorityError](err); ok {
-				c.sendAlert(alertUnknownCA)
-			} else if errCertificateInvalid, ok := errors.AsType[x509.CertificateInvalidError](err); ok && errCertificateInvalid.Reason == x509.Expired {
-				c.sendAlert(alertCertificateExpired)
-			} else {
-				c.sendAlert(alertBadCertificate)
-			}
+			c.sendAlert(alertBadCertificate)
 			return &CertificateVerificationError{UnverifiedCertificates: certs, Err: err}
 		}
 

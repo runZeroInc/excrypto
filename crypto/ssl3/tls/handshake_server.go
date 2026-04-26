@@ -702,7 +702,7 @@ func (hs *serverHandshakeState) processCertsFromClient(certificates [][]byte) (c
 			}
 		}
 		if !ok {
-			c.sendAlert(alertHandshakeFailure)
+			c.sendAlert(alertBadCertificate)
 			return nil, errors.New("tls: client's certificate's extended key usage doesn't permit it to be used for client authentication")
 		}
 
