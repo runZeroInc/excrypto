@@ -271,12 +271,12 @@ func clientConnectionState(clientConfig, serverConfig *Config) (ConnectionState,
 		} else {
 			stateChan <- ConnectionState{}
 		}
-		_ = cli.Close()
+		_ = c.Close()
 		errChan <- err
 	}()
 	server := Server(s, serverConfig)
 	serverErr := server.Handshake()
-	_ = server.Close()
+	_ = s.Close()
 	clientState := <-stateChan
 	clientErr := <-errChan
 	if serverErr != nil {
