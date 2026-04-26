@@ -21,7 +21,10 @@ func warnBlocked() {
 }
 
 // fatal mimics runtime.fatal for excrypto's out-of-tree fork.
-func fatal(s string) { panic(s) }
+func fatal(s string) {
+	_, _ = os.Stderr.WriteString("fatal error: " + s + "\n")
+	os.Exit(2)
+}
 
 var testingOnlyFailRead bool
 

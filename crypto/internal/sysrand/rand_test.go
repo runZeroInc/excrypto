@@ -101,12 +101,6 @@ func TestReadError(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping test in short mode")
 	}
-	// excrypto: the fork's fatal() stub panics rather than calling
-	// runtime.fatal, so the subprocess does not produce the
-	// "fatal error: crypto/rand: failed to read random data" line the
-	// stdlib test expects. Skip out-of-tree.
-	t.Skip("excrypto: fatal stub differs from runtime.fatal output")
-
 	// We run this test in a subprocess because it's expected to crash.
 	if os.Getenv("GO_TEST_READ_ERROR") == "1" {
 		testingOnlyFailRead = true

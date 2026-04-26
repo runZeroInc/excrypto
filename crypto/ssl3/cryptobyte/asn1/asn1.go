@@ -6,41 +6,27 @@
 // messages with the cryptobyte package.
 package asn1
 
+import xasn1 "github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
+
 // Tag represents an ASN.1 identifier octet, consisting of a tag number
 // (indicating a type) and class (such as context-specific or constructed).
-//
-// Methods in the cryptobyte package only support the low-tag-number form, i.e.
-// a single identifier octet with bits 7-8 encoding the class and bits 1-6
-// encoding the tag number.
-type Tag uint8
+type Tag = xasn1.Tag
 
 const (
-	classConstructed     = 0x20
-	classContextSpecific = 0x80
-)
-
-// Constructed returns t with the constructed class bit set.
-func (t Tag) Constructed() Tag { return t | classConstructed }
-
-// ContextSpecific returns t with the context-specific class bit set.
-func (t Tag) ContextSpecific() Tag { return t | classContextSpecific }
-
-// The following is a list of standard tag and class combinations.
-const (
-	BOOLEAN           = Tag(1)
-	INTEGER           = Tag(2)
-	BIT_STRING        = Tag(3)
-	OCTET_STRING      = Tag(4)
-	NULL              = Tag(5)
-	OBJECT_IDENTIFIER = Tag(6)
-	ENUM              = Tag(10)
-	UTF8String        = Tag(12)
-	SEQUENCE          = Tag(16 | classConstructed)
-	SET               = Tag(17 | classConstructed)
-	PrintableString   = Tag(19)
-	T61String         = Tag(20)
-	IA5String         = Tag(22)
-	UTCTime           = Tag(23)
-	GeneralizedTime   = Tag(24)
-	GeneralString     = Tag(27)
+	BOOLEAN           = xasn1.BOOLEAN
+	INTEGER           = xasn1.INTEGER
+	BIT_STRING        = xasn1.BIT_STRING
+	OCTET_STRING      = xasn1.OCTET_STRING
+	NULL              = xasn1.NULL
+	OBJECT_IDENTIFIER = xasn1.OBJECT_IDENTIFIER
+	ENUM              = xasn1.ENUM
+	UTF8String        = xasn1.UTF8String
+	SEQUENCE          = xasn1.SEQUENCE
+	SET               = xasn1.SET
+	PrintableString   = xasn1.PrintableString
+	T61String         = xasn1.T61String
+	IA5String         = xasn1.IA5String
+	UTCTime           = xasn1.UTCTime
+	GeneralizedTime   = xasn1.GeneralizedTime
+	GeneralString     = xasn1.GeneralString
 )

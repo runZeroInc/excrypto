@@ -352,7 +352,7 @@ func (authType *ClientAuthType) MarshalJSON() ([]byte, error) {
 }
 
 func (authType *ClientAuthType) UnmarshalJSON(b []byte) error {
-	panic("unimplemented")
+	return errors.New("tls: ClientAuthType JSON unmarshaling is not implemented")
 }
 
 // ClientSessionState contains the state needed by clients to resume TLS
@@ -1336,7 +1336,7 @@ func (config *Config) MarshalJSON() ([]byte, error) {
 }
 
 func (config *Config) UnmarshalJSON(b []byte) error {
-	panic("unimplemented")
+	return errors.New("tls: Config JSON unmarshaling is not implemented")
 }
 
 // Error type raised by doFullHandshake() when the CertsOnly option is
