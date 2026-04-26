@@ -88,21 +88,40 @@ func (r *recordingConn) Write(b []byte) (n int, err error) {
 }
 
 // WriteTo writes Go source code to w that contains the recorded traffic.
-func (r *recordingConn) WriteTo(w io.Writer) {
+func (r *recordingConn) WriteTo(w io.Writer) (int64, error) {
 	// TLS always starts with a client to server flow.
 	clientToServer := true
+	cw := &countingWriter{w: w}
 
 	for i, flow := range r.flows {
 		source, dest := "client", "server"
 		if !clientToServer {
 			source, dest = dest, source
 		}
-		fmt.Fprintf(w, ">>> Flow %d (%s to %s)\n", i+1, source, dest)
-		dumper := hex.Dumper(w)
-		dumper.Write(flow)
-		dumper.Close()
+		if _, err := fmt.Fprintf(cw, ">>> Flow %d (%s to %s)\n", i+1, source, dest); err != nil {
+			return cw.n, err
+		}
+		dumper := hex.Dumper(cw)
+		if _, err := dumper.Write(flow); err != nil {
+			return cw.n, err
+		}
+		if err := dumper.Close(); err != nil {
+			return cw.n, err
+		}
 		clientToServer = !clientToServer
 	}
+	return cw.n, nil
+}
+
+type countingWriter struct {
+	w io.Writer
+	n int64
+}
+
+func (w *countingWriter) Write(p []byte) (int, error) {
+	n, err := w.w.Write(p)
+	w.n += int64(n)
+	return n, err
 }
 
 func parseTestData(r io.Reader) (flows [][]byte, err error) {
