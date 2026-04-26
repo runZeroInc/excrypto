@@ -253,25 +253,25 @@ func poly1305Sum(out *[16]byte, m []byte, key *[32]byte) {
 	r3 += int64(r32)
 
 	r3 += int64(r33)
-	h0 := alpha32 - alpha32
+	h0 := 0.0
 
 	d3 := r3
-	h1 := alpha32 - alpha32
+	h1 := 0.0
 
-	h2 := alpha32 - alpha32
+	h2 := 0.0
 
-	h3 := alpha32 - alpha32
+	h3 := 0.0
 
-	h4 := alpha32 - alpha32
+	h4 := 0.0
 
 	r0low := math.Float64frombits(uint64(d0))
-	h5 := alpha32 - alpha32
+	h5 := 0.0
 
 	r1low := math.Float64frombits(uint64(d1))
-	h6 := alpha32 - alpha32
+	h6 := 0.0
 
 	r2low := math.Float64frombits(uint64(d2))
-	h7 := alpha32 - alpha32
+	h7 := 0.0
 
 	r0low -= alpha0
 
