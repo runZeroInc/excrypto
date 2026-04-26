@@ -173,9 +173,6 @@ func (c *Conn) HandshakeWithConfig(res *ProbeResult, cfg *ClientConfig) (*Handsh
 	if err != nil {
 		return nil, fmt.Errorf("ssl2: reading SERVER-VERIFY: %w", err)
 	}
-	if peerErr, ok := peerErrorFromClearRecord(body); ok {
-		return nil, peerErr
-	}
 	plain, err := readCS.openRecord(hdr, body)
 	if err != nil {
 		return nil, fmt.Errorf("ssl2: decrypting SERVER-VERIFY: %w", err)
@@ -209,9 +206,6 @@ func (c *Conn) HandshakeWithConfig(res *ProbeResult, cfg *ClientConfig) (*Handsh
 		hdr, body, err = readRecordRaw(c.conn)
 		if err != nil {
 			return nil, fmt.Errorf("ssl2: reading SERVER-FINISHED: %w", err)
-		}
-		if peerErr, ok := peerErrorFromClearRecord(body); ok {
-			return nil, peerErr
 		}
 		plain, err = readCS.openRecord(hdr, body)
 		if err != nil {
@@ -257,17 +251,6 @@ finished:
 		ClientCertificateRequested: clientCertificateRequested,
 		Cipher:                     kind,
 	}, nil
-}
-
-func peerErrorFromClearRecord(payload []byte) (error, bool) {
-	if len(payload) == 0 || MessageType(payload[0]) != MsgError {
-		return nil, false
-	}
-	peerErr, err := ParseError(payload)
-	if err != nil {
-		return err, true
-	}
-	return peerErr.Code, true
 }
 
 func rejectClientCertificateRequest(payload []byte) error {
