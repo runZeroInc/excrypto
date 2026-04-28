@@ -22,9 +22,19 @@ import (
 )
 
 func skipIfIssue64959(t *testing.T, err error) {
-	if err != nil && runtime.GOOS == "darwin" && strings.Contains(err.Error(), "ssh: unexpected packet in response to channel open: <nil>") {
+	if err == nil || runtime.GOOS != "darwin" {
+		return
+	}
+	// On some versions of macOS (notably the GitHub Actions runner image),
+	// sshd's BSM audit session setup fails ("Could not create new audit
+	// session"), which causes the server to drop the connection at various
+	// points. Depending on timing this surfaces either as the channel-open
+	// error from the upstream issue or as a plain EOF during dial.
+	msg := err.Error()
+	if strings.Contains(msg, "ssh: unexpected packet in response to channel open: <nil>") ||
+		strings.Contains(msg, "EOF") {
 		t.Helper()
-		t.Skipf("skipping test broken on some versions of macOS; see https://go.dev/issue/64959")
+		t.Skipf("skipping test broken on some versions of macOS; see https://go.dev/issue/64959: %v", err)
 	}
 }
 
