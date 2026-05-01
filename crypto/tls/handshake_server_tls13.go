@@ -1063,6 +1063,9 @@ func (hs *serverHandshakeStateTLS13) readClientCertificate() error {
 	if err := c.processCertsFromClient(certMsg.certificate); err != nil {
 		return err
 	}
+	if len(c.peerCertificates) > 0 {
+		c.ensureHandshakeLog().ClientCertificates.addParsed(c.peerCertificates, nil)
+	}
 
 	if c.config.VerifyConnection != nil {
 		if err := c.config.VerifyConnection(c.connectionStateLocked()); err != nil {

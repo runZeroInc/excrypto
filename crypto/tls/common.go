@@ -498,6 +498,14 @@ type ClientHelloInfo struct {
 	// to a HelloRetryRequest message.
 	HelloRetryRequest bool
 
+	// HandshakeLog exposes the structured handshake transcript captured so
+	// far for the connection. It mirrors the legacy crypto/ssl3/tls behavior
+	// and lets GetCertificate / GetConfigForClient callbacks inspect the
+	// in-progress log (notably the parsed ClientHello). The pointer is the
+	// same value returned by Conn.GetHandshakeLog and may be nil if the log
+	// has not yet been initialized.
+	HandshakeLog *ServerHandshake
+
 	// config is embedded by the GetCertificate or GetConfigForClient caller,
 	// for use with SupportsCertificate.
 	config *Config

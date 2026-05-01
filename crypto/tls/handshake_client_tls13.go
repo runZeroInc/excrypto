@@ -640,7 +640,7 @@ func (hs *clientHandshakeStateTLS13) readServerCertificate() error {
 	if err := c.verifyServerCertificate(certMsg.certificate.Certificate); err != nil {
 		return err
 	}
-	c.ensureHandshakeLog().ServerCertificates.addParsed(c.peerCertificates, nil)
+	c.ensureHandshakeLog().ServerCertificates.addParsed(c.peerCertificates, c.computeValidation(c.peerCertificates))
 
 	// certificateVerifyMsg is included in the transcript, but not until
 	// after we verify the handshake signature, since the state before

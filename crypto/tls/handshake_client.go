@@ -693,7 +693,7 @@ func (hs *clientHandshakeState) doFullHandshake() error {
 		if err := c.verifyServerCertificate(certMsg.certificates); err != nil {
 			return err
 		}
-		c.ensureHandshakeLog().ServerCertificates.addParsed(c.peerCertificates, nil)
+		c.ensureHandshakeLog().ServerCertificates.addParsed(c.peerCertificates, c.computeValidation(c.peerCertificates))
 	} else {
 		// This is a renegotiation handshake. We require that the
 		// server's identity (i.e. leaf certificate) is unchanged and

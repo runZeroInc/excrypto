@@ -96,6 +96,14 @@ func runHandshakeLogTest(t *testing.T, version uint16) {
 		if log.ServerCertificates == nil {
 			t.Errorf("%s: HandshakeLog.ServerCertificates is nil", label)
 		}
+		if label == "client" && log.ServerCertificates != nil {
+			if log.ServerCertificates.Certificate.Parsed == nil {
+				t.Errorf("client: ServerCertificates.Certificate.Parsed is nil")
+			}
+			if log.ServerCertificates.Validation == nil {
+				t.Errorf("client: ServerCertificates.Validation is nil (expected non-nil from ValidateWithStupidDetail)")
+			}
+		}
 		if log.ServerFinished == nil {
 			t.Errorf("%s: HandshakeLog.ServerFinished is nil", label)
 		}
@@ -129,5 +137,55 @@ func runHandshakeLogTest(t *testing.T, version uint16) {
 
 	if !errors.Is(srvErr, nil) {
 		t.Fatalf("server handshake error: %v", srvErr)
+	}
+}
+
+// TestClientHelloInfoHandshakeLog verifies that GetCertificate / GetConfigForClient
+// callbacks can observe the in-progress handshake log via ClientHelloInfo.HandshakeLog.
+func TestClientHelloInfoHandshakeLog(t *testing.T) {
+	cert, err := X509KeyPair([]byte(rsaCertPEM), []byte(rsaKeyPEM))
+	if err != nil {
+		t.Fatalf("X509KeyPair: %v", err)
+	}
+
+	var seenLog *ServerHandshake
+	serverCfg := &Config{
+		MinVersion: VersionTLS12,
+		MaxVersion: VersionTLS12,
+		GetCertificate: func(chi *ClientHelloInfo) (*Certificate, error) {
+			seenLog = chi.HandshakeLog
+			return &cert, nil
+		},
+	}
+	clientCfg := &Config{
+		InsecureSkipVerify: true,
+		MinVersion:         VersionTLS12,
+		MaxVersion:         VersionTLS12,
+		ServerName:         "example.com",
+	}
+
+	clientNC, srvNC := net.Pipe()
+	defer clientNC.Close()
+	defer srvNC.Close()
+
+	server := Server(srvNC, serverCfg)
+	client := Client(clientNC, clientCfg)
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		_ = server.HandshakeContext(context.Background())
+	}()
+	if err := client.HandshakeContext(context.Background()); err != nil {
+		t.Fatalf("client handshake: %v", err)
+	}
+	wg.Wait()
+
+	if seenLog == nil {
+		t.Fatalf("ClientHelloInfo.HandshakeLog was nil in GetCertificate callback")
+	}
+	if seenLog.ClientHello == nil {
+		t.Errorf("HandshakeLog.ClientHello not populated when GetCertificate fired")
 	}
 }

@@ -715,7 +715,8 @@ func (hs *serverHandshakeState) doFullHandshake() error {
 		}); err != nil {
 			return err
 		}
-		if len(certMsg.certificates) != 0 {
+		if len(c.peerCertificates) > 0 {
+			c.ensureHandshakeLog().ClientCertificates.addParsed(c.peerCertificates, nil)
 			pub = c.peerCertificates[0].PublicKey
 		}
 
@@ -1043,6 +1044,7 @@ func clientHelloInfo(ctx context.Context, c *Conn, clientHello *clientHelloMsg) 
 		Extensions:        clientHello.extensions,
 		Conn:              c.conn,
 		HelloRetryRequest: c.didHRR,
+		HandshakeLog:      c.handshakeLog,
 		config:            c.config,
 		ctx:               ctx,
 	}

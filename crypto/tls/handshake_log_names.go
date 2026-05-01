@@ -36,7 +36,7 @@ func nameForCompressionMethod(method uint8) string {
 	case 64:
 		return "LZS"
 	}
-	return "unknown." + strconv.Itoa(int(method))
+	return "unknown"
 }
 
 // nameForPointFormat follows RFC 4492 §5.1.2.
@@ -49,7 +49,7 @@ func nameForPointFormat(format uint8) string {
 	case 2:
 		return "ansiX962_compressed_char2"
 	}
-	return "unknown." + strconv.Itoa(int(format))
+	return "unknown"
 }
 
 // nameForCurve follows IANA "TLS Supported Groups" (RFC 4492 / RFC 7919 / RFC 8446).
@@ -112,9 +112,9 @@ func nameForCurve(id uint16) string {
 	case 28:
 		return "brainpoolP512r1"
 	case 29:
-		return "x25519"
+		return "ecdh_x25519"
 	case 30:
-		return "x448"
+		return "ecdh_x448"
 	case 256:
 		return "ffdhe2048"
 	case 257:
@@ -130,7 +130,7 @@ func nameForCurve(id uint16) string {
 	case 0xFF02:
 		return "arbitrary_explicit_char2_curves"
 	}
-	return "unknown." + strconv.Itoa(int(id))
+	return "unknown"
 }
 
 // nameForSignature returns the human name for the legacy TLS 1.2

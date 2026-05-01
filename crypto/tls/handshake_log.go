@@ -248,6 +248,38 @@ func (c *Conn) ensureHandshakeLog() *ServerHandshake {
 	return c.handshakeLog
 }
 
+// computeValidation runs ValidateWithStupidDetail against the peer chain
+// to populate a [*x509.Validation] for the handshake log. This mirrors the
+// legacy crypto/ssl3/tls behavior so downstream consumers continue to see
+// the `validation` field on `server_certificates`. The returned *Validation
+// is best-effort: nil is returned when no peer chain is available, when the
+// chain is empty after parsing, or when the leaf has no usable subject.
+func (c *Conn) computeValidation(certs []*x509.Certificate) *x509.Validation {
+	if len(certs) == 0 {
+		return nil
+	}
+	opts := x509.VerifyOptions{
+		Intermediates: x509.NewCertPool(),
+	}
+	if c.config != nil {
+		opts.Roots = c.config.RootCAs
+		opts.CurrentTime = c.config.time()
+		// Prefer the explicitly configured ServerName, then fall back to
+		// the SNI value the client sent (c.serverName), matching what the
+		// internal verify path does.
+		if c.config.ServerName != "" {
+			opts.DNSName = c.config.ServerName
+		} else {
+			opts.DNSName = c.serverName
+		}
+	}
+	for _, cert := range certs[1:] {
+		opts.Intermediates.AddCert(cert)
+	}
+	_, validation, _ := certs[0].ValidateWithStupidDetail(opts)
+	return validation
+}
+
 // MarshalJSON implements json.Marshaler for [LoggedTLSVersion].
 func (v LoggedTLSVersion) MarshalJSON() ([]byte, error) {
 	aux := struct {
