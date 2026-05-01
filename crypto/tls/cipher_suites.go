@@ -16,12 +16,12 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/des"
 	"github.com/runZeroInc/excrypto/crypto/hmac"
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
-	"github.com/runZeroInc/excrypto/internal/cpu"
 	fipsaes "github.com/runZeroInc/excrypto/crypto/internal/fips140/aes"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/aes/gcm"
 	"github.com/runZeroInc/excrypto/crypto/rc4"
 	"github.com/runZeroInc/excrypto/crypto/sha1"
 	"github.com/runZeroInc/excrypto/crypto/sha256"
+	"github.com/runZeroInc/excrypto/internal/cpu"
 	"github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305"
 )
 
@@ -624,7 +624,7 @@ func tls10MAC(h hash.Hash, out, seq, header, data, extra []byte) []byte {
 }
 
 func rsaKA(version uint16) keyAgreement {
-	return rsaKeyAgreement{}
+	return &rsaKeyAgreement{}
 }
 
 func ecdheECDSAKA(version uint16) keyAgreement {

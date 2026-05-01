@@ -283,6 +283,9 @@ func (c *Conn) clientHandshake(ctx context.Context) (err error) {
 		return err
 	}
 
+	// Handshake-log: record outbound ClientHello.
+	c.ensureHandshakeLog().ClientHello = hello.MakeLog()
+
 	if hello.earlyData {
 		suite := cipherSuiteTLS13ByID(session.cipherSuite)
 		transcript := suite.hash.New()
@@ -308,6 +311,9 @@ func (c *Conn) clientHandshake(ctx context.Context) (err error) {
 		c.sendAlert(alertUnexpectedMessage)
 		return unexpectedMessageError(serverHello, msg)
 	}
+
+	// Handshake-log: record inbound ServerHello.
+	c.ensureHandshakeLog().ServerHello = serverHello.MakeLog()
 
 	if err := c.pickTLSVersion(serverHello); err != nil {
 		return err
@@ -652,6 +658,7 @@ func (hs *clientHandshakeState) doFullHandshake() error {
 		c.sendAlert(alertUnexpectedMessage)
 		return unexpectedMessageError(certMsg, msg)
 	}
+	c.ensureHandshakeLog().ServerCertificates = certMsg.MakeLog()
 
 	msg, err = c.readHandshake(&hs.finishedHash)
 	if err != nil {
@@ -686,6 +693,7 @@ func (hs *clientHandshakeState) doFullHandshake() error {
 		if err := c.verifyServerCertificate(certMsg.certificates); err != nil {
 			return err
 		}
+		c.ensureHandshakeLog().ServerCertificates.addParsed(c.peerCertificates, nil)
 	} else {
 		// This is a renegotiation handshake. We require that the
 		// server's identity (i.e. leaf certificate) is unchanged and
@@ -712,6 +720,7 @@ func (hs *clientHandshakeState) doFullHandshake() error {
 			c.curveID = keyAgreement.curveID
 			c.peerSigAlg = keyAgreement.signatureAlgorithm
 		}
+		c.ensureHandshakeLog().ServerKeyExchange = skx.MakeLog(keyAgreement)
 
 		msg, err = c.readHandshake(&hs.finishedHash)
 		if err != nil {
@@ -725,6 +734,7 @@ func (hs *clientHandshakeState) doFullHandshake() error {
 	if ok {
 		certRequested = true
 		c.setClientCertificateRequest(certReq)
+		c.ensureHandshakeLog().CertificateRequest = certReq.MakeLog()
 
 		cri := certificateRequestInfoFromMsg(hs.ctx, c.vers, certReq)
 		if chainToSend, err = c.getClientCertificate(cri); err != nil {
@@ -764,6 +774,7 @@ func (hs *clientHandshakeState) doFullHandshake() error {
 		if _, err := hs.c.writeHandshakeRecord(ckx, &hs.finishedHash); err != nil {
 			return err
 		}
+		c.ensureHandshakeLog().ClientKeyExchange = ckx.MakeLog(keyAgreement)
 	}
 
 	if hs.serverHello.extendedMasterSecret {
@@ -777,6 +788,10 @@ func (hs *clientHandshakeState) doFullHandshake() error {
 		}
 		hs.masterSecret = masterFromPreMasterSecret(c.vers, hs.suite, preMasterSecret,
 			hs.hello.random, hs.serverHello.random)
+	}
+	c.ensureHandshakeLog().KeyMaterial = &KeyMaterial{
+		PreMasterSecret: &PreMasterSecret{Value: append([]byte(nil), preMasterSecret...), Length: len(preMasterSecret)},
+		MasterSecret:    &MasterSecret{Value: append([]byte(nil), hs.masterSecret...), Length: len(hs.masterSecret)},
 	}
 	if err := c.config.writeKeyLog(keyLogLabelTLS12, hs.hello.random, hs.masterSecret); err != nil {
 		c.sendAlert(alertInternalError)
@@ -1001,6 +1016,7 @@ func (hs *clientHandshakeState) readFinished(out []byte) error {
 		c.sendAlert(alertUnexpectedMessage)
 		return unexpectedMessageError(serverFinished, msg)
 	}
+	c.ensureHandshakeLog().ServerFinished = serverFinished.MakeLog()
 
 	verify := hs.finishedHash.serverSum(hs.masterSecret)
 	if len(verify) != len(serverFinished.verifyData) ||
@@ -1039,6 +1055,7 @@ func (hs *clientHandshakeState) readSessionTicket() error {
 	}
 
 	hs.ticket = sessionTicketMsg.ticket
+	c.ensureHandshakeLog().SessionTicket = sessionTicketMsg.MakeLog()
 	return nil
 }
 
@@ -1074,6 +1091,7 @@ func (hs *clientHandshakeState) sendFinished(out []byte) error {
 	if _, err := hs.c.writeHandshakeRecord(finished, &hs.finishedHash); err != nil {
 		return err
 	}
+	c.ensureHandshakeLog().ClientFinished = finished.MakeLog()
 	copy(out, finished.verifyData)
 	return nil
 }

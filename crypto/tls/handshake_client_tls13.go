@@ -533,6 +533,7 @@ func (hs *clientHandshakeStateTLS13) readServerParameters() error {
 		c.sendAlert(alertUnexpectedMessage)
 		return unexpectedMessageError(encryptedExtensions, msg)
 	}
+	c.ensureHandshakeLog().EncryptedExtensions = encryptedExtensions.MakeLog()
 
 	if err := checkALPN(hs.hello.alpnProtocols, encryptedExtensions.alpnProtocol, c.quic != nil); err != nil {
 		// RFC 8446 specifies that no_application_protocol is sent by servers, but
@@ -614,6 +615,7 @@ func (hs *clientHandshakeStateTLS13) readServerCertificate() error {
 	if ok {
 		hs.certReq = certReq
 		c.setClientCertificateRequestTLS13(certReq)
+		c.ensureHandshakeLog().CertificateRequest = certReq.MakeLog()
 
 		msg, err = c.readHandshake(hs.transcript)
 		if err != nil {
@@ -630,6 +632,7 @@ func (hs *clientHandshakeStateTLS13) readServerCertificate() error {
 		c.sendAlert(alertDecodeError)
 		return errors.New("tls: received empty certificates message")
 	}
+	c.ensureHandshakeLog().ServerCertificates = certMsg.MakeLog()
 
 	c.scts = certMsg.certificate.SignedCertificateTimestamps
 	c.ocspResponse = certMsg.certificate.OCSPStaple
@@ -637,6 +640,7 @@ func (hs *clientHandshakeStateTLS13) readServerCertificate() error {
 	if err := c.verifyServerCertificate(certMsg.certificate.Certificate); err != nil {
 		return err
 	}
+	c.ensureHandshakeLog().ServerCertificates.addParsed(c.peerCertificates, nil)
 
 	// certificateVerifyMsg is included in the transcript, but not until
 	// after we verify the handshake signature, since the state before
@@ -698,6 +702,7 @@ func (hs *clientHandshakeStateTLS13) readServerFinished() error {
 		c.sendAlert(alertUnexpectedMessage)
 		return unexpectedMessageError(finished, msg)
 	}
+	c.ensureHandshakeLog().ServerFinished = finished.MakeLog()
 
 	expectedMAC := hs.suite.finishedHash(c.in.trafficSecret, hs.transcript)
 	if !hmac.Equal(expectedMAC, finished.verifyData) {
@@ -766,6 +771,7 @@ func (hs *clientHandshakeStateTLS13) sendClientCertificate() error {
 	if _, err := hs.c.writeHandshakeRecord(certMsg, hs.transcript); err != nil {
 		return err
 	}
+	c.ensureHandshakeLog().ClientCertificates = certMsg.MakeLog()
 
 	// If we sent an empty certificate message, skip the CertificateVerify.
 	if len(cert.Certificate) == 0 {
@@ -817,6 +823,7 @@ func (hs *clientHandshakeStateTLS13) sendClientFinished() error {
 	if _, err := hs.c.writeHandshakeRecord(finished, hs.transcript); err != nil {
 		return err
 	}
+	c.ensureHandshakeLog().ClientFinished = finished.MakeLog()
 
 	c.setWriteTrafficSecret(hs.suite, QUICEncryptionLevelApplication, hs.trafficSecret)
 
@@ -835,6 +842,11 @@ func (c *Conn) handleNewSessionTicket(msg *newSessionTicketMsgTLS13) error {
 	if !c.isClient {
 		c.sendAlert(alertUnexpectedMessage)
 		return errors.New("tls: received new session ticket from a client")
+	}
+	c.ensureHandshakeLog().SessionTicket = &SessionTicket{
+		Value:        append([]byte(nil), msg.label...),
+		Length:       len(msg.label),
+		LifetimeHint: msg.lifetime,
 	}
 
 	if c.config.SessionTicketsDisabled || c.config.ClientSessionCache == nil {

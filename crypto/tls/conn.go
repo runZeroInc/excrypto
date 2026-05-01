@@ -60,6 +60,10 @@ type Conn struct {
 	ClientCertificateRequested bool
 	// ClientCertificateRequest stores the full certificate request.
 	ClientCertificateRequest *ClientCertificateRequest
+	// handshakeLog accumulates JSON-marshalable records for every
+	// handshake message exchanged on this connection. See
+	// [Conn.GetHandshakeLog].
+	handshakeLog *ServerHandshake
 	// verifiedChains contains the certificate chains that we built, as
 	// opposed to the ones presented by the server.
 	verifiedChains [][]*x509.Certificate

@@ -145,6 +145,10 @@ func (c *Conn) readClientHello(ctx context.Context) (*clientHelloMsg, *echServer
 		return nil, nil, unexpectedMessageError(clientHello, msg)
 	}
 
+	// Handshake-log: capture the inbound ClientHello (post-ECH-decoding
+	// is done below; this records the original outer ClientHello).
+	c.ensureHandshakeLog().ClientHello = clientHello.MakeLog()
+
 	// ECH processing has to be done before we do any other negotiation based on
 	// the contents of the client hello, since we may swap it out completely.
 	var ech *echServerContext
@@ -619,12 +623,14 @@ func (hs *serverHandshakeState) doFullHandshake() error {
 	if _, err := hs.c.writeHandshakeRecord(hs.hello, &hs.finishedHash); err != nil {
 		return err
 	}
+	c.ensureHandshakeLog().ServerHello = hs.hello.MakeLog()
 
 	certMsg := new(certificateMsg)
 	certMsg.certificates = hs.cert.Certificate
 	if _, err := hs.c.writeHandshakeRecord(certMsg, &hs.finishedHash); err != nil {
 		return err
 	}
+	c.ensureHandshakeLog().ServerCertificates = certMsg.MakeLog()
 
 	if hs.hello.ocspStapling {
 		certStatus := new(certificateStatusMsg)
@@ -648,6 +654,7 @@ func (hs *serverHandshakeState) doFullHandshake() error {
 		if _, err := hs.c.writeHandshakeRecord(skx, &hs.finishedHash); err != nil {
 			return err
 		}
+		c.ensureHandshakeLog().ServerKeyExchange = skx.MakeLog(keyAgreement)
 	}
 
 	var certReq *certificateRequestMsg
@@ -674,6 +681,7 @@ func (hs *serverHandshakeState) doFullHandshake() error {
 		if _, err := hs.c.writeHandshakeRecord(certReq, &hs.finishedHash); err != nil {
 			return err
 		}
+		c.ensureHandshakeLog().CertificateRequest = certReq.MakeLog()
 	}
 
 	helloDone := new(serverHelloDoneMsg)
@@ -700,6 +708,7 @@ func (hs *serverHandshakeState) doFullHandshake() error {
 			c.sendAlert(alertUnexpectedMessage)
 			return unexpectedMessageError(certMsg, msg)
 		}
+		c.ensureHandshakeLog().ClientCertificates = certMsg.MakeLog()
 
 		if err := c.processCertsFromClient(Certificate{
 			Certificate: certMsg.certificates,
@@ -728,6 +737,7 @@ func (hs *serverHandshakeState) doFullHandshake() error {
 		c.sendAlert(alertUnexpectedMessage)
 		return unexpectedMessageError(ckx, msg)
 	}
+	c.ensureHandshakeLog().ClientKeyExchange = ckx.MakeLog(keyAgreement)
 
 	preMasterSecret, err := keyAgreement.processClientKeyExchange(c.config, hs.cert, ckx, c.vers)
 	if err != nil {
@@ -745,6 +755,10 @@ func (hs *serverHandshakeState) doFullHandshake() error {
 		}
 		hs.masterSecret = masterFromPreMasterSecret(c.vers, hs.suite, preMasterSecret,
 			hs.clientHello.random, hs.hello.random)
+	}
+	c.ensureHandshakeLog().KeyMaterial = &KeyMaterial{
+		PreMasterSecret: &PreMasterSecret{Value: append([]byte(nil), preMasterSecret...), Length: len(preMasterSecret)},
+		MasterSecret:    &MasterSecret{Value: append([]byte(nil), hs.masterSecret...), Length: len(hs.masterSecret)},
 	}
 	if err := c.config.writeKeyLog(keyLogLabelTLS12, hs.clientHello.random, hs.masterSecret); err != nil {
 		c.sendAlert(alertInternalError)
@@ -863,6 +877,7 @@ func (hs *serverHandshakeState) readFinished(out []byte) error {
 		c.sendAlert(alertUnexpectedMessage)
 		return unexpectedMessageError(clientFinished, msg)
 	}
+	c.ensureHandshakeLog().ClientFinished = clientFinished.MakeLog()
 
 	verify := hs.finishedHash.clientSum(hs.masterSecret)
 	if len(verify) != len(clientFinished.verifyData) ||
@@ -914,6 +929,7 @@ func (hs *serverHandshakeState) sendSessionTicket() error {
 	if _, err := hs.c.writeHandshakeRecord(m, &hs.finishedHash); err != nil {
 		return err
 	}
+	c.ensureHandshakeLog().SessionTicket = m.MakeLog()
 
 	return nil
 }
@@ -930,6 +946,7 @@ func (hs *serverHandshakeState) sendFinished(out []byte) error {
 	if _, err := hs.c.writeHandshakeRecord(finished, &hs.finishedHash); err != nil {
 		return err
 	}
+	c.ensureHandshakeLog().ServerFinished = finished.MakeLog()
 
 	copy(out, finished.verifyData)
 

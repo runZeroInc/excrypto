@@ -143,6 +143,21 @@ func (c *Conn) HandshakeWithConfig(res *ProbeResult, cfg *ClientConfig) (*Handsh
 	if err != nil {
 		return nil, err
 	}
+
+	// Record everything we just produced into the handshake log.
+	c.mu.Lock()
+	log := c.log()
+	log.ClientMasterKey = cmk
+	log.SelectedCipher = kind
+	log.KeyMaterial = &SSLv2KeyMaterial{
+		MasterKey:      append([]byte(nil), master...),
+		ClearKey:       append([]byte(nil), clearKey...),
+		SecretKey:      append([]byte(nil), secretKey...),
+		KeyArg:         append([]byte(nil), keyArg...),
+		ClientWriteKey: append([]byte(nil), clientWriteKey...),
+		ServerWriteKey: append([]byte(nil), serverWriteKey...),
+	}
+	c.mu.Unlock()
 	cw, sw := clientWriteKey, serverWriteKey
 	_ = cw
 	_ = sw
@@ -187,9 +202,13 @@ func (c *Conn) HandshakeWithConfig(res *ProbeResult, cfg *ClientConfig) (*Handsh
 	if !equalBytes(sv.Challenge, res.challenge) {
 		return nil, errors.New("ssl2: SERVER-VERIFY challenge mismatch")
 	}
+	c.mu.Lock()
+	c.log().ServerVerify = sv
+	c.mu.Unlock()
 
 	// Send CLIENT-FINISHED, encrypted, carrying server's CONNECTION-ID.
-	cf := (&ClientFinished{ConnectionID: sh.ConnectionID}).Marshal()
+	cfMsg := &ClientFinished{ConnectionID: sh.ConnectionID}
+	cf := cfMsg.Marshal()
 	rec, err := writeCS.sealRecord(cf)
 	if err != nil {
 		return nil, err
@@ -197,6 +216,9 @@ func (c *Conn) HandshakeWithConfig(res *ProbeResult, cfg *ClientConfig) (*Handsh
 	if _, err := c.conn.Write(rec); err != nil {
 		return nil, fmt.Errorf("ssl2: writing CLIENT-FINISHED: %w", err)
 	}
+	c.mu.Lock()
+	c.log().ClientFinished = cfMsg
+	c.mu.Unlock()
 
 	// Read phase-2 server messages until SERVER-FINISHED. Servers may request
 	// a client certificate after SERVER-VERIFY; the client has already sent
@@ -216,9 +238,13 @@ func (c *Conn) HandshakeWithConfig(res *ProbeResult, cfg *ClientConfig) (*Handsh
 		}
 		switch MessageType(plain[0]) {
 		case MsgServerFinished:
-			if _, err := ParseServerFinished(plain); err != nil {
+			sf, err := ParseServerFinished(plain)
+			if err != nil {
 				return nil, err
 			}
+			c.mu.Lock()
+			c.log().ServerFinished = sf
+			c.mu.Unlock()
 			goto finished
 		case MsgRequestCertificate:
 			clientCertificateRequested = true
@@ -226,6 +252,9 @@ func (c *Conn) HandshakeWithConfig(res *ProbeResult, cfg *ClientConfig) (*Handsh
 			if err != nil {
 				return nil, err
 			}
+			c.mu.Lock()
+			c.log().RequestCertificate = req
+			c.mu.Unlock()
 			if err := c.sendClientCertificate(req, cfg, writeCS, kind, master, res.challenge, sh.ConnectionID, sh.Certificate); err != nil {
 				return nil, err
 			}
@@ -285,6 +314,11 @@ func (c *Conn) sendClientCertificate(req *RequestCertificate, cfg *ClientConfig,
 		return err
 	}
 	_, err = c.conn.Write(rec)
+	if err == nil {
+		c.mu.Lock()
+		c.log().ClientCertificate = msg
+		c.mu.Unlock()
+	}
 	return err
 }
 

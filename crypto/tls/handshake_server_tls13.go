@@ -19,11 +19,11 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/hkdf"
 	"github.com/runZeroInc/excrypto/crypto/hmac"
 	"github.com/runZeroInc/excrypto/crypto/hpke"
-	"github.com/runZeroInc/excrypto/internal/byteorder"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/tls13"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/tls/internal/fips140tls"
 	"github.com/runZeroInc/excrypto/crypto/x509"
+	"github.com/runZeroInc/excrypto/internal/byteorder"
 )
 
 // maxClientPSKIdentities is the number of client PSK identities the server will
@@ -739,6 +739,7 @@ func (hs *serverHandshakeStateTLS13) sendServerParameters() error {
 	if _, err := hs.c.writeHandshakeRecord(hs.hello, hs.transcript); err != nil {
 		return err
 	}
+	c.ensureHandshakeLog().ServerHello = hs.hello.MakeLog()
 
 	if err := hs.sendDummyChangeCipherSpec(); err != nil {
 		return err
@@ -812,6 +813,7 @@ func (hs *serverHandshakeStateTLS13) sendServerParameters() error {
 	if _, err := hs.c.writeHandshakeRecord(encryptedExtensions, hs.transcript); err != nil {
 		return err
 	}
+	c.ensureHandshakeLog().EncryptedExtensions = encryptedExtensions.MakeLog()
 
 	return nil
 }
@@ -842,6 +844,7 @@ func (hs *serverHandshakeStateTLS13) sendServerCertificate() error {
 		if _, err := hs.c.writeHandshakeRecord(certReq, hs.transcript); err != nil {
 			return err
 		}
+		c.ensureHandshakeLog().CertificateRequest = certReq.MakeLog()
 	}
 
 	certMsg := new(certificateMsgTLS13)
@@ -853,6 +856,7 @@ func (hs *serverHandshakeStateTLS13) sendServerCertificate() error {
 	if _, err := hs.c.writeHandshakeRecord(certMsg, hs.transcript); err != nil {
 		return err
 	}
+	c.ensureHandshakeLog().ServerCertificates = certMsg.MakeLog()
 
 	certVerifyMsg := new(certificateVerifyMsg)
 	certVerifyMsg.hasSignatureAlgorithm = true
@@ -898,6 +902,7 @@ func (hs *serverHandshakeStateTLS13) sendServerFinished() error {
 	if _, err := hs.c.writeHandshakeRecord(finished, hs.transcript); err != nil {
 		return err
 	}
+	c.ensureHandshakeLog().ServerFinished = finished.MakeLog()
 
 	// Derive secrets that take context through the server Finished.
 
@@ -1053,6 +1058,7 @@ func (hs *serverHandshakeStateTLS13) readClientCertificate() error {
 		c.sendAlert(alertUnexpectedMessage)
 		return unexpectedMessageError(certMsg, msg)
 	}
+	c.ensureHandshakeLog().ClientCertificates = certMsg.MakeLog()
 
 	if err := c.processCertsFromClient(certMsg.certificate); err != nil {
 		return err
@@ -1131,6 +1137,7 @@ func (hs *serverHandshakeStateTLS13) readClientFinished() error {
 		c.sendAlert(alertUnexpectedMessage)
 		return unexpectedMessageError(finished, msg)
 	}
+	c.ensureHandshakeLog().ClientFinished = finished.MakeLog()
 
 	if !hmac.Equal(hs.clientFinished, finished.verifyData) {
 		c.sendAlert(alertDecryptError)

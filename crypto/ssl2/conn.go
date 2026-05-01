@@ -35,6 +35,10 @@ type Conn struct {
 	// readBuf holds plaintext that has been decrypted but not yet consumed
 	// by Read.
 	readBuf bytes.Buffer
+
+	// handshakeLog accumulates structured records for every SSL 2.0
+	// handshake message observed on this connection. See [HandshakeLog].
+	handshakeLog *HandshakeLog
 }
 
 // NewConn wraps c in an SSL 2.0 [Conn]. The caller retains ownership of c
@@ -137,6 +141,9 @@ func (c *Conn) Probe(challenge []byte) (*ProbeResult, error) {
 		return nil, errors.New("ssl2: empty server response")
 	}
 	res := &ProbeResult{challenge: challenge, clientHello: hello}
+	log := c.log()
+	log.ClientHello = hello
+	log.Challenge = append([]byte(nil), challenge...)
 	switch MessageType(payload[0]) {
 	case MsgServerHello:
 		sh, err := ParseServerHello(payload)
@@ -144,6 +151,7 @@ func (c *Conn) Probe(challenge []byte) (*ProbeResult, error) {
 			return nil, err
 		}
 		res.ServerHello = sh
+		log.ServerHello = sh
 		if sh.CertificateType == CertTypeX509 && len(sh.Certificate) > 0 {
 			cert, perr := x509.ParseCertificate(sh.Certificate)
 			if perr != nil {
@@ -158,6 +166,7 @@ func (c *Conn) Probe(challenge []byte) (*ProbeResult, error) {
 			return nil, err
 		}
 		res.PeerError = e
+		log.ServerError = e
 	default:
 		return nil, fmt.Errorf("ssl2: unexpected initial server message type %d", payload[0])
 	}

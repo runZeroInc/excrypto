@@ -85,6 +85,26 @@ func TestFullHandshakeOverNetPipe(t *testing.T) {
 				t.Errorf("negotiated %s, want %s", hr.Cipher.Name(), only[0].Name())
 			}
 
+			// HandshakeLog should be populated end-to-end.
+			hl := c.GetHandshakeLog()
+			if hl == nil {
+				t.Fatalf("GetHandshakeLog returned nil")
+			}
+			if hl.ClientHello == nil || hl.ServerHello == nil ||
+				hl.ClientMasterKey == nil || hl.ServerVerify == nil ||
+				hl.ClientFinished == nil || hl.ServerFinished == nil {
+				t.Errorf("HandshakeLog missing wire messages: %+v", hl)
+			}
+			if hl.SelectedCipher != only[0] {
+				t.Errorf("HandshakeLog.SelectedCipher = %s, want %s", hl.SelectedCipher.Name(), only[0].Name())
+			}
+			if hl.KeyMaterial == nil ||
+				len(hl.KeyMaterial.MasterKey) == 0 ||
+				len(hl.KeyMaterial.ClientWriteKey) == 0 ||
+				len(hl.KeyMaterial.ServerWriteKey) == 0 {
+				t.Errorf("HandshakeLog.KeyMaterial incomplete: %+v", hl.KeyMaterial)
+			}
+
 			// Application-data round trip: client → server → client echo.
 			payload := []byte("hello over sslv2\n")
 			var clientWg sync.WaitGroup
