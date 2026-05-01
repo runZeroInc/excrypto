@@ -89,7 +89,18 @@ version from SSL 2.0 to TLS 1.3:
 
 * [`crypto/tls`](crypto/tls) tracks modern upstream Go (TLS 1.0–1.3, TLS 1.3
   primary). It re-enables MD5/SHA-1 signature schemes and weak key
-  acceptance for handshake research.
+  acceptance for handshake research. It also exposes a structured
+  `ServerHandshake` log via `Conn.GetHandshakeLog()` covering every
+  message in both TLS 1.2 and TLS 1.3 handshakes (ClientHello,
+  ServerHello, EncryptedExtensions, CertificateRequest, server/client
+  Certificates with parsed `*x509.Certificate` and a populated
+  `*x509.Validation`, ServerKeyExchange / ClientKeyExchange with ECDHE
+  signature capture, KeyMaterial for TLS 1.2, SessionTicket, and the
+  client + server Finished). The same log is reachable from inside
+  `GetCertificate` / `GetConfigForClient` callbacks via
+  `ClientHelloInfo.HandshakeLog`. The `ClientCertificateRequested` /
+  `ClientCertificateRequest` fields on `Conn` flag whether the server
+  asked for a client certificate, in both TLS 1.2 and 1.3.
 * [`crypto/ssl3/tls`](crypto/ssl3/tls) is the ZCrypto-derived legacy stack
   that still speaks **SSL 3.0 through TLS 1.2**. It exposes a structured
   `HandshakeLog` (`ServerHandshake`, `ClientHello`, `ServerHello`,
@@ -101,9 +112,14 @@ version from SSL 2.0 to TLS 1.3:
   and bulk encryption with RC4-128, RC2-128 (incl. 40-bit export),
   DES-CBC, and 3DES-EDE-CBC. A matching `Server` type accepts CLIENT-HELLO
   messages, runs the full handshake, and exposes the resulting connection
-  via `Read` / `Write`. Intended exclusively for security testing,
-  inventory, and DROWN-style research against legacy systems — see the
-  package doc.
+  via `Read` / `Write`. The connection also exposes a
+  `HandshakeLog` (CLIENT-HELLO / SERVER-HELLO / CLIENT-MASTER-KEY /
+  SERVER-VERIFY / CLIENT-FINISHED / SERVER-FINISHED, plus
+  REQUEST-CERTIFICATE / CLIENT-CERTIFICATE and an `SSLv2KeyMaterial`
+  block carrying the negotiated MasterKey, ClearKey, SecretKey, KeyArg,
+  and per-direction WriteKeys) via `Conn.GetHandshakeLog()`. Intended
+  exclusively for security testing, inventory, and DROWN-style research
+  against legacy systems — see the package doc.
 * [`crypto/ssl3/cryptobyte`](crypto/ssl3/cryptobyte) is a frozen-API copy of
   cryptobyte for use by the SSL 3 stack so the legacy code is decoupled
   from upstream API churn.
@@ -146,9 +162,9 @@ behavior may differ from upstream Go:
 | Package                                 | Origin & purpose                                     |
 | --------------------------------------- | ---------------------------------------------------- |
 | [`crypto/...`](crypto)                  | Modern Go crypto, with weak-primitive gates removed  |
-| [`crypto/tls`](crypto/tls)              | Modern TLS 1.0–1.3 with permissive sig schemes       |
+| [`crypto/tls`](crypto/tls)              | Modern TLS 1.0–1.3, permissive sigs + `HandshakeLog` |
 | [`crypto/ssl3/tls`](crypto/ssl3/tls)    | Legacy SSL 3.0 / TLS 1.0–1.2 with `HandshakeLog`     |
-| [`crypto/ssl2`](crypto/ssl2)            | Obsolete SSL 2.0 client + server (research only)     |
+| [`crypto/ssl2`](crypto/ssl2)            | Obsolete SSL 2.0 client + server with `HandshakeLog` |
 | [`crypto/ssl3/rc2`](crypto/ssl3/rc2)    | RC2 block cipher (40/56/64/128-bit)                  |
 | [`crypto/x509`](crypto/x509)            | ZCrypto-style permissive parser + 3-set `Verify()`   |
 | [`crypto/x509/ct`](crypto/x509/ct)      | ZCrypto fork of Google CT                            |
