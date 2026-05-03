@@ -40,7 +40,11 @@ const msgDisconnect = 1
 type disconnectMsg struct {
 	Reason   uint32 `sshtype:"1"`
 	Message  string
-	Language string
+	// Language is optional in practice: many real-world SSH implementations
+	// (especially embedded/non-conformant servers) omit the trailing language
+	// tag string from SSH_MSG_DISCONNECT, even though RFC 4253 §11.1 requires
+	// it. Mark it optional so Unmarshal accepts truncated disconnect packets.
+	Language string `ssh:"optional"`
 }
 
 func (d *disconnectMsg) Error() string {
@@ -464,6 +468,13 @@ func Unmarshal(data []byte, out interface{}) error {
 		case reflect.String:
 			var s []byte
 			if s, data, ok = parseString(data); !ok {
+				// Allow a missing trailing string when explicitly marked optional.
+				// Some SSH implementations truncate trailing fields (e.g. the
+				// Language tag of SSH_MSG_DISCONNECT).
+				if len(data) == 0 && structType.Field(i).Tag.Get("ssh") == "optional" {
+					field.SetString("")
+					continue
+				}
 				return fieldError(structType, i, "")
 			}
 			field.SetString(string(s))
