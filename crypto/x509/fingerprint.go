@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140only"
 	"github.com/runZeroInc/excrypto/crypto/md5"
 	"github.com/runZeroInc/excrypto/crypto/sha1"
 	"github.com/runZeroInc/excrypto/crypto/sha256"
@@ -20,13 +21,21 @@ import (
 type CertificateFingerprint []byte
 
 // MD5Fingerprint creates a fingerprint of data using the MD5 hash algorithm.
+// Returns nil when FIPS 140-only mode is enforced, since MD5 is not allowed.
 func MD5Fingerprint(data []byte) CertificateFingerprint {
+	if fips140only.Enforced() {
+		return nil
+	}
 	sum := md5.Sum(data)
 	return sum[:]
 }
 
 // SHA1Fingerprint creates a fingerprint of data using the SHA1 hash algorithm.
+// Returns nil when FIPS 140-only mode is enforced, since SHA-1 is not allowed.
 func SHA1Fingerprint(data []byte) CertificateFingerprint {
+	if fips140only.Enforced() {
+		return nil
+	}
 	sum := sha1.Sum(data)
 	return sum[:]
 }

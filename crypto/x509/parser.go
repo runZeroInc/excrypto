@@ -21,6 +21,7 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/ed25519"
 	"github.com/runZeroInc/excrypto/crypto/elliptic"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140only"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/sha256"
 	"github.com/runZeroInc/excrypto/crypto/x509/pkix"
@@ -30,6 +31,16 @@ import (
 	"github.com/runZeroInc/excrypto/x/crypto/cryptobyte"
 	cryptobyte_asn1 "github.com/runZeroInc/excrypto/x/crypto/cryptobyte/asn1"
 )
+
+// signatureUsesNonFIPSHash reports whether the given signature algorithm
+// uses a hash (MD5, SHA-1) that panics in FIPS 140-only mode.
+func signatureUsesNonFIPSHash(algo SignatureAlgorithm) bool {
+	switch algo {
+	case MD2WithRSA, MD5WithRSA, SHA1WithRSA, DSAWithSHA1, ECDSAWithSHA1:
+		return true
+	}
+	return false
+}
 
 // isPrintable reports whether the given b is in the ASN.1 PrintableString set.
 // This is a simplified version of encoding/asn1.isPrintable.
@@ -1288,8 +1299,12 @@ func parseCertificate(in *certificate) (*Certificate, error) {
 	// zcrypto: Check if self-signed
 	if bytes.Equal(cert.RawSubject, cert.RawIssuer) {
 		// Possibly self-signed, check the signature against itself.
-		if err := cert.CheckSignature(cert.SignatureAlgorithm, cert.RawTBSCertificate, cert.Signature); err == nil {
-			cert.SelfSigned = true
+		// Skip in FIPS 140-only mode when the signature algorithm uses
+		// a hash that panics (MD5, SHA-1). The self-signed flag is informational.
+		if !fips140only.Enforced() || !signatureUsesNonFIPSHash(cert.SignatureAlgorithm) {
+			if err := cert.CheckSignature(cert.SignatureAlgorithm, cert.RawTBSCertificate, cert.Signature); err == nil {
+				cert.SelfSigned = true
+			}
 		}
 	}
 
