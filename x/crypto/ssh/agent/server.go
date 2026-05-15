@@ -245,12 +245,14 @@ func parseRSAKey(req []byte) (*AddedKey, error) {
 	if err := ssh.Unmarshal(req, &k); err != nil {
 		return nil, err
 	}
-	if k.E.Sign() <= 0 || k.E.Bit(0) == 0 {
+	if k.E.Sign() <= 0 || k.E.Cmp(big.NewInt(3)) < 0 || k.E.Bit(0) == 0 {
 		return nil, errors.New("agent: invalid RSA public exponent")
 	}
 	priv := &rsa.PrivateKey{
 		PublicKey: rsa.PublicKey{
-			E: k.E,
+			// Defensively copy E so callers cannot mutate it through the
+			// parsed wire structure.
+			E: new(big.Int).Set(k.E),
 			N: k.N,
 		},
 		D:      k.D,

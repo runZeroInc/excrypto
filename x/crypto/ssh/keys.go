@@ -474,8 +474,10 @@ func parseRSA(in []byte) (out PublicKey, rest []byte, err error) {
 	}
 
 	var key rsa.PublicKey
-	key.E = w.E
-	key.N = w.N
+	// Defensively copy E and N so subsequent mutations to the parsed wire
+	// buffer cannot affect the returned key.
+	key.E = new(big.Int).Set(w.E)
+	key.N = new(big.Int).Set(w.N)
 	return (*rsaPublicKey)(&key), w.Rest, nil
 }
 

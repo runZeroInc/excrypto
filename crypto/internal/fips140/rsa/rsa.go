@@ -52,6 +52,9 @@ func (priv *PrivateKey) PublicKey() *PublicKey {
 // All values are in big-endian byte slice format, and may have leading zeros
 // or be shorter if leading zeroes were trimmed.
 func NewPrivateKey(N []byte, e *big.Int, d, P, Q []byte) (*PrivateKey, error) {
+	if e == nil {
+		return nil, errors.New("crypto/rsa: missing public exponent")
+	}
 	n, err := bigmod.NewModulus(N)
 	if err != nil {
 		return nil, err
@@ -68,7 +71,8 @@ func NewPrivateKey(N []byte, e *big.Int, d, P, Q []byte) (*PrivateKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newPrivateKey(n, e, dN, p, q)
+	// Defensively copy e so callers cannot mutate the stored exponent.
+	return newPrivateKey(n, new(big.Int).Set(e), dN, p, q)
 }
 
 func newPrivateKey(n *bigmod.Modulus, e *big.Int, d *bigmod.Nat, p, q *bigmod.Modulus) (*PrivateKey, error) {
@@ -96,8 +100,13 @@ func newPrivateKey(n *bigmod.Modulus, e *big.Int, d *bigmod.Nat, p, q *bigmod.Mo
 	qInv := bigmod.NewNat().Mod(q.Nat(), p)
 	qInv.Exp(qInv, pMinusTwo, p)
 
+	if e == nil {
+		return nil, errors.New("crypto/rsa: missing public exponent")
+	}
 	pk := &PrivateKey{
 		pub: PublicKey{
+			// e is already a defensive copy from NewPrivateKey or a freshly
+			// generated value from keygen; store directly.
 			N: n, E: e,
 		},
 		d: d, p: p, q: q,
@@ -133,9 +142,13 @@ func NewPrivateKeyWithPrecomputation(N []byte, e *big.Int, d, P, Q, dP, dQ, qInv
 		return nil, err
 	}
 
+	if e == nil {
+		return nil, errors.New("crypto/rsa: missing public exponent")
+	}
 	pk := &PrivateKey{
 		pub: PublicKey{
-			N: n, E: e,
+			// Defensively copy e so callers cannot mutate the stored exponent.
+			N: n, E: new(big.Int).Set(e),
 		},
 		d: dN, p: p, q: q,
 		dP: dP, dQ: dQ, qInv: qInvNat,
@@ -158,9 +171,13 @@ func NewPrivateKeyWithoutCRT(N []byte, e *big.Int, d []byte) (*PrivateKey, error
 	if err != nil {
 		return nil, err
 	}
+	if e == nil {
+		return nil, errors.New("crypto/rsa: missing public exponent")
+	}
 	pk := &PrivateKey{
 		pub: PublicKey{
-			N: n, E: e,
+			// Defensively copy e so callers cannot mutate the stored exponent.
+			N: n, E: new(big.Int).Set(e),
 		},
 		d: dN,
 	}
@@ -176,7 +193,8 @@ func NewPrivateKeyWithoutCRT(N []byte, e *big.Int, d []byte) (*PrivateKey, error
 // NewPrivateKeyWithoutCRT.
 func (priv *PrivateKey) Export() (N []byte, e *big.Int, d, P, Q, dP, dQ, qInv []byte) {
 	N = priv.pub.N.Nat().Bytes(priv.pub.N)
-	e = priv.pub.E
+	// Defensively copy E so the caller cannot mutate internal state.
+	e = new(big.Int).Set(priv.pub.E)
 	d = priv.d.Bytes(priv.pub.N)
 	if priv.dP == nil {
 		return
