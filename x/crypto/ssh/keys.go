@@ -469,22 +469,17 @@ func parseRSA(in []byte) (out PublicKey, rest []byte, err error) {
 		return nil, nil, err
 	}
 
-	if w.E.BitLen() > 24 {
-		return nil, nil, errors.New("ssh: exponent too large")
-	}
-	e := w.E.Int64()
-	if e < 3 || e&1 == 0 {
+	if w.E.Cmp(big.NewInt(3)) < 0 || w.E.Bit(0) == 0 {
 		return nil, nil, errors.New("ssh: incorrect exponent")
 	}
 
 	var key rsa.PublicKey
-	key.E = int(e)
+	key.E = w.E
 	key.N = w.N
 	return (*rsaPublicKey)(&key), w.Rest, nil
 }
 
 func (r *rsaPublicKey) Marshal() []byte {
-	e := new(big.Int).SetInt64(int64(r.E))
 	// RSA publickey struct layout should match the struct used by
 	// parseRSACert in the x/crypto/ssh/agent package.
 	wirekey := struct {
@@ -493,7 +488,7 @@ func (r *rsaPublicKey) Marshal() []byte {
 		N    *big.Int
 	}{
 		KeyAlgoRSA,
-		e,
+		r.E,
 		r.N,
 	}
 	return Marshal(&wirekey)
@@ -1585,7 +1580,7 @@ func parseOpenSSHPrivateKey(key []byte, decrypt openSSHDecryptFunc) (crypto.Priv
 		pk := &rsa.PrivateKey{
 			PublicKey: rsa.PublicKey{
 				N: key.N,
-				E: int(key.E.Int64()),
+				E: key.E,
 			},
 			D:      key.D,
 			Primes: []*big.Int{key.P, key.Q},
@@ -1685,7 +1680,7 @@ func marshalOpenSSHPrivateKey(key crypto.PrivateKey, comment string, encrypt ope
 
 	switch k := key.(type) {
 	case *rsa.PrivateKey:
-		E := new(big.Int).SetInt64(int64(k.PublicKey.E))
+		E := k.PublicKey.E
 		// Marshal public key:
 		// E and N are in reversed order in the public and private key.
 		pubKey := struct {

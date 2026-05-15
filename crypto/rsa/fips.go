@@ -8,6 +8,7 @@ import (
 	"errors"
 	"hash"
 	"io"
+	"math/big"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
@@ -429,10 +430,10 @@ func checkFIPS140OnlyPublicKey(pub *PublicKey) error {
 	if pub.N.BitLen()%2 == 1 {
 		return errors.New("crypto/rsa: use of keys with odd size is not allowed in FIPS 140-only mode")
 	}
-	if pub.E <= 1<<16 {
+	if pub.E == nil || pub.E.Cmp(big.NewInt(1<<16)) <= 0 {
 		return errors.New("crypto/rsa: use of public exponent <= 2¹⁶ is not allowed in FIPS 140-only mode")
 	}
-	if pub.E&1 == 0 {
+	if pub.E.Bit(0) == 0 {
 		return errors.New("crypto/rsa: use of even public exponent is not allowed in FIPS 140-only mode")
 	}
 	return nil

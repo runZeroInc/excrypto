@@ -245,12 +245,12 @@ func parseRSAKey(req []byte) (*AddedKey, error) {
 	if err := ssh.Unmarshal(req, &k); err != nil {
 		return nil, err
 	}
-	if k.E.BitLen() > 30 {
-		return nil, errors.New("agent: RSA public exponent too large")
+	if k.E.Sign() <= 0 || k.E.Bit(0) == 0 {
+		return nil, errors.New("agent: invalid RSA public exponent")
 	}
 	priv := &rsa.PrivateKey{
 		PublicKey: rsa.PublicKey{
-			E: int(k.E.Int64()),
+			E: k.E,
 			N: k.N,
 		},
 		D:      k.D,
@@ -393,13 +393,9 @@ func parseRSACert(req []byte) (*AddedKey, error) {
 		return nil, fmt.Errorf("agent: Unmarshal failed to parse public key: %v", err)
 	}
 
-	if rsaPub.E.BitLen() > 30 {
-		return nil, errors.New("agent: RSA public exponent too large")
-	}
-
 	priv := rsa.PrivateKey{
 		PublicKey: rsa.PublicKey{
-			E: int(rsaPub.E.Int64()),
+			E: rsaPub.E,
 			N: rsaPub.N,
 		},
 		D:      k.D,

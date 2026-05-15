@@ -67,7 +67,7 @@ var bigOne = big.NewInt(1)
 // side channels, or could be mathematically derived from other public values.
 type PublicKey struct {
 	N *big.Int // modulus
-	E int      // public exponent
+	E *big.Int // public exponent
 }
 
 // Any methods implemented on PublicKey might need to also be implemented on
@@ -85,7 +85,7 @@ func (pub *PublicKey) Equal(x crypto.PublicKey) bool {
 	if !ok {
 		return false
 	}
-	return bigIntEqual(pub.N, xx.N) && pub.E == xx.E
+	return bigIntEqual(pub.N, xx.N) && bigIntEqual(pub.E, xx.E)
 }
 
 // OAEPOptions allows passing options to OAEP encryption and decryption
@@ -254,7 +254,7 @@ func (priv *PrivateKey) precomputedIsConsistent() bool {
 		return false
 	}
 	N, e, d, P, Q, dP, dQ, qInv := priv.Precomputed.fips.Export()
-	if !bigIntEqualToBytes(priv.N, N) || priv.E != e || !bigIntEqualToBytes(priv.D, d) {
+	if !bigIntEqualToBytes(priv.N, N) || !bigIntEqual(priv.E, e) || !bigIntEqualToBytes(priv.D, d) {
 		return false
 	}
 	if len(priv.Primes) != 2 {
@@ -326,15 +326,10 @@ func GenerateKey(random io.Reader, bits int) (*PrivateKey, error) {
 		Dp := bbig.Dec(bDp)
 		Dq := bbig.Dec(bDq)
 		Qinv := bbig.Dec(bQinv)
-		e64 := E.Int64()
-		if !E.IsInt64() || int64(int(e64)) != e64 {
-			return nil, errors.New("crypto/rsa: generated key exponent too large")
-		}
-
 		key := &PrivateKey{
 			PublicKey: PublicKey{
 				N: N,
-				E: int(e64),
+				E: E,
 			},
 			D:      D,
 			Primes: []*big.Int{P, Q},
@@ -435,7 +430,7 @@ func GenerateMultiPrimeKey(random io.Reader, nprimes int, bits int) (*PrivateKey
 	random = rand.CustomReader(random)
 
 	priv := new(PrivateKey)
-	priv.E = 65537
+	priv.E = big.NewInt(65537)
 
 	if nprimes < 2 {
 		return nil, errors.New("crypto/rsa: GenerateMultiPrimeKey: nprimes must be >= 2")
@@ -509,7 +504,7 @@ NextSetOfPrimes:
 		}
 
 		priv.D = new(big.Int)
-		e := big.NewInt(int64(priv.E))
+		e := priv.E
 		ok := priv.D.ModInverse(e, totient)
 
 		if ok != nil {

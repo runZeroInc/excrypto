@@ -62,7 +62,7 @@ func (ka *rsaKeyAgreement) generateServerKeyExchange(config *Config, cert *Certi
 	// Serialize the key parameters to a nice byte array. The byte array can be
 	// positioned later.
 	modulus := ka.privateKey.N.Bytes()
-	exponent := big.NewInt(int64(ka.privateKey.E)).Bytes()
+	exponent := ka.privateKey.E.Bytes()
 	serverRSAParams := make([]byte, 0, 2+len(modulus)+2+len(exponent))
 	serverRSAParams = append(serverRSAParams, byte(len(modulus)>>8), byte(len(modulus)))
 	serverRSAParams = append(serverRSAParams, modulus...)
@@ -138,13 +138,8 @@ func (ka *rsaKeyAgreement) processServerKeyExchange(config *Config, clientHello 
 		return errServerKeyExchange
 	}
 	rawExponent := k[0:exponentLength]
-	exponent := 0
-	for _, b := range rawExponent {
-		exponent <<= 8
-		exponent |= int(b)
-	}
 	ka.publicKey = new(rsa.PublicKey)
-	ka.publicKey.E = exponent
+	ka.publicKey.E = new(big.Int).SetBytes(rawExponent)
 	ka.publicKey.N = modulus
 
 	paramsLen := 2 + exponentLength + 2 + modulusLen

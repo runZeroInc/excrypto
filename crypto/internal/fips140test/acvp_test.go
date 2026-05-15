@@ -1895,7 +1895,7 @@ func cmdRsaKeyGenAft() command {
 			N, e, d, P, Q, _, _, _ := key.Export()
 
 			eBytes := make([]byte, 4)
-			binary.BigEndian.PutUint32(eBytes, uint32(e))
+			binary.BigEndian.PutUint32(eBytes, uint32(e.Uint64()))
 
 			return [][]byte{eBytes, P, Q, N, d}, nil
 		},
@@ -1933,7 +1933,7 @@ func cmdRsaSigGenAft(hashFunc func() hash.Hash, hashName string, pss bool) comma
 
 			N, e, _, _, _, _, _, _ := key.Export()
 			eBytes := make([]byte, 4)
-			binary.BigEndian.PutUint32(eBytes, uint32(e))
+			binary.BigEndian.PutUint32(eBytes, uint32(e.Uint64()))
 
 			return [][]byte{N, eBytes, sig}, nil
 		},
@@ -1960,7 +1960,7 @@ func cmdRsaSigVerAft(hashFunc func() hash.Hash, hashName string, pss bool) comma
 
 			pub := &rsa.PublicKey{
 				N: n,
-				E: e,
+				E: big.NewInt(int64(e)),
 			}
 
 			h := hashFunc()
@@ -2050,7 +2050,7 @@ func cmdKtsIfcInitiatorAft(h func() hash.Hash) command {
 
 			pub := &rsa.PublicKey{
 				N: n,
-				E: e,
+				E: big.NewInt(int64(e)),
 			}
 
 			dkm := make([]byte, outputBytes)
@@ -2088,7 +2088,7 @@ func cmdKtsIfcResponderAft(h func() hash.Hash) command {
 				return nil, errors.New("e must be 0x10001")
 			}
 
-			priv, err := rsa.NewPrivateKey(nBytes, int(e), dBytes, pBytes, qBytes)
+			priv, err := rsa.NewPrivateKey(nBytes, big.NewInt(int64(e)), dBytes, pBytes, qBytes)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create private key: %v", err)
 			}

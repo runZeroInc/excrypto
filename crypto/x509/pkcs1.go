@@ -17,7 +17,7 @@ import (
 type pkcs1PrivateKey struct {
 	Version int
 	N       *big.Int
-	E       int
+	E       *big.Int
 	D       *big.Int
 	P       *big.Int
 	Q       *big.Int
@@ -39,7 +39,7 @@ type pkcs1AdditionalRSAPrime struct {
 // pkcs1PublicKey reflects the ASN.1 structure of a PKCS #1 public key.
 type pkcs1PublicKey struct {
 	N *big.Int
-	E int
+	E *big.Int
 }
 
 // x509rsacrt, if zero, makes ParsePKCS1PrivateKey ignore and recompute invalid
@@ -178,12 +178,10 @@ func ParsePKCS1PublicKey(der []byte) (*rsa.PublicKey, error) {
 		return nil, asn1.SyntaxError{Msg: "trailing data"}
 	}
 
-	if pub.N.Sign() <= 0 || pub.E <= 0 {
+	if pub.N.Sign() <= 0 || pub.E == nil || pub.E.Sign() <= 0 {
 		return nil, errors.New("x509: public key contains zero or negative value")
 	}
-	if pub.E > 1<<31-1 {
-		return nil, errors.New("x509: public key contains large public exponent")
-	}
+	// ZCrypto - with our fork of crypto/rsa, we allow large public exponents.
 
 	return &rsa.PublicKey{
 		E: pub.E,

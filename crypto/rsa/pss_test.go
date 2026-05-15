@@ -91,7 +91,7 @@ func TestPSSGolden(t *testing.T) {
 				continue
 			}
 			key.N = bigFromHex(nHex)
-			key.E = intFromHex(<-values)
+			key.E = big.NewInt(int64(intFromHex(<-values)))
 			// We don't care for d, p, q, dP, dQ or qInv.
 			for i := 0; i < 6; i++ {
 				<-values

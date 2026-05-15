@@ -864,7 +864,7 @@ func TestEncryptOAEP(t *testing.T) {
 	n := new(big.Int)
 	for i, test := range testEncryptOAEPData {
 		n.SetString(test.modulus, 16)
-		public := PublicKey{N: n, E: test.e}
+		public := PublicKey{N: n, E: big.NewInt(int64(test.e))}
 
 		for j, message := range test.msgs {
 			randomSource := bytes.NewReader(message.seed)
@@ -889,7 +889,7 @@ func TestDecryptOAEP(t *testing.T) {
 		n.SetString(test.modulus, 16)
 		d.SetString(test.d, 16)
 		private := new(PrivateKey)
-		private.PublicKey = PublicKey{N: n, E: test.e}
+		private.PublicKey = PublicKey{N: n, E: big.NewInt(int64(test.e))}
 		private.D = d
 
 		for j, message := range test.msgs {
@@ -925,7 +925,7 @@ func Test2DecryptOAEP(t *testing.T) {
 	n.SetString(testEncryptOAEPData[0].modulus, 16)
 	d.SetString(testEncryptOAEPData[0].d, 16)
 	priv := new(PrivateKey)
-	priv.PublicKey = PublicKey{N: n, E: testEncryptOAEPData[0].e}
+	priv.PublicKey = PublicKey{N: n, E: big.NewInt(int64(testEncryptOAEPData[0].e))}
 	priv.D = d
 	sha1 := crypto.SHA1
 	sha256 := crypto.SHA256
@@ -947,7 +947,7 @@ func TestEncryptDecryptOAEP(t *testing.T) {
 		n.SetString(test.modulus, 16)
 		d.SetString(test.d, 16)
 		priv := new(PrivateKey)
-		priv.PublicKey = PublicKey{N: n, E: test.e}
+		priv.PublicKey = PublicKey{N: n, E: big.NewInt(int64(test.e))}
 		priv.D = d
 
 		for j, message := range test.msgs {
@@ -1319,12 +1319,12 @@ func TestModifiedPrivateKey(t *testing.T) {
 
 	t.Run("E+2", func(t *testing.T) {
 		testModifiedPrivateKey(t, func(k *PrivateKey) {
-			k.E += 2
+			k.E = new(big.Int).Add(k.E, big.NewInt(2))
 		})
 	})
 	t.Run("E=0", func(t *testing.T) {
 		testModifiedPrivateKey(t, func(k *PrivateKey) {
-			k.E = 0
+			k.E = big.NewInt(0)
 		})
 	})
 }

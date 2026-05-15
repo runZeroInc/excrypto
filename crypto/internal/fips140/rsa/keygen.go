@@ -7,6 +7,7 @@ package rsa
 import (
 	"errors"
 	"io"
+	"math/big"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/bigmod"
@@ -106,7 +107,7 @@ func GenerateKey(rand io.Reader, bits int) (*PrivateKey, error) {
 		// negligible chance of failure we can defer the check to the end of key
 		// generation and return an error if it fails. See [checkPrivateKey].
 
-		k, err := newPrivateKey(N, 65537, d, P, Q)
+		k, err := newPrivateKey(N, big.NewInt(65537), d, P, Q)
 		if err != nil {
 			return nil, err
 		}

@@ -242,14 +242,14 @@ func parsePublicKey(keyData *publicKeyInfo) (any, error) {
 			}
 		*/
 
-		p := &pkcs1PublicKey{N: new(big.Int)}
+		p := &pkcs1PublicKey{N: new(big.Int), E: new(big.Int)}
 		if !der.ReadASN1(&der, cryptobyte_asn1.SEQUENCE) {
 			return nil, errors.New("x509: invalid RSA public key")
 		}
 		if !der.ReadASN1Integer(p.N) {
 			return nil, errors.New("x509: invalid RSA modulus")
 		}
-		if !der.ReadASN1Integer(&p.E) {
+		if !der.ReadASN1Integer(p.E) {
 			return nil, errors.New("x509: invalid RSA public exponent")
 		}
 
@@ -258,7 +258,7 @@ func parsePublicKey(keyData *publicKeyInfo) (any, error) {
 			if p.N.Sign() <= 0 {
 				return nil, errors.New("x509: RSA modulus is not a positive number")
 			}
-			if p.E <= 0 {
+			if p.E.Sign() <= 0 {
 				return nil, errors.New("x509: RSA public exponent is not a positive number")
 			}
 		}

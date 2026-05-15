@@ -39,7 +39,7 @@ func TestBoringVerify(t *testing.T) {
 	// Check that signatures that lack leading zeroes don't verify.
 	key := &PublicKey{
 		N: bigFromHex("c4fdf7b40a5477f206e6ee278eaef888ca73bf9128a9eef9f2f1ddb8b7b71a4c07cfa241f028a04edb405e4d916c61d6beabc333813dc7b484d2b3c52ee233c6a79b1eea4e9cc51596ba9cd5ac5aeb9df62d86ea051055b79d03f8a4fa9f38386f5bd17529138f3325d46801514ea9047977e0829ed728e68636802796801be1"),
-		E: 65537,
+		E: big.NewInt(65537),
 	}
 
 	hash := fromHex("019c5571724fb5d0e47a4260c940e9803ba05a44")
@@ -63,7 +63,7 @@ func BenchmarkBoringVerify(b *testing.B) {
 	// Check that signatures that lack leading zeroes don't verify.
 	key := &PublicKey{
 		N: bigFromHex("c4fdf7b40a5477f206e6ee278eaef888ca73bf9128a9eef9f2f1ddb8b7b71a4c07cfa241f028a04edb405e4d916c61d6beabc333813dc7b484d2b3c52ee233c6a79b1eea4e9cc51596ba9cd5ac5aeb9df62d86ea051055b79d03f8a4fa9f38386f5bd17529138f3325d46801514ea9047977e0829ed728e68636802796801be1"),
-		E: 65537,
+		E: big.NewInt(65537),
 	}
 
 	hash := fromHex("019c5571724fb5d0e47a4260c940e9803ba05a44")
