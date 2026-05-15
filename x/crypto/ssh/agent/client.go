@@ -547,7 +547,7 @@ func (c *client) insertKey(s interface{}, comment string, constraints []byte) er
 		req = ssh.Marshal(rsaKeyMsg{
 			Type:        ssh.KeyAlgoRSA,
 			N:           k.N,
-			E:           big.NewInt(int64(k.E)),
+			E:           k.E,
 			D:           k.D,
 			Iqmp:        k.Precomputed.Qinv,
 			P:           k.Primes[0],

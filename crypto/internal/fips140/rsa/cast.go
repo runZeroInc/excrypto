@@ -7,6 +7,7 @@ package rsa
 import (
 	"bytes"
 	"errors"
+	"math/big"
 	"sync"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140"
@@ -169,7 +170,7 @@ func testPrivateKey() *PrivateKey {
 		0xA7, 0x50, 0x6D, 0xEB, 0x52, 0x39, 0xA8, 0xA7}
 	return &PrivateKey{
 		pub: PublicKey{
-			N: N, E: 65537,
+			N: N, E: big.NewInt(65537),
 		},
 		d: d, p: p, q: q, qInv: qInv, dP: dP, dQ: dQ,
 		fipsApproved: true,

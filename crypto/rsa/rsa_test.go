@@ -864,7 +864,7 @@ func TestEncryptOAEP(t *testing.T) {
 	n := new(big.Int)
 	for i, test := range testEncryptOAEPData {
 		n.SetString(test.modulus, 16)
-		public := PublicKey{N: n, E: test.e}
+		public := PublicKey{N: n, E: big.NewInt(int64(test.e))}
 
 		for j, message := range test.msgs {
 			randomSource := bytes.NewReader(message.seed)
@@ -889,7 +889,7 @@ func TestDecryptOAEP(t *testing.T) {
 		n.SetString(test.modulus, 16)
 		d.SetString(test.d, 16)
 		private := new(PrivateKey)
-		private.PublicKey = PublicKey{N: n, E: test.e}
+		private.PublicKey = PublicKey{N: n, E: big.NewInt(int64(test.e))}
 		private.D = d
 
 		for j, message := range test.msgs {
@@ -925,7 +925,7 @@ func Test2DecryptOAEP(t *testing.T) {
 	n.SetString(testEncryptOAEPData[0].modulus, 16)
 	d.SetString(testEncryptOAEPData[0].d, 16)
 	priv := new(PrivateKey)
-	priv.PublicKey = PublicKey{N: n, E: testEncryptOAEPData[0].e}
+	priv.PublicKey = PublicKey{N: n, E: big.NewInt(int64(testEncryptOAEPData[0].e))}
 	priv.D = d
 	sha1 := crypto.SHA1
 	sha256 := crypto.SHA256
@@ -947,7 +947,7 @@ func TestEncryptDecryptOAEP(t *testing.T) {
 		n.SetString(test.modulus, 16)
 		d.SetString(test.d, 16)
 		priv := new(PrivateKey)
-		priv.PublicKey = PublicKey{N: n, E: test.e}
+		priv.PublicKey = PublicKey{N: n, E: big.NewInt(int64(test.e))}
 		priv.D = d
 
 		for j, message := range test.msgs {
@@ -1319,12 +1319,12 @@ func TestModifiedPrivateKey(t *testing.T) {
 
 	t.Run("E+2", func(t *testing.T) {
 		testModifiedPrivateKey(t, func(k *PrivateKey) {
-			k.E += 2
+			k.E = new(big.Int).Add(k.E, big.NewInt(2))
 		})
 	})
 	t.Run("E=0", func(t *testing.T) {
 		testModifiedPrivateKey(t, func(k *PrivateKey) {
-			k.E = 0
+			k.E = big.NewInt(0)
 		})
 	})
 }
@@ -1340,5 +1340,68 @@ func testModifiedPrivateKey(t *testing.T, f func(*PrivateKey)) {
 	k.Precompute()
 	if err := k.Validate(); err == nil {
 		t.Error("Validate should have failed after Precompute()")
+	}
+}
+
+// TestMaxPublicExponentBitLen verifies the DoS-mitigation knob: setting
+// MaxPublicExponentBitLen rejects key operations with an oversized exponent,
+// while parsing the key remains unaffected.
+func TestMaxPublicExponentBitLen(t *testing.T) {
+	k, err := GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Replace E with a large odd exponent (still coprime to phi for our purposes;
+	// we only test the gating, not a full encrypt round-trip).
+	bigE := new(big.Int).Lsh(big.NewInt(1), 100)
+	bigE.SetBit(bigE, 0, 1) // make odd
+
+	pub := &PublicKey{N: k.N, E: bigE}
+
+	prev := MaxPublicExponentBitLen
+	defer func() { MaxPublicExponentBitLen = prev }()
+
+	MaxPublicExponentBitLen = 64
+	_, err = EncryptPKCS1v15(rand.Reader, pub, []byte("x"))
+	if err == nil || !strings.Contains(err.Error(), "MaxPublicExponentBitLen") {
+		t.Errorf("expected MaxPublicExponentBitLen error, got %v", err)
+	}
+
+	MaxPublicExponentBitLen = 0 // disabled => no upper bound
+	// With the bound disabled we still expect the call to be admitted into the
+	// modular-exponentiation path. (We do not assert success because bigE is
+	// not coprime with phi(N); only that the size gate does not reject it.)
+	_, err = EncryptPKCS1v15(rand.Reader, pub, []byte("x"))
+	if err != nil && strings.Contains(err.Error(), "MaxPublicExponentBitLen") {
+		t.Errorf("MaxPublicExponentBitLen=0 should not gate: %v", err)
+	}
+}
+
+// TestPublicKeyDefensiveCopy verifies that mutating the caller's PublicKey
+// after performing an operation does not affect subsequent operations on the
+// same key via the precomputed FIPS state.
+func TestPublicKeyDefensiveCopy(t *testing.T) {
+	priv, err := GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatal(err)
+	}
+	msg := []byte("hello")
+	ct, err := EncryptPKCS1v15(rand.Reader, &priv.PublicKey, msg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pt, err := DecryptPKCS1v15(rand.Reader, priv, ct)
+	if err != nil || !bytes.Equal(pt, msg) {
+		t.Fatalf("decrypt mismatch: %v / %x", err, pt)
+	}
+	// Mutate the caller's E in place. A correctly defensively-copied internal
+	// state must continue to function.
+	originalE := new(big.Int).Set(priv.PublicKey.E)
+	priv.PublicKey.E.SetInt64(7)
+	pt2, err := DecryptPKCS1v15(rand.Reader, priv, ct)
+	// Restore E so subsequent tests aren't affected.
+	priv.PublicKey.E.Set(originalE)
+	if err != nil || !bytes.Equal(pt2, msg) {
+		t.Fatalf("decrypt after caller-side E mutation failed (defensive copy missing?): %v / %x", err, pt2)
 	}
 }

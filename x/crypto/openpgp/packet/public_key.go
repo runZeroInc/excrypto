@@ -186,7 +186,7 @@ func NewRSAPublicKey(creationTime time.Time, pub *rsa.PublicKey) *PublicKey {
 		PubKeyAlgo:   PubKeyAlgoRSA,
 		PublicKey:    pub,
 		n:            fromBig(pub.N),
-		e:            fromBig(big.NewInt(int64(pub.E))),
+		e:            fromBig(pub.E),
 	}
 
 	pk.setFingerPrintAndKeyId()
@@ -329,11 +329,7 @@ func (pk *PublicKey) parseRSA(r io.Reader) (err error) {
 	}
 	rsa := &rsa.PublicKey{
 		N: new(big.Int).SetBytes(pk.n.bytes),
-		E: 0,
-	}
-	for i := 0; i < len(pk.e.bytes); i++ {
-		rsa.E <<= 8
-		rsa.E |= int(pk.e.bytes[i])
+		E: new(big.Int).SetBytes(pk.e.bytes),
 	}
 	pk.PublicKey = rsa
 	return

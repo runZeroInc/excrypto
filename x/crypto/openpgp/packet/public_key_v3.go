@@ -43,7 +43,7 @@ func newRSAPublicKeyV3(creationTime time.Time, pub *rsa.PublicKey) *PublicKeyV3 
 		CreationTime: creationTime,
 		PublicKey:    pub,
 		n:            fromBig(pub.N),
-		e:            fromBig(big.NewInt(int64(pub.E))),
+		e:            fromBig(pub.E),
 	}
 
 	pk.setFingerPrintAndKeyId()
@@ -104,10 +104,9 @@ func (pk *PublicKeyV3) parseRSA(r io.Reader) (err error) {
 		err = errors.UnsupportedError("large public exponent")
 		return
 	}
-	rsa := &rsa.PublicKey{N: new(big.Int).SetBytes(pk.n.bytes)}
-	for i := 0; i < len(pk.e.bytes); i++ {
-		rsa.E <<= 8
-		rsa.E |= int(pk.e.bytes[i])
+	rsa := &rsa.PublicKey{
+		N: new(big.Int).SetBytes(pk.n.bytes),
+		E: new(big.Int).SetBytes(pk.e.bytes),
 	}
 	pk.PublicKey = rsa
 	return

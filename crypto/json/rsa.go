@@ -28,9 +28,9 @@ type RSAPublicKey struct {
 }
 
 type auxRSAPublicKey struct {
-	Exponent int    `json:"exponent"`
-	Modulus  []byte `json:"modulus"`
-	Length   int    `json:"length"`
+	Exponent json.Number `json:"exponent"`
+	Modulus  []byte      `json:"modulus"`
+	Length   int         `json:"length"`
 }
 
 // RSAClientParams are the TLS key exchange parameters for RSA keys.
@@ -43,7 +43,9 @@ type RSAClientParams struct {
 func (rp *RSAPublicKey) MarshalJSON() ([]byte, error) {
 	var aux auxRSAPublicKey
 	if rp.PublicKey != nil {
-		aux.Exponent = rp.E
+		if rp.E != nil {
+			aux.Exponent = json.Number(rp.E.String())
+		}
 		aux.Modulus = rp.N.Bytes()
 		aux.Length = len(aux.Modulus) * 8
 	}
@@ -59,7 +61,12 @@ func (rp *RSAPublicKey) UnmarshalJSON(b []byte) error {
 	if rp.PublicKey == nil {
 		rp.PublicKey = new(rsa.PublicKey)
 	}
-	rp.E = aux.Exponent
+	rp.E = new(big.Int)
+	if s := string(aux.Exponent); s != "" {
+		if _, ok := rp.E.SetString(s, 10); !ok {
+			return fmt.Errorf("invalid RSA public exponent %q", s)
+		}
+	}
 	rp.N = big.NewInt(0).SetBytes(aux.Modulus)
 	if len(aux.Modulus)*8 != aux.Length {
 		return fmt.Errorf("mismatched length (got %d, field specified %d)", len(aux.Modulus), aux.Length)
