@@ -18,6 +18,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/runZeroInc/excrypto/crypto"
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
@@ -1374,6 +1375,51 @@ func TestMaxPublicExponentBitLen(t *testing.T) {
 	_, err = EncryptPKCS1v15(rand.Reader, pub, []byte("x"))
 	if err != nil && strings.Contains(err.Error(), "MaxPublicExponentBitLen") {
 		t.Errorf("MaxPublicExponentBitLen=0 should not gate: %v", err)
+	}
+}
+
+// TestMaxPublicModulusBitLen verifies the DoS-mitigation knob: an oversized RSA
+// modulus is rejected by the verify path *before* the expensive modular
+// exponentiation runs, so a malicious certificate with a multi-megabit modulus
+// cannot pin a scan worker. Parsing/constructing the key is unaffected.
+func TestMaxPublicModulusBitLen(t *testing.T) {
+	prev := MaxPublicModulusBitLen
+	defer func() { MaxPublicModulusBitLen = prev }()
+	MaxPublicModulusBitLen = 16384
+
+	// Build a public key with a ~2,000,000-bit modulus. We never want the modexp
+	// to run on this, so the test must complete fast.
+	const nbits = 2_000_000
+	N := new(big.Int).Lsh(big.NewInt(1), nbits)
+	N.SetBit(N, nbits-1, 1) // full bit length
+	N.SetBit(N, 0, 1)       // odd
+	pub := &PublicKey{N: N, E: big.NewInt(65537)}
+
+	hashed := make([]byte, 32) // fake SHA-256 digest
+	sig := make([]byte, (nbits+7)/8)
+	sig[0] = 0x01
+
+	start := time.Now()
+	err := VerifyPKCS1v15(pub, crypto.SHA256, hashed, sig)
+	elapsed := time.Since(start)
+
+	if err == nil || !strings.Contains(err.Error(), "MaxPublicModulusBitLen") {
+		t.Fatalf("expected MaxPublicModulusBitLen error, got %v", err)
+	}
+	// The unmitigated modexp on a 2,000,000-bit modulus takes ~60s; the cap must
+	// reject it near-instantly. Allow generous slack for slow CI.
+	if elapsed > 2*time.Second {
+		t.Fatalf("oversized modulus was not rejected quickly: took %v", elapsed)
+	}
+
+	// Disabling the bound (0) restores the previous unbounded behavior for the
+	// size gate. We use a small modulus so the test stays fast.
+	MaxPublicModulusBitLen = 0
+	small := &PublicKey{N: new(big.Int).Lsh(big.NewInt(1), 2047), E: big.NewInt(65537)}
+	small.N.SetBit(small.N, 0, 1)
+	if err := VerifyPKCS1v15(small, crypto.SHA256, hashed, make([]byte, 256)); err != nil &&
+		strings.Contains(err.Error(), "MaxPublicModulusBitLen") {
+		t.Fatalf("MaxPublicModulusBitLen=0 should not gate: %v", err)
 	}
 }
 
