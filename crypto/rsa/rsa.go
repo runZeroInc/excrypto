@@ -329,27 +329,9 @@ func checkKeySize(size int) error {
 var MaxPublicExponentBitLen = 1024
 
 // MaxPublicModulusBitLen bounds the bit length of the RSA public modulus N
-// accepted by public-key operations such as [EncryptPKCS1v15], [EncryptOAEP],
-// [VerifyPKCS1v15], and [VerifyPSS]. Like [MaxPublicExponentBitLen], parsing
-// functions in this package and in [crypto/x509] do not consult this variable —
-// only operations that actually perform the modular exponentiation are gated —
-// so it is always safe to parse and inspect a key that exceeds the bound.
-//
-// This bound exists because [checkKeySize] is intentionally permissive about
-// the modulus size (so weak/odd keys found in the wild can still be parsed),
-// which leaves the modular exponentiation cost — O(bitlen(E) · bitlen(N)²) —
-// otherwise unbounded. A malicious certificate/key with a multi-megabit modulus
-// can force tens of seconds to minutes of CPU per signature check; during a TLS
-// scan that can pin a worker on a single connection (a CPU-exhaustion DoS).
-//
-// The default of 16384 comfortably exceeds every legitimate RSA modulus in use
-// (4096-bit keys are already rare; 8192-bit are exotic) while capping the
-// worst-case cost. Tighten it for DoS-sensitive deployments, or set it to 0 to
-// disable the bound entirely (restoring the previous unbounded behavior).
-//
-// The variable is process-global. Callers that need different bounds for
-// different operations should snapshot, set, and restore it around the
-// operation under a sync mechanism of their choice.
+// accepted by public-key operations (verify/encrypt), gating the modular
+// exponentiation before it runs so an oversized modulus cannot cause a
+// CPU-exhaustion DoS. Parsing is unaffected. Default 16384; set to 0 to disable.
 var MaxPublicModulusBitLen = 16384
 
 func checkPublicKeySize(k *PublicKey) error {
