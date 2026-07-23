@@ -12,9 +12,11 @@ import (
 
 	"github.com/runZeroInc/excrypto/crypto/internal/boring"
 	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
+	"github.com/runZeroInc/excrypto/crypto/internal/fips140hash"
 	"github.com/runZeroInc/excrypto/crypto/md5"
 	"github.com/runZeroInc/excrypto/crypto/sha1"
 	"github.com/runZeroInc/excrypto/crypto/sha256"
+	"github.com/runZeroInc/excrypto/crypto/sha3"
 	"github.com/runZeroInc/excrypto/crypto/sha512"
 )
 
@@ -594,6 +596,24 @@ func TestNoClone(t *testing.T) {
 	_, err := h.(hash.Cloner).Clone()
 	if !errors.Is(err, errors.ErrUnsupported) {
 		t.Errorf("Clone() = %v, want ErrUnsupported", err)
+	}
+}
+
+func TestSHA3Hash(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		fn   func() hash.Hash
+	}{
+		{
+			"sha3 zero init hash",
+			func() hash.Hash { return justHash{&sha3.SHA3{}} },
+		},
+		{
+			"sha3 zero init hash by linkname",
+			func() hash.Hash { return justHash{fips140hash.Unwrap(&sha3.SHA3{})} },
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) { New(tc.fn, []byte("key")) })
 	}
 }
 

@@ -16,19 +16,11 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140"
 	fipsaes "github.com/runZeroInc/excrypto/crypto/internal/fips140/aes"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/aes/gcm"
-	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
 func TestGCMNoncesFIPSV126(t *testing.T) {
-	cryptotest.MustSupportFIPS140(t)
 	if !fips140.Enabled {
-		cmd := testenv.Command(t, testenv.Executable(t), "-test.run=^TestGCMNoncesFIPSV126$", "-test.v")
-		cmd.Env = append(cmd.Environ(), "GODEBUG=fips140=on")
-		out, err := cmd.CombinedOutput()
-		t.Logf("running with GODEBUG=fips140=on:\n%s", out)
-		if err != nil {
-			t.Errorf("fips140=on subprocess failed: %v", err)
-		}
+		cryptotest.RerunWithFIPS140Enabled(t)
 		return
 	}
 

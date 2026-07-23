@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/runZeroInc/excrypto/crypto/ed25519"
 	"github.com/runZeroInc/excrypto/x/crypto/ssh"
 )
 
@@ -38,12 +39,20 @@ func startOpenSSHAgent(t *testing.T) (client ExtendedAgent, socket string, clean
 	if err != nil {
 		t.Skip("could not find ssh-agent")
 	}
+	home := t.TempDir()
+	if runtime.GOOS == "darwin" {
+		home, err = os.MkdirTemp("/tmp", "agent")
+		if err != nil {
+			t.Fatalf("MkdirTemp: %v", err)
+		}
+		t.Cleanup(func() { os.RemoveAll(home) })
+	}
 
 	cmd := exec.Command(bin, "-s")
 	cmd.Env = []string{
 		// ssh-agent creates ~/.ssh and ~/.ssh/agent;
 		// ensure a writeable home directory.
-		"HOME=" + t.TempDir(),
+		"HOME=" + home,
 	} // Do not let the user's environment influence ssh-agent behavior.
 	cmd.Stderr = new(bytes.Buffer)
 	out, err := cmd.Output()
@@ -592,5 +601,98 @@ func TestAgentExtensions(t *testing.T) {
 	_, err = agent.Extension("bad-extension@example.com", []byte{0x00, 0x01, 0x02})
 	if err == nil {
 		t.Fatal("should have gotten agent extension failure")
+	}
+}
+
+// capturingAgent records the AddedKey observed on the server side of the
+// agent protocol. It forwards to a keyring with constraint fields stripped,
+// so the keyring's own rejection of unsupported constraints does not
+// interfere with what this test is measuring: the client-side wire
+// serialization of ConstraintExtensions.
+type capturingAgent struct {
+	Agent
+	lastAdd AddedKey
+}
+
+func newCapturingAgent() *capturingAgent {
+	return &capturingAgent{Agent: NewKeyring()}
+}
+
+func (a *capturingAgent) Add(key AddedKey) error {
+	a.lastAdd = key
+	stripped := key
+	stripped.ConstraintExtensions = nil
+	stripped.ConfirmBeforeUse = false
+	return a.Agent.Add(stripped)
+}
+
+// TestAddConstraintExtensionsWireFormat verifies that client.Add serializes
+// ConstraintExtensions into the SSH_AGENTC_ADD_IDENTITY payload and the
+// server deserializes them back into the AddedKey delivered to the backend.
+// Regressions in the client marshal loop (missing, swapped fields, wrong
+// framing) would be invisible to a keyring-based rejection test, which
+// signals only "extensions were present", not "the right ones arrived".
+func TestAddConstraintExtensionsWireFormat(t *testing.T) {
+	capturing := newCapturingAgent()
+	client, cleanup := startAgent(t, capturing)
+	defer cleanup()
+
+	constraints := []ConstraintExtension{
+		{ExtensionName: "ext-one@example.com", ExtensionDetails: []byte("details-one")},
+		{ExtensionName: "ext-two@example.com", ExtensionDetails: []byte("\x00\x01\x02\xff")},
+	}
+
+	if err := client.Add(AddedKey{
+		PrivateKey:           testPrivateKeys["rsa"],
+		Comment:              "wire-format-test",
+		ConstraintExtensions: constraints,
+	}); err != nil {
+		t.Fatalf("client.Add: %v", err)
+	}
+
+	got := capturing.lastAdd.ConstraintExtensions
+	if len(got) != len(constraints) {
+		t.Fatalf("server received %d extensions, want %d", len(got), len(constraints))
+	}
+	for i, want := range constraints {
+		if got[i].ExtensionName != want.ExtensionName {
+			t.Errorf("extension[%d] name: got %q, want %q", i, got[i].ExtensionName, want.ExtensionName)
+		}
+		if !bytes.Equal(got[i].ExtensionDetails, want.ExtensionDetails) {
+			t.Errorf("extension[%d] details: got %x, want %x", i, got[i].ExtensionDetails, want.ExtensionDetails)
+		}
+	}
+}
+
+func TestAddRejectsShortEd25519Key(t *testing.T) {
+	short := ed25519.PrivateKey(make([]byte, 16))
+	// insertCert reaches its ed25519 branch only when AddedKey.Certificate
+	// is non-nil. The length check returns before cert.Type/Marshal run, so
+	// an empty certificate is sufficient to drive the path.
+	emptyCert := &ssh.Certificate{}
+
+	cases := []struct {
+		name string
+		add  AddedKey
+	}{
+		{"insertKey value", AddedKey{PrivateKey: short}},
+		{"insertKey pointer", AddedKey{PrivateKey: &short}},
+		{"insertCert value", AddedKey{PrivateKey: short, Certificate: emptyCert}},
+		{"insertCert pointer", AddedKey{PrivateKey: &short, Certificate: emptyCert}},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			client, cleanup := startKeyringAgent(t)
+			defer cleanup()
+
+			err := client.Add(tc.add)
+			if err == nil {
+				t.Fatal("Add accepted ed25519 key shorter than 64 bytes")
+			}
+			if !strings.Contains(err.Error(), "bad ED25519 key size") {
+				t.Errorf("got error %q, want substring %q", err.Error(), "bad ED25519 key size")
+			}
+		})
 	}
 }

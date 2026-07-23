@@ -21,7 +21,6 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/cipher"
 	"github.com/runZeroInc/excrypto/crypto/subtle"
 	"github.com/runZeroInc/excrypto/crypto/x509"
-	"github.com/runZeroInc/excrypto/internal/godebug"
 )
 
 // A Conn represents a secured connection.
@@ -56,13 +55,13 @@ type Conn struct {
 	ocspResponse     []byte   // stapled OCSP response
 	scts             [][]byte // signed certificate timestamps from server
 	peerCertificates []*x509.Certificate
+	localCertificate [][]byte
 	// ClientCertificateRequested indicates that the server requested a certificate.
 	ClientCertificateRequested bool
 	// ClientCertificateRequest stores the full certificate request.
 	ClientCertificateRequest *ClientCertificateRequest
-	// handshakeLog accumulates JSON-marshalable records for every
-	// handshake message exchanged on this connection. See
-	// [Conn.GetHandshakeLog].
+	// handshakeLog accumulates JSON-marshalable records for every handshake
+	// message exchanged on this connection. See [Conn.GetHandshakeLog].
 	handshakeLog *ServerHandshake
 	// verifiedChains contains the certificate chains that we built, as
 	// opposed to the ones presented by the server.
@@ -809,29 +808,6 @@ func (c *Conn) retryReadRecord(expectChangeCipherSpec bool) error {
 	return c.readRecordOrCCS(expectChangeCipherSpec)
 }
 
-// atLeastReader reads from R, stopping with EOF once at least N bytes have been
-// read. It is different from an io.LimitedReader in that it doesn't cut short
-// the last Read call, and in that it considers an early EOF an error.
-type atLeastReader struct {
-	R io.Reader
-	N int64
-}
-
-func (r *atLeastReader) Read(p []byte) (int, error) {
-	if r.N <= 0 {
-		return 0, io.EOF
-	}
-	n, err := r.R.Read(p)
-	r.N -= int64(n) // won't underflow unless len(p) >= n > 9223372036854775809
-	if r.N > 0 && err == io.EOF {
-		return n, io.ErrUnexpectedEOF
-	}
-	if r.N <= 0 && err == nil {
-		return n, io.EOF
-	}
-	return n, err
-}
-
 // readFromUntil reads from r into c.rawInput until c.rawInput contains
 // at least n bytes or else returns an error.
 func (c *Conn) readFromUntil(r io.Reader, n int) error {
@@ -842,9 +818,31 @@ func (c *Conn) readFromUntil(r io.Reader, n int) error {
 	// There might be extra input waiting on the wire. Make a best effort
 	// attempt to fetch it so that it can be used in (*Conn).Read to
 	// "predict" closeNotify alerts.
+	// TODO(dmo): we use bytes.MinRead here because we used the buffer
+	// ReadFrom mechanism to avoid allocations, but we've hoisted this
+	// loop for performance. We really should use our own heuristic here
+	// for how much to read ahead.
 	c.rawInput.Grow(needs + bytes.MinRead)
-	_, err := c.rawInput.ReadFrom(&atLeastReader{r, int64(needs)})
-	return err
+	for {
+		buf := c.rawInput.AvailableBuffer()[:c.rawInput.Available()]
+		n, err := r.Read(buf)
+		// This write is just to update the internal state of the
+		// rawInput bytes.Buffer. It cannot fail.
+		c.rawInput.Write(buf[:n])
+		needs -= n
+		if needs <= 0 {
+			if err == io.EOF {
+				err = nil
+			}
+			return err
+		}
+		if err == io.EOF {
+			return io.ErrUnexpectedEOF
+		}
+		if err != nil {
+			return err
+		}
+	}
 }
 
 // sendAlertLocked sends a TLS alert message.
@@ -1614,13 +1612,17 @@ func (c *Conn) handshakeContext(ctx context.Context) (ret error) {
 }
 
 // ConnectionState returns basic TLS details about the connection.
+//
+// The returned [ConnectionState] is only meaningful after the handshake has
+// completed, as reported by [ConnectionState.HandshakeComplete]; before then
+// its fields are not populated. The handshake is run automatically by the
+// first [Conn.Read] or [Conn.Write], or it can be triggered explicitly with
+// [Conn.Handshake].
 func (c *Conn) ConnectionState() ConnectionState {
 	c.handshakeMutex.Lock()
 	defer c.handshakeMutex.Unlock()
 	return c.connectionStateLocked()
 }
-
-var tlsunsafeekm = godebug.New("tlsunsafeekm")
 
 func (c *Conn) connectionStateLocked() ConnectionState {
 	var state ConnectionState
@@ -1635,6 +1637,7 @@ func (c *Conn) connectionStateLocked() ConnectionState {
 	state.ServerName = c.serverName
 	state.CipherSuite = c.cipherSuite
 	state.PeerCertificates = c.peerCertificates
+	state.LocalCertificate = c.localCertificate
 	state.ClientCertificateRequested = c.ClientCertificateRequested
 	state.ClientCertificateRequest = c.ClientCertificateRequest
 	state.VerifiedChains = c.verifiedChains
@@ -1650,13 +1653,7 @@ func (c *Conn) connectionStateLocked() ConnectionState {
 	if c.config.Renegotiation != RenegotiateNever {
 		state.ekm = noEKMBecauseRenegotiation
 	} else if c.vers != VersionTLS13 && !c.extMasterSecret {
-		state.ekm = func(label string, context []byte, length int) ([]byte, error) {
-			if tlsunsafeekm.Value() == "1" {
-				tlsunsafeekm.IncNonDefault()
-				return c.ekm(label, context, length)
-			}
-			return noEKMBecauseNoEMS(label, context, length)
-		}
+		state.ekm = noEKMBecauseNoEMS
 	} else {
 		state.ekm = c.ekm
 	}

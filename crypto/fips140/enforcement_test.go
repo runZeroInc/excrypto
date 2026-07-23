@@ -10,7 +10,6 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/des"
 	"github.com/runZeroInc/excrypto/crypto/fips140"
 	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
-	"github.com/runZeroInc/excrypto/internal/testenv"
 )
 
 func expectAllowed(t *testing.T, why string, expected bool) {
@@ -27,21 +26,8 @@ func isAllowed() bool {
 }
 
 func TestWithoutEnforcement(t *testing.T) {
-	cryptotest.MustSupportFIPS140(t)
 	if !fips140.Enforced() {
-		// excrypto: the GoroutineInherit subtest relies on the FIPS
-		// enforcement bypass propagating through `go func()`, which is
-		// implemented via a stdlib runtime hook that is not active when
-		// this package lives outside GOROOT. Skip the subprocess re-exec
-		// so the failure does not surface here.
-		t.Skip("excrypto: FIPS goroutine-state inheritance requires stdlib runtime")
-		cmd := testenv.Command(t, testenv.Executable(t), "-test.run=^TestWithoutEnforcement$", "-test.v")
-		cmd.Env = append(cmd.Environ(), "GODEBUG=fips140=only")
-		out, err := cmd.CombinedOutput()
-		t.Logf("running with GODEBUG=fips140=only:\n%s", out)
-		if err != nil {
-			t.Errorf("fips140=only subprocess failed: %v", err)
-		}
+		cryptotest.RerunWithFIPS140Enforced(t)
 		return
 	}
 

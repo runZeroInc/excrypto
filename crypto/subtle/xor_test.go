@@ -11,6 +11,7 @@ import (
 
 	"crypto/rand"
 
+	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
 	. "github.com/runZeroInc/excrypto/crypto/subtle"
 )
 
@@ -88,6 +89,21 @@ func TestXorBytesPanic(t *testing.T) {
 		x := make([]byte, 3)
 		XORBytes(x, make([]byte, 2), x[1:])
 	})
+}
+
+func TestXORBytesBoundary(t *testing.T) {
+	safe := make([]byte, 1000)
+	start, end := cryptotest.BoundarySlices(t, 1000)
+	for i := 1; i <= 1000; i++ {
+		start := start[:i]
+		end := end[len(end)-i:]
+		XORBytes(end, safe, safe[:i])
+		XORBytes(start, safe, safe[:i])
+		XORBytes(safe, start, safe)
+		XORBytes(safe, end, safe)
+		XORBytes(safe, safe, start)
+		XORBytes(safe, safe, end)
+	}
 }
 
 func BenchmarkXORBytes(b *testing.B) {

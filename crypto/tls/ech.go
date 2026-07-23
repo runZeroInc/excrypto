@@ -55,7 +55,7 @@ func (e *echConfigErr) Error() string {
 
 func parseECHConfig(enc []byte) (skip bool, ec echConfig, err error) {
 	s := cryptobyte.String(enc)
-	ec.raw = []byte(enc)
+	ec.raw = enc
 	if !s.ReadUint16(&ec.Version) {
 		return false, echConfig{}, &echConfigErr{"version"}
 	}
@@ -65,7 +65,7 @@ func parseECHConfig(enc []byte) (skip bool, ec echConfig, err error) {
 	if len(ec.raw) < int(ec.Length)+4 {
 		return false, echConfig{}, &echConfigErr{"length"}
 	}
-	ec.raw = ec.raw[:ec.Length+4]
+	ec.raw = ec.raw[:int(ec.Length)+4]
 	if ec.Version != extensionEncryptedClientHello {
 		s.Skip(int(ec.Length))
 		return true, echConfig{}, nil
@@ -119,7 +119,7 @@ func parseECHConfig(enc []byte) (skip bool, ec echConfig, err error) {
 	return false, ec, nil
 }
 
-// parseECHConfigList parses a draft-ietf-tls-esni-18 ECHConfigList, returning a
+// parseECHConfigList parses a RFC 9849 ECHConfigList, returning a
 // slice of parsed ECHConfigs, in the same order they were parsed, or an error
 // if the list is malformed.
 func parseECHConfigList(data []byte) ([]echConfig, error) {
@@ -128,7 +128,7 @@ func parseECHConfigList(data []byte) ([]echConfig, error) {
 	if !s.ReadUint16(&length) {
 		return nil, errMalformedECHConfigList
 	}
-	if length != uint16(len(data)-2) {
+	if int(length) != len(data)-2 {
 		return nil, errMalformedECHConfigList
 	}
 	var configs []echConfig
@@ -136,7 +136,7 @@ func parseECHConfigList(data []byte) ([]echConfig, error) {
 		if len(s) < 4 {
 			return nil, errors.New("tls: malformed ECHConfig")
 		}
-		configLen := uint16(s[2])<<8 | uint16(s[3])
+		configLen := int(s[2])<<8 | int(s[3])
 		skip, ec, err := parseECHConfig(s)
 		if err != nil {
 			return nil, err
@@ -184,6 +184,11 @@ func pickECHConfig(list []echConfig) (*echConfig, hpke.PublicKey, hpke.KDF, hpke
 			if err != nil {
 				continue
 			}
+			// 0xFFFF is an export-only AEAD that cannot seal/open, making
+			// it an invalid choice for encrypting ClientHelloInner.
+			if cs.AEADID == 0xFFFF {
+				continue
+			}
 			aead, err := hpke.NewAEAD(cs.AEADID)
 			if err != nil {
 				continue
@@ -207,7 +212,7 @@ func encodeInnerClientHello(inner *clientHelloMsg, maxNameLength int) ([]byte, e
 	} else {
 		paddingLen = maxNameLength + 9
 	}
-	paddingLen = 31 - ((len(h) + paddingLen - 1) % 32)
+	paddingLen += 31 - ((len(h) + paddingLen - 1) % 32)
 
 	return append(h, make([]byte, paddingLen)...), nil
 }
@@ -567,7 +572,7 @@ func (c *Conn) processECHClientHello(outer *clientHelloMsg, echKeys []EncryptedC
 
 	for _, echKey := range echKeys {
 		skip, config, err := parseECHConfig(echKey.Config)
-		if err != nil || skip {
+		if err != nil {
 			c.sendAlert(alertInternalError)
 			return nil, nil, fmt.Errorf("tls: invalid EncryptedClientHelloKey Config: %s", err)
 		}

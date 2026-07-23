@@ -122,8 +122,8 @@ func (uac *UnauthClientConn) clientHandshakeUnauth(dialAddress string) error {
 	c.sessionID = c.transport.getSessionID()
 
 	// Store the server's Kex Init message for additional analysis
-	if c.transport.otherInitMsg != nil {
-		uac.ServerKexInit = ExpKexInitMsg(*c.transport.otherInitMsg)
+	if transport, ok := c.transport.(*handshakeTransport); ok && transport.otherInitMsg != nil {
+		uac.ServerKexInit = ExpKexInitMsg(*transport.otherInitMsg)
 	}
 
 	return nil

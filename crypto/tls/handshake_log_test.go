@@ -32,16 +32,8 @@ func runHandshakeLogTest(t *testing.T, version uint16) {
 	t.Helper()
 
 	cert := Certificate{
-		Certificate: [][]byte{testRSA2048Certificate},
-		PrivateKey:  testRSA2048PrivateKey,
-	}
-	if version == VersionTLS12 {
-		// 512-bit key works for TLS 1.2 RSA-PKCS1v15 / ECDHE-RSA-SHA256.
-		var err error
-		cert, err = X509KeyPair([]byte(rsaCertPEM), []byte(rsaKeyPEM))
-		if err != nil {
-			t.Fatalf("X509KeyPair: %v", err)
-		}
+		Certificate: testRSA2048Cert.Certificate,
+		PrivateKey:  testRSA2048Cert.PrivateKey,
 	}
 
 	serverCfg := &Config{
@@ -143,18 +135,13 @@ func runHandshakeLogTest(t *testing.T, version uint16) {
 // TestClientHelloInfoHandshakeLog verifies that GetCertificate / GetConfigForClient
 // callbacks can observe the in-progress handshake log via ClientHelloInfo.HandshakeLog.
 func TestClientHelloInfoHandshakeLog(t *testing.T) {
-	cert, err := X509KeyPair([]byte(rsaCertPEM), []byte(rsaKeyPEM))
-	if err != nil {
-		t.Fatalf("X509KeyPair: %v", err)
-	}
-
 	var seenLog *ServerHandshake
 	serverCfg := &Config{
 		MinVersion: VersionTLS12,
 		MaxVersion: VersionTLS12,
 		GetCertificate: func(chi *ClientHelloInfo) (*Certificate, error) {
 			seenLog = chi.HandshakeLog
-			return &cert, nil
+			return &testRSA2048Cert, nil
 		},
 	}
 	clientCfg := &Config{

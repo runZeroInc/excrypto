@@ -11,6 +11,7 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/dsa"
 	"github.com/runZeroInc/excrypto/crypto/ecdsa"
 	"github.com/runZeroInc/excrypto/crypto/ed25519"
+	"github.com/runZeroInc/excrypto/crypto/mldsa"
 	"github.com/runZeroInc/excrypto/crypto/rsa"
 	"github.com/runZeroInc/excrypto/crypto/x509"
 )
@@ -132,7 +133,42 @@ AIU+2GKjyT3iMuzZxxFxPFMCAwEAAQ==
 		fmt.Println("pub is of type ECDSA:", pub)
 	case ed25519.PublicKey:
 		fmt.Println("pub is of type Ed25519:", pub)
+	case *mldsa.PublicKey:
+		fmt.Println("pub is of type ML-DSA:", pub)
 	default:
 		panic("unknown type of public key")
+	}
+}
+
+func ExampleMarshalPKCS8PrivateKey_mlDSA() {
+	// Generate an ML-DSA-44 key, marshal it to PKCS #8, and PEM-encode it.
+	// ML-DSA private keys are encoded in their seed-only representation per
+	// RFC 9881.
+	priv, err := mldsa.GenerateKey(mldsa.MLDSA44())
+	if err != nil {
+		panic(err)
+	}
+
+	der, err := x509.MarshalPKCS8PrivateKey(priv)
+	if err != nil {
+		panic(err)
+	}
+
+	pemBytes := pem.EncodeToMemory(&pem.Block{
+		Type:  "PRIVATE KEY",
+		Bytes: der,
+	})
+
+	// Round-trip the PEM-encoded key back into an *mldsa.PrivateKey.
+	block, _ := pem.Decode(pemBytes)
+	if block == nil {
+		panic("failed to decode PEM block")
+	}
+	parsed, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+	if err != nil {
+		panic(err)
+	}
+	if !parsed.(*mldsa.PrivateKey).Equal(priv) {
+		panic("round-tripped key does not match original")
 	}
 }
