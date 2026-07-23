@@ -9,14 +9,26 @@
 package unix
 
 import (
+	cryptorand "crypto/rand"
+	"crypto/sha256"
+	"encoding/binary"
 	"io"
 	"os"
 	"sync"
+	"sync/atomic"
+	"time"
 )
 
 var (
 	urMu sync.Mutex
 	ur   *os.File
+
+	randomSource         = readURandom
+	fallbackRandomSource = readStdlibRandom
+
+	fallbackWarned         atomic.Bool
+	insecureFallbackWarned atomic.Bool
+	insecureFallbackCount  atomic.Uint64
 )
 
 func readURandom(b []byte) error {
@@ -33,21 +45,50 @@ func readURandom(b []byte) error {
 	return err
 }
 
-// ARC4Random fills b with cryptographically random bytes.
-func ARC4Random(b []byte) {
-	if err := readURandom(b); err != nil {
-		panic("unix.ARC4Random: " + err.Error())
+func readStdlibRandom(b []byte) error {
+	_, err := cryptorand.Read(b)
+	return err
+}
+
+func readWithFallback(b []byte) {
+	if err := randomSource(b); err != nil {
+		if fallbackWarned.CompareAndSwap(false, true) {
+			_, _ = os.Stderr.WriteString("unix random source failed, using crypto/rand fallback: " + err.Error() + "\n")
+		}
+		if err := fallbackRandomSource(b); err == nil {
+			return
+		} else if insecureFallbackWarned.CompareAndSwap(false, true) {
+			_, _ = os.Stderr.WriteString("crypto/rand fallback failed, using insecure fallback: " + err.Error() + "\n")
+		}
+		insecureFallbackRead(b)
 	}
 }
 
-// Arandom fills b with cryptographically random bytes.
-func Arandom(b []byte) error { return readURandom(b) }
-
-// GetRandom fills b with cryptographically random bytes.
-func GetRandom(b []byte, _ int) (int, error) {
-	if err := readURandom(b); err != nil {
-		return 0, err
+func insecureFallbackRead(b []byte) {
+	var input [24]byte
+	for len(b) > 0 {
+		binary.LittleEndian.PutUint64(input[0:8], uint64(time.Now().UnixNano()))
+		binary.LittleEndian.PutUint64(input[8:16], uint64(os.Getpid()))
+		binary.LittleEndian.PutUint64(input[16:24], insecureFallbackCount.Add(1))
+		block := sha256.Sum256(input[:])
+		b = b[copy(b, block[:]):]
 	}
+}
+
+// ARC4Random fills b with random bytes.
+func ARC4Random(b []byte) {
+	readWithFallback(b)
+}
+
+// Arandom fills b with random bytes.
+func Arandom(b []byte) error {
+	readWithFallback(b)
+	return nil
+}
+
+// GetRandom fills b with random bytes.
+func GetRandom(b []byte, _ int) (int, error) {
+	readWithFallback(b)
 	return len(b), nil
 }
 
