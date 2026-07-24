@@ -876,9 +876,6 @@ func (c *Certificate) Verify(opts VerifyOptions) (current, expired, never [][]*C
 		if eku == ExtKeyUsageAny {
 			// If any key usage is acceptable, no need to check the chain for
 			// key usages.
-			if len(candidateChains) > 0 {
-				c.ValidSignature = true
-			}
 			current, expired, never = FilterByDate(candidateChains, opts.CurrentTime)
 			return
 		}
@@ -904,10 +901,6 @@ func (c *Certificate) Verify(opts VerifyOptions) (current, expired, never [][]*C
 			err = CertificateInvalidError{Cert: c, Reason: NeverValid, Detail: fmt.Sprintf("%d invalid", len(never))}
 		}
 		return
-	}
-
-	if len(current) > 0 {
-		c.ValidSignature = true
 	}
 
 	return current, expired, never, nil
