@@ -1223,15 +1223,9 @@ func checkSignature(algo SignatureAlgorithm, signed, signature []byte, publicKey
 		if pubKeyAlgo != Ed25519 && pubKeyAlgo != MLDSA {
 			return ErrUnsupportedAlgorithm
 		}
-	case crypto.MD5:
-		return InsecureAlgorithmError(algo)
-	case crypto.SHA1:
-		// SHA-1 signatures are only allowed for CRLs and CSRs.
-		if !allowSHA1 {
-			return InsecureAlgorithmError(algo)
-		}
-		fallthrough
 	default:
+		// excrypto intentionally accepts legacy MD5 and SHA-1 certificate
+		// signatures for compatibility with historical scan targets.
 		if !hashType.Available() {
 			return ErrUnsupportedAlgorithm
 		}

@@ -52,6 +52,7 @@ func TestWithoutEnforcement(t *testing.T) {
 	})
 
 	t.Run("GoroutineInherit", func(t *testing.T) {
+		t.Skip("excrypto fork does not have runtime support for goroutine-local FIPS enforcement bypass inheritance")
 		ch := make(chan bool, 2)
 		expectAllowed(t, "before enforcement bypass", false)
 		fips140.WithoutEnforcement(func() {

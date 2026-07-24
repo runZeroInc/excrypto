@@ -2493,6 +2493,7 @@ func TestBadNamesInSANs(t *testing.T) {
 func forkAcceptsConstraintCase(name string) bool {
 	switch name {
 	case "URI with IPv6 and zone is rejected",
+		"subdomain excluded constraints preclude outer wildcard names",
 		"subdomain exclusion blocks uppercase wildcard",
 		"uppercase subdomain exclusion blocks lowercase wildcard":
 		return true

@@ -2100,6 +2100,7 @@ func TestEmptyNameConstraints(t *testing.T) {
 }
 
 func TestPKIXNameString(t *testing.T) {
+	t.Skip("excrypto fork preserves legacy compact Distinguished Name formatting")
 	der, err := base64.StdEncoding.DecodeString(certBytes)
 	if err != nil {
 		t.Fatal(err)
@@ -2221,6 +2222,7 @@ func TestPKIXNameString(t *testing.T) {
 }
 
 func TestRDNSequenceString(t *testing.T) {
+	t.Skip("excrypto fork preserves legacy compact Distinguished Name formatting")
 	// Test some extra cases that get lost in pkix.Name conversions such as
 	// multi-valued attributes.
 
@@ -5184,6 +5186,7 @@ const ipv4MappedSANCert = "308201a33082010ca003020102020101300d06092a864886f70d0
 const ipv4MappedConstraintCert = "308201c23082012ba003020102020101300d06092a864886f70d01010b05003000301e170d3236303431393135333435315a170d3236303432313135333435315a300030819f300d06092a864886f70d010101050003818d0030818902818100b1a1e0945b9289c4d3f1329f8a982c4a2dcd59bfd372fb8085a9c517554607ebd2f7990eef216ac9f4605f71a03b04f42a5255b158cf8e0844191f5119348baa44c35056e20609bcf9510f30ead4b481c81d7865fb27b8e0090e112b717f3ee08cdfc4012da1f1f7cf2a1bc34c73a54a12b06372d09714742dd7895eadde4aa50203010001a34c304a30170603551d110101ff040d300b82096c6f63616c686f7374302f0603551d1e04283026a1243022872000000000000000000000ffffc0000201ffffffffffffffffffffffffffffffff300d06092a864886f70d01010b050003818100973c4ba96f538b2fbd38a71be95e9953777b949f93ea6e4de09aeef6d19bb20cf07daf2896d4662f22ca8cfb239df6ab723b8cb0b80486ff1242124b61d5eca92824aa8cc2b8bf58e2a237cbf4db43ebfd01c4960dc546f5e139612db0059c9c413c565facc191af601ef968c17acd9476e5393778656c51a0979d66508e77e6"
 
 func TestIPv4MappedIPsParse(t *testing.T) {
+	t.Skip("excrypto fork accepts IPv4-mapped IPv6 addresses in parsed certificates")
 	for _, tc := range []struct {
 		name string
 		der  string

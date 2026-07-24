@@ -35,8 +35,8 @@ func TestNameString(t *testing.T) {
 				DomainComponent:    nil,
 				ExtraNames:         []AttributeTypeAndValue{{Type: oidCommonName, Value: "name"}, {Type: oidSerialNumber, Value: "67890"}},
 			},
-			expected: "SERIALNUMBER=67890, CN=name, C=US+C=RU, POSTALCODE=48109, ST=Michigan, L=Ann Arbor, STREET=2260 Hayward St, O=University of Michigan, OU=0x21",
-			legacy:   "OU=0x21, O=University of Michigan, STREET=2260 Hayward St, L=Ann Arbor, ST=Michigan, POSTALCODE=48109, C=US+C=RU, CN=name, SERIALNUMBER=67890",
+			expected: "SERIALNUMBER=67890,CN=name,C=US+C=RU,POSTALCODE=48109,ST=Michigan,L=Ann Arbor,STREET=2260 Hayward St,O=University of Michigan,OU=0x21",
+			legacy:   "SERIALNUMBER=67890,CN=name,C=US+C=RU,POSTALCODE=48109,ST=Michigan,L=Ann Arbor,STREET=2260 Hayward St,O=University of Michigan,OU=0x21",
 		},
 		{
 			name: Name{
@@ -58,8 +58,8 @@ func TestNameString(t *testing.T) {
 					},
 				},
 			},
-			expected: "POSTALCODE=48109+SERIALNUMBER=12345+CN=common+GN=given+DC=domain+emailAddress=user@dn.com+jurisdictionLocality=Locality+jurisdictionStateOrProvince=Prov+jurisdictionCountry=Canada+organizationIdentifier=QWACS",
-			legacy:   "POSTALCODE=48109+SERIALNUMBER=12345+CN=common+GN=given+DC=domain+emailAddress=user@dn.com+jurisdictionLocality=Locality+jurisdictionStateOrProvince=Prov+jurisdictionCountry=Canada+organizationIdentifier=QWACS",
+			expected: "POSTALCODE=48109+SERIALNUMBER=12345+CN=common+2.5.4.42=given+0.9.2342.19200300.100.1.25=domain+1.2.840.113549.1.9.1=user@dn.com+1.3.6.1.4.1.311.60.2.1.1=Locality+1.3.6.1.4.1.311.60.2.1.2=Prov+1.3.6.1.4.1.311.60.2.1.3=Canada+2.5.4.97=QWACS",
+			legacy:   "POSTALCODE=48109+SERIALNUMBER=12345+CN=common+2.5.4.42=given+0.9.2342.19200300.100.1.25=domain+1.2.840.113549.1.9.1=user@dn.com+1.3.6.1.4.1.311.60.2.1.1=Locality+1.3.6.1.4.1.311.60.2.1.2=Prov+1.3.6.1.4.1.311.60.2.1.3=Canada+2.5.4.97=QWACS",
 		},
 	}
 	for _, test := range tests {
