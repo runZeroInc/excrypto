@@ -6,10 +6,8 @@ package fips140only
 
 import (
 	"hash"
-	"io"
 
 	"github.com/runZeroInc/excrypto/crypto/fips140"
-	"github.com/runZeroInc/excrypto/crypto/internal/fips140/drbg"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/sha256"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/sha3"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/sha512"
@@ -28,9 +26,4 @@ func ApprovedHash(h hash.Hash) bool {
 	default:
 		return false
 	}
-}
-
-func ApprovedRandomReader(r io.Reader) bool {
-	_, ok := r.(drbg.DefaultReader)
-	return ok
 }

@@ -116,7 +116,7 @@ func DecryptPKCS1v15(random io.Reader, priv *PrivateKey, ciphertext []byte) ([]b
 		return nil, err
 	}
 
-	if boring.Enabled {
+	if boring.Enabled && priv.N.BitLen() >= 1024 {
 		bkey, err := boringPrivateKey(priv)
 		if err != nil {
 			return nil, err
@@ -222,7 +222,7 @@ func decryptPKCS1v15(priv *PrivateKey, ciphertext []byte) (valid int, em []byte,
 		return 0, nil, 0, err
 	}
 
-	if boring.Enabled {
+	if boring.Enabled && priv.N.BitLen() >= 1024 {
 		var bkey *boring.PrivateKeyRSA
 		bkey, err = boringPrivateKey(priv)
 		if err != nil {

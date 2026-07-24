@@ -21,6 +21,7 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/rc4"
 	"github.com/runZeroInc/excrypto/crypto/sha1"
 	"github.com/runZeroInc/excrypto/crypto/sha256"
+	_ "github.com/runZeroInc/excrypto/crypto/sha512" // for crypto.SHA384
 	"github.com/runZeroInc/excrypto/internal/cpu"
 	"github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305"
 )
@@ -345,25 +346,16 @@ var disabledCipherSuites = map[uint16]bool{
 	TLS_ECDHE_ECDSA_WITH_RC4_128_SHA: true,
 	TLS_ECDHE_RSA_WITH_RC4_128_SHA:   true,
 	TLS_RSA_WITH_RC4_128_SHA:         true,
-}
 
-// rsaKexCiphers contains the ciphers which use RSA based key exchange,
-// which we also disable by default unless a GODEBUG is set.
-var rsaKexCiphers = map[uint16]bool{
-	TLS_RSA_WITH_RC4_128_SHA:        true,
+	// RSA key exchange
 	TLS_RSA_WITH_3DES_EDE_CBC_SHA:   true,
 	TLS_RSA_WITH_AES_128_CBC_SHA:    true,
 	TLS_RSA_WITH_AES_256_CBC_SHA:    true,
-	TLS_RSA_WITH_AES_128_CBC_SHA256: true,
 	TLS_RSA_WITH_AES_128_GCM_SHA256: true,
 	TLS_RSA_WITH_AES_256_GCM_SHA384: true,
-}
 
-// tdesCiphers contains 3DES ciphers,
-// which we also disable by default unless a GODEBUG is set.
-var tdesCiphers = map[uint16]bool{
+	// 3DES
 	TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA: true,
-	TLS_RSA_WITH_3DES_EDE_CBC_SHA:       true,
 }
 
 var (

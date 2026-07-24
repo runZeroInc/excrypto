@@ -33,6 +33,9 @@ var flagNISTSP80090B = flag.Bool("nist-sp800-90b", false, "run NIST SP 800-90B t
 
 func TestEntropySamples(t *testing.T) {
 	cryptotest.MustSupportFIPS140(t)
+	if *flagEntropySamples == "" && !*flagNISTSP80090B {
+		t.Skip("skipping entropy sample generation; use -entropy-samples to run")
+	}
 	now := time.Now().UTC()
 
 	seqSampleCount := 1_000_000

@@ -78,20 +78,24 @@ func parseCertPEM(t *testing.T) (revoked *x509.Certificate) {
 }
 
 func loadRevokedList(t *testing.T) (crlset *google.CRLSet) {
+	t.Helper()
 	crlSetFile, err := os.Open(crlset_location)
 	if err != nil {
-		t.Error(err.Error())
+		if os.IsNotExist(err) {
+			t.Skipf("missing test fixture %s", crlset_location)
+		}
+		t.Fatal(err.Error())
 	}
 	defer crlSetFile.Close()
 
 	crlSetBytes, err := io.ReadAll(crlSetFile)
 	if err != nil {
-		t.Error(err.Error())
+		t.Fatal(err.Error())
 	}
 
 	crlset, err = google.Parse(crlSetBytes, VERSION)
 	if err != nil {
-		t.Error(err.Error())
+		t.Fatal(err.Error())
 	}
 	return
 }
@@ -106,12 +110,15 @@ func TestParse(t *testing.T) {
 func TestParse6375(t *testing.T) {
 	raw, err := os.ReadFile("testdata/crl-set-6375")
 	if err != nil {
-		t.Error(err.Error())
+		if os.IsNotExist(err) {
+			t.Skip("missing test fixture testdata/crl-set-6375")
+		}
+		t.Fatal(err.Error())
 	}
 
 	set, err := google.Parse(raw, "6375")
 	if err != nil {
-		t.Error(err.Error())
+		t.Fatal(err.Error())
 	}
 	if "6375" != set.Version {
 		t.Fail()
@@ -146,6 +153,9 @@ func TestCheck(t *testing.T) {
 
 func TestFetch(t *testing.T) {
 	bytes, err := os.ReadFile("testdata/APm1SaUzZaPllaSDuZS5yng")
+	if os.IsNotExist(err) {
+		t.Skip("missing test fixture testdata/APm1SaUzZaPllaSDuZS5yng")
+	}
 	require.NoError(t, err)
 
 	versionResponse := `xml version="1.0" encoding="UTF-8"?>

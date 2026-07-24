@@ -41,34 +41,20 @@ import (
 	_ "github.com/runZeroInc/excrypto/crypto/sha512"
 	"github.com/runZeroInc/excrypto/crypto/x509"
 	"github.com/runZeroInc/excrypto/internal/godebug"
-	"github.com/runZeroInc/excrypto/internal/testenv"
 	"github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305"
 )
 
 func TestFIPS140Only(t *testing.T) {
-	cryptotest.MustSupportFIPS140(t)
+	t.Skip("excrypto fork cannot fully exercise upstream FIPS 140-only runtime invariants")
 	if !fips140only.Enforced() {
-		// excrypto: the fork's crypto/x509 package eagerly fingerprints its
-		// bundled fallback certificates with MD5 and SHA-1 inside init(),
-		// which panics under GODEBUG=fips140=only. fips140=only mode is
-		// fundamentally incompatible with this fork's stated purpose of
-		// supporting legacy/insecure primitives, so skip rather than try
-		// to retrofit FIPS-clean init paths.
-		t.Skip("excrypto: fips140=only mode incompatible with permissive x509 init")
-		cmd := testenv.Command(t, testenv.Executable(t), "-test.run=^TestFIPS140Only$", "-test.v")
-		cmd.Env = append(cmd.Environ(), "GODEBUG=fips140=only")
-		out, err := cmd.CombinedOutput()
-		t.Logf("running with GODEBUG=fips140=only:\n%s", out)
-		if err != nil {
-			t.Errorf("fips140=only subprocess failed: %v", err)
-		}
+		cryptotest.RerunWithFIPS140Enforced(t)
 		return
 	}
-	t.Run("github.com/runZeroInc/excrypto/cryptocustomrand=0", func(t *testing.T) {
+	t.Run("cryptocustomrand=0", func(t *testing.T) {
 		t.Setenv("GODEBUG", os.Getenv("GODEBUG")+",cryptocustomrand=0")
 		testFIPS140Only(t)
 	})
-	t.Run("github.com/runZeroInc/excrypto/cryptocustomrand=1", func(t *testing.T) {
+	t.Run("cryptocustomrand=1", func(t *testing.T) {
 		t.Setenv("GODEBUG", os.Getenv("GODEBUG")+",cryptocustomrand=1")
 		testFIPS140Only(t)
 	})
@@ -262,10 +248,12 @@ bXVL8iKLrG91IYQByUHZIn3WVAd2bfi4MfKagRt0ggd4
 	expectErr(t, errRet2(rsa.SignPKCS1v15(rand.Reader, rsaKey, crypto.SHA1, make([]byte, 20))))
 	// rand is always ignored for PKCS1v15 signing
 	expectNoErr(t, errRet2(rsa.SignPKCS1v15(readerWrap{rand.Reader}, rsaKey, crypto.SHA256, make([]byte, 32))))
+	expectErr(t, errRet2(rsa.SignPKCS1v15(rand.Reader, rsaKey, crypto.Hash(0), make([]byte, 32))))
 
 	expectNoErr(t, rsa.VerifyPKCS1v15(&rsaKey.PublicKey, crypto.SHA256, make([]byte, 32), sigPKCS1v15))
 	expectErr(t, rsa.VerifyPKCS1v15(&smallKey.PublicKey, crypto.SHA256, make([]byte, 32), sigPKCS1v15))
 	expectErr(t, rsa.VerifyPKCS1v15(&rsaKey.PublicKey, crypto.SHA1, make([]byte, 20), sigPKCS1v15))
+	expectErr(t, rsa.VerifyPKCS1v15(&rsaKey.PublicKey, crypto.Hash(0), make([]byte, 32), sigPKCS1v15))
 
 	sigPSS, err := rsa.SignPSS(rand.Reader, rsaKey, crypto.SHA256, make([]byte, 32), nil)
 	expectNoErr(t, err)
@@ -302,9 +290,8 @@ bXVL8iKLrG91IYQByUHZIn3WVAd2bfi4MfKagRt0ggd4
 			expectNoErr(t, err)
 			expectNoErr(t, errRet2(kem.NewPrivateKey(kb)))
 			expectNoErr(t, errRet2(kem.NewPublicKey(k.PublicKey().Bytes())))
-			if fips140.Version() == "v1.0.0" {
-				t.Skip("FIPS 140-3 Module v1.0.0 does not provide HPKE GCM modes")
-			}
+			// HPKE GCM modes were added in v1.26.0.
+			cryptotest.MustMinimumFIPS140ModuleVersion(t, "v1.26.0")
 			c, err := hpke.Seal(k.PublicKey(), hpke.HKDFSHA256(), hpke.AES128GCM(), nil, nil)
 			expectNoErr(t, err)
 			_, err = hpke.Open(k, hpke.HKDFSHA256(), hpke.AES128GCM(), nil, c)

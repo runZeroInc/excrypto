@@ -6,10 +6,10 @@ package x509
 
 import (
 	"bytes"
-
 	"errors"
 	"fmt"
 	"net"
+	"net/netip"
 	"net/url"
 	"reflect"
 	"strings"
@@ -137,31 +137,38 @@ type HostnameError struct {
 
 func (h HostnameError) Error() string {
 	c := h.Certificate
+	maxNamesIncluded := 100
 
-	if !c.hasSANExtension() && matchHostnames(c.Subject.CommonName, h.Host) {
+	if !c.hasSANExtension() && matchHostnames(c.Subject.CommonName, splitHostname(h.Host)) {
 		return "x509: certificate relies on legacy Common Name field, use SANs instead"
 	}
 
-	var valid string
+	var valid strings.Builder
 	if ip := net.ParseIP(h.Host); ip != nil {
 		// Trying to validate an IP
 		if len(c.IPAddresses) == 0 {
 			return "x509: cannot validate certificate for " + h.Host + " because it doesn't contain any IP SANs"
 		}
+		if len(c.IPAddresses) >= maxNamesIncluded {
+			return fmt.Sprintf("x509: certificate is valid for %d IP SANs, but none matched %s", len(c.IPAddresses), h.Host)
+		}
 		for _, san := range c.IPAddresses {
-			if len(valid) > 0 {
-				valid += ", "
+			if valid.Len() > 0 {
+				valid.WriteString(", ")
 			}
-			valid += san.String()
+			valid.WriteString(san.String())
 		}
 	} else {
-		valid = strings.Join(c.DNSNames, ", ")
+		if len(c.DNSNames) >= maxNamesIncluded {
+			return fmt.Sprintf("x509: certificate is valid for %d names, but none matched %s", len(c.DNSNames), h.Host)
+		}
+		valid.WriteString(strings.Join(c.DNSNames, ", "))
 	}
 
-	if len(valid) == 0 {
+	if valid.Len() == 0 {
 		return "x509: certificate is not valid for any names, but wanted to match " + h.Host
 	}
-	return "x509: certificate is valid for " + valid + ", not " + h.Host
+	return "x509: certificate is valid for " + valid.String() + ", not " + h.Host
 }
 
 // UnknownAuthorityError results when the certificate issuer is unknown
@@ -389,7 +396,12 @@ func parseRFC2821Mailbox(in string) (mailbox rfc2821Mailbox, ok bool) {
 	// The RFC species a format for domains, but that's known to be
 	// violated in practice so we accept that anything after an '@' is the
 	// domain part.
-	if _, ok := domainToReverseLabels(in); !ok {
+	if !domainNameValid(in, false) {
+		return mailbox, false
+	}
+
+	// Reject domain names containing @.
+	if strings.ContainsRune(in, '@') {
 		return mailbox, false
 	}
 
@@ -864,9 +876,6 @@ func (c *Certificate) Verify(opts VerifyOptions) (current, expired, never [][]*C
 		if eku == ExtKeyUsageAny {
 			// If any key usage is acceptable, no need to check the chain for
 			// key usages.
-			if len(candidateChains) > 0 {
-				c.ValidSignature = true
-			}
 			current, expired, never = FilterByDate(candidateChains, opts.CurrentTime)
 			return
 		}
@@ -892,10 +901,6 @@ func (c *Certificate) Verify(opts VerifyOptions) (current, expired, never [][]*C
 			err = CertificateInvalidError{Cert: c, Reason: NeverValid, Detail: fmt.Sprintf("%d invalid", len(never))}
 		}
 		return
-	}
-
-	if len(current) > 0 {
-		c.ValidSignature = true
 	}
 
 	return current, expired, never, nil
@@ -930,7 +935,10 @@ func alreadyInChain(candidate *Certificate, chain []*Certificate) bool {
 		if !bytes.Equal(candidate.RawSubject, cert.RawSubject) {
 			continue
 		}
-		if !candidate.PublicKey.(pubKeyEqual).Equal(cert.PublicKey) {
+		// We enforce the canonical encoding of SPKI (by only allowing the
+		// correct AI parameter encodings in parseCertificate), so it's safe to
+		// directly compare the raw bytes.
+		if !bytes.Equal(candidate.RawSubjectPublicKeyInfo, cert.RawSubjectPublicKeyInfo) {
 			continue
 		}
 		var certSAN *pkix.Extension
@@ -1094,16 +1102,14 @@ func matchExactly(hostA, hostB string) bool {
 	return toLowerCaseASCII(hostA) == toLowerCaseASCII(hostB)
 }
 
-func matchHostnames(pattern, host string) bool {
+func matchHostnames(pattern string, hostParts []string) bool {
 	pattern = toLowerCaseASCII(pattern)
-	host = toLowerCaseASCII(strings.TrimSuffix(host, "."))
 
-	if len(pattern) == 0 || len(host) == 0 {
+	if len(pattern) == 0 || len(hostParts) == 0 {
 		return false
 	}
 
 	patternParts := strings.Split(pattern, ".")
-	hostParts := strings.Split(host, ".")
 
 	if len(patternParts) != len(hostParts) {
 		return false
@@ -1168,19 +1174,22 @@ func (c *Certificate) VerifyHostname(h string) error {
 	if len(h) >= 3 && h[0] == '[' && h[len(h)-1] == ']' {
 		candidateIP = h[1 : len(h)-1]
 	}
-	if ip := net.ParseIP(candidateIP); ip != nil {
+	// We use netip.ParseAddr() to allow IPv6 scoped addresses.
+	if addr, err := netip.ParseAddr(candidateIP); err == nil {
 		// We only match IP addresses against IP SANs.
 		// See RFC 6125, Appendix B.2.
+		ip := net.IP(addr.AsSlice())
 		for _, candidate := range c.IPAddresses {
 			if ip.Equal(candidate) {
 				return nil
 			}
 		}
-		return HostnameError{c, candidateIP}
+		return HostnameError{c, ip.String()}
 	}
 
 	candidateName := toLowerCaseASCII(h) // Save allocations inside the loop.
 	validCandidateName := validHostnameInput(candidateName)
+	hostParts := splitHostname(candidateName)
 
 	for _, match := range c.DNSNames {
 		// Ideally, we'd only match valid hostnames according to RFC 6125 like
@@ -1189,7 +1198,7 @@ func (c *Certificate) VerifyHostname(h string) error {
 		// always allow perfect matches, and only apply wildcard and trailing
 		// dot processing to valid hostnames.
 		if validCandidateName && validHostnamePattern(match) {
-			if matchHostnames(match, candidateName) {
+			if matchHostnames(match, hostParts) {
 				return nil
 			}
 		} else {
@@ -1200,6 +1209,10 @@ func (c *Certificate) VerifyHostname(h string) error {
 	}
 
 	return HostnameError{c, h}
+}
+
+func splitHostname(host string) []string {
+	return strings.Split(toLowerCaseASCII(strings.TrimSuffix(host, ".")), ".")
 }
 
 func checkChainForKeyUsage(chain []*Certificate, keyUsages []ExtKeyUsage) bool {

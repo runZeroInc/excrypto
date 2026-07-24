@@ -240,20 +240,36 @@ func setConstraints(key *AddedKey, constraintBytes []byte) error {
 	return nil
 }
 
+// checkRSAKeyParams enforces the same bounds as parseRSA in the ssh
+// package, and additionally caps the prime factors. Without this,
+// the rsa.PrivateKey built from an Add request would call Precompute()
+// on arbitrary inputs; the CRT coefficient recomputation is cubic in
+// |p| and can consume excessive CPU on oversized keys.
+func checkRSAKeyParams(N, E, P, Q *big.Int) error {
+	if N.BitLen() > 16384 {
+		return errors.New("agent: RSA modulus too large")
+	}
+	if P.BitLen() > 8192 || Q.BitLen() > 8192 {
+		return errors.New("agent: RSA prime too large")
+	}
+	if E.Cmp(big.NewInt(3)) < 0 || E.Bit(0) == 0 {
+		return errors.New("agent: incorrect RSA public exponent")
+	}
+	return nil
+}
+
 func parseRSAKey(req []byte) (*AddedKey, error) {
 	var k rsaKeyMsg
 	if err := ssh.Unmarshal(req, &k); err != nil {
 		return nil, err
 	}
-	if k.E.Sign() <= 0 || k.E.Cmp(big.NewInt(3)) < 0 || k.E.Bit(0) == 0 {
-		return nil, errors.New("agent: invalid RSA public exponent")
+	if err := checkRSAKeyParams(k.N, k.E, k.P, k.Q); err != nil {
+		return nil, err
 	}
 	priv := &rsa.PrivateKey{
 		PublicKey: rsa.PublicKey{
-			// Defensively copy E so callers cannot mutate it through the
-			// parsed wire structure.
 			E: new(big.Int).Set(k.E),
-			N: k.N,
+			N: new(big.Int).Set(k.N),
 		},
 		D:      k.D,
 		Primes: []*big.Int{k.P, k.Q},
@@ -272,6 +288,9 @@ func parseEd25519Key(req []byte) (*AddedKey, error) {
 	if err := ssh.Unmarshal(req, &k); err != nil {
 		return nil, err
 	}
+	if len(k.Priv) != ed25519.PrivateKeySize {
+		return nil, fmt.Errorf("agent: bad ED25519 key size: %d", len(k.Priv))
+	}
 	priv := ed25519.PrivateKey(k.Priv)
 
 	addedKey := &AddedKey{PrivateKey: &priv, Comment: k.Comments}
@@ -281,19 +300,64 @@ func parseEd25519Key(req []byte) (*AddedKey, error) {
 	return addedKey, nil
 }
 
+func checkDSAParams(param *dsa.Parameters) error {
+	return nil
+
+	/*
+		// SSH specifies FIPS 186-2, which only provided a single size
+		// (1024 bits) DSA key. FIPS 186-3 allows for larger key
+		// sizes, which would confuse SSH.
+		if l := param.P.BitLen(); l != 1024 {
+			return fmt.Errorf("ssh: unsupported DSA key size %d", l)
+		}
+
+		// FIPS 186-2 specifies that Q must be exactly 160 bits. We must enforce
+		// this to prevent DoS attacks where an attacker sends a huge Q which makes
+		// verification slow.
+		if l := param.Q.BitLen(); l != 160 {
+			return fmt.Errorf("ssh: unsupported DSA sub-prime size %d", l)
+		}
+
+		// The generator G is an element of the group, so it must be strictly less
+		// than the modulus P.
+		if param.G.Cmp(param.P) >= 0 {
+			return errors.New("ssh: DSA generator larger than modulus")
+		}
+
+		// G must be positive.
+		if param.G.Sign() <= 0 {
+			return errors.New("ssh: DSA generator must be positive")
+		}
+
+		return nil
+	*/
+}
+
 func parseDSAKey(req []byte) (*AddedKey, error) {
 	var k dsaKeyMsg
 	if err := ssh.Unmarshal(req, &k); err != nil {
 		return nil, err
 	}
+	params := dsa.Parameters{
+		P: k.P,
+		Q: k.Q,
+		G: k.G,
+	}
+	if err := checkDSAParams(&params); err != nil {
+		return nil, err
+	}
+
+	// The public value Y must be a non-zero element of the group, i.e. strictly
+	// between 0 and P, to prevent a maliciously oversized Y from slowing
+	// signature operations.
+	if k.Y.Sign() <= 0 || k.Y.Cmp(k.P) >= 0 {
+		return nil, errors.New("agent: DSA public value Y out of range")
+	}
+
 	priv := &dsa.PrivateKey{
 		PublicKey: dsa.PublicKey{
-			Parameters: dsa.Parameters{
-				P: k.P,
-				Q: k.Q,
-				G: k.G,
-			},
-			Y: k.Y,
+			Parameters: params,
+			Y:          k.Y,
 		},
 		X: k.X,
 	}
@@ -337,6 +401,9 @@ func parseEd25519Cert(req []byte) (*AddedKey, error) {
 	pubKey, err := ssh.ParsePublicKey(k.CertBytes)
 	if err != nil {
 		return nil, err
+	}
+	if len(k.Priv) != ed25519.PrivateKeySize {
+		return nil, fmt.Errorf("agent: bad ED25519 key size: %d", len(k.Priv))
 	}
 	priv := ed25519.PrivateKey(k.Priv)
 	cert, ok := pubKey.(*ssh.Certificate)
@@ -393,6 +460,10 @@ func parseRSACert(req []byte) (*AddedKey, error) {
 	}
 	if err := ssh.Unmarshal(cert.Key.Marshal(), &rsaPub); err != nil {
 		return nil, fmt.Errorf("agent: Unmarshal failed to parse public key: %v", err)
+	}
+
+	if err := checkRSAKeyParams(rsaPub.N, rsaPub.E, k.P, k.Q); err != nil {
+		return nil, err
 	}
 
 	priv := rsa.PrivateKey{

@@ -35,6 +35,16 @@ import (
 // environment might cause environment checks to behave erratically.
 var origEnv = os.Environ()
 
+// SetGODEBUG sets GODEBUG for the duration of t, preserving any existing
+// settings by appending the supplied value.
+func SetGODEBUG(t testing.TB, value string) {
+	t.Helper()
+	if old := os.Getenv("GODEBUG"); old != "" {
+		value = old + "," + value
+	}
+	t.Setenv("GODEBUG", value)
+}
+
 // Builder reports the name of the builder running this test. For example,
 // "gotip-linux-amd64_avx512-test_only" or "go1.24-windows-arm64" on LUCI,
 // or "linux-amd64" on our old infrastructure. Prefer using runtime.GOOS,
