@@ -64,7 +64,7 @@ func runTestAndUpdateIfNeeded(t *testing.T, name string, run func(t *testing.T, 
 	// non-deterministic. Setting cryptocustomrand=1 makes rand.CustomReader
 	// pass the caller's reader (the testing source) through instead.
 	if boring.Enabled {
-		testenv.SetGODEBUG(t, "github.com/runZeroInc/excrypto/cryptocustomrand=1")
+		testenv.SetGODEBUG(t, "cryptocustomrand=1")
 	}
 
 	// excrypto: the bundled handshake transcripts predate the upstream split
@@ -246,6 +246,9 @@ func parseTestData(r io.Reader) (flows [][]byte, err error) {
 
 	if len(currentFlow) > 0 {
 		flows = append(flows, currentFlow)
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
 	}
 
 	return flows, nil

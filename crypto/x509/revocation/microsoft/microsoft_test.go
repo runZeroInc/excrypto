@@ -54,18 +54,22 @@ func parseCertPEM(t *testing.T) (revoked *x509.Certificate) {
 }
 
 func loadRevokedList(t *testing.T) (disallowed *microsoft.DisallowedCerts) {
+	t.Helper()
 	sstFile, err := os.Open(disallowed_cert_location)
 	if err != nil {
-		t.Error(err.Error())
+		if os.IsNotExist(err) {
+			t.Skipf("missing test fixture %s", disallowed_cert_location)
+		}
+		t.Fatal(err.Error())
 	}
 	sstBytes, err := io.ReadAll(sstFile)
 	if err != nil {
-		t.Error(err.Error())
+		t.Fatal(err.Error())
 	}
 	sstFile.Close()
 	disallowed, err = microsoft.Parse(sstBytes)
 	if err != nil {
-		t.Error(err.Error())
+		t.Fatal(err.Error())
 	}
 	return
 }

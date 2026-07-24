@@ -34,7 +34,7 @@ func TestServer(t *testing.T) {
 }
 
 func TestLockServer(t *testing.T) {
-	testLockAgent(NewKeyring(), t)
+	testLockAgent(NewKeyring(), t, "dsa")
 }
 
 func TestSetupForwardAgent(t *testing.T) {

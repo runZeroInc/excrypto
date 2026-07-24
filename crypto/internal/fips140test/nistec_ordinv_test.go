@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/runZeroInc/excrypto/crypto/elliptic"
-	"github.com/runZeroInc/excrypto/crypto/internal/byteorder"
+	"github.com/runZeroInc/excrypto/internal/byteorder"
 )
 
 func bytesToLimbs(b []byte) [4]uint64 {

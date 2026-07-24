@@ -164,18 +164,22 @@ func testCerts(t *testing.T, certList *pkix.CertificateList, cache map[string]*p
 }
 
 func loadCRL(t *testing.T) (certList *pkix.CertificateList) {
+	t.Helper()
 	crlFile, err := os.Open(test_crl_location)
 	if err != nil {
-		t.Error(err.Error())
+		if os.IsNotExist(err) {
+			t.Skipf("missing test fixture %s", test_crl_location)
+		}
+		t.Fatal(err.Error())
 	}
 	crlBytes, err := io.ReadAll(crlFile)
 	if err != nil {
-		t.Error(err.Error())
+		t.Fatal(err.Error())
 	}
 	crlFile.Close()
 	certList, err = x509.ParseCRL(crlBytes)
 	if err != nil {
-		t.Error(err.Error())
+		t.Fatal(err.Error())
 	}
 	return
 }

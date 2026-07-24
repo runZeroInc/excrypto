@@ -29,7 +29,6 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/internal/cryptotest"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140"
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140only"
-	"github.com/runZeroInc/excrypto/internal/godebug"
 	"github.com/runZeroInc/excrypto/crypto/md5"
 	"github.com/runZeroInc/excrypto/crypto/mlkem"
 	"github.com/runZeroInc/excrypto/crypto/mlkem/mlkemtest"
@@ -41,6 +40,7 @@ import (
 	_ "github.com/runZeroInc/excrypto/crypto/sha3"
 	_ "github.com/runZeroInc/excrypto/crypto/sha512"
 	"github.com/runZeroInc/excrypto/crypto/x509"
+	"github.com/runZeroInc/excrypto/internal/godebug"
 	"github.com/runZeroInc/excrypto/x/crypto/chacha20poly1305"
 )
 
@@ -49,11 +49,11 @@ func TestFIPS140Only(t *testing.T) {
 		cryptotest.RerunWithFIPS140Enforced(t)
 		return
 	}
-	t.Run("github.com/runZeroInc/excrypto/cryptocustomrand=0", func(t *testing.T) {
+	t.Run("cryptocustomrand=0", func(t *testing.T) {
 		t.Setenv("GODEBUG", os.Getenv("GODEBUG")+",cryptocustomrand=0")
 		testFIPS140Only(t)
 	})
-	t.Run("github.com/runZeroInc/excrypto/cryptocustomrand=1", func(t *testing.T) {
+	t.Run("cryptocustomrand=1", func(t *testing.T) {
 		t.Setenv("GODEBUG", os.Getenv("GODEBUG")+",cryptocustomrand=1")
 		testFIPS140Only(t)
 	})

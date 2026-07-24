@@ -13,7 +13,6 @@ import (
 	"strings"
 	"testing"
 	"testing/quick"
-	"time"
 
 	"github.com/runZeroInc/excrypto/crypto/x509"
 )
@@ -50,7 +49,7 @@ func mustMarshal(t *testing.T, msg handshakeMessage) []byte {
 }
 
 func TestMarshalUnmarshal(t *testing.T) {
-	rand := rand.New(rand.NewSource(time.Now().UnixNano()))
+	rand := rand.New(rand.NewSource(1))
 
 	for i, m := range tests {
 		ty := reflect.ValueOf(m).Type()

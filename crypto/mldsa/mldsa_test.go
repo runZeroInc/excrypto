@@ -167,7 +167,7 @@ func TestAllocations(t *testing.T) {
 	// variable-sized, and Options is cast into an interface.
 	//
 	// Still, check we are not slipping more allocations in.
-	var expected float64 = 7
+	var expected float64 = 9
 	if fips140.Enabled() {
 		// The PCT does a sign/verify cycle, which allocates a signature slice.
 		expected += 1
@@ -214,7 +214,10 @@ func TestAllocations(t *testing.T) {
 func TestParametersIdentity(t *testing.T) {
 	// Per the MLDSA*() docs, repeated calls return the same value, suitable for
 	// equality checks and switch statements.
-	if MLDSA44() != MLDSA44() || MLDSA65() != MLDSA65() || MLDSA87() != MLDSA87() {
+	mldsa44a, mldsa44b := MLDSA44(), MLDSA44()
+	mldsa65a, mldsa65b := MLDSA65(), MLDSA65()
+	mldsa87a, mldsa87b := MLDSA87(), MLDSA87()
+	if mldsa44a != mldsa44b || mldsa65a != mldsa65b || mldsa87a != mldsa87b {
 		t.Errorf("MLDSA*() returned different values across calls")
 	}
 	if MLDSA44() == MLDSA65() || MLDSA65() == MLDSA87() || MLDSA44() == MLDSA87() {

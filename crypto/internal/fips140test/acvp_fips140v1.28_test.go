@@ -27,6 +27,13 @@ var capabilitiesJson []byte
 
 var testConfigFile = "acvp_test_fips140v1.28.config.json"
 
+func rsaExponentBytes(e *big.Int) ([]byte, error) {
+	if e.Sign() < 0 || e.BitLen() > 32 {
+		return nil, fmt.Errorf("RSA exponent %s does not fit in 32 bits", e)
+	}
+	return e.FillBytes(make([]byte, 4)), nil
+}
+
 func init() {
 	// RSA keyGen for keyFormat=crt capability. Previous versions used standard
 	commands["RSA/keyGen/crt"] = cmdRsaKeyGenCrtAft()
@@ -97,8 +104,10 @@ func cmdRsaKeyGenCrtAft() command {
 
 			N, e, d, P, Q, dP, dQ, qInv := key.Export()
 
-			eBytes := make([]byte, 4)
-			binary.BigEndian.PutUint32(eBytes, uint32(e))
+			eBytes, err := rsaExponentBytes(e)
+			if err != nil {
+				return nil, err
+			}
 
 			return [][]byte{eBytes, P, Q, N, d, dP, dQ, qInv}, nil
 		},
@@ -136,8 +145,10 @@ func cmdRsaSigGenSaltLenAft(hashFunc func() hash.Hash, hashName string, pss bool
 			}
 
 			N, e, _, _, _, _, _, _ := key.Export()
-			eBytes := make([]byte, 4)
-			binary.BigEndian.PutUint32(eBytes, uint32(e))
+			eBytes, err := rsaExponentBytes(e)
+			if err != nil {
+				return nil, err
+			}
 
 			return [][]byte{N, eBytes, sig}, nil
 		},
@@ -165,7 +176,7 @@ func cmdRsaSigVerRandExpAft(hashFunc func() hash.Hash, hashName string, pss bool
 			if len(eBytes) < 32/8 || (len(eBytes) == 32/8 && eBytes[0] < 0x80) {
 				paddedE := make([]byte, 4)
 				copy(paddedE[4-len(eBytes):], eBytes)
-				e := int(binary.BigEndian.Uint32(paddedE))
+				e := new(big.Int).SetUint64(uint64(binary.BigEndian.Uint32(paddedE)))
 
 				pub := &rsa.PublicKey{
 					N: n,
@@ -233,13 +244,12 @@ func cmdKtsIfcResponderRandExpCrtAft(h func() hash.Hash) command {
 			d.Add(d, dP).Mod(d, lcm)
 
 			var dkm []byte
-			var err error
 
 			if len(eBytes) < 32/8 || (len(eBytes) == 32/8 && eBytes[0] < 0x80) {
 				// Exponent fits in an int32, use standard PrivateKey.
 				paddedE := make([]byte, 4)
 				copy(paddedE[4-len(eBytes):], eBytes)
-				e := int(binary.BigEndian.Uint32(paddedE))
+				e := new(big.Int).SetUint64(uint64(binary.BigEndian.Uint32(paddedE)))
 
 				priv, err := rsa.NewPrivateKeyWithPrecomputation(nBytes, e, d.Bytes(), pBytes, qBytes, dmp1Bytes, dmq1Bytes, iqmpBytes)
 				if err != nil {
@@ -247,6 +257,9 @@ func cmdKtsIfcResponderRandExpCrtAft(h func() hash.Hash) command {
 				}
 
 				dkm, err = rsa.DecryptOAEP(h(), h(), priv, cBytes, nil)
+				if err != nil {
+					return nil, fmt.Errorf("OAEP decryption failed: %v", err)
+				}
 			} else {
 				// Large exponent, use TestingOnlyLargeExponentPrivateKey.
 				priv, err := rsa.TestingOnlyNewLargeExponentPrivateKeyWithPrecomputation(nBytes, eBytes, d.Bytes(), pBytes, qBytes, dmp1Bytes, dmq1Bytes, iqmpBytes)
@@ -255,9 +268,9 @@ func cmdKtsIfcResponderRandExpCrtAft(h func() hash.Hash) command {
 				}
 
 				dkm, err = rsa.TestingOnlyLargeExponentDecryptOAEP(h(), h(), priv, cBytes, nil)
-			}
-			if err != nil {
-				return nil, fmt.Errorf("OAEP decryption failed: %v", err)
+				if err != nil {
+					return nil, fmt.Errorf("OAEP decryption failed: %v", err)
+				}
 			}
 
 			return [][]byte{dkm}, nil

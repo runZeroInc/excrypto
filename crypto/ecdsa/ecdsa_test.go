@@ -860,7 +860,7 @@ func TestKeyGenerationVectors(t *testing.T) {
 	}
 	for i, v := range vectors {
 		t.Run(fmt.Sprintf("%s-%d", v.Curve, i), func(t *testing.T) {
-			t.Setenv("GODEBUG", "github.com/runZeroInc/excrypto/cryptocustomrand=1")
+			t.Setenv("GODEBUG", "cryptocustomrand=1")
 			var pers []byte
 			var curve elliptic.Curve
 			switch v.Curve {

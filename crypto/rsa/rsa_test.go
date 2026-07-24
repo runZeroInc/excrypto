@@ -154,7 +154,7 @@ func TestKeyGenerationVectors(t *testing.T) {
 	}
 	for i, v := range vectors {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			t.Setenv("GODEBUG", "github.com/runZeroInc/excrypto/cryptocustomrand=1")
+			t.Setenv("GODEBUG", "cryptocustomrand=1")
 			pers := []byte("det RSA key gen")
 			pers = binary.BigEndian.AppendUint16(pers, uint16(v.Bits))
 			drbg := ecdsa.TestingOnlyNewDRBG(sha256.New, v.Seed, nil, pers)
@@ -871,7 +871,7 @@ func BenchmarkGenerateKey(b *testing.B) {
 	// only accurately works with recent FIPS 140-3 modules.
 	cryptotest.MustMinimumFIPS140ModuleVersion(b, "v1.28.0")
 	b.Run("2048", func(b *testing.B) {
-		b.Setenv("GODEBUG", "github.com/runZeroInc/excrypto/cryptocustomrand=1")
+		b.Setenv("GODEBUG", "cryptocustomrand=1")
 		primes, err := os.ReadFile("testdata/keygen2048.txt")
 		if err != nil {
 			b.Fatal(err)
@@ -884,7 +884,7 @@ func BenchmarkGenerateKey(b *testing.B) {
 		}
 	})
 	b.Run("3072", func(b *testing.B) {
-		b.Setenv("GODEBUG", "github.com/runZeroInc/excrypto/cryptocustomrand=1")
+		b.Setenv("GODEBUG", "cryptocustomrand=1")
 		primes, err := os.ReadFile("testdata/keygen3072.txt")
 		if err != nil {
 			b.Fatal(err)
@@ -897,7 +897,7 @@ func BenchmarkGenerateKey(b *testing.B) {
 		}
 	})
 	b.Run("4096", func(b *testing.B) {
-		b.Setenv("GODEBUG", "github.com/runZeroInc/excrypto/cryptocustomrand=1")
+		b.Setenv("GODEBUG", "cryptocustomrand=1")
 		primes, err := os.ReadFile("testdata/keygen4096.txt")
 		if err != nil {
 			b.Fatal(err)
