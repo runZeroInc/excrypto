@@ -29,6 +29,7 @@ apply_sed 's@go 1\.24@go 1.23@g'
 
 apply_sed 's@"crypto/internal@"github.com/runZeroInc/excrypto/crypto/internal@g'
 apply_sed 's@"internal@"github.com/runZeroInc/excrypto/crypto/internal@g'
+apply_sed 's@github.com/runZeroInc/excrypto/crypto/internal/goarch@github.com/runZeroInc/excrypto/internal/goarch@g'
 
 apply_sed 's@"encoding/asn1"@"github.com/runZeroInc/excrypto/encoding/asn1"@g'
 

@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/runZeroInc/excrypto/crypto/internal/fips140/nistec"
-	"github.com/runZeroInc/excrypto/crypto/internal/goarch"
+	"github.com/runZeroInc/excrypto/internal/goarch"
 )
 
 // package nistec
