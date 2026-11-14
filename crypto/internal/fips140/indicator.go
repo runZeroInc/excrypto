@@ -4,7 +4,7 @@
 
 package fips140
 
-import _ "unsafe" // for go:linkname
+import "sync/atomic"
 
 // The service indicator lets users of the module query whether invoked services
 // are approved. Three states are stored in a per-goroutine value by the
@@ -16,15 +16,15 @@ import _ "unsafe" // for go:linkname
 // negative. Finally, we expose indicatorUnset as negative to the user, so that
 // we don't need to explicitly annotate fully non-approved services.
 
-// In stdlib these are pulled from runtime via go:linkname so the indicator
-// state is per-goroutine. excrypto operates outside the stdlib runtime, so
-// we fall back to a process-global indicator. This is sufficient for build
-// and non-concurrent FIPS-mode tests; concurrent FIPS validation would need
-// a real per-goroutine implementation.
-var globalIndicator uint8
+// In stdlib the indicator state is per-goroutine and comes from the runtime.
+// excrypto operates outside the stdlib runtime and keeps one process-global
+// indicator. Access is atomic, so concurrent use of the module is race-free;
+// the value itself is only meaningful when a single goroutine uses the module
+// between ResetServiceIndicator and ServiceIndicator.
+var globalIndicator atomic.Uint32
 
-func getIndicator() uint8  { return globalIndicator }
-func setIndicator(v uint8) { globalIndicator = v }
+func getIndicator() uint8  { return uint8(globalIndicator.Load()) }
+func setIndicator(v uint8) { globalIndicator.Store(uint32(v)) }
 
 const (
 	indicatorUnset uint8 = iota
@@ -54,9 +54,7 @@ func ServiceIndicator() bool {
 // algorithm is performed) and should be called after any checks that may cause
 // the function to error out or panic.
 func RecordApproved() {
-	if getIndicator() == indicatorUnset {
-		setIndicator(indicatorTrue)
-	}
+	globalIndicator.CompareAndSwap(uint32(indicatorUnset), uint32(indicatorTrue))
 }
 
 // RecordNonApproved is an internal function that records the use of a
