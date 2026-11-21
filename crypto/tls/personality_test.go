@@ -6,6 +6,9 @@ package tls
 
 import (
 	"bytes"
+	"errors"
+	"io"
+	"strings"
 
 	"crypto/rand"
 	"encoding/binary"
@@ -448,5 +451,51 @@ func TestCoalesceHandshakeFlight(t *testing.T) {
 	}
 	if n := records(&Personality{CoalesceHandshakeFlight: true}); n != 1 {
 		t.Errorf("with CoalesceHandshakeFlight the flight went out in %d records, want 1", n)
+	}
+}
+
+// TestLongServerNamePolicy checks the split between a name this stack cannot
+// use and one that is merely too long, which an older JVM answers differently
+// and OpenSSL does not.
+func TestLongServerNamePolicy(t *testing.T) {
+	long := strings.Repeat("w", 256)
+	for _, tc := range []struct {
+		name string
+		p    *Personality
+		in   string
+		dot  bool
+		want RefusalPolicy
+	}{
+		{"nothing set", &Personality{}, long, false, PolicyDefault},
+		{"malformed covers both", &Personality{MalformedServerName: PolicyAlertUnrecognizedName},
+			long, false, PolicyAlertUnrecognizedName},
+		{"long overrides", &Personality{
+			MalformedServerName: PolicyAlertUnrecognizedName,
+			LongServerName:      PolicyAlertUnexpectedMessage,
+		}, long, false, PolicyAlertUnexpectedMessage},
+		{"nul is not long", &Personality{LongServerName: PolicyAlertUnexpectedMessage},
+			"host\x00", false, PolicyDefault},
+		{"ordinary name", &Personality{MalformedServerName: PolicyAlertUnrecognizedName},
+			"host.example", false, PolicyDefault},
+	} {
+		if got := tc.p.serverNamePolicy(tc.in, tc.dot); got != tc.want {
+			t.Errorf("%s: policy = %v, want %v", tc.name, got, tc.want)
+		}
+	}
+}
+
+// TestNewPersonalityFieldsAreNilSafe keeps the promise the whole type makes:
+// every accessor reached from a handshake works on a nil Personality and
+// reports the package's own behaviour.
+func TestNewPersonalityFieldsAreNilSafe(t *testing.T) {
+	var p *Personality
+	if p.ffdhe2048() || p.ignoresSupportedVersions() {
+		t.Error("a nil personality turned something on")
+	}
+	if p.noCommonKeyShareGroup() != PolicyDefault {
+		t.Error("a nil personality has an opinion about key share groups")
+	}
+	if !isEOFError(io.EOF) || !isEOFError(io.ErrUnexpectedEOF) || isEOFError(errors.New("x")) {
+		t.Error("isEOFError does not recognise a truncated stream")
 	}
 }

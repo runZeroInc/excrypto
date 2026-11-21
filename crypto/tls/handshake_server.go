@@ -182,6 +182,11 @@ func (c *Conn) readClientHello(ctx context.Context) (*clientHelloMsg, *echServer
 	c.ticketKeys = originalConfig.ticketKeys(configForClient)
 
 	clientVersions := clientHello.supportedVersions
+	if c.config.personality().ignoresSupportedVersions() {
+		// A stack older than RFC 8446 negotiates from the legacy field alone.
+		// See Personality.IgnoreSupportedVersions.
+		clientVersions = nil
+	}
 	if clientHello.vers >= VersionTLS13 && len(clientVersions) == 0 {
 		// RFC 8446 4.2.1 indicates when the supported_versions extension is not sent,
 		// compatible servers MUST negotiate TLS 1.2 or earlier if supported, even

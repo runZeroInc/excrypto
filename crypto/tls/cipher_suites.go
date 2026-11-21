@@ -111,6 +111,9 @@ func CipherSuiteName(id uint16) string {
 			return c.Name
 		}
 	}
+	if name := personalityCipherSuiteName(id); name != "" {
+		return name
+	}
 	return fmt.Sprintf("0x%04X", id)
 }
 
@@ -650,7 +653,9 @@ func cipherSuiteByID(id uint16) *cipherSuite {
 			return cipherSuite
 		}
 	}
-	return nil
+	// Suites this package implements but never offers of its own accord; see
+	// cipher_suites_personality.go.
+	return personalityCipherSuiteByID(id)
 }
 
 func mutualCipherSuiteTLS13(have []uint16, want uint16) *cipherSuiteTLS13 {

@@ -135,6 +135,12 @@ func isFIPSCipherSuite(id uint16) bool {
 		TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256:
 		// Only for the native module.
 		return !boring.Enabled
+	case TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384,
+		TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,
+		TLS_RSA_WITH_AES_256_CBC_SHA256:
+		// Implemented only for a Config that names them, and outside the FIPS
+		// set. See cipher_suites_personality.go.
+		return false
 	}
 	switch {
 	case strings.Contains(name, "CHACHA20"):

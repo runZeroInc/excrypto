@@ -192,6 +192,19 @@ type Personality struct {
 	// flight and then the alert, as it does from the stacks being modelled.
 	HalfCloseAlert RefusalPolicy
 
+	// IgnoreSupportedVersions makes the server negotiate the version from the
+	// ClientHello's legacy version field alone, as a stack that predates
+	// RFC 8446 does — it has never heard of the supported_versions extension,
+	// so an extension saying "TLS 1.2 only" does not stop it answering a
+	// client whose legacy field says 0x0303 with a TLS 1.0 ServerHello.
+	//
+	// Windows Server 2008 R2 does exactly that: it answers the scanner's
+	// TLS 1.2 probe at TLS 1.0, where this package refuses it, because the
+	// probe's supported_versions names nothing the server will speak. A
+	// personality with a pre-1.2 ceiling needs this or it hangs up on half the
+	// probes the real machine answers.
+	IgnoreSupportedVersions bool
+
 	// FFDHE2048 makes the server complete a TLS 1.3 handshake over the RFC 7919
 	// ffdhe2048 finite-field group when the client offers it.
 	//
@@ -508,6 +521,12 @@ const ffdhe2048Group CurveID = 0x0100
 
 // ffdhe2048 reports whether this personality serves the ffdhe2048 group.
 func (p *Personality) ffdhe2048() bool { return p != nil && p.FFDHE2048 }
+
+// ignoresSupportedVersions reports whether version negotiation should look
+// only at the ClientHello's legacy version field.
+func (p *Personality) ignoresSupportedVersions() bool {
+	return p != nil && p.IgnoreSupportedVersions
+}
 
 // noCommonKeyShareGroup is the policy for a TLS 1.3 client that offers no group
 // this server will use.

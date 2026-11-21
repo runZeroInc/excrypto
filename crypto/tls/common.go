@@ -1232,6 +1232,11 @@ func (c *Config) cipherSuites(aesGCMPreferred bool) []uint16 {
 		cipherSuites = slices.DeleteFunc(cipherSuites, func(id uint16) bool {
 			return !slices.Contains(c.CipherSuites, id)
 		})
+		// Suites this package implements but does not rank, which a Config
+		// reaches only by naming them. See cipher_suites_personality.go. They
+		// go last: a Config that wants one first says so through
+		// Personality.CipherSuitePreference, which is applied after this.
+		cipherSuites = append(cipherSuites, namedPersonalityCipherSuites(c.CipherSuites)...)
 	}
 	if fips140tls.Required() {
 		cipherSuites = slices.DeleteFunc(cipherSuites, func(id uint16) bool {
