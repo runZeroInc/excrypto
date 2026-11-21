@@ -112,6 +112,7 @@ const (
 // TLS extension numbers
 const (
 	extensionServerName              uint16 = 0
+	extensionMaxFragmentLength       uint16 = 1 // RFC 6066, Section 4; recorded but not implemented
 	extensionStatusRequest           uint16 = 5
 	extensionSupportedCurves         uint16 = 10 // supported_groups in TLS 1.3, see RFC 8446, Section 4.2.7
 	extensionSupportedPoints         uint16 = 11
@@ -927,6 +928,16 @@ type Config struct {
 	// clients, see the EncryptedClientHelloConfigList field.
 	EncryptedClientHelloKeys []EncryptedClientHelloKey
 
+	// Personality, when non-nil, describes the observable half of this
+	// server's handshake — ServerHello extension order, cipher selection,
+	// ServerHello random, and what the server does with parameters it does not
+	// like. See [Personality].
+	//
+	// It is a server-side field: on the client side it is ignored. Leaving it
+	// nil, which is the default, leaves every one of those observables exactly
+	// as this package has always produced them.
+	Personality *Personality
+
 	// mutex protects sessionTicketKeys and autoSessionTicketKeys.
 	mutex sync.RWMutex
 	// sessionTicketKeys contains zero or more ticket keys. If set, it means
@@ -1064,6 +1075,7 @@ func (c *Config) Clone() *Config {
 		EncryptedClientHelloConfigList:      c.EncryptedClientHelloConfigList,
 		EncryptedClientHelloRejectionVerify: c.EncryptedClientHelloRejectionVerify,
 		EncryptedClientHelloKeys:            c.EncryptedClientHelloKeys,
+		Personality:                         c.Personality,
 		sessionTicketKeys:                   c.sessionTicketKeys,
 		autoSessionTicketKeys:               c.autoSessionTicketKeys,
 	}

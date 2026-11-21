@@ -100,6 +100,26 @@ type clientHelloMsg struct {
 	encryptedClientHello             []byte
 	// extensions are only populated on the server-side of a handshake
 	extensions []uint16
+
+	// lenient is set on the server side when a Personality has an opinion
+	// about a malformed extension this parser would otherwise reject outright.
+	// It only ever makes the parser keep going and record what it saw; the
+	// decision is then taken in readClientHello, where the Personality is in
+	// reach. It is never set when Config.Personality is nil, so the parser is
+	// as strict as it ever was for every other caller.
+	lenient bool
+	// emptyServerName, serverNameTrailingDot and emptyALPN record a malformed
+	// server_name or ALPN extension that lenient let through.
+	emptyServerName       bool
+	serverNameTrailingDot bool
+	emptyALPN             bool
+	// maxFragmentLength is the raw value of the max_fragment_length extension
+	// (RFC 6066), with hasMaxFragmentLength saying whether it was sent. The
+	// package does not implement the extension; these are recorded so that a
+	// Personality can answer an out-of-range value the way the stack it models
+	// does.
+	maxFragmentLength    uint8
+	hasMaxFragmentLength bool
 }
 
 func (m *clientHelloMsg) marshalMsg(echInner bool) ([]byte, error) {
@@ -478,7 +498,11 @@ func (m *clientHelloMsg) unmarshal(data []byte) bool {
 			// RFC 6066, Section 3
 			var nameList cryptobyte.String
 			if !extData.ReadUint16LengthPrefixed(&nameList) || nameList.Empty() {
-				return false
+				if !m.lenient {
+					return false
+				}
+				m.emptyServerName = true
+				continue
 			}
 			for !nameList.Empty() {
 				var nameType uint8
@@ -486,7 +510,11 @@ func (m *clientHelloMsg) unmarshal(data []byte) bool {
 				if !nameList.ReadUint8(&nameType) ||
 					!nameList.ReadUint16LengthPrefixed(&serverName) ||
 					serverName.Empty() {
-					return false
+					if !m.lenient {
+						return false
+					}
+					m.emptyServerName = true
+					break
 				}
 				if nameType != 0 {
 					continue
@@ -498,7 +526,10 @@ func (m *clientHelloMsg) unmarshal(data []byte) bool {
 				m.serverName = string(serverName)
 				// An SNI value may not include a trailing dot.
 				if strings.HasSuffix(m.serverName, ".") {
-					return false
+					if !m.lenient {
+						return false
+					}
+					m.serverNameTrailingDot = true
 				}
 			}
 		case extensionStatusRequest:
@@ -575,15 +606,33 @@ func (m *clientHelloMsg) unmarshal(data []byte) bool {
 			// RFC 7301, Section 3.1
 			var protoList cryptobyte.String
 			if !extData.ReadUint16LengthPrefixed(&protoList) || protoList.Empty() {
-				return false
+				if !m.lenient {
+					return false
+				}
+				m.emptyALPN = true
+				continue
 			}
 			for !protoList.Empty() {
 				var proto cryptobyte.String
 				if !protoList.ReadUint8LengthPrefixed(&proto) || proto.Empty() {
-					return false
+					if !m.lenient {
+						return false
+					}
+					m.emptyALPN = true
+					break
 				}
 				m.alpnProtocols = append(m.alpnProtocols, string(proto))
 			}
+		case extensionMaxFragmentLength:
+			// RFC 6066, Section 4. The package does not implement the
+			// extension and goes on ignoring it; the value is recorded only so
+			// that a Personality can answer an out-of-range one the way the
+			// stack it models does. Ignoring the body, malformed or not, is
+			// what the default branch below did with this extension before.
+			if len(extData) == 1 {
+				m.maxFragmentLength, m.hasMaxFragmentLength = extData[0], true
+			}
+			continue
 		case extensionSCT:
 			// RFC 6962, Section 3.3.1
 			m.scts = true
@@ -715,6 +764,12 @@ func (m *clientHelloMsg) clone() *clientHelloMsg {
 		pskBinders:                       slices.Clone(m.pskBinders),
 		quicTransportParameters:          slices.Clone(m.quicTransportParameters),
 		encryptedClientHello:             slices.Clone(m.encryptedClientHello),
+		lenient:                          m.lenient,
+		emptyServerName:                  m.emptyServerName,
+		serverNameTrailingDot:            m.serverNameTrailingDot,
+		emptyALPN:                        m.emptyALPN,
+		maxFragmentLength:                m.maxFragmentLength,
+		hasMaxFragmentLength:             m.hasMaxFragmentLength,
 	}
 }
 
@@ -743,6 +798,12 @@ type serverHelloMsg struct {
 	// HelloRetryRequest extensions
 	cookie        []byte
 	selectedGroup CurveID
+
+	// personality, when set, puts the extensions this message carries into the
+	// order the modelled stack emits them. It is set on the server side only,
+	// and only from Config.Personality, so it is nil for every other caller
+	// and the marshalled bytes are then exactly what they always were.
+	personality *Personality
 }
 
 func (m *serverHelloMsg) marshal() ([]byte, error) {
@@ -848,6 +909,7 @@ func (m *serverHelloMsg) marshal() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	extBytes = m.personality.orderServerHelloExtensions(extBytes)
 
 	var b cryptobyte.Builder
 	b.AddUint8(typeServerHello)

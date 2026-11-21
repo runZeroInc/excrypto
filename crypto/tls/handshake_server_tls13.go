@@ -109,6 +109,9 @@ func (hs *serverHandshakeStateTLS13) processClientHello() error {
 	c := hs.c
 
 	hs.hello = new(serverHelloMsg)
+	// Set early so that a HelloRetryRequest, which is built and sent before
+	// the ServerHello, carries the same extension order.
+	hs.hello.personality = c.config.personality()
 
 	// TLS 1.3 froze the ServerHello.legacy_version field, and uses
 	// supported_versions instead. See RFC 8446, sections 4.1.3 and 4.2.1.
@@ -184,6 +187,11 @@ func (hs *serverHandshakeStateTLS13) processClientHello() error {
 	if fips140tls.Required() {
 		preferenceList = allowedCipherSuitesTLS13FIPS
 	}
+	// A personality's own TLS 1.3 preference order, where this package
+	// otherwise has one fixed ranking and ignores Config.CipherSuites.
+	if p := c.config.personality(); p != nil && len(p.CipherSuitePreferenceTLS13) > 0 {
+		preferenceList = intersectSuites(p.CipherSuitePreferenceTLS13, preferenceList)
+	}
 	for _, suiteID := range preferenceList {
 		hs.suite = mutualCipherSuiteTLS13(hs.clientHello.cipherSuites, suiteID)
 		if hs.suite != nil {
@@ -191,7 +199,7 @@ func (hs *serverHandshakeStateTLS13) processClientHello() error {
 		}
 	}
 	if hs.suite == nil {
-		c.sendAlert(alertHandshakeFailure)
+		c.refuse(c.config.personality().noCommonCipherSuite(), alertHandshakeFailure)
 		return fmt.Errorf("tls: no cipher suite supported by both client and server; client offered: %x",
 			hs.clientHello.cipherSuites)
 	}
@@ -552,6 +560,7 @@ func (hs *serverHandshakeStateTLS13) doHelloRetryRequest(selectedGroup CurveID) 
 		compressionMethod: hs.hello.compressionMethod,
 		supportedVersion:  hs.hello.supportedVersion,
 		selectedGroup:     selectedGroup,
+		personality:       hs.hello.personality,
 	}
 
 	if hs.echContext != nil {
@@ -737,6 +746,10 @@ func (hs *serverHandshakeStateTLS13) sendServerParameters() error {
 
 	if err := transcriptMsg(hs.clientHello, hs.transcript); err != nil {
 		return err
+	}
+
+	if p := c.config.personality(); p != nil {
+		p.applyToServerHello(hs.hello, c.config.time())
 	}
 
 	if _, err := hs.c.writeHandshakeRecord(hs.hello, hs.transcript); err != nil {

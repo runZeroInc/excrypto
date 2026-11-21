@@ -1133,7 +1133,13 @@ func (c *Conn) unmarshalHandshakeMessage(data []byte, transcript transcriptHash)
 	case typeHelloRequest:
 		m = new(helloRequestMsg)
 	case typeClientHello:
-		m = new(clientHelloMsg)
+		ch := new(clientHelloMsg)
+		// A server personality that has an opinion about a malformed
+		// server_name or ALPN wants to answer it itself rather than have the
+		// parser reject the whole message; see Personality. Without one the
+		// parser stays as strict as it was.
+		ch.lenient = c.config.personality().lenientClientHello()
+		m = ch
 	case typeServerHello:
 		m = new(serverHelloMsg)
 	case typeNewSessionTicket:

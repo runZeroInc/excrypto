@@ -195,7 +195,7 @@ func (c *Conn) readClientHello(ctx context.Context) (*clientHelloMsg, *echServer
 	}
 	c.vers, ok = c.config.mutualVersion(roleServer, c.quic != nil, clientVersions)
 	if !ok {
-		c.sendAlert(alertProtocolVersion)
+		c.refuse(c.config.personality().unsupportedVersion(), alertProtocolVersion)
 		return nil, nil, fmt.Errorf("tls: client offered only unsupported versions: %x", clientVersions)
 	}
 	c.haveVers = true
@@ -212,6 +212,10 @@ func (c *Conn) readClientHello(ctx context.Context) (*clientHelloMsg, *echServer
 	if c.vers != VersionTLS13 && (ech != nil && !ech.inner) {
 		c.sendAlert(alertIllegalParameter)
 		return nil, nil, errors.New("tls: Encrypted Client Hello cannot be used pre-TLS 1.3")
+	}
+
+	if err := c.applyPersonalityToClientHello(clientHello); err != nil {
+		return nil, nil, err
 	}
 
 	return clientHello, ech, nil
@@ -404,10 +408,16 @@ func (hs *serverHandshakeState) pickCipherSuite() error {
 	c := hs.c
 
 	preferenceList := c.config.cipherSuites(isAESGCMPreferred(hs.clientHello.cipherSuites))
+	// A personality's own preference order is applied strictly: the stack
+	// being modelled picks by its own ranking, not by the client's order or by
+	// what this machine happens to accelerate.
+	if p := c.config.personality(); p != nil && len(p.CipherSuitePreference) > 0 {
+		preferenceList = intersectSuites(p.CipherSuitePreference, preferenceList)
+	}
 
 	hs.suite = selectCipherSuite(preferenceList, hs.clientHello.cipherSuites, hs.cipherSuiteOk)
 	if hs.suite == nil {
-		c.sendAlert(alertHandshakeFailure)
+		c.refuse(c.config.personality().noCommonCipherSuite(), alertHandshakeFailure)
 		return fmt.Errorf("tls: no cipher suite supported by both client and server; client offered: %x",
 			hs.clientHello.cipherSuites)
 	}
@@ -572,6 +582,9 @@ func (hs *serverHandshakeState) doResumeHandshake() error {
 	// secret and it's potentially encrypted with the same key, to help the
 	// client avoid cross-connection tracking from a network observer.
 	hs.hello.ticketSupported = true
+	if p := c.config.personality(); p != nil {
+		p.applyToServerHello(hs.hello, c.config.time())
+	}
 	hs.finishedHash = newFinishedHash(c.vers, hs.suite)
 	hs.finishedHash.discardHandshakeBuffer()
 	if err := transcriptMsg(hs.clientHello, &hs.finishedHash); err != nil {
@@ -606,6 +619,14 @@ func (hs *serverHandshakeState) doFullHandshake() error {
 
 	hs.hello.ticketSupported = hs.clientHello.ticketSupported && !c.config.SessionTicketsDisabled
 	hs.hello.cipherSuite = hs.suite.id
+
+	// The ServerHello is complete here, and is written a few lines down; this
+	// is the last point at which a personality can change what it says, and it
+	// is still before the master secret is derived, so turning off extended
+	// master secret here turns it off for the connection too.
+	if p := c.config.personality(); p != nil {
+		p.applyToServerHello(hs.hello, c.config.time())
+	}
 
 	hs.finishedHash = newFinishedHash(hs.c.vers, hs.suite)
 	if c.config.ClientAuth == NoClientCert {
