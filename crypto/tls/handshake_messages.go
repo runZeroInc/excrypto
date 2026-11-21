@@ -438,7 +438,10 @@ func (m *clientHelloMsg) updateBinders(pskBinders [][]byte) error {
 }
 
 func (m *clientHelloMsg) unmarshal(data []byte) bool {
-	*m = clientHelloMsg{original: data}
+	// lenient is set by the caller before anything is parsed, and has to
+	// survive the reset below.
+	lenient := m.lenient
+	*m = clientHelloMsg{original: data, lenient: lenient}
 	s := cryptobyte.String(data)
 
 	if !s.Skip(4) || // message type and uint24 length field

@@ -195,7 +195,12 @@ func (c *Conn) readClientHello(ctx context.Context) (*clientHelloMsg, *echServer
 	}
 	c.vers, ok = c.config.mutualVersion(roleServer, c.quic != nil, clientVersions)
 	if !ok {
-		c.refuse(c.config.personality().unsupportedVersion(), alertProtocolVersion)
+		// A personality may answer "too new" differently from "too old".
+		policy := c.config.personality().unsupportedVersion()
+		if aboveCeiling(clientVersions, c.config.maxSupportedVersion(roleServer, c.quic != nil)) {
+			policy = c.config.personality().unsupportedVersionAbove()
+		}
+		c.refuse(policy, alertProtocolVersion)
 		return nil, nil, fmt.Errorf("tls: client offered only unsupported versions: %x", clientVersions)
 	}
 	c.haveVers = true

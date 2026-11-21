@@ -118,6 +118,14 @@ type Personality struct {
 	// version it will speak. Go sends protocol_version.
 	UnsupportedVersion RefusalPolicy
 
+	// UnsupportedVersionTooHigh is UnsupportedVersion for the other side of
+	// the range: a client offering only versions above this server's ceiling,
+	// where several stacks answer differently from how they answer one that is
+	// too old. A TLS 1.2-only Siemens web server hangs up on a TLS 1.0-only
+	// client and sends handshake_failure to a TLS 1.3-only one. Left at
+	// PolicyDefault it follows UnsupportedVersion.
+	UnsupportedVersionTooHigh RefusalPolicy
+
 	// NoCommonCipherSuite says how the server refuses a client that offers no
 	// suite it will use. Go sends handshake_failure.
 	NoCommonCipherSuite RefusalPolicy
@@ -230,6 +238,19 @@ func (p *Personality) noCommonCipherSuite() RefusalPolicy {
 		return PolicyDefault
 	}
 	return p.NoCommonCipherSuite
+}
+
+// unsupportedVersionAbove is the policy for a client whose offer is entirely
+// above this server's ceiling, falling back to the one for an offer that is
+// too old when the personality does not distinguish them.
+func (p *Personality) unsupportedVersionAbove() RefusalPolicy {
+	if p == nil {
+		return PolicyDefault
+	}
+	if p.UnsupportedVersionTooHigh != PolicyDefault {
+		return p.UnsupportedVersionTooHigh
+	}
+	return p.UnsupportedVersion
 }
 
 // serverRandomTimestamp reports whether the ServerHello random should start
@@ -491,4 +512,22 @@ func intersectSuites(order, allowed []uint16) []uint16 {
 		}
 	}
 	return out
+}
+
+// aboveCeiling reports whether every version the client offered is newer than
+// the newest this server speaks, as against a client that is simply too old.
+func aboveCeiling(offered []uint16, max uint16) bool {
+	if len(offered) == 0 || max == 0 {
+		return false
+	}
+	for _, v := range offered {
+		// GREASE values are not versions and are not evidence either way.
+		if v&0x0f0f == 0x0a0a && v&0xff == v>>8 {
+			continue
+		}
+		if v <= max {
+			return false
+		}
+	}
+	return true
 }

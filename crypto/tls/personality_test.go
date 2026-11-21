@@ -304,3 +304,71 @@ func TestPersonalityEndToEnd(t *testing.T) {
 		t.Errorf("extension order: got %#04x, want it to start %#04x", got, order)
 	}
 }
+
+// TestLenientClientHelloSurvivesUnmarshal guards the reset at the top of
+// clientHelloMsg.unmarshal, which zeroes the message before parsing it: the
+// leniency flag is set by the caller beforehand and has to survive that, or
+// every policy about a malformed extension silently does nothing and the
+// parser's own decode_error goes out instead.
+func TestLenientClientHelloSurvivesUnmarshal(t *testing.T) {
+	// A server_name extension holding one zero-length name.
+	emptyName := []byte{0x00, 0x00, 0x00, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00}
+	// An ALPN extension holding an empty protocol list.
+	emptyALPN := []byte{0x00, 0x10, 0x00, 0x02, 0x00, 0x00}
+
+	build := func(ext []byte, lenient bool) *clientHelloMsg {
+		m := &clientHelloMsg{lenient: lenient}
+		var hello []byte
+		hello = append(hello, 0x03, 0x03)
+		hello = append(hello, make([]byte, 32)...)
+		hello = append(hello, 0x00)                   // no session id
+		hello = append(hello, 0x00, 0x02, 0x00, 0x2f) // one cipher suite
+		hello = append(hello, 0x01, 0x00)             // null compression
+		hello = append(hello, byte(len(ext)>>8), byte(len(ext)))
+		hello = append(hello, ext...)
+		msg := []byte{0x01, byte(len(hello) >> 16), byte(len(hello) >> 8), byte(len(hello))}
+		msg = append(msg, hello...)
+		if !m.unmarshal(msg) {
+			return nil
+		}
+		return m
+	}
+
+	for _, tc := range []struct {
+		name  string
+		ext   []byte
+		check func(*clientHelloMsg) bool
+	}{
+		{"empty server_name", emptyName, func(m *clientHelloMsg) bool { return m.emptyServerName }},
+		{"empty ALPN", emptyALPN, func(m *clientHelloMsg) bool { return m.emptyALPN }},
+	} {
+		if m := build(tc.ext, false); m != nil {
+			t.Errorf("%s: the strict parser accepted it", tc.name)
+		}
+		m := build(tc.ext, true)
+		if m == nil {
+			t.Fatalf("%s: the lenient parser rejected it", tc.name)
+		}
+		if !tc.check(m) {
+			t.Errorf("%s: the lenient parser did not record it", tc.name)
+		}
+	}
+}
+
+func TestAboveCeiling(t *testing.T) {
+	for _, tc := range []struct {
+		offered []uint16
+		max     uint16
+		want    bool
+	}{
+		{[]uint16{VersionTLS13}, VersionTLS12, true},
+		{[]uint16{VersionTLS10}, VersionTLS12, false},
+		{[]uint16{VersionTLS13, VersionTLS12}, VersionTLS12, false},
+		{[]uint16{0x0a0a, VersionTLS13}, VersionTLS12, true},
+		{nil, VersionTLS12, false},
+	} {
+		if got := aboveCeiling(tc.offered, tc.max); got != tc.want {
+			t.Errorf("aboveCeiling(%#04x, %#04x) = %v, want %v", tc.offered, tc.max, got, tc.want)
+		}
+	}
+}
