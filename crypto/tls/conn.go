@@ -114,6 +114,14 @@ type Conn struct {
 	buffering bool         // whether records are buffered in sendBuf
 	sendBuf   []byte       // a buffer of records waiting to be sent
 
+	// coalescingFlight is set, for a server with a Personality that asks for
+	// it, across the plaintext handshake flight that follows the ServerHello.
+	// While it is set, writeHandshakeRecord accumulates messages in flightBuf
+	// instead of giving each one its own record, and flushHandshakeFlight
+	// emits them together. See Personality.CoalesceHandshakeFlight.
+	coalescingFlight bool
+	flightBuf        []byte
+
 	// bytesSent counts the bytes of application data sent.
 	// packetsSent counts packets.
 	bytesSent   int64
@@ -1070,7 +1078,41 @@ func (c *Conn) writeHandshakeRecord(msg handshakeMessage, transcript transcriptH
 		transcript.Write(data)
 	}
 
+	if c.coalescingFlight {
+		c.flightBuf = append(c.flightBuf, data...)
+		return len(data), nil
+	}
+
 	return c.writeRecordLocked(recordTypeHandshake, data)
+}
+
+// startHandshakeFlight begins accumulating handshake messages into one record,
+// if the config's Personality asks for it. It is a no-op otherwise, and a
+// no-op for TLS 1.3, whose flight is encrypted and framed differently.
+func (c *Conn) startHandshakeFlight() {
+	p := c.config.personality()
+	if p == nil || !p.CoalesceHandshakeFlight || c.vers >= VersionTLS13 {
+		return
+	}
+	c.out.Lock()
+	c.coalescingFlight = true
+	c.out.Unlock()
+}
+
+// flushHandshakeFlight writes everything startHandshakeFlight accumulated as a
+// single handshake record (fragmented only if it is larger than a record can
+// hold), and stops accumulating. It is a no-op when nothing was accumulated.
+func (c *Conn) flushHandshakeFlight() error {
+	c.out.Lock()
+	defer c.out.Unlock()
+	c.coalescingFlight = false
+	if len(c.flightBuf) == 0 {
+		return nil
+	}
+	data := c.flightBuf
+	c.flightBuf = nil
+	_, err := c.writeRecordLocked(recordTypeHandshake, data)
+	return err
 }
 
 // writeChangeCipherRecord writes a ChangeCipherSpec message to the connection and

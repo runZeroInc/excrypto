@@ -391,3 +391,62 @@ func TestPersonalityServerHelloSessionID(t *testing.T) {
 		t.Errorf("TLS 1.3 session ID was replaced: %x", m13.sessionId)
 	}
 }
+
+// TestCoalesceHandshakeFlight checks that the plaintext server flight goes out
+// as one record when a personality asks for it, and as one record per message
+// when none does. A scanner that reads one record at a time sees one reply in
+// the first case and several in the second, which is on its own a
+// Windows-or-not signal.
+func TestCoalesceHandshakeFlight(t *testing.T) {
+	records := func(p *Personality) int {
+		t.Helper()
+		cli, srv := localPipe(t)
+		rec := &serverWriteRecorder{Conn: srv}
+
+		serverConfig := testConfigServer.Clone()
+		serverConfig.MaxVersion = VersionTLS12
+		serverConfig.Personality = p
+
+		var wg sync.WaitGroup
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			server := Server(rec, serverConfig)
+			_ = server.Handshake()
+			server.Close()
+		}()
+
+		clientConfig := testConfigClient.Clone()
+		clientConfig.MaxVersion = VersionTLS12
+		clientConfig.ServerName = "test.golang.example"
+		client := Client(cli, clientConfig)
+		if err := client.Handshake(); err != nil {
+			t.Fatalf("handshake: %v", err)
+		}
+		client.Close()
+		wg.Wait()
+
+		// Count the handshake records the server wrote before it started
+		// encrypting, which is the flight under test.
+		var n int
+		for b := rec.written(); len(b) >= 5; {
+			l := int(binary.BigEndian.Uint16(b[3:5]))
+			if len(b) < 5+l {
+				break
+			}
+			if recordType(b[0]) != recordTypeHandshake {
+				break
+			}
+			n++
+			b = b[5+l:]
+		}
+		return n
+	}
+
+	if n := records(nil); n < 2 {
+		t.Errorf("with no personality the flight went out in %d record(s); this package writes one per message", n)
+	}
+	if n := records(&Personality{CoalesceHandshakeFlight: true}); n != 1 {
+		t.Errorf("with CoalesceHandshakeFlight the flight went out in %d records, want 1", n)
+	}
+}

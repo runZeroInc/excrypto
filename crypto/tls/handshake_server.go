@@ -642,6 +642,11 @@ func (hs *serverHandshakeState) doFullHandshake() error {
 	if err := transcriptMsg(hs.clientHello, &hs.finishedHash); err != nil {
 		return err
 	}
+	// Windows packs the whole of this flight into one record, where this
+	// package gives each message its own; a personality can ask for that. See
+	// Personality.CoalesceHandshakeFlight.
+	c.startHandshakeFlight()
+
 	if _, err := hs.c.writeHandshakeRecord(hs.hello, &hs.finishedHash); err != nil {
 		return err
 	}
@@ -712,6 +717,10 @@ func (hs *serverHandshakeState) doFullHandshake() error {
 
 	helloDone := new(serverHelloDoneMsg)
 	if _, err := hs.c.writeHandshakeRecord(helloDone, &hs.finishedHash); err != nil {
+		return err
+	}
+
+	if err := c.flushHandshakeFlight(); err != nil {
 		return err
 	}
 

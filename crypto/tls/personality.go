@@ -72,6 +72,21 @@ type Personality struct {
 	// ignores Config.CipherSuites entirely.
 	CipherSuitePreferenceTLS13 []uint16
 
+	// CoalesceHandshakeFlight puts the whole plaintext server flight —
+	// ServerHello, Certificate, any status or key exchange, the certificate
+	// request and ServerHelloDone — into one handshake record, instead of
+	// giving each message a record of its own.
+	//
+	// Windows does this and almost nothing else does: of the fingerprints in
+	// one scan corpus, 108 of 121 Schannel services answered the TLS 1.2 probe
+	// with a single record, against 2 of more than 7,000 OpenSSL, BoringSSL
+	// and Go ones. A scanner that reads one record per message sees one reply
+	// from Windows and two from everything else, so this is on its own a
+	// Windows-or-not signal.
+	//
+	// It applies to TLS 1.2 and below, where that flight is in the clear.
+	CoalesceHandshakeFlight bool
+
 	// ServerHelloSessionID makes the server issue a 32-byte session ID in a
 	// full TLS 1.2 handshake. Go issues one only when it is resuming, so its
 	// ServerHello is 32 bytes shorter than almost every other stack's.
