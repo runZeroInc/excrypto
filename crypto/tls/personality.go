@@ -5,6 +5,7 @@
 package tls
 
 import (
+	"io"
 	"time"
 )
 
@@ -70,6 +71,22 @@ type Personality struct {
 	// CipherSuitePreferenceTLS13 is the same for TLS 1.3, where Go otherwise
 	// ignores Config.CipherSuites entirely.
 	CipherSuitePreferenceTLS13 []uint16
+
+	// ServerHelloSessionID makes the server issue a 32-byte session ID in a
+	// full TLS 1.2 handshake. Go issues one only when it is resuming, so its
+	// ServerHello is 32 bytes shorter than almost every other stack's.
+	//
+	// It is worth more than its 32 bytes: runZero's fingerprint parser only
+	// reports ServerHello extensions for a record over 85 bytes, so a
+	// ServerHello without a session ID comes back with an empty extension
+	// list whatever it carried — which is exactly how Go's extension order
+	// has been hiding, and why matching a real device's recorded fingerprint
+	// needs the ID as well as the order.
+	//
+	// The ID is not offered for resumption: this package resumes from tickets,
+	// not from the session ID, so a client that offers one back gets a full
+	// handshake, as it does from any server whose cache has dropped it.
+	ServerHelloSessionID bool
 
 	// ServerRandomTimestamp puts the current time, as a big-endian 32-bit Unix
 	// timestamp, in the first four bytes of the ServerHello random — the
@@ -458,7 +475,7 @@ func (c *Conn) applyPersonalityToClientHello(hello *clientHelloMsg) error {
 // Extensions that carry a negotiated meaning are dropped by clearing what was
 // negotiated, not by hiding it, so the server never does something it did not
 // say. Ordering is applied later, when the message is marshalled.
-func (p *Personality) applyToServerHello(hello *serverHelloMsg, now time.Time) {
+func (p *Personality) applyToServerHello(hello *serverHelloMsg, now time.Time, rand io.Reader) {
 	if p == nil {
 		return
 	}
@@ -487,6 +504,15 @@ func (p *Personality) applyToServerHello(hello *serverHelloMsg, now time.Time) {
 		hello.supportedPoints = nil
 	} else if len(p.ECPointFormats) > 0 && len(hello.supportedPoints) > 0 {
 		hello.supportedPoints = p.ECPointFormats
+	}
+
+	// A session ID in a full handshake. TLS 1.3 echoes the client's and is
+	// left alone; so is a resumption, which has already set one.
+	if p.ServerHelloSessionID && hello.supportedVersion == 0 && len(hello.sessionId) == 0 {
+		id := make([]byte, 32)
+		if _, err := io.ReadFull(rand, id); err == nil {
+			hello.sessionId = id
+		}
 	}
 
 	// gmt_unix_time. TLS 1.3 reserves the tail of the random for downgrade and

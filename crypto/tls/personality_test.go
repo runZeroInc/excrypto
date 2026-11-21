@@ -6,6 +6,8 @@ package tls
 
 import (
 	"bytes"
+
+	"crypto/rand"
 	"encoding/binary"
 	"fmt"
 	"net"
@@ -140,7 +142,7 @@ func TestPersonalityOmitsServerHelloExtensions(t *testing.T) {
 	}
 	// The omissions that carry a negotiated meaning are applied to the
 	// message, not hidden at the last moment.
-	m.personality.applyToServerHello(m, time.Now())
+	m.personality.applyToServerHello(m, time.Now(), rand.Reader)
 	if ids := helloExtensionIDs(t, mustMarshal(t, m)); len(ids) != 0 {
 		t.Errorf("expected a ServerHello with no extensions, got %#04x", ids)
 	}
@@ -152,7 +154,7 @@ func TestPersonalityOmitsServerHelloExtensions(t *testing.T) {
 func TestPersonalityECPointFormats(t *testing.T) {
 	m := fullServerHello()
 	p := &Personality{ECPointFormats: []uint8{0, 1, 2}}
-	p.applyToServerHello(m, time.Now())
+	p.applyToServerHello(m, time.Now(), rand.Reader)
 	if len(m.supportedPoints) != 3 {
 		t.Fatalf("ec_point_formats: got %v", m.supportedPoints)
 	}
@@ -162,7 +164,7 @@ func TestPersonalityServerRandomTimestamp(t *testing.T) {
 	now := time.Unix(1700000000, 0)
 
 	m := fullServerHello()
-	(&Personality{ServerRandomTimestamp: true}).applyToServerHello(m, now)
+	(&Personality{ServerRandomTimestamp: true}).applyToServerHello(m, now, rand.Reader)
 	if got := binary.BigEndian.Uint32(m.random[:4]); got != uint32(now.Unix()) {
 		t.Errorf("gmt_unix_time: got %d, want %d", got, now.Unix())
 	}
@@ -170,7 +172,7 @@ func TestPersonalityServerRandomTimestamp(t *testing.T) {
 	// TLS 1.3 reserves parts of the random; it is left alone.
 	m13 := fullServerHello()
 	m13.supportedVersion = VersionTLS13
-	(&Personality{ServerRandomTimestamp: true}).applyToServerHello(m13, now)
+	(&Personality{ServerRandomTimestamp: true}).applyToServerHello(m13, now, rand.Reader)
 	if !bytes.Equal(m13.random[:4], []byte{0, 0, 0, 0}) {
 		t.Errorf("TLS 1.3 random was stamped: %x", m13.random[:4])
 	}
@@ -370,5 +372,22 @@ func TestAboveCeiling(t *testing.T) {
 		if got := aboveCeiling(tc.offered, tc.max); got != tc.want {
 			t.Errorf("aboveCeiling(%#04x, %#04x) = %v, want %v", tc.offered, tc.max, got, tc.want)
 		}
+	}
+}
+
+func TestPersonalityServerHelloSessionID(t *testing.T) {
+	m := fullServerHello()
+	(&Personality{ServerHelloSessionID: true}).applyToServerHello(m, time.Now(), rand.Reader)
+	if len(m.sessionId) != 32 {
+		t.Errorf("session ID length %d, want 32", len(m.sessionId))
+	}
+
+	// TLS 1.3 echoes the client's session ID; it is not ours to replace.
+	m13 := fullServerHello()
+	m13.supportedVersion = VersionTLS13
+	m13.sessionId = []byte{1, 2, 3}
+	(&Personality{ServerHelloSessionID: true}).applyToServerHello(m13, time.Now(), rand.Reader)
+	if len(m13.sessionId) != 3 {
+		t.Errorf("TLS 1.3 session ID was replaced: %x", m13.sessionId)
 	}
 }

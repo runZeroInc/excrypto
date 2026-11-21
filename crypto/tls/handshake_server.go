@@ -588,7 +588,7 @@ func (hs *serverHandshakeState) doResumeHandshake() error {
 	// client avoid cross-connection tracking from a network observer.
 	hs.hello.ticketSupported = true
 	if p := c.config.personality(); p != nil {
-		p.applyToServerHello(hs.hello, c.config.time())
+		p.applyToServerHello(hs.hello, c.config.time(), c.config.rand())
 	}
 	hs.finishedHash = newFinishedHash(c.vers, hs.suite)
 	hs.finishedHash.discardHandshakeBuffer()
@@ -630,7 +630,7 @@ func (hs *serverHandshakeState) doFullHandshake() error {
 	// is still before the master secret is derived, so turning off extended
 	// master secret here turns it off for the connection too.
 	if p := c.config.personality(); p != nil {
-		p.applyToServerHello(hs.hello, c.config.time())
+		p.applyToServerHello(hs.hello, c.config.time(), c.config.rand())
 	}
 
 	hs.finishedHash = newFinishedHash(hs.c.vers, hs.suite)

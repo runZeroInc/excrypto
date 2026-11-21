@@ -749,7 +749,7 @@ func (hs *serverHandshakeStateTLS13) sendServerParameters() error {
 	}
 
 	if p := c.config.personality(); p != nil {
-		p.applyToServerHello(hs.hello, c.config.time())
+		p.applyToServerHello(hs.hello, c.config.time(), c.config.rand())
 	}
 
 	if _, err := hs.c.writeHandshakeRecord(hs.hello, hs.transcript); err != nil {
