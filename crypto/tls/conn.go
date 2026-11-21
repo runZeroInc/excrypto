@@ -1102,6 +1102,12 @@ func (c *Conn) startHandshakeFlight() {
 // flushHandshakeFlight writes everything startHandshakeFlight accumulated as a
 // single handshake record (fragmented only if it is larger than a record can
 // hold), and stops accumulating. It is a no-op when nothing was accumulated.
+//
+// A handshake that fails between the two calls — a key exchange that cannot be
+// built, say — sends its alert and abandons the accumulated flight unsent. The
+// peer then sees the alert and nothing else, which is a reasonable thing for a
+// server that has decided not to continue, and the connection is finished
+// either way.
 func (c *Conn) flushHandshakeFlight() error {
 	c.out.Lock()
 	defer c.out.Unlock()
