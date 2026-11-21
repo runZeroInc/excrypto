@@ -462,6 +462,11 @@ func (c *Conn) applyPersonalityToClientHello(hello *clientHelloMsg) error {
 			if !c.refuse(p.UnknownALPN, alertNoApplicationProtocol) {
 				return &personalityRefusal{reason: "no ALPN protocol in common"}
 			}
+			// Accepted: this stack ignores an ALPN it cannot match. Dropping
+			// the list here keeps the handshake's own negotiation, which would
+			// send no_application_protocol when NextProtos is configured, from
+			// overruling that.
+			hello.alpnProtocols = nil
 		}
 	}
 
