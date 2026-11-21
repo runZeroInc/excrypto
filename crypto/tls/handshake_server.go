@@ -730,7 +730,10 @@ func (hs *serverHandshakeState) doFullHandshake() error {
 
 	var pub crypto.PublicKey // public key for client auth, if any
 
-	msg, err := c.readHandshake(&hs.finishedHash)
+	// The server's flight is out and it is the client's turn; a personality may
+	// have something to say to a client that ends the stream here instead. See
+	// Personality.HalfCloseAlert.
+	msg, err := c.readAfterFlight(&hs.finishedHash)
 	if err != nil {
 		return err
 	}

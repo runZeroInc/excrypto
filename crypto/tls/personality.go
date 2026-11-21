@@ -5,6 +5,7 @@
 package tls
 
 import (
+	"errors"
 	"io"
 	"time"
 )
@@ -135,6 +136,13 @@ type Personality struct {
 	// this.
 	MalformedServerName RefusalPolicy
 
+	// LongServerName is MalformedServerName for the one shape several stacks
+	// treat differently from the rest: a name longer than the 255 bytes a host
+	// name can hold. An older JVM takes a name with a NUL in it as an ordinary
+	// name and answers an over-long one with unexpected_message, where OpenSSL
+	// answers both alike. Left at PolicyDefault it follows MalformedServerName.
+	LongServerName RefusalPolicy
+
 	// EmptyALPN says what the server does with an application_layer_protocol
 	// _negotiation extension carrying an empty protocol list. Go rejects the
 	// malformed message with decode_error.
@@ -161,6 +169,40 @@ type Personality struct {
 	// NoCommonCipherSuite says how the server refuses a client that offers no
 	// suite it will use. Go sends handshake_failure.
 	NoCommonCipherSuite RefusalPolicy
+
+	// NoCommonKeyShareGroup says how the server refuses a TLS 1.3 client whose
+	// supported_groups names no group this server will use — which in practice
+	// means a client offering only a finite-field group. Go sends
+	// handshake_failure, and so do OpenSSL 1.1 and BoringSSL; Schannel sends
+	// nothing and closes.
+	NoCommonKeyShareGroup RefusalPolicy
+
+	// HalfCloseAlert says what the server sends when the client ends its half
+	// of the stream in the middle of the handshake — a ClientHello followed by
+	// a FIN, which is what a scanner does to see how the stack reacts to a
+	// truncated handshake.
+	//
+	// Go sends nothing: the read fails and the connection is dropped. OpenSSL 3
+	// answers decode_error, Java handshake_failure and GnuTLS
+	// unexpected_message, and runZero's stack identification keys off exactly
+	// that byte — a server that says nothing here cannot be identified as
+	// OpenSSL 3 whatever else it does.
+	//
+	// The alert goes out after the server's own flight, so the peer sees the
+	// flight and then the alert, as it does from the stacks being modelled.
+	HalfCloseAlert RefusalPolicy
+
+	// FFDHE2048 makes the server complete a TLS 1.3 handshake over the RFC 7919
+	// ffdhe2048 finite-field group when the client offers it.
+	//
+	// No Go TLS implements the finite-field groups, so a client offering only
+	// ffdhe2048 is refused by every Go server — while essentially every real
+	// OpenSSL 3 host answers it, which is one of the two things runZero's stack
+	// identification uses to call a server OpenSSL 3 at all. The group is
+	// offered only when a personality asks for it and only after every elliptic
+	// curve the client and server share, so a client that offers a curve still
+	// gets the curve.
+	FFDHE2048 bool
 }
 
 // A RefusalPolicy is one answer to a parameter the server does not like: carry
@@ -302,7 +344,21 @@ func (p *Personality) lenientClientHello() bool {
 	}
 	return p.EmptyServerName != PolicyDefault ||
 		p.MalformedServerName != PolicyDefault ||
+		p.LongServerName != PolicyDefault ||
 		p.EmptyALPN != PolicyDefault
+}
+
+// serverNamePolicy returns the policy for a name this stack could not use,
+// splitting out the over-long case for the stacks that answer it differently.
+// It reports PolicyDefault for a name that is not malformed at all.
+func (p *Personality) serverNamePolicy(name string, trailingDot bool) RefusalPolicy {
+	if len(name) > 255 && p.LongServerName != PolicyDefault {
+		return p.LongServerName
+	}
+	if !malformedServerName(name, trailingDot) {
+		return PolicyDefault
+	}
+	return p.MalformedServerName
 }
 
 // malformedServerName reports whether name is one this stack could not use as
@@ -417,6 +473,51 @@ func (c *Conn) refuse(p RefusalPolicy, fallback alert) (carryOn bool) {
 	return false
 }
 
+// readAfterFlight reads the client's next handshake message once the server's
+// own flight has gone out, answering a client that ends the stream there with
+// whatever this personality's stack sends.
+//
+// A scanner's half-close probe is exactly this case: a ClientHello and then a
+// FIN. Go reports the truncated read and sends nothing, which is what happens
+// with no personality set or with one that has no opinion.
+func (c *Conn) readAfterFlight(transcript transcriptHash) (any, error) {
+	msg, err := c.readHandshake(transcript)
+	if err == nil {
+		return msg, nil
+	}
+	p := c.config.personality()
+	if p == nil || p.HalfCloseAlert == PolicyDefault || !isEOFError(err) {
+		return msg, err
+	}
+	if a, ok := p.HalfCloseAlert.alert(); ok {
+		c.sendAlert(a)
+	}
+	return msg, err
+}
+
+// isEOFError reports whether err is the record layer running out of stream,
+// which is what a peer's FIN looks like from inside a handshake.
+func isEOFError(err error) bool {
+	return errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF)
+}
+
+// ffdhe2048Group is the RFC 7919 2048-bit finite-field group, as a TLS
+// supported_groups code point. It is the only finite-field group this package
+// will serve, and only for a Personality that asks for it.
+const ffdhe2048Group CurveID = 0x0100
+
+// ffdhe2048 reports whether this personality serves the ffdhe2048 group.
+func (p *Personality) ffdhe2048() bool { return p != nil && p.FFDHE2048 }
+
+// noCommonKeyShareGroup is the policy for a TLS 1.3 client that offers no group
+// this server will use.
+func (p *Personality) noCommonKeyShareGroup() RefusalPolicy {
+	if p == nil {
+		return PolicyDefault
+	}
+	return p.NoCommonKeyShareGroup
+}
+
 // errPersonalityRefused is the error behind a handshake a personality refused.
 // The alert, if any, has already gone out by the time it is returned.
 type personalityRefusal struct{ reason string }
@@ -456,9 +557,8 @@ func (c *Conn) applyPersonalityToClientHello(hello *clientHelloMsg) error {
 		}
 	}
 
-	if p.MalformedServerName != PolicyDefault &&
-		malformedServerName(hello.serverName, hello.serverNameTrailingDot) {
-		if !c.refuse(p.MalformedServerName, alertUnrecognizedName) {
+	if policy := p.serverNamePolicy(hello.serverName, hello.serverNameTrailingDot); policy != PolicyDefault {
+		if !c.refuse(policy, alertUnrecognizedName) {
 			return &personalityRefusal{reason: "malformed server_name"}
 		}
 		// Accepted: a name we cannot use is not a name. Dropping it here keeps

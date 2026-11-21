@@ -219,8 +219,16 @@ func (hs *serverHandshakeStateTLS13) processClientHello() error {
 	preferredGroups = slices.DeleteFunc(preferredGroups, func(group CurveID) bool {
 		return !slices.Contains(hs.clientHello.supportedCurves, group)
 	})
+	// A personality may serve the one finite-field group this package
+	// implements, which no Go TLS offers by default. It goes after every curve
+	// the two sides share, so a client offering a curve still gets the curve;
+	// it is reached only by a client that offers nothing else, which is what
+	// the stacks being modelled do. See Personality.FFDHE2048.
+	if c.config.personality().ffdhe2048() && slices.Contains(hs.clientHello.supportedCurves, ffdhe2048Group) {
+		preferredGroups = append(preferredGroups, ffdhe2048Group)
+	}
 	if len(preferredGroups) == 0 {
-		c.sendAlert(alertHandshakeFailure)
+		c.refuse(c.config.personality().noCommonKeyShareGroup(), alertHandshakeFailure)
 		return errors.New("tls: no key exchanges supported by both client and server")
 	}
 	hasKeyShare := func(group CurveID) bool {
@@ -1145,8 +1153,10 @@ func (hs *serverHandshakeStateTLS13) readClientCertificate() error {
 func (hs *serverHandshakeStateTLS13) readClientFinished() error {
 	c := hs.c
 
-	// finishedMsg is not included in the transcript.
-	msg, err := c.readHandshake(nil)
+	// finishedMsg is not included in the transcript. The server's flight is
+	// out by now, so a client that ends the stream here gets whatever the
+	// personality's stack sends; see Personality.HalfCloseAlert.
+	msg, err := c.readAfterFlight(nil)
 	if err != nil {
 		return err
 	}

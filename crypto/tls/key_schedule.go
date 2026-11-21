@@ -110,6 +110,10 @@ func keyExchangeForCurveID(id CurveID) (keyExchange, error) {
 			mlkemGenerateKey1024, mlkemNewPublicKey1024}, nil
 	case MLKEM1024:
 		return &mlkem1024KeyExchange{}, nil
+	case ffdhe2048Group:
+		// Reached only by a server whose Personality serves this group, which
+		// is the only way it is ever selected. See ffdhe.go.
+		return ffdheKeyExchange{}, nil
 	default:
 		return nil, errors.New("tls: unsupported key exchange")
 	}
