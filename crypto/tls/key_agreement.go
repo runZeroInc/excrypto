@@ -183,10 +183,14 @@ type ecdheKeyAgreement struct {
 }
 
 func (ka *ecdheKeyAgreement) generateServerKeyExchange(config *Config, cert *Certificate, clientHello *clientHelloMsg, hello *serverHelloMsg) (*serverKeyExchangeMsg, error) {
+	ka.curveID = config.personality().serverCurve(hello.cipherSuite, clientHello.supportedCurves,
+		func(c CurveID) bool { return config.supportsCurve(ka.version, c) })
 	for _, c := range clientHello.supportedCurves {
+		if ka.curveID != 0 {
+			break
+		}
 		if config.supportsCurve(ka.version, c) {
 			ka.curveID = c
-			break
 		}
 	}
 

@@ -7,6 +7,7 @@ package tls
 import (
 	"errors"
 	"io"
+	"slices"
 	"time"
 )
 
@@ -216,6 +217,14 @@ type Personality struct {
 	// curve the client and server share, so a client that offers a curve still
 	// gets the curve.
 	FFDHE2048 bool
+
+	// CurvePreference is the server's own ECDHE group order at TLS 1.2 and
+	// below, where this package otherwise takes the client's first supported
+	// group. CurvePreferenceAES256 replaces it for suites with a 256-bit key:
+	// Schannel answers an AES-256 suite over P-384 and an AES-128 suite over
+	// X25519 from the same offer. Groups the client did not offer are skipped.
+	CurvePreference       []CurveID
+	CurvePreferenceAES256 []CurveID
 }
 
 // A RefusalPolicy is one answer to a parameter the server does not like: carry
@@ -287,6 +296,8 @@ func (p *Personality) Clone() *Personality {
 	c.ECPointFormats = cloneSlice(p.ECPointFormats)
 	c.CipherSuitePreference = cloneSlice(p.CipherSuitePreference)
 	c.CipherSuitePreferenceTLS13 = cloneSlice(p.CipherSuitePreferenceTLS13)
+	c.CurvePreference = cloneSlice(p.CurvePreference)
+	c.CurvePreferenceAES256 = cloneSlice(p.CurvePreferenceAES256)
 	return &c
 }
 
@@ -695,4 +706,22 @@ func aboveCeiling(offered []uint16, max uint16) bool {
 		}
 	}
 	return true
+}
+
+// serverCurve returns the group this personality picks for suite out of the
+// client's offer, or 0 to leave the choice to the client's order.
+func (p *Personality) serverCurve(suite uint16, offered []CurveID, ok func(CurveID) bool) CurveID {
+	if p == nil {
+		return 0
+	}
+	pref := p.CurvePreference
+	if cs := cipherSuiteByID(suite); cs != nil && cs.keyLen == 32 && len(p.CurvePreferenceAES256) > 0 {
+		pref = p.CurvePreferenceAES256
+	}
+	for _, c := range pref {
+		if slices.Contains(offered, c) && ok(c) {
+			return c
+		}
+	}
+	return 0
 }
