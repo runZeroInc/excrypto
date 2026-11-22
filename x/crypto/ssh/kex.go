@@ -595,6 +595,8 @@ func (kex *curve25519sha256) Server(c packetConn, rand io.Reader, magics *handsh
 // as described in RFC 4419
 type dhGEXSHA struct {
 	hashFunc crypto.Hash
+	// params, from a Personality, replaces the limits, moduli and request.
+	params *GroupExchange
 }
 
 const (
@@ -609,6 +611,10 @@ func (gex *dhGEXSHA) Client(c packetConn, randSource io.Reader, magics *handshak
 		MinBits:       dhGroupExchangeMinimumBits,
 		PreferredBits: dhGroupExchangePreferredBits,
 		MaxBits:       dhGroupExchangeMaximumBits,
+	}
+	if gex.params != nil && gex.params.Request != [3]uint32{} {
+		r := gex.params.Request
+		kexDHGexRequest = kexDHGexRequestMsg{MinBits: r[0], PreferredBits: r[1], MaxBits: r[2]}
 	}
 	if err := c.writePacket(Marshal(&kexDHGexRequest)); err != nil {
 		return nil, err
@@ -625,8 +631,8 @@ func (gex *dhGEXSHA) Client(c packetConn, randSource io.Reader, magics *handshak
 		return nil, err
 	}
 
-	// reject if p's bit length < dhGroupExchangeMinimumBits or > dhGroupExchangeMaximumBits
-	if msg.P.BitLen() < dhGroupExchangeMinimumBits || msg.P.BitLen() > dhGroupExchangeMaximumBits {
+	// reject if p's bit length is outside the request
+	if msg.P.BitLen() < int(kexDHGexRequest.MinBits) || msg.P.BitLen() > int(kexDHGexRequest.MaxBits) {
 		return nil, fmt.Errorf("ssh: server-generated gex p is out of range (%d bits)", msg.P.BitLen())
 	}
 
@@ -674,9 +680,9 @@ func (gex *dhGEXSHA) Client(c packetConn, randSource io.Reader, magics *handshak
 	h := gex.hashFunc.New()
 	magics.write(h)
 	writeString(h, kexDHGexReply.HostKey)
-	binary.Write(h, binary.BigEndian, uint32(dhGroupExchangeMinimumBits))
-	binary.Write(h, binary.BigEndian, uint32(dhGroupExchangePreferredBits))
-	binary.Write(h, binary.BigEndian, uint32(dhGroupExchangeMaximumBits))
+	binary.Write(h, binary.BigEndian, kexDHGexRequest.MinBits)
+	binary.Write(h, binary.BigEndian, kexDHGexRequest.PreferredBits)
+	binary.Write(h, binary.BigEndian, kexDHGexRequest.MaxBits)
 	writeInt(h, msg.P)
 	writeInt(h, msg.G)
 	writeInt(h, X)
@@ -712,19 +718,23 @@ func (gex *dhGEXSHA) Server(c packetConn, randSource io.Reader, magics *handshak
 	//
 	// Furthermore, we also check that the required MinBits are less than or
 	// equal to 4096 because we can use up to Oakley Group 16.
-	if kexDHGexRequest.MaxBits < kexDHGexRequest.MinBits || kexDHGexRequest.PreferredBits < kexDHGexRequest.MinBits ||
-		kexDHGexRequest.MaxBits < kexDHGexRequest.PreferredBits || kexDHGexRequest.MaxBits < dhGroupExchangeMinimumBits ||
-		kexDHGexRequest.MinBits > 4096 {
-		return nil, fmt.Errorf("ssh: DH GEX request out of range, min: %d, max: %d, preferred: %d", kexDHGexRequest.MinBits,
-			kexDHGexRequest.MaxBits, kexDHGexRequest.PreferredBits)
+	var p, g *big.Int
+	if gex.params != nil {
+		if g, p, err = gex.params.choose(kexDHGexRequest); err != nil {
+			return nil, err
+		}
+	} else {
+		if kexDHGexRequest.MaxBits < kexDHGexRequest.MinBits || kexDHGexRequest.PreferredBits < kexDHGexRequest.MinBits ||
+			kexDHGexRequest.MaxBits < kexDHGexRequest.PreferredBits || kexDHGexRequest.MaxBits < dhGroupExchangeMinimumBits ||
+			kexDHGexRequest.MinBits > 4096 {
+			return nil, fmt.Errorf("ssh: DH GEX request out of range, min: %d, max: %d, preferred: %d", kexDHGexRequest.MinBits,
+				kexDHGexRequest.MaxBits, kexDHGexRequest.PreferredBits)
+		}
+		if p, err = chooseDH(kexDHGexRequest); err != nil {
+			return nil, err
+		}
+		g = big.NewInt(2)
 	}
-
-	p, err := chooseDH(kexDHGexRequest)
-	if err != nil {
-		return nil, err
-	}
-
-	g := big.NewInt(2)
 	msg := &kexDHGexGroupMsg{
 		P: p,
 		G: g,

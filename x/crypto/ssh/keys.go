@@ -1602,6 +1602,12 @@ type openSSHRSAPrivateKey struct {
 	Pad     []byte `ssh:"rest"`
 }
 
+type openSSHDSAPrivateKey struct {
+	P, Q, G, Y, X *big.Int
+	Comment       string
+	Pad           []byte `ssh:"rest"`
+}
+
 type openSSHEd25519PrivateKey struct {
 	Pub     []byte
 	Priv    []byte
@@ -1697,6 +1703,22 @@ func parseOpenSSHPrivateKey(key []byte, decrypt openSSHDecryptFunc) (crypto.Priv
 
 		pk.Precompute()
 
+		return pk, nil
+	case InsecureKeyAlgoDSA:
+		var key openSSHDSAPrivateKey
+		if err := Unmarshal(pk1.Rest, &key); err != nil {
+			return nil, err
+		}
+		if err := checkOpenSSHKeyPadding(key.Pad); err != nil {
+			return nil, err
+		}
+		pk := &dsa.PrivateKey{PublicKey: dsa.PublicKey{Parameters: dsa.Parameters{P: key.P, Q: key.Q, G: key.G}, Y: key.Y}, X: key.X}
+		if err := checkDSAParams(&pk.Parameters); err != nil {
+			return nil, err
+		}
+		if key.X.Sign() <= 0 || key.X.Cmp(key.Q) >= 0 || new(big.Int).Exp(key.G, key.X, key.P).Cmp(key.Y) != 0 {
+			return nil, errors.New("ssh: DSA key does not match")
+		}
 		return pk, nil
 	case KeyAlgoED25519:
 		var key openSSHEd25519PrivateKey
@@ -1810,6 +1832,10 @@ func marshalOpenSSHPrivateKey(key crypto.PrivateKey, comment string, encrypt ope
 		}
 		pk1.Keytype = KeyAlgoRSA
 		pk1.Rest = Marshal(key)
+	case *dsa.PrivateKey:
+		w.PubKey = (*dsaPublicKey)(&k.PublicKey).Marshal()
+		pk1.Keytype = InsecureKeyAlgoDSA
+		pk1.Rest = Marshal(openSSHDSAPrivateKey{P: k.P, Q: k.Q, G: k.G, Y: k.Y, X: k.X, Comment: comment})
 	case ed25519.PrivateKey:
 		pub := make([]byte, ed25519.PublicKeySize)
 		priv := make([]byte, ed25519.PrivateKeySize)

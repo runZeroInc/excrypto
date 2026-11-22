@@ -292,7 +292,7 @@ var (
 // described in RFC 4253, section 6.4. direction should either be serverKeys
 // (to setup server->client keys) or clientKeys (for client->server keys).
 func newPacketCipher(d direction, algs DirectionAlgorithms, kex *kexResult) (packetCipher, error) {
-	cipherMode := cipherModes[algs.Cipher]
+	cipherMode := cipherModeFor(algs.Cipher, algs.legacy)
 	if cipherMode == nil {
 		return nil, fmt.Errorf("ssh: unsupported cipher %v", algs.Cipher)
 	}
@@ -305,12 +305,15 @@ func newPacketCipher(d direction, algs DirectionAlgorithms, kex *kexResult) (pac
 
 	var macKey []byte
 	if !aeadCiphers[algs.Cipher] {
-		macMode := macModes[algs.MAC]
+		macMode := macModeFor(algs.MAC, algs.legacy)
+		if macMode == nil {
+			return nil, fmt.Errorf("ssh: unsupported MAC %v", algs.MAC)
+		}
 		macKey = make([]byte, macMode.keySize)
 		generateKeyMaterial(macKey, d.macKeyTag, kex)
 	}
 
-	return cipherModes[algs.Cipher].create(key, iv, macKey, algs)
+	return cipherMode.create(key, iv, macKey, algs)
 }
 
 // generateKeyMaterial fills out with key material generated from tag, K, H

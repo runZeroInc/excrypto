@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"sync"
 	"testing"
 )
 
@@ -80,9 +81,9 @@ func (e errString) Error() string { return string(e) }
 // a cipher is built from it.
 func TestPersonalityUnimplementedMAC(t *testing.T) {
 	if err := checkNegotiated(&NegotiatedAlgorithms{KeyExchange: KeyExchangeCurve25519,
-		Read:  DirectionAlgorithms{Cipher: CipherAES128CTR, MAC: "hmac-ripemd160", compression: "none"},
+		Read:  DirectionAlgorithms{Cipher: CipherAES128CTR, MAC: "hmac-nope", compression: "none"},
 		Write: DirectionAlgorithms{Cipher: CipherAES128CTR, MAC: HMACSHA256, compression: "none"}}); err == nil {
-		t.Fatal("hmac-ripemd160 accepted")
+		t.Fatal("hmac-nope accepted")
 	}
 	if err := checkNegotiated(&NegotiatedAlgorithms{KeyExchange: KeyExchangeSNTRUP761X25519,
 		Read:  DirectionAlgorithms{Cipher: CipherChaCha20Poly1305, compression: "zlib@openssh.com"},
@@ -173,11 +174,14 @@ func TestPersonalityUMACAndZlib(t *testing.T) {
 func TestPersonalityAuthPolicy(t *testing.T) {
 	for _, disc := range []string{"Too many authentication failures", ""} {
 		var calls []string
+		var mu sync.Mutex
 		p := &Personality{
 			KeyExchanges: []string{KeyExchangeCurve25519}, HostKeyAlgorithms: []string{"ecdsa-sha2-nistp256"},
 			Ciphers: []string{CipherAES128CTR}, MACs: []string{HMACSHA256},
 			AuthPolicy: &AuthPolicy{Disconnect: disc, Failed: func(user, method string, query bool) bool {
+				mu.Lock()
 				calls = append(calls, fmt.Sprintf("%s/%v", method, query))
+				mu.Unlock()
 				return method != "none"
 			}},
 		}
@@ -209,6 +213,8 @@ func TestPersonalityAuthPolicy(t *testing.T) {
 		if disc == "" && strings.Contains(err.Error(), "too many") {
 			t.Errorf("silent close sent a disconnect: %v", err)
 		}
+		mu.Lock()
+		defer mu.Unlock()
 		if want := "none/false publickey/true publickey/true"; !strings.HasPrefix(strings.Join(calls, " "), want) || len(calls) != 4 {
 			t.Errorf("policy calls %v", calls)
 		}

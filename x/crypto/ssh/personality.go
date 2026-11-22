@@ -11,6 +11,11 @@ import (
 	"github.com/runZeroInc/excrypto/crypto/sha1"
 )
 
+// A Personality also unlocks the legacy algorithms (legacy.go) for the
+// connection: a server runs one only when its lists advertise it. On a
+// client, the non-empty lists replace the client's KEXINIT lists verbatim
+// (no ext-info-c or kex-strict-c is added), so a test can play an old client.
+//
 // Personality makes a server present another implementation's algorithm
 // negotiation: its KEXINIT name-lists verbatim and in order, its
 // SSH_MSG_EXT_INFO, and the method list in its USERAUTH_FAILURE.
@@ -41,6 +46,15 @@ type Personality struct {
 	// AuthPolicy models the server's failed-authentication behaviour. Nil
 	// keeps this package's.
 	AuthPolicy *AuthPolicy
+
+	// GroupExchange sets the diffie-hellman-group-exchange limits and
+	// moduli. Nil keeps this package's.
+	GroupExchange *GroupExchange
+
+	// CloseOnCorruptPacket closes at once on a CBC packet with a bad length
+	// or MAC, as dropbear does. False follows OpenSSH: read on to 256 KiB
+	// before closing, so the two failures cannot be told apart.
+	CloseOnCorruptPacket bool
 }
 
 // AuthPolicy is how a server treats failed USERAUTH_REQUESTs. With a policy
@@ -149,15 +163,34 @@ func clientWantsExtInfoInAuth(packet []byte) bool {
 // PersonalityAlgorithms lists the names a Personality may advertise that
 // this package runs but does not offer by default.
 func PersonalityAlgorithms() Algorithms {
+	ciphers, macs := legacyNames()
 	return Algorithms{
 		KeyExchanges: []string{KeyExchangeSNTRUP761X25519, KeyExchangeSNTRUP761X25519OpenSSH, KeyExchangeDH18SHA512, "curve25519-sha256@libssh.org"},
-		MACs:         []string{HMACSHA1ETM, UMAC64, UMAC128, UMAC64ETM, UMAC128ETM},
+		Ciphers:      ciphers,
+		MACs:         append([]string{HMACSHA1ETM, UMAC64, UMAC128, UMAC64ETM, UMAC128ETM}, macs...),
 	}
 }
 
 // PersonalityCompressions lists the compression names this package runs.
 func PersonalityCompressions() []string {
 	return []string{compressionNone, compressionZlib, compressionDelayed}
+}
+
+// personalityClientKexInit replaces a client's lists with p's non-empty ones.
+func personalityClientKexInit(p *Personality, msg *kexInitMsg) {
+	set := func(dst *[]string, src []string) {
+		if len(src) > 0 {
+			*dst = slices.Clone(src)
+		}
+	}
+	set(&msg.KexAlgos, p.KeyExchanges)
+	set(&msg.ServerHostKeyAlgos, p.HostKeyAlgorithms)
+	set(&msg.CiphersClientServer, p.Ciphers)
+	set(&msg.CiphersServerClient, p.Ciphers)
+	set(&msg.MACsClientServer, p.MACs)
+	set(&msg.MACsServerClient, p.MACs)
+	set(&msg.CompressionClientServer, p.Compressions)
+	set(&msg.CompressionServerClient, p.Compressions)
 }
 
 // checkNegotiated rejects an agreement on an advertised name this package
@@ -167,10 +200,10 @@ func checkNegotiated(a *NegotiatedAlgorithms) error {
 		return fmt.Errorf("ssh: negotiated key exchange %q is advertised but not implemented", a.KeyExchange)
 	}
 	for _, d := range []DirectionAlgorithms{a.Read, a.Write} {
-		if cipherModes[d.Cipher] == nil {
+		if cipherModeFor(d.Cipher, true) == nil {
 			return fmt.Errorf("ssh: negotiated cipher %q is advertised but not implemented", d.Cipher)
 		}
-		if !aeadCiphers[d.Cipher] && macModes[d.MAC] == nil {
+		if !aeadCiphers[d.Cipher] && macModeFor(d.MAC, true) == nil {
 			return fmt.Errorf("ssh: negotiated MAC %q is advertised but not implemented", d.MAC)
 		}
 		if !slices.Contains(PersonalityCompressions(), d.compression) {

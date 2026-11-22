@@ -429,6 +429,12 @@ type DirectionAlgorithms struct {
 	Cipher      string
 	MAC         string
 	compression string
+
+	// legacy lets this direction run the legacy algorithms (legacy.go);
+	// set only when the Config carries a Personality.
+	legacy bool
+	// closeOnCorrupt fails a corrupt CBC packet at once (Personality).
+	closeOnCorrupt bool
 }
 
 // rekeyBytes returns a rekeying intervals in bytes.
@@ -440,6 +446,9 @@ func (a *DirectionAlgorithms) rekeyBytes() int64 {
 	case CipherAES128CTR, CipherAES192CTR, CipherAES256CTR, CipherAES128GCM, CipherAES256GCM, InsecureCipherAES128CBC:
 		return 16 * (1 << 32)
 
+	}
+	if legacyWideBlock[a.Cipher] {
+		return 16 * (1 << 32)
 	}
 
 	// For others, stick with RFC 4253 recommendation to rekey after 1 Gb of data.

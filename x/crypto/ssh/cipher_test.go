@@ -116,7 +116,7 @@ func TestCBCOracleCounterMeasure(t *testing.T) {
 			t.Errorf("corrupt byte %d: readCipherPacket succeeded ", i)
 			continue
 		}
-		if _, ok := err.(cbcError); !ok {
+		if _, ok := err.(*cbcError); !ok {
 			t.Errorf("corrupt byte %d: got %v (%T), want cbcError", i, err, err)
 			continue
 		}

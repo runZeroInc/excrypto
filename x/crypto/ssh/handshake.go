@@ -243,6 +243,7 @@ func (t *handshakeTransport) readLoop() {
 		p, err := t.readOnePacket(first)
 		first = false
 		if err != nil {
+			t.sendCorruptDisconnect(err)
 			t.readError = err
 			close(t.incoming)
 			break
@@ -263,6 +264,22 @@ func (t *handshakeTransport) readLoop() {
 	close(t.startKex)
 
 	// Don't close t.requestKex; it's also written to from writePacket.
+}
+
+// sendCorruptDisconnect answers a packet that authenticated but is malformed
+// with OpenSSH's protocol-error disconnect. The caller is the reader with
+// no key exchange running, or the key exchange itself, so no other write is
+// in flight once t.mu is held.
+func (t *handshakeTransport) sendCorruptDisconnect(err error) {
+	var ce *corruptPacketError
+	if !errors.As(err, &ce) {
+		return
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if t.writeError == nil {
+		t.pushPacket(Marshal(&disconnectMsg{Reason: 2, Message: ce.msg}))
+	}
 }
 
 func (t *handshakeTransport) pushPacket(p []byte) error {
@@ -348,6 +365,7 @@ write:
 		// channel on the pendingKex request.
 
 		err := t.enterKeyExchange(request.otherInit)
+		t.sendCorruptDisconnect(err)
 
 		t.mu.Lock()
 		t.writeError = err
@@ -558,7 +576,9 @@ func (t *handshakeTransport) sendKexInit() error {
 		//
 		// We also send the strict KEX mode extension algorithm, in order to opt
 		// into the strict KEX mode.
-		if firstKeyExchange := t.sessionID == nil; firstKeyExchange {
+		if p := t.config.Personality; p != nil {
+			personalityClientKexInit(p, msg)
+		} else if firstKeyExchange := t.sessionID == nil; firstKeyExchange {
 			msg.KexAlgos = append(msg.KexAlgos, "ext-info-c")
 			msg.KexAlgos = append(msg.KexAlgos, kexStrictClient)
 		}
@@ -692,13 +712,17 @@ func (t *handshakeTransport) enterKeyExchange(otherInitPacket []byte) error {
 	if err != nil {
 		return err
 	}
-	if t.config.Personality != nil {
+	if p := t.config.Personality; p != nil {
 		if err := checkNegotiated(t.algorithms); err != nil {
 			return err
 		}
+		for _, d := range []*DirectionAlgorithms{&t.algorithms.Read, &t.algorithms.Write} {
+			d.legacy = true
+			d.closeOnCorrupt = p.CloseOnCorruptPacket
+		}
 	}
 
-	if t.sessionID == nil && ((isClient && slices.Contains(serverInit.KexAlgos, kexStrictServer)) || (!isClient && slices.Contains(clientInit.KexAlgos, kexStrictClient) && slices.Contains(serverInit.KexAlgos, kexStrictServer))) {
+	if t.sessionID == nil && ((isClient && slices.Contains(clientInit.KexAlgos, kexStrictClient) && slices.Contains(serverInit.KexAlgos, kexStrictServer)) || (!isClient && slices.Contains(clientInit.KexAlgos, kexStrictClient) && slices.Contains(serverInit.KexAlgos, kexStrictServer))) {
 		t.strictMode = true
 		if err := t.conn.setStrictMode(); err != nil {
 			return err
@@ -843,11 +867,17 @@ func (t *handshakeTransport) server(kex kexAlgorithm, magics *handshakeMagics) (
 		return nil, errors.New("ssh: internal error: negotiated unsupported signature type")
 	}
 
+	if g, ok := kex.(*dhGEXSHA); ok && t.config.Personality != nil && t.config.Personality.GroupExchange != nil {
+		kex = &dhGEXSHA{hashFunc: g.hashFunc, params: t.config.Personality.GroupExchange}
+	}
 	r, err := kex.Server(t.conn, t.config.Rand, magics, hostKey, t.algorithms.HostKey)
 	return r, err
 }
 
 func (t *handshakeTransport) client(kex kexAlgorithm, magics *handshakeMagics) (*kexResult, error) {
+	if g, ok := kex.(*dhGEXSHA); ok && t.config.Personality != nil && t.config.Personality.GroupExchange != nil {
+		kex = &dhGEXSHA{hashFunc: g.hashFunc, params: t.config.Personality.GroupExchange}
+	}
 	result, err := kex.Client(t.conn, t.config.Rand, magics)
 	if err != nil {
 		return nil, err

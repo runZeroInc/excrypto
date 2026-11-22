@@ -64,6 +64,11 @@ type cipherMode struct {
 }
 
 func streamCipherMode(skip int, createFunc func(key, iv []byte) (cipher.Stream, error)) func(key, iv []byte, macKey []byte, algs DirectionAlgorithms) (packetCipher, error) {
+	return streamCipherModeBlock(skip, 0, createFunc)
+}
+
+// streamCipherModeBlock pads packets to blockSize (0 means packetSizeMultiple).
+func streamCipherModeBlock(skip, blockSize int, createFunc func(key, iv []byte) (cipher.Stream, error)) func(key, iv []byte, macKey []byte, algs DirectionAlgorithms) (packetCipher, error) {
 	return func(key, iv, macKey []byte, algs DirectionAlgorithms) (packetCipher, error) {
 		stream, err := createFunc(key, iv)
 		if err != nil {
@@ -84,13 +89,16 @@ func streamCipherMode(skip int, createFunc func(key, iv []byte) (cipher.Stream, 
 			remainingToDump -= dumpThisTime
 		}
 
-		mac := macModes[algs.MAC].new(macKey)
-		return &streamPacketCipher{
-			mac:       mac,
-			etm:       macModes[algs.MAC].etm,
-			macResult: make([]byte, mac.Size()),
-			cipher:    stream,
-		}, nil
+		mm := macModeFor(algs.MAC, algs.legacy)
+		if mm == nil {
+			return nil, fmt.Errorf("ssh: unsupported MAC %v", algs.MAC)
+		}
+		pc := &streamPacketCipher{cipher: stream, etm: mm.etm, blockSize: blockSize}
+		if mac := mm.new(macKey); mac != nil {
+			pc.mac = mac
+			pc.macResult = make([]byte, mac.Size())
+		}
+		return pc, nil
 	}
 }
 
@@ -120,9 +128,11 @@ func init() {
 
 	cipherModes[CipherChaCha20Poly1305] = &cipherMode{64, 0, newChaCha20Cipher}
 	// Insecure ciphers not included in the default configuration.
-	cipherModes[InsecureCipherRC4128] = &cipherMode{16, 0, streamCipherMode(1536, newRC4)}
-	cipherModes[InsecureCipherRC4256] = &cipherMode{32, 0, streamCipherMode(1536, newRC4)}
-	cipherModes[InsecureCipherRC4] = &cipherMode{16, 0, streamCipherMode(0, newRC4)}
+	// arcfour128/256 drop the first 1536 keystream bytes (RFC 4345); arcfour
+	// does not. All pad to OpenSSH's 8-byte block.
+	cipherModes[InsecureCipherRC4128] = &cipherMode{16, 0, streamCipherModeBlock(1536, 8, newRC4)}
+	cipherModes[InsecureCipherRC4256] = &cipherMode{32, 0, streamCipherModeBlock(1536, 8, newRC4)}
+	cipherModes[InsecureCipherRC4] = &cipherMode{16, 0, streamCipherModeBlock(0, 8, newRC4)}
 	// CBC mode is insecure and so is not included in the default config.
 	// (See https://www.ieee-security.org/TC/SP2013/papers/4977a526.pdf). If absolutely
 	// needed, it's possible to specify a custom Config to enable it.
@@ -141,6 +151,8 @@ type streamPacketCipher struct {
 	mac    hash.Hash
 	cipher cipher.Stream
 	etm    bool
+	// blockSize is the padding multiple; 0 means packetSizeMultiple.
+	blockSize int
 
 	// The following members are to avoid per-packet allocations.
 	prefix      [prefixLen]byte
@@ -234,9 +246,13 @@ func (s *streamPacketCipher) writeCipherPacket(seqNum uint32, w io.Writer, rand 
 		aadlen = 4
 	}
 
-	paddingLength := packetSizeMultiple - (prefixLen+len(packet)-aadlen)%packetSizeMultiple
+	bs := s.blockSize
+	if bs == 0 {
+		bs = packetSizeMultiple
+	}
+	paddingLength := bs - (prefixLen+len(packet)-aadlen)%bs
 	if paddingLength < 4 {
-		paddingLength += packetSizeMultiple
+		paddingLength += bs
 	}
 
 	length := len(packet) + 1 + paddingLength
@@ -414,32 +430,41 @@ func (c *gcmCipher) readCipherPacket(seqNum uint32, r io.Reader) ([]byte, error)
 	return plain, nil
 }
 
-// cbcCipher implements aes128-cbc cipher defined in RFC 4253 section 6.1
+// cbcCipher implements the CBC ciphers of RFC 4253 section 6.3, with a plain
+// or an encrypt-then-MAC (OpenSSH) MAC. The IV chains across packets.
 type cbcCipher struct {
 	mac       hash.Hash
 	macSize   uint32
+	etm       bool
 	decrypter cipher.BlockMode
 	encrypter cipher.BlockMode
+
+	// closeOnCorrupt skips the discard and fails at once, as dropbear does.
+	closeOnCorrupt bool
 
 	// The following members are to avoid per-packet allocations.
 	seqNumBytes [4]byte
 	packetData  []byte
 	macResult   []byte
-
-	// Amount of data we should still read to hide which
-	// verification error triggered.
-	oracleCamouflage uint32
 }
 
 func newCBCCipher(c cipher.Block, key, iv, macKey []byte, algs DirectionAlgorithms) (packetCipher, error) {
+	mm := macModeFor(algs.MAC, algs.legacy)
+	if mm == nil {
+		return nil, fmt.Errorf("ssh: unsupported MAC %v", algs.MAC)
+	}
 	cbc := &cbcCipher{
-		mac:        macModes[algs.MAC].new(macKey),
-		decrypter:  cipher.NewCBCDecrypter(c, iv),
-		encrypter:  cipher.NewCBCEncrypter(c, iv),
-		packetData: make([]byte, 1024),
+		mac:            mm.new(macKey),
+		etm:            mm.etm,
+		decrypter:      cipher.NewCBCDecrypter(c, iv),
+		encrypter:      cipher.NewCBCEncrypter(c, iv),
+		packetData:     make([]byte, 1024),
+		closeOnCorrupt: algs.closeOnCorrupt,
 	}
 	if cbc.mac != nil {
 		cbc.macSize = uint32(cbc.mac.Size())
+	} else {
+		cbc.etm = false
 	}
 
 	return cbc, nil
@@ -486,134 +511,169 @@ const (
 	cbcMinPaddingSize        = 4
 )
 
-// cbcError represents a verification error that may leak information.
-type cbcError string
+// cbcError is a length or MAC failure, which must not be told apart.
+// macAlready is how much the MAC had covered when it was found.
+type cbcError struct {
+	msg        string
+	macAlready uint32
+}
 
-func (e cbcError) Error() string { return string(e) }
+func (e *cbcError) Error() string { return e.msg }
+
+// corruptPacketError is a packet that authenticated but is malformed. The
+// reader answers it with SSH_MSG_DISCONNECT carrying msg, as OpenSSH does.
+type corruptPacketError struct{ msg string }
+
+func (e *corruptPacketError) Error() string { return "ssh: " + e.msg }
 
 func (c *cbcCipher) readCipherPacket(seqNum uint32, r io.Reader) ([]byte, error) {
-	p, err := c.readCipherPacketLeaky(seqNum, r)
-	if err != nil {
-		if _, ok := err.(cbcError); ok {
-			// Verification error: read a fixed amount of
-			// data, to make distinguishing between
-			// failing MAC and failing length check more
-			// difficult.
-			io.CopyN(io.Discard, r, int64(c.oracleCamouflage))
+	read := &countingReader{r: r}
+	p, err := c.readCipherPacketLeaky(seqNum, read)
+	var ce *cbcError
+	if err != nil && errors.As(err, &ce) && !c.closeOnCorrupt && !c.etm {
+		// OpenSSH's countermeasure: consume until maxPacket bytes of this
+		// packet have arrived, MAC the remainder so the time taken does
+		// not depend on which check failed, then close.
+		if read.n < maxPacket {
+			if _, rerr := io.CopyN(io.Discard, r, int64(maxPacket-read.n)); rerr != nil {
+				return nil, rerr
+			}
+		}
+		if c.mac != nil {
+			var buf [1024]byte
+			c.mac.Reset()
+			for left := int(maxPacket - ce.macAlready); left > 0; left -= len(buf) {
+				c.mac.Write(buf[:min(left, len(buf))])
+			}
+			c.mac.Sum(c.macResult[:0])
 		}
 	}
 	return p, err
 }
 
+type countingReader struct {
+	r io.Reader
+	n int
+}
+
+func (c *countingReader) Read(p []byte) (int, error) {
+	n, err := c.r.Read(p)
+	c.n += n
+	return n, err
+}
+
 func (c *cbcCipher) readCipherPacketLeaky(seqNum uint32, r io.Reader) ([]byte, error) {
-	blockSize := c.decrypter.BlockSize()
+	blockSize := uint32(c.decrypter.BlockSize())
 
-	// Read the header, which will include some of the subsequent data in the
-	// case of block ciphers - this is copied back to the payload later.
-	// How many bytes of payload/padding will be read with this first read.
-	firstBlockLength := uint32((prefixLen + blockSize - 1) / blockSize * blockSize)
-	firstBlock := c.packetData[:firstBlockLength]
-	if _, err := io.ReadFull(r, firstBlock); err != nil {
-		return nil, err
+	var length, start uint32
+	if c.etm {
+		// The length is in the clear and the MAC covers the ciphertext.
+		if cap(c.packetData) < 4 {
+			c.packetData = make([]byte, 1024)
+		}
+		hdr := c.packetData[:4]
+		if _, err := io.ReadFull(r, hdr); err != nil {
+			return nil, err
+		}
+		length = binary.BigEndian.Uint32(hdr)
+		if length < 5 || length > maxPacket || length%blockSize != 0 {
+			return nil, &cbcError{msg: "ssh: invalid packet length"}
+		}
+		start = 4
+	} else {
+		firstBlock := c.packetData[:blockSize]
+		if _, err := io.ReadFull(r, firstBlock); err != nil {
+			return nil, err
+		}
+		c.decrypter.CryptBlocks(firstBlock, firstBlock)
+		length = binary.BigEndian.Uint32(firstBlock[:4])
+		if length < 5 || length > maxPacket {
+			return nil, &cbcError{msg: "ssh: invalid packet length"}
+		}
+		if (length+4)%blockSize != 0 {
+			return nil, &cbcError{msg: "ssh: invalid packet length multiple"}
+		}
+		start = blockSize
 	}
 
-	c.oracleCamouflage = maxPacket + 4 + c.macSize - firstBlockLength
-
-	c.decrypter.CryptBlocks(firstBlock, firstBlock)
-	length := binary.BigEndian.Uint32(firstBlock[:4])
-	if length > maxPacket {
-		return nil, cbcError("ssh: packet too large")
-	}
-	if length+4 < maxUInt32(cbcMinPacketSize, blockSize) {
-		// The minimum size of a packet is 16 (or the cipher block size, whichever
-		// is larger) bytes.
-		return nil, cbcError("ssh: packet too small")
-	}
-	// The length of the packet (including the length field but not the MAC) must
-	// be a multiple of the block size or 8, whichever is larger.
-	if (length+4)%maxUInt32(cbcMinPacketSizeMultiple, blockSize) != 0 {
-		return nil, cbcError("ssh: invalid packet length multiple")
-	}
-
-	paddingLength := uint32(firstBlock[4])
-	if paddingLength < cbcMinPaddingSize || length <= paddingLength+1 {
-		return nil, cbcError("ssh: invalid packet length")
-	}
-
-	// Positions within the c.packetData buffer:
 	macStart := 4 + length
-	paddingStart := macStart - paddingLength
-
-	// Entire packet size, starting before length, ending at end of mac.
 	entirePacketSize := macStart + c.macSize
-
-	// Ensure c.packetData is large enough for the entire packet data.
 	if uint32(cap(c.packetData)) < entirePacketSize {
-		// Still need to upsize and copy, but this should be rare at runtime, only
-		// on upsizing the packetData buffer.
-		c.packetData = make([]byte, entirePacketSize)
-		copy(c.packetData, firstBlock)
+		buf := make([]byte, entirePacketSize)
+		copy(buf, c.packetData[:start])
+		c.packetData = buf
 	} else {
 		c.packetData = c.packetData[:entirePacketSize]
 	}
-
-	n, err := io.ReadFull(r, c.packetData[firstBlockLength:])
-	if err != nil {
+	if _, err := io.ReadFull(r, c.packetData[start:]); err != nil {
 		return nil, err
 	}
-	c.oracleCamouflage -= uint32(n)
-
-	remainingCrypted := c.packetData[firstBlockLength:macStart]
-	c.decrypter.CryptBlocks(remainingCrypted, remainingCrypted)
-
 	mac := c.packetData[macStart:]
+
 	if c.mac != nil {
 		c.mac.Reset()
 		binary.BigEndian.PutUint32(c.seqNumBytes[:], seqNum)
 		c.mac.Write(c.seqNumBytes[:])
-		c.mac.Write(c.packetData[:macStart])
-		c.macResult = c.mac.Sum(c.macResult[:0])
-		if subtle.ConstantTimeCompare(c.macResult, mac) != 1 {
-			return nil, cbcError("ssh: MAC failure")
+		if c.etm {
+			c.mac.Write(c.packetData[:macStart])
+			c.macResult = c.mac.Sum(c.macResult[:0])
+			if subtle.ConstantTimeCompare(c.macResult, mac) != 1 {
+				return nil, &cbcError{msg: "ssh: MAC failure"}
+			}
+			c.decrypter.CryptBlocks(c.packetData[4:macStart], c.packetData[4:macStart])
+		} else {
+			c.decrypter.CryptBlocks(c.packetData[start:macStart], c.packetData[start:macStart])
+			c.mac.Write(c.packetData[:macStart])
+			c.macResult = c.mac.Sum(c.macResult[:0])
+			if subtle.ConstantTimeCompare(c.macResult, mac) != 1 {
+				return nil, &cbcError{msg: "ssh: MAC failure", macAlready: macStart}
+			}
 		}
+	} else {
+		c.decrypter.CryptBlocks(c.packetData[start:macStart], c.packetData[start:macStart])
 	}
 
-	return c.packetData[prefixLen:paddingStart], nil
+	paddingLength := uint32(c.packetData[4])
+	if paddingLength < cbcMinPaddingSize {
+		return nil, &corruptPacketError{fmt.Sprintf("Corrupted padlen %d on input.", paddingLength)}
+	}
+	if length <= paddingLength+1 {
+		return nil, errors.New("ssh: invalid packet padding")
+	}
+	return c.packetData[prefixLen : macStart-paddingLength], nil
 }
 
 func (c *cbcCipher) writeCipherPacket(seqNum uint32, w io.Writer, rand io.Reader, packet []byte) error {
 	effectiveBlockSize := maxUInt32(cbcMinPacketSizeMultiple, c.encrypter.BlockSize())
 
-	// Length of encrypted portion of the packet (header, payload, padding).
-	// Enforce minimum padding and packet size.
-	encLength := maxUInt32(prefixLen+len(packet)+cbcMinPaddingSize, cbcMinPacketSize)
-	// Enforce block size.
+	// Length of the padded portion: header (less the length field under
+	// EtM), payload and padding, a multiple of the block size.
+	aad := uint32(0)
+	if c.etm {
+		aad = 4
+	}
+	// As OpenSSH: at least 4 bytes of padding up to the block size. The
+	// result is never under 16 bytes without EtM.
+	encLength := uint32(prefixLen+len(packet)+cbcMinPaddingSize) - aad
 	encLength = (encLength + effectiveBlockSize - 1) / effectiveBlockSize * effectiveBlockSize
+	total := encLength + aad
 
-	length := encLength - 4
+	length := total - 4
 	paddingLength := int(length) - (1 + len(packet))
 
-	// Overall buffer contains: header, payload, padding, mac.
-	// Space for the MAC is reserved in the capacity but not the slice length.
-	bufferSize := encLength + c.macSize
+	bufferSize := total + c.macSize
 	if uint32(cap(c.packetData)) < bufferSize {
-		c.packetData = make([]byte, encLength, bufferSize)
+		c.packetData = make([]byte, total, bufferSize)
 	} else {
-		c.packetData = c.packetData[:encLength]
+		c.packetData = c.packetData[:total]
 	}
 
 	p := c.packetData
-
-	// Packet header.
 	binary.BigEndian.PutUint32(p, length)
 	p = p[4:]
 	p[0] = byte(paddingLength)
-
-	// Payload.
 	p = p[1:]
 	copy(p, packet)
-
-	// Padding.
 	p = p[len(packet):]
 	if _, err := io.ReadFull(rand, p); err != nil {
 		return err
@@ -623,18 +683,21 @@ func (c *cbcCipher) writeCipherPacket(seqNum uint32, w io.Writer, rand io.Reader
 		c.mac.Reset()
 		binary.BigEndian.PutUint32(c.seqNumBytes[:], seqNum)
 		c.mac.Write(c.seqNumBytes[:])
+	}
+	if c.etm {
+		c.encrypter.CryptBlocks(c.packetData[4:total], c.packetData[4:total])
 		c.mac.Write(c.packetData)
-		// The MAC is now appended into the capacity reserved for it earlier.
 		c.packetData = c.mac.Sum(c.packetData)
+	} else {
+		if c.mac != nil {
+			c.mac.Write(c.packetData)
+			c.packetData = c.mac.Sum(c.packetData)
+		}
+		c.encrypter.CryptBlocks(c.packetData[:total], c.packetData[:total])
 	}
 
-	c.encrypter.CryptBlocks(c.packetData[:encLength], c.packetData[:encLength])
-
-	if _, err := w.Write(c.packetData); err != nil {
-		return err
-	}
-
-	return nil
+	_, err := w.Write(c.packetData)
+	return err
 }
 
 // chacha20Poly1305Cipher implements the chacha20-poly1305@openssh.com
