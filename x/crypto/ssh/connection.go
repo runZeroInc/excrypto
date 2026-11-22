@@ -106,6 +106,10 @@ type connection struct {
 
 	// The connection protocol.
 	*mux
+
+	// extInfoInAuth is set when the client's EXT_INFO asked for
+	// ext-info-in-auth@openssh.com.
+	extInfoInAuth bool
 }
 
 func (c *connection) Close() error {

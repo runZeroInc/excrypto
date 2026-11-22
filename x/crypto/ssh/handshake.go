@@ -546,6 +546,9 @@ func (t *handshakeTransport) sendKexInit() error {
 		if t.sessionID == nil {
 			msg.KexAlgos = append(msg.KexAlgos, kexStrictServer)
 		}
+		if p := t.config.Personality; p != nil {
+			personalityKexInit(p, msg, t.sessionID == nil)
+		}
 	} else {
 		msg.ServerHostKeyAlgos = t.hostKeyAlgorithms
 
@@ -689,8 +692,13 @@ func (t *handshakeTransport) enterKeyExchange(otherInitPacket []byte) error {
 	if err != nil {
 		return err
 	}
+	if t.config.Personality != nil {
+		if err := checkNegotiated(t.algorithms); err != nil {
+			return err
+		}
+	}
 
-	if t.sessionID == nil && ((isClient && slices.Contains(serverInit.KexAlgos, kexStrictServer)) || (!isClient && slices.Contains(clientInit.KexAlgos, kexStrictClient))) {
+	if t.sessionID == nil && ((isClient && slices.Contains(serverInit.KexAlgos, kexStrictServer)) || (!isClient && slices.Contains(clientInit.KexAlgos, kexStrictClient) && slices.Contains(serverInit.KexAlgos, kexStrictServer))) {
 		t.strictMode = true
 		if err := t.conn.setStrictMode(); err != nil {
 			return err
@@ -747,7 +755,13 @@ func (t *handshakeTransport) enterKeyExchange(otherInitPacket []byte) error {
 	// On the server side, after the first SSH_MSG_NEWKEYS, send a SSH_MSG_EXT_INFO
 	// message with the server-sig-algs extension if the client supports it. See
 	// RFC 8308, Sections 2.4 and 3.1, and [PROTOCOL], Section 1.9.
-	if !isClient && firstKeyExchange && slices.Contains(clientInit.KexAlgos, "ext-info-c") {
+	if p := t.config.Personality; !isClient && firstKeyExchange && p != nil && p.ExtInfo != nil {
+		if len(p.ExtInfo) > 0 && slices.Contains(clientInit.KexAlgos, "ext-info-c") {
+			if err := t.conn.writePacket(marshalExtInfo(p.ExtInfo)); err != nil {
+				return err
+			}
+		}
+	} else if !isClient && firstKeyExchange && slices.Contains(clientInit.KexAlgos, "ext-info-c") {
 		supportedPubKeyAuthAlgosList := strings.Join(t.publicKeyAuthAlgorithms, ",")
 		extInfo := &extInfoMsg{
 			NumExtensions: 2,

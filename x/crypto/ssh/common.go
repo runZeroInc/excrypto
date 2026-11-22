@@ -535,6 +535,10 @@ type Config struct {
 	// The allowed MAC algorithms. If unspecified then a sensible default is
 	// used. Unsupported values are silently ignored.
 	MACs []string
+
+	// Personality, on a server, replaces the advertised algorithm lists,
+	// EXT_INFO and authentication method list. See Personality.
+	Personality *Personality
 }
 
 // SetDefaults sets sensible values for unset fields in config. This is

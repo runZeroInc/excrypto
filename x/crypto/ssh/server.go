@@ -427,6 +427,13 @@ func (s *connection) serverHandshake(config *ServerConfig) (*Permissions, error)
 	if packet, err = s.transport.readPacket(); err != nil {
 		return nil, err
 	}
+	// A client sends its own EXT_INFO first when the server offered ext-info-s.
+	if len(packet) > 0 && packet[0] == msgExtInfo {
+		s.extInfoInAuth = clientWantsExtInfoInAuth(packet)
+		if packet, err = s.transport.readPacket(); err != nil {
+			return nil, err
+		}
+	}
 
 	var serviceRequest serviceRequestMsg
 	if err = Unmarshal(packet, &serviceRequest); err != nil {
@@ -680,6 +687,12 @@ userAuthLoop:
 				Reason:  2,
 				Message: "too many authentication failures",
 			}
+			if p := config.Personality; p != nil && p.AuthPolicy != nil {
+				if p.AuthPolicy.Disconnect == "" {
+					return nil, &ServerAuthError{Errors: append(authErrs, discMsg)}
+				}
+				discMsg.Message = p.AuthPolicy.Disconnect
+			}
 
 			if err := s.transport.writePacket(Marshal(discMsg)); err != nil {
 				return nil, err
@@ -722,6 +735,13 @@ userAuthLoop:
 
 		s.user = userAuthReq.User
 
+		if p := config.Personality; s.extInfoInAuth && p != nil && len(p.ExtInfoInAuth) > 0 {
+			s.extInfoInAuth = false
+			if err := s.transport.writePacket(marshalExtInfo(p.ExtInfoInAuth)); err != nil {
+				return nil, err
+			}
+		}
+
 		if !calledBannerCallback && config.BannerCallback != nil {
 			calledBannerCallback = true
 			if msg := config.BannerCallback(s); msg != "" {
@@ -733,6 +753,11 @@ userAuthLoop:
 
 		perms = nil
 		authErr := ErrNoAuth
+		isQuery := false
+		policy := (*AuthPolicy)(nil)
+		if config.Personality != nil {
+			policy = config.Personality.AuthPolicy
+		}
 
 		switch userAuthReq.Method {
 		case "none":
@@ -779,7 +804,7 @@ userAuthLoop:
 			if len(payload) < 1 {
 				return nil, parseError(msgUserAuthRequest)
 			}
-			isQuery := payload[0] == 0
+			isQuery = payload[0] == 0
 			payload = payload[1:]
 			algoBytes, payload, ok := parseString(payload)
 			if !ok {
@@ -874,6 +899,12 @@ userAuthLoop:
 					break
 				}
 
+				// A server refuses a key it would not accept before checking
+				// the signature.
+				if policy != nil && candidate.result != nil {
+					authErr = candidate.result
+					break
+				}
 				signedData := buildDataSignedForAuth(sessionID, userAuthReq, algo, pubKeyData)
 				// pubKey is reused below for VerifiedPublicKeyCallback and
 				// must remain the key as presented by the client; derive a
@@ -1001,6 +1032,13 @@ userAuthLoop:
 
 			// Send back a partial success message to the user.
 			failureMsg.PartialSuccess = true
+		} else if policy != nil {
+			if policy.Failed == nil || policy.Failed(s.user, userAuthReq.Method, isQuery) {
+				authFailures++
+			}
+			if config.MaxAuthTries > 0 && authFailures >= config.MaxAuthTries {
+				continue
+			}
 		} else {
 			// Allow initial attempt of 'none' without penalty.
 			if authFailures > 0 || userAuthReq.Method != "none" || noneAuthCount != 1 {
@@ -1043,6 +1081,9 @@ userAuthLoop:
 		}
 		if gssapiWithMICConfigured(authConfig.GSSAPIWithMICConfig) {
 			failureMsg.Methods = append(failureMsg.Methods, "gssapi-with-mic")
+		}
+		if p := config.Personality; p != nil && len(p.AuthMethods) > 0 {
+			failureMsg.Methods = p.AuthMethods
 		}
 
 		if len(failureMsg.Methods) == 0 {

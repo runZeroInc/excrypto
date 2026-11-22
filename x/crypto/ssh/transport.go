@@ -69,6 +69,18 @@ type connectionState struct {
 	seqNum           uint32
 	dir              direction
 	pendingKeyChange chan packetCipher
+	comp             compState
+}
+
+// swapCipher installs the cipher from a key change and its compression.
+func (s *connectionState) swapCipher(c packetCipher) {
+	if kc, ok := c.(keyChange); ok {
+		s.packetCipher = kc.packetCipher
+		s.comp.rekey(kc.compression)
+		return
+	}
+	s.packetCipher = c
+	s.comp.rekey("")
 }
 
 func (t *transport) setStrictMode() error {
@@ -91,13 +103,13 @@ func (t *transport) prepareKeyChange(algs *NegotiatedAlgorithms, kexResult *kexR
 	if err != nil {
 		return err
 	}
-	t.reader.pendingKeyChange <- ciph
+	t.reader.pendingKeyChange <- keyChange{ciph, algs.Read.compression}
 
 	ciph, err = newPacketCipher(t.writer.dir, algs.Write, kexResult)
 	if err != nil {
 		return err
 	}
-	t.writer.pendingKeyChange <- ciph
+	t.writer.pendingKeyChange <- keyChange{ciph, algs.Write.compression}
 
 	return nil
 }
@@ -123,7 +135,14 @@ func (t *transport) readPacket() (p []byte, err error) {
 	for {
 		p, err = t.reader.readPacket(t.bufReader, t.strictMode)
 		if err != nil {
+			// The reader goroutine owns the inflater; end it here.
+			t.reader.comp.stop()
 			break
+		}
+		// Delayed compression starts once a client reads USERAUTH_SUCCESS.
+		if t.isClient && len(p) > 0 && p[0] == msgUserAuthSuccess {
+			t.reader.comp.afterAuth.Store(true)
+			t.writer.comp.afterAuth.Store(true)
 		}
 		// in strict mode we pass through DEBUG and IGNORE packets only during the initial KEX
 		if len(p) == 0 || (t.strictMode && !t.initialKEXDone) || (p[0] != msgIgnore && p[0] != msgDebug) {
@@ -140,6 +159,9 @@ func (t *transport) readPacket() (p []byte, err error) {
 func (s *connectionState) readPacket(r *bufio.Reader, strictMode bool) ([]byte, error) {
 	packet, err := s.packetCipher.readCipherPacket(s.seqNum, r)
 	s.seqNum++
+	if err == nil && s.comp.active() {
+		packet, err = s.comp.decompress(packet)
+	}
 	if err == nil && len(packet) == 0 {
 		err = errors.New("ssh: zero length packet")
 	}
@@ -149,7 +171,7 @@ func (s *connectionState) readPacket(r *bufio.Reader, strictMode bool) ([]byte, 
 		case msgNewKeys:
 			select {
 			case cipher := <-s.pendingKeyChange:
-				s.packetCipher = cipher
+				s.swapCipher(cipher)
 				if strictMode {
 					s.seqNum = 0
 				}
@@ -183,12 +205,28 @@ func (t *transport) writePacket(packet []byte) error {
 	if debugTransport {
 		t.printPacket(packet, true)
 	}
-	return t.writer.writePacket(t.bufWriter, t.rand, packet, t.strictMode)
+	// Delayed compression starts once a server sends USERAUTH_SUCCESS: the
+	// client's next packet is compressed, the success itself is not.
+	success := !t.isClient && len(packet) > 0 && packet[0] == msgUserAuthSuccess
+	if success {
+		t.reader.comp.afterAuth.Store(true)
+	}
+	err := t.writer.writePacket(t.bufWriter, t.rand, packet, t.strictMode)
+	if success {
+		t.writer.comp.afterAuth.Store(true)
+	}
+	return err
 }
 
 func (s *connectionState) writePacket(w *bufio.Writer, rand io.Reader, packet []byte, strictMode bool) error {
 	changeKeys := len(packet) > 0 && packet[0] == msgNewKeys
 
+	if s.comp.active() {
+		var err error
+		if packet, err = s.comp.compress(packet); err != nil {
+			return err
+		}
+	}
 	err := s.packetCipher.writeCipherPacket(s.seqNum, w, rand, packet)
 	if err != nil {
 		return err
@@ -200,7 +238,7 @@ func (s *connectionState) writePacket(w *bufio.Writer, rand io.Reader, packet []
 	if changeKeys {
 		select {
 		case cipher := <-s.pendingKeyChange:
-			s.packetCipher = cipher
+			s.swapCipher(cipher)
 			if strictMode {
 				s.seqNum = 0
 			}
